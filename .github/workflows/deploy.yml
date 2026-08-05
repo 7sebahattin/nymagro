@@ -1,18 +1,29 @@
 name: Canlıya Al (FTP)
 
-# Depoya push edildiğinde siteyi otomatik günceller.
-# Elle çalıştırmak için: Actions → "Canlıya Al (FTP)" → Run workflow
+# ⚠️ OTOMATİK TETİKLEME BİLEREK KAPATILDI.
+#
+# Bu akış YALNIZCA elle çalıştırılır. Daha önce push tetikleyicisi vardı ve
+# 05.08.2026'da hatalı bir dizine dağıtım yapıp mevcut bir siteyi sildi.
+#
+# Bilinmesi gereken: SamKirkland/FTP-Deploy-Action bir SENKRONİZASYON
+# aracıdır. Hedef dizinde olup depoda olmayan dosyaları SİLER. Bu davranış
+# `dangerous-clean-slate: false` ile kapanmaz — o ayar yalnızca "önce her
+# şeyi sil, sonra sıfırdan yükle" modunu kapatır. Normal senkronizasyon
+# yine de fazlalık dosyaları temizler.
+#
+# Bu yüzden hedef dizin MUTLAKA doğru olmalı ve ilk çalıştırma her zaman
+# deneme modunda yapılmalıdır.
 on:
-  push:
-    branches:
-      - claude/nymagro-brand-adaptation-bkkphw
-      - main
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Deneme modu — hiçbir dosya yazılmaz, sadece ne yapılacağı loglanır'
+        description: 'Deneme modu — hiçbir dosya yazılmaz/silinmez, sadece loglanır'
         type: boolean
         default: true
+      onay:
+        description: 'Gerçek yükleme için hedef dizini birebir yazın (deneme modunda boş bırakın)'
+        type: string
+        default: ''
 
 concurrency:
   group: ftp-deploy
@@ -92,11 +103,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Gerekli secret'lar tanımlı mı?
+      - name: Güvenlik kontrolleri
         env:
           SUNUCU: ${{ secrets.FTP_SERVER }}
           KULLANICI: ${{ secrets.FTP_USERNAME }}
           SIFRE: ${{ secrets.FTP_PASSWORD }}
+          HEDEF: ${{ vars.FTP_SERVER_DIR }}
+          DENEME: ${{ inputs.dry_run }}
+          ONAY: ${{ inputs.onay }}
         run: |
           eksik=""
           [ -z "$SUNUCU" ]    && eksik="$eksik FTP_SERVER"
@@ -104,10 +118,40 @@ jobs:
           [ -z "$SIFRE" ]     && eksik="$eksik FTP_PASSWORD"
           if [ -n "$eksik" ]; then
             echo "::error::Eksik repository secret:$eksik"
-            echo "Settings → Secrets and variables → Actions bölümünden ekleyin."
             exit 1
           fi
-          echo "Secret'lar tamam."
+
+          # Hedef dizin ZORUNLU. Varsayılan yok — boş bırakılırsa FTP kökü
+          # hedeflenir ve orada başka bir site varsa dosyaları silinir.
+          if [ -z "$HEDEF" ]; then
+            echo "::error::FTP_SERVER_DIR variable'ı tanımlı değil."
+            echo "Settings → Secrets and variables → Actions → Variables'tan ekleyin."
+            echo "Boş bırakmak FTP kök dizinini hedefler ve oradaki dosyaları siler."
+            exit 1
+          fi
+
+          # Kök dizine dağıtım yasak
+          case "$HEDEF" in
+            "."|"./"|"/"|"~"|"~/")
+              echo "::error::FTP_SERVER_DIR kök dizin olamaz ('$HEDEF')."
+              echo "Siteye ait alt dizini yazın, ör. 'nymagro.com/'."
+              exit 1 ;;
+          esac
+
+          echo "Hedef dizin: $HEDEF"
+
+          if [ "$DENEME" = "true" ]; then
+            echo "DENEME MODU — hiçbir dosya yazılmayacak veya silinmeyecek."
+          else
+            # Gerçek yüklemede hedef dizinin elle teyit edilmesi şart
+            if [ "$ONAY" != "$HEDEF" ]; then
+              echo "::error::Gerçek yükleme için 'onay' alanına hedef dizini birebir yazmalısınız."
+              echo "Beklenen: $HEDEF"
+              echo "Girilen:  ${ONAY:-(boş)}"
+              exit 1
+            fi
+            echo "::warning::GERÇEK YÜKLEME — '$HEDEF' dizininde depoda olmayan dosyalar SİLİNECEK."
+          fi
 
       - name: Dosyaları gönder
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -115,13 +159,11 @@ jobs:
           server:      ${{ secrets.FTP_SERVER }}
           username:    ${{ secrets.FTP_USERNAME }}
           password:    ${{ secrets.FTP_PASSWORD }}
-          protocol:    ${{ vars.FTP_PROTOCOL   || 'ftps' }}
-          port:        ${{ vars.FTP_PORT       || 21 }}
-          server-dir:  ${{ vars.FTP_SERVER_DIR || './' }}
+          protocol:    ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          port:        ${{ vars.FTP_PORT     || 21 }}
+          server-dir:  ${{ vars.FTP_SERVER_DIR }}
           local-dir:   ./
-          dry-run:     ${{ inputs.dry_run || false }}
-          # Sunucuda olup depoda olmayan dosyalar silinmez —
-          # yalnızca aşağıdaki exclude listesi dışındakiler senkronlanır.
+          dry-run:     ${{ inputs.dry_run }}
           dangerous-clean-slate: false
           exclude: |
             **/.git*
@@ -141,9 +183,12 @@ jobs:
 
       - name: Özet
         run: |
-          echo "### Dağıtım tamamlandı" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Deneme modu: \`${{ inputs.dry_run || false }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Sunucuya gönderilmeyenler:** \`app/config/config.php\` (veritabanı bilgileri), \`public/uploads/\` (yüklenen görseller), \`db/\` (SQL betikleri), \`brand/\` (marka kaynakları), \`*.md\`" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Dağıtım tamamlandı"
+            echo ""
+            echo "- Hedef dizin: \`${{ vars.FTP_SERVER_DIR }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Deneme modu: \`${{ inputs.dry_run }}\`"
+            echo ""
+            echo "**Gönderilmeyenler:** \`app/config/config.php\`, \`public/uploads/\`, \`db/\`, \`brand/\`, \`*.md\`"
+          } >> $GITHUB_STEP_SUMMARY
