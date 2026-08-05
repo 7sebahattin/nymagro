@@ -17,7 +17,7 @@ class SiteIcerik
     public const DEFAULT_SETTINGS = [
         'logo_path'       => '',
         'company_name'    => 'Nymagro',
-        'tagline'         => 'Bitki Besleme · Şelatlı Mikro Element',
+        'tagline'         => 'Bitki Besleme Ürünleri',
         'whatsapp'        => '+90 543 961 73 03',
         'whatsapp_link'   => 'https://wa.me/905439617303',
         'email'           => 'nymagrotarim@gmail.com',
@@ -41,10 +41,10 @@ class SiteIcerik
         'slide4_img'      => 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1400&q=80',
         'about_img'       => 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1200&q=80',
         'og_image'        => '/img/og-image.jpg',
-        'stat_countries_value' => '8+',
+        'stat_countries_value' => '5',
         'stat_products_value'  => '8+',
         'stat_quality_value'   => '100%',
-        'about_stat_value'     => '5+',
+        'about_stat_value'     => '5',
     ];
 
     /** Slug bazlı arama için */

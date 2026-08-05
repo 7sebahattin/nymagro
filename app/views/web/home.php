@@ -129,9 +129,9 @@ for ($i = 1; $i <= $slideCount; $i++) {
     <?php endforeach; ?>
 
     <div class="hero-stats">
-      <div class="hero-stat"><strong>15+</strong><span><?= htmlspecialchars(I18n::t('common.markets')) ?></span></div>
-      <div class="hero-stat"><strong>30+</strong><span><?= htmlspecialchars(I18n::t('common.products')) ?></span></div>
-      <div class="hero-stat"><strong>100%</strong><span><?= htmlspecialchars(I18n::t('common.quality')) ?></span></div>
+      <div class="hero-stat"><strong><?= htmlspecialchars((string)($ayarlar['stat_countries_value'] ?? '5')) ?></strong><span><?= htmlspecialchars(I18n::t('common.markets')) ?></span></div>
+      <div class="hero-stat"><strong><?= htmlspecialchars((string)($ayarlar['stat_products_value'] ?? '8+')) ?></strong><span><?= htmlspecialchars(I18n::t('common.products')) ?></span></div>
+      <div class="hero-stat"><strong><?= htmlspecialchars((string)($ayarlar['stat_quality_value'] ?? '100%')) ?></strong><span><?= htmlspecialchars(I18n::t('common.quality')) ?></span></div>
     </div>
   </div>
 
@@ -172,7 +172,7 @@ for ($i = 1; $i <= $slideCount; $i++) {
     <div class="about-flex fade-in">
       <div class="about-img">
         <img src="<?= htmlspecialchars((string)($ayarlar['about_img'] ?? '')) ?>" alt="Nymagro Antalya — bitki besleme ürünleri" loading="lazy" width="800" height="600">
-        <div class="about-badge"><strong>15+</strong><span><?= htmlspecialchars(I18n::t('common.markets')) ?></span></div>
+        <div class="about-badge"><strong><?= htmlspecialchars((string)($ayarlar['about_stat_value'] ?? '5')) ?></strong><span><?= htmlspecialchars(I18n::t('common.markets')) ?></span></div>
       </div>
       <div>
         <span class="kicker"><i class="fas fa-circle-info"></i> <?= htmlspecialchars($siteText('about_tag', I18n::t('home.about.kicker'))) ?></span>
