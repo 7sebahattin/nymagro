@@ -180,7 +180,7 @@ final class AuthGuard
         // Varsayılan yönetici → admin / admin123
         $db->insert('users', [
             'username'      => 'admin',
-            'email'         => 'admin@nuvernatrade.com',
+            'email'         => 'admin@nymagro.com',
             'password_hash' => password_hash('admin123', PASSWORD_DEFAULT),
             'full_name'     => 'Sistem Yöneticisi',
             'role'          => 'super_admin',

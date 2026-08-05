@@ -2,7 +2,7 @@
 /**
  * SiteIcerik Model
  * --------------------------------------------------------
- * Public landing page (Nuverna Trade) içeriklerini yönetir.
+ * Public landing page (Nymagro) içeriklerini yönetir.
  *   - site_settings   : key-value (logo, whatsapp, email, vb.)
  *   - site_urunler    : ürün kartları (görsel, ad, açıklama)
  *   - site_galeri     : galeri görselleri
@@ -16,35 +16,35 @@ class SiteIcerik
     /** Varsayılan ayar anahtarları */
     public const DEFAULT_SETTINGS = [
         'logo_path'       => '',
-        'company_name'    => 'Nuverna Trade',
-        'tagline'         => 'Trade · Fresh Export',
-        'whatsapp'        => '+90 (xxx) xxx xx xx',
-        'whatsapp_link'   => 'https://wa.me/',
-        'email'           => 'info@nuvernatrade.com',
-        'phone'           => '+90 (xxx) xxx xx xx',
-        'address'         => 'Göksu Mah. Altınova Bul. İkinci İş Merkezi No:20 D:13 Kepez / Antalya, Türkiye',
-        'lat'             => '36.927',
-        'lng'             => '30.687',
+        'company_name'    => 'Nymagro',
+        'tagline'         => 'Bitki Besleme · Şelatlı Mikro Element',
+        'whatsapp'        => '+90 543 961 73 03',
+        'whatsapp_link'   => 'https://wa.me/905439617303',
+        'email'           => 'nymagrotarim@gmail.com',
+        'phone'           => '+90 242 464 12 44',
+        'address'         => 'Çamköy Mah. Atatürk Blv. No: 394, Aksu / Antalya, Türkiye',
+        'lat'             => '36.9459',
+        'lng'             => '30.8437',
         'instagram'       => '',
         'linkedin'        => '',
         'facebook'        => '',
         'twitter'         => '',
-        'website'         => 'www.nuvernatrade.com',
-        'site_url'        => 'https://nuvernatrade.com',
-        'hero_title_1'    => "Anadolu'dan dünyaya",
-        'hero_title_2'    => 'taze ihracat',
-        'hero_desc'       => "Nuverna Trade, Anadolu'nun en kaliteli yaş sebze ve meyvelerini özenle seçer, paketler ve dünya pazarlarına güvenle ulaştırır.",
+        'website'         => 'www.nymagro.com',
+        'site_url'        => 'https://www.nymagro.com',
+        'hero_title_1'    => 'Toprağa değer,',
+        'hero_title_2'    => 'bitkiye güç',
+        'hero_desc'       => 'Nymagro, EC Fertilizer standardında üretilen şelatlı mikro element ve sıvı bitki besin ürünlerini İspanya\'dan ithal ederek Türk üreticisinin hizmetine sunar.',
         'slide_count'     => '4',
         'slide1_img'      => 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=1400&q=80',
         'slide2_img'      => 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1400&q=80',
         'slide3_img'      => 'https://images.unsplash.com/photo-1473973266408-ed4e27abdd47?auto=format&fit=crop&w=1400&q=80',
         'slide4_img'      => 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1400&q=80',
         'about_img'       => 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1200&q=80',
-        'og_image'        => '',
-        'stat_countries_value' => '15+',
-        'stat_products_value'  => '30+',
+        'og_image'        => '/img/og-image.jpg',
+        'stat_countries_value' => '8+',
+        'stat_products_value'  => '8+',
         'stat_quality_value'   => '100%',
-        'about_stat_value'     => '15+',
+        'about_stat_value'     => '5+',
     ];
 
     /** Slug bazlı arama için */

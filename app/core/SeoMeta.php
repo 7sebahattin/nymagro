@@ -20,7 +20,7 @@ final class SeoMeta
     private array  $hreflang  = [];
     private string $ogImage   = '';
     private string $ogType    = 'website';
-    private string $siteName  = 'Nuverna Trade';
+    private string $siteName  = 'Nymagro';
     private string $locale    = 'tr';
     private bool   $noindex   = false;
     private array  $jsonLd    = [];
@@ -116,7 +116,7 @@ final class SeoMeta
         return [
             '@context' => 'https://schema.org',
             '@type'    => 'Organization',
-            'name'     => $opts['name']  ?? 'Nuverna Trade',
+            'name'     => $opts['name']  ?? 'Nymagro',
             'url'      => $opts['url']   ?? '',
             'logo'     => $opts['logo']  ?? '',
             'email'    => $opts['email'] ?? '',
@@ -212,7 +212,7 @@ final class SeoMeta
             'category'    => (string)($opts['category'] ?? 'Fresh produce'),
             'brand'       => [
                 '@type' => 'Brand',
-                'name'  => (string)($opts['brand'] ?? 'Nuverna Trade'),
+                'name'  => (string)($opts['brand'] ?? 'Nymagro'),
             ],
         ];
         return $s;

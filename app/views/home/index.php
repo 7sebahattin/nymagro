@@ -36,10 +36,10 @@ $logo = $ayarlar['logo_path'] ?? '';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="meta_title">Nuverna Trade | Fresh Fruits &amp; Vegetables Export from Türkiye</title>
+  <title data-i18n="meta_title">Nymagro | Fresh Fruits &amp; Vegetables Export from Türkiye</title>
   <meta name="description" data-i18n-attr="content" data-i18n="meta_desc"
-        content="Nuverna Trade — Türkiye'den Avrupa, Körfez, Mısır ve Rusya pazarlarına premium kalite taze meyve-sebze ihracatı. Özenli paketleme, güvenilir sevkiyat.">
-  <meta property="og:title" content="Nuverna Trade — Fresh Produce Export from Türkiye">
+        content="Nymagro — Türkiye'den Avrupa, Körfez, Mısır ve Rusya pazarlarına premium kalite taze meyve-sebze ihracatı. Özenli paketleme, güvenilir sevkiyat.">
+  <meta property="og:title" content="Nymagro — Fresh Produce Export from Türkiye">
   <meta property="og:description" content="Premium fresh fruits and vegetables export from Anatolia to Europe, GCC, Egypt and Russia.">
   <meta property="og:type" content="website">
   <link rel="icon" href="<?= htmlspecialchars(BASE_URL) ?>/favicon.ico?v=20260501" sizes="any">
@@ -54,18 +54,18 @@ $logo = $ayarlar['logo_path'] ?? '';
 
   <style>
     :root {
-      --p1: #7c3aed;        /* purple primary */
-      --p2: #a855f7;        /* purple light */
-      --p3: #c026d3;        /* magenta */
-      --p4: #d946ef;        /* fuchsia */
-      --p-deep: #4c1d95;    /* deep purple */
-      --p-darker: #2e1065;  /* darkest purple */
-      --grad: linear-gradient(135deg, #7c3aed 0%, #a855f7 35%, #c026d3 70%, #d946ef 100%);
-      --grad-soft: linear-gradient(135deg, #faf5ff 0%, #fdf4ff 100%);
+      --p1: #0d623a;        /* purple primary */
+      --p2: #1e8c55;        /* purple light */
+      --p3: #d97a0c;        /* magenta */
+      --p4: #f3911f;        /* fuchsia */
+      --p-deep: #084526;    /* deep purple */
+      --p-darker: #063a22;  /* darkest purple */
+      --grad: linear-gradient(135deg, #0d623a 0%, #1e8c55 35%, #d97a0c 70%, #f3911f 100%);
+      --grad-soft: linear-gradient(135deg, #f5faf4 0%, #fff8ef 100%);
       --ink: #1e1b4b;
-      --ink-2: #4a4458;
+      --ink-2: #44584f;
       --muted: #71717a;
-      --line: #ede9fe;
+      --line: #e6f2e5;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
@@ -77,15 +77,15 @@ $logo = $ayarlar['logo_path'] ?? '';
     @media(max-width:600px){.container{padding:0 18px}}
 
     /* ── HEADER ── */
-    .nv-header{position:fixed;top:0;left:0;right:0;z-index:300;backdrop-filter:blur(18px);background:rgba(255,255,255,.86);border-bottom:1px solid rgba(124,58,237,.08);transition:all .25s}
-    .nv-header.scrolled{background:rgba(255,255,255,.95);box-shadow:0 4px 24px rgba(76,29,149,.08)}
+    .nv-header{position:fixed;top:0;left:0;right:0;z-index:300;backdrop-filter:blur(18px);background:rgba(255,255,255,.86);border-bottom:1px solid rgba(13,98,58,.08);transition:all .25s}
+    .nv-header.scrolled{background:rgba(255,255,255,.95);box-shadow:0 4px 24px rgba(8,69,38,.08)}
     .nv-header-inner{display:flex;align-items:center;justify-content:space-between;height:92px;gap:14px}
     .nv-brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
     .nv-logo{
       width:82px;height:82px;border-radius:50%;
       background:#fff;
       display:flex;align-items:center;justify-content:center;
-      box-shadow:0 10px 26px rgba(76,29,149,.24);
+      box-shadow:0 10px 26px rgba(8,69,38,.24);
       position:relative;
       padding:5px;
     }
@@ -105,26 +105,26 @@ $logo = $ayarlar['logo_path'] ?? '';
 
     /* Lang switcher */
     .nv-lang{position:relative}
-    .nv-lang-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1.5px solid #ede9fe;border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--ink-2);transition:all .15s}
+    .nv-lang-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1.5px solid #e6f2e5;border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--ink-2);transition:all .15s}
     .nv-lang-btn:hover{border-color:var(--p2);color:var(--p1)}
     .nv-lang-btn img{width:18px;height:13px;object-fit:cover;border-radius:2px}
-    .nv-lang-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #ede9fe;border-radius:10px;box-shadow:0 12px 32px rgba(76,29,149,.14);min-width:140px;padding:6px;display:none;z-index:200}
+    .nv-lang-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #e6f2e5;border-radius:10px;box-shadow:0 12px 32px rgba(8,69,38,.14);min-width:140px;padding:6px;display:none;z-index:200}
     .nv-lang-menu.open{display:block}
     .nv-lang-menu button{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border:none;background:transparent;font-size:13px;color:var(--ink-2);font-weight:500;border-radius:6px;text-align:left;transition:background .12s}
-    .nv-lang-menu button:hover{background:#faf5ff;color:var(--p-deep)}
+    .nv-lang-menu button:hover{background:#f5faf4;color:var(--p-deep)}
     .nv-lang-menu button.active{background:var(--grad);color:#fff;font-weight:700}
     .nv-lang-menu img{width:20px;height:14px;object-fit:cover;border-radius:2px;flex-shrink:0}
 
     /* CTA */
     .nv-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:10px;font-size:13.5px;font-weight:700;transition:all .18s;border:none;line-height:1}
-    .nv-btn-primary{background:var(--grad);color:#fff;box-shadow:0 6px 20px rgba(124,58,237,.36)}
-    .nv-btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,58,237,.5);filter:brightness(1.06)}
+    .nv-btn-primary{background:var(--grad);color:#fff;box-shadow:0 6px 20px rgba(13,98,58,.36)}
+    .nv-btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(13,98,58,.5);filter:brightness(1.06)}
     .nv-btn-ghost{color:var(--p-deep);border:1.5px solid var(--p2);background:#fff}
-    .nv-btn-ghost:hover{background:#faf5ff;color:var(--p1)}
+    .nv-btn-ghost:hover{background:#f5faf4;color:var(--p1)}
     .nv-btn-light{background:rgba(255,255,255,.16);color:#fff;border:1.5px solid rgba(255,255,255,.28);backdrop-filter:blur(8px)}
     .nv-btn-light:hover{background:rgba(255,255,255,.26)}
 
-    .nv-mobile-toggle{display:none;width:42px;height:42px;border:1.5px solid #ede9fe;border-radius:10px;background:#fff;color:var(--p-deep);font-size:18px}
+    .nv-mobile-toggle{display:none;width:42px;height:42px;border:1.5px solid #e6f2e5;border-radius:10px;background:#fff;color:var(--p-deep);font-size:18px}
     @media(max-width:1080px){.nv-mobile-toggle{display:inline-flex;align-items:center;justify-content:center}}
     @media(max-width:540px){.nv-actions .nv-btn{display:none}}
     @media(max-width:680px){
@@ -136,24 +136,24 @@ $logo = $ayarlar['logo_path'] ?? '';
     }
 
     /* Mobile menu */
-    .nv-mobile-menu{position:fixed;top:0;right:-100%;width:min(320px,90vw);height:100vh;background:#fff;z-index:400;padding:80px 24px 28px;transition:right .3s;box-shadow:-12px 0 40px rgba(76,29,149,.18);overflow-y:auto}
+    .nv-mobile-menu{position:fixed;top:0;right:-100%;width:min(320px,90vw);height:100vh;background:#fff;z-index:400;padding:80px 24px 28px;transition:right .3s;box-shadow:-12px 0 40px rgba(8,69,38,.18);overflow-y:auto}
     .nv-mobile-menu.open{right:0}
-    .nv-mobile-menu .close{position:absolute;top:18px;right:18px;width:38px;height:38px;border:1.5px solid #ede9fe;border-radius:10px;background:#fff;color:var(--p-deep);font-size:18px}
-    .nv-mobile-menu a{display:block;padding:13px 0;border-bottom:1px solid #f4f0fa;font-size:14px;font-weight:600;color:var(--ink-2)}
+    .nv-mobile-menu .close{position:absolute;top:18px;right:18px;width:38px;height:38px;border:1.5px solid #e6f2e5;border-radius:10px;background:#fff;color:var(--p-deep);font-size:18px}
+    .nv-mobile-menu a{display:block;padding:13px 0;border-bottom:1px solid #f0f7ef;font-size:14px;font-weight:600;color:var(--ink-2)}
     .nv-mobile-menu a:hover{color:var(--p1)}
     .nv-mobile-menu .mm-cta{margin-top:18px;display:flex;flex-direction:column;gap:10px}
-    .nv-overlay{position:fixed;inset:0;background:rgba(46,16,101,.5);z-index:350;opacity:0;pointer-events:none;transition:opacity .25s}
+    .nv-overlay{position:fixed;inset:0;background:rgba(6,58,34,.5);z-index:350;opacity:0;pointer-events:none;transition:opacity .25s}
     .nv-overlay.open{opacity:1;pointer-events:auto}
 
     /* ─────────── HERO ─────────── */
-    .nv-hero{position:relative;min-height:100vh;padding:150px 0 80px;background:radial-gradient(ellipse at 80% 10%,rgba(217,70,239,.12),transparent 60%),radial-gradient(ellipse at 10% 90%,rgba(124,58,237,.16),transparent 55%),linear-gradient(180deg,#faf5ff 0%,#fff 100%);overflow:hidden;display:flex;align-items:center}
-    .nv-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(124,58,237,.08) 1px,transparent 1px);background-size:32px 32px;opacity:.5;pointer-events:none}
+    .nv-hero{position:relative;min-height:100vh;padding:150px 0 80px;background:radial-gradient(ellipse at 80% 10%,rgba(243,145,31,.12),transparent 60%),radial-gradient(ellipse at 10% 90%,rgba(13,98,58,.16),transparent 55%),linear-gradient(180deg,#f5faf4 0%,#fff 100%);overflow:hidden;display:flex;align-items:center}
+    .nv-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(13,98,58,.08) 1px,transparent 1px);background-size:32px 32px;opacity:.5;pointer-events:none}
     .nv-hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
     @media(max-width:980px){.nv-hero-grid{grid-template-columns:1fr;gap:40px}}
 
-    .nv-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:30px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.18);font-size:11.5px;font-weight:700;color:var(--p1);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:22px}
-    .nv-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--p4);box-shadow:0 0 0 4px rgba(217,70,239,.18);animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(217,70,239,.18)}50%{box-shadow:0 0 0 8px rgba(217,70,239,.05)}}
+    .nv-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:30px;background:rgba(13,98,58,.1);border:1px solid rgba(13,98,58,.18);font-size:11.5px;font-weight:700;color:var(--p1);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:22px}
+    .nv-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--p4);box-shadow:0 0 0 4px rgba(243,145,31,.18);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(243,145,31,.18)}50%{box-shadow:0 0 0 8px rgba(243,145,31,.05)}}
 
     .nv-hero h1{font-size:54px;font-weight:800;line-height:1.08;letter-spacing:-1.2px;margin-bottom:22px;color:var(--p-darker)}
     .nv-hero h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -163,16 +163,16 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:42px}
     .nv-hero-actions .nv-btn{padding:14px 26px;font-size:14px}
 
-    .nv-stats{display:flex;flex-wrap:wrap;gap:38px;padding-top:32px;border-top:1px solid #ede9fe}
+    .nv-stats{display:flex;flex-wrap:wrap;gap:38px;padding-top:32px;border-top:1px solid #e6f2e5}
     .nv-stat .v{font-size:30px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
     .nv-stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:5px;font-weight:600}
 
     /* Hero slider visual */
-    .nv-hero-visual{position:relative;height:520px;border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(76,29,149,.28)}
+    .nv-hero-visual{position:relative;height:520px;border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(8,69,38,.28)}
     @media(max-width:980px){.nv-hero-visual{height:380px}}
     .nv-slide{position:absolute;inset:0;opacity:0;transition:opacity .8s ease;background-size:cover;background-position:center}
     .nv-slide.active{opacity:1}
-    .nv-slide::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(46,16,101,.05) 0%,rgba(46,16,101,.7) 100%)}
+    .nv-slide::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,58,34,.05) 0%,rgba(6,58,34,.7) 100%)}
     .nv-slide-content{position:absolute;left:30px;right:30px;bottom:30px;color:#fff;z-index:2}
     .nv-slide-content .tag{display:inline-block;padding:5px 11px;background:var(--grad);border-radius:6px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
     .nv-slide-content h3{font-size:24px;font-weight:800;line-height:1.2;margin-bottom:6px}
@@ -182,7 +182,7 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-slide-dots button.active{background:#fff;width:38px}
 
     /* Floating accent (badge) */
-    .nv-floating-badge{position:absolute;top:24px;right:24px;background:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 12px 30px rgba(76,29,149,.18);display:flex;gap:10px;align-items:center;z-index:3}
+    .nv-floating-badge{position:absolute;top:24px;right:24px;background:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 12px 30px rgba(8,69,38,.18);display:flex;gap:10px;align-items:center;z-index:3}
     .nv-floating-badge i{width:38px;height:38px;border-radius:10px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px}
     .nv-floating-badge .v{font-size:13px;font-weight:800;color:var(--p-deep);line-height:1.1}
     .nv-floating-badge .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
@@ -205,9 +205,9 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-about ul li{display:flex;align-items:flex-start;gap:13px;font-size:14.5px;color:var(--ink);margin-bottom:13px;font-weight:500}
     .nv-about ul li i{width:26px;height:26px;border-radius:8px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px}
 
-    .nv-about-img-wrap{position:relative;border-radius:24px;overflow:hidden;height:480px;box-shadow:0 30px 70px rgba(76,29,149,.22);background-size:cover;background-position:center}
-    .nv-about-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,rgba(124,58,237,.4),rgba(217,70,239,.15))}
-    .nv-about-stat{position:absolute;left:28px;bottom:28px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);padding:22px 26px;border-radius:16px;box-shadow:0 14px 40px rgba(76,29,149,.18);z-index:2}
+    .nv-about-img-wrap{position:relative;border-radius:24px;overflow:hidden;height:480px;box-shadow:0 30px 70px rgba(8,69,38,.22);background-size:cover;background-position:center}
+    .nv-about-img-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,rgba(13,98,58,.4),rgba(243,145,31,.15))}
+    .nv-about-stat{position:absolute;left:28px;bottom:28px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);padding:22px 26px;border-radius:16px;box-shadow:0 14px 40px rgba(8,69,38,.18);z-index:2}
     .nv-about-stat .num{font-size:38px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
     .nv-about-stat .lab{font-size:12px;color:var(--ink-2);font-weight:600;margin-top:4px}
 
@@ -216,10 +216,10 @@ $logo = $ayarlar['logo_path'] ?? '';
     @media(max-width:1000px){.nv-products{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:760px){.nv-products{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:460px){.nv-products{grid-template-columns:1fr}}
-    .nv-product{position:relative;border-radius:18px;overflow:hidden;cursor:pointer;background:#fff;border:1px solid #ede9fe;transition:all .25s;box-shadow:0 4px 16px rgba(76,29,149,.06)}
-    .nv-product:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(124,58,237,.18);border-color:var(--p2)}
+    .nv-product{position:relative;border-radius:18px;overflow:hidden;cursor:pointer;background:#fff;border:1px solid #e6f2e5;transition:all .25s;box-shadow:0 4px 16px rgba(8,69,38,.06)}
+    .nv-product:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(13,98,58,.18);border-color:var(--p2)}
     .nv-product-img{width:100%;height:200px;background-size:cover;background-position:center;position:relative;overflow:hidden}
-    .nv-product-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(46,16,101,.4) 100%);transition:opacity .25s}
+    .nv-product-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(6,58,34,.4) 100%);transition:opacity .25s}
     .nv-product:hover .nv-product-img::after{opacity:.7}
     .nv-product-tag{position:absolute;top:12px;left:12px;padding:5px 11px;background:var(--grad);color:#fff;border-radius:6px;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;z-index:2}
     .nv-product-body{padding:18px}
@@ -228,17 +228,17 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-product-arrow{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:#fff;color:var(--p1);display:flex;align-items:center;justify-content:center;font-size:13px;opacity:0;transform:translateX(-8px);transition:all .25s;z-index:2;box-shadow:0 6px 18px rgba(0,0,0,.18)}
     .nv-product:hover .nv-product-arrow{opacity:1;transform:translateX(0)}
 
-    .nv-product-modal{position:fixed;inset:0;background:rgba(46,16,101,.58);backdrop-filter:blur(8px);z-index:600;display:none;align-items:center;justify-content:center;padding:22px}
+    .nv-product-modal{position:fixed;inset:0;background:rgba(6,58,34,.58);backdrop-filter:blur(8px);z-index:600;display:none;align-items:center;justify-content:center;padding:22px}
     .nv-product-modal.open{display:flex}
-    .nv-product-dialog{width:min(860px,100%);max-height:calc(100vh - 44px);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 90px rgba(46,16,101,.35);display:grid;grid-template-columns:1fr 1fr}
+    .nv-product-dialog{width:min(860px,100%);max-height:calc(100vh - 44px);background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 90px rgba(6,58,34,.35);display:grid;grid-template-columns:1fr 1fr}
     @media(max-width:760px){.nv-product-dialog{grid-template-columns:1fr;overflow-y:auto}}
     .nv-product-modal-img{min-height:360px;background-size:cover;background-position:center;position:relative}
     @media(max-width:760px){.nv-product-modal-img{min-height:240px}}
-    .nv-product-modal-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(46,16,101,.45))}
+    .nv-product-modal-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(6,58,34,.45))}
     .nv-product-modal-tag{position:absolute;left:20px;bottom:20px;z-index:2;padding:7px 13px;background:var(--grad);color:#fff;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
     .nv-product-modal-body{padding:34px;display:flex;flex-direction:column;justify-content:center;position:relative}
-    .nv-product-modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border:none;border-radius:10px;background:#faf5ff;color:var(--p-deep);font-size:17px}
-    .nv-product-modal-close:hover{background:#ede9fe}
+    .nv-product-modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border:none;border-radius:10px;background:#f5faf4;color:var(--p-deep);font-size:17px}
+    .nv-product-modal-close:hover{background:#e6f2e5}
     .nv-product-modal-body h3{font-size:30px;line-height:1.15;color:var(--p-darker);font-weight:800;margin-bottom:12px;padding-right:42px}
     .nv-product-modal-body p{font-size:15px;color:var(--ink-2);line-height:1.8;margin-bottom:24px}
     .nv-product-modal-actions{display:flex;gap:10px;flex-wrap:wrap}
@@ -247,8 +247,8 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-markets{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
     @media(max-width:980px){.nv-markets{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:560px){.nv-markets{grid-template-columns:repeat(2,1fr)}}
-    .nv-market{padding:24px 18px;border-radius:16px;background:#fff;border:1px solid #ede9fe;text-align:center;transition:all .25s}
-    .nv-market:hover{transform:translateY(-4px);background:var(--grad);border-color:transparent;box-shadow:0 18px 40px rgba(124,58,237,.28)}
+    .nv-market{padding:24px 18px;border-radius:16px;background:#fff;border:1px solid #e6f2e5;text-align:center;transition:all .25s}
+    .nv-market:hover{transform:translateY(-4px);background:var(--grad);border-color:transparent;box-shadow:0 18px 40px rgba(13,98,58,.28)}
     .nv-market:hover .nv-market-flag,.nv-market:hover h4,.nv-market:hover p{color:#fff!important}
     .nv-market-flag{font-size:42px;margin-bottom:12px}
     .nv-market h4{font-size:16px;font-weight:800;color:var(--p-darker);margin-bottom:4px;transition:color .2s}
@@ -258,11 +258,11 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-services{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
     @media(max-width:880px){.nv-services{grid-template-columns:1fr 1fr}}
     @media(max-width:560px){.nv-services{grid-template-columns:1fr}}
-    .nv-service{padding:32px 26px;border-radius:18px;background:#fff;border:1px solid #ede9fe;transition:all .22s;position:relative;overflow:hidden}
+    .nv-service{padding:32px 26px;border-radius:18px;background:#fff;border:1px solid #e6f2e5;transition:all .22s;position:relative;overflow:hidden}
     .nv-service::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .3s}
     .nv-service:hover::before{transform:scaleX(1)}
-    .nv-service:hover{transform:translateY(-5px);box-shadow:0 22px 50px rgba(124,58,237,.16);border-color:var(--p2)}
-    .nv-service-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(217,70,239,.12));color:var(--p1);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px;transition:all .25s}
+    .nv-service:hover{transform:translateY(-5px);box-shadow:0 22px 50px rgba(13,98,58,.16);border-color:var(--p2)}
+    .nv-service-icon{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,rgba(13,98,58,.12),rgba(243,145,31,.12));color:var(--p1);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px;transition:all .25s}
     .nv-service:hover .nv-service-icon{background:var(--grad);color:#fff;transform:scale(1.05)}
     .nv-service h3{font-size:18px;font-weight:800;color:var(--p-darker);margin-bottom:10px}
     .nv-service p{font-size:13.5px;color:var(--ink-2);line-height:1.7}
@@ -271,9 +271,9 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
     @media(max-width:980px){.nv-why-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:520px){.nv-why-grid{grid-template-columns:1fr}}
-    .nv-why-card{padding:28px 22px;border-radius:16px;background:#fff;border:1px solid #ede9fe;transition:all .22s;text-align:center}
-    .nv-why-card:hover{transform:translateY(-4px);box-shadow:0 18px 38px rgba(124,58,237,.14)}
-    .nv-why-icon{width:72px;height:72px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;box-shadow:0 12px 26px rgba(124,58,237,.32)}
+    .nv-why-card{padding:28px 22px;border-radius:16px;background:#fff;border:1px solid #e6f2e5;transition:all .22s;text-align:center}
+    .nv-why-card:hover{transform:translateY(-4px);box-shadow:0 18px 38px rgba(13,98,58,.14)}
+    .nv-why-icon{width:72px;height:72px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;box-shadow:0 12px 26px rgba(13,98,58,.32)}
     .nv-why-card h4{font-size:16px;font-weight:800;color:var(--p-darker);margin-bottom:8px}
     .nv-why-card p{font-size:13px;color:var(--ink-2);line-height:1.65}
 
@@ -283,7 +283,7 @@ $logo = $ayarlar['logo_path'] ?? '';
     @media(max-width:880px){.nv-process{grid-template-columns:1fr 1fr}.nv-process::before{display:none}}
     @media(max-width:480px){.nv-process{grid-template-columns:1fr}}
     .nv-process-step{text-align:center;position:relative;z-index:1}
-    .nv-process-num{width:96px;height:96px;border-radius:50%;background:#fff;border:2.5px solid var(--p2);color:var(--p1);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;margin:0 auto 18px;box-shadow:0 10px 28px rgba(124,58,237,.16);transition:all .25s}
+    .nv-process-num{width:96px;height:96px;border-radius:50%;background:#fff;border:2.5px solid var(--p2);color:var(--p1);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;margin:0 auto 18px;box-shadow:0 10px 28px rgba(13,98,58,.16);transition:all .25s}
     .nv-process-step:hover .nv-process-num{background:var(--grad);color:#fff;border-color:transparent;transform:scale(1.05)}
     .nv-process-step h4{font-size:17px;font-weight:800;color:var(--p-darker);margin-bottom:8px}
     .nv-process-step p{font-size:13px;color:var(--ink-2);line-height:1.65;max-width:240px;margin:0 auto}
@@ -293,7 +293,7 @@ $logo = $ayarlar['logo_path'] ?? '';
     @media(max-width:880px){.nv-gallery{grid-template-columns:repeat(3,1fr);grid-auto-rows:180px}}
     @media(max-width:560px){.nv-gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}}
     .nv-gallery-item{border-radius:14px;overflow:hidden;background-size:cover;background-position:center;transition:all .25s;position:relative;cursor:pointer}
-    .nv-gallery-item::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(76,29,149,.65) 100%);opacity:0;transition:opacity .25s}
+    .nv-gallery-item::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(8,69,38,.65) 100%);opacity:0;transition:opacity .25s}
     .nv-gallery-item:hover{transform:scale(1.02)}
     .nv-gallery-item:hover::after{opacity:1}
     .nv-gallery-item.tall{grid-row:span 2}
@@ -316,17 +316,17 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-contact-social a{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;color:#fff;transition:all .15s}
     .nv-contact-social a:hover{background:#fff;color:var(--p1);transform:translateY(-2px)}
 
-    .nv-contact-form{padding:32px;border-radius:20px;background:#fff;border:1px solid #ede9fe;box-shadow:0 12px 36px rgba(76,29,149,.08)}
+    .nv-contact-form{padding:32px;border-radius:20px;background:#fff;border:1px solid #e6f2e5;box-shadow:0 12px 36px rgba(8,69,38,.08)}
     .nv-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     @media(max-width:520px){.nv-form-grid{grid-template-columns:1fr}}
     .nv-form-group{margin-bottom:16px}
     .nv-form-group label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
-    .nv-form-group input,.nv-form-group textarea{width:100%;padding:11px 14px;border:1.5px solid #ede9fe;border-radius:10px;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;background:#faf5ff}
-    .nv-form-group input:focus,.nv-form-group textarea:focus{border-color:var(--p2);background:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.08)}
+    .nv-form-group input,.nv-form-group textarea{width:100%;padding:11px 14px;border:1.5px solid #e6f2e5;border-radius:10px;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;background:#f5faf4}
+    .nv-form-group input:focus,.nv-form-group textarea:focus{border-color:var(--p2);background:#fff;box-shadow:0 0 0 4px rgba(13,98,58,.08)}
     .nv-form-group textarea{resize:vertical;min-height:110px}
 
     /* ─── FOOTER ─── */
-    .nv-footer{background:#1e1b4b;color:#c4b5fd;padding:64px 0 24px;font-size:14px;position:relative;overflow:hidden}
+    .nv-footer{background:#1e1b4b;color:#a9d4be;padding:64px 0 24px;font-size:14px;position:relative;overflow:hidden}
     .nv-footer::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad)}
     .nv-footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;margin-bottom:42px}
     @media(max-width:880px){.nv-footer-grid{grid-template-columns:1fr 1fr;gap:30px}}
@@ -341,21 +341,21 @@ $logo = $ayarlar['logo_path'] ?? '';
     .nv-footer-brand .nv-logo{width:64px;height:64px}
     .nv-footer-brand .nv-logo svg{width:40px;height:40px}
     .nv-footer-brand .nv-brand-text{color:#fff}
-    .nv-footer-bottom{border-top:1px solid rgba(196,181,253,.16);padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:12.5px;color:#a5a3d8}
+    .nv-footer-bottom{border-top:1px solid rgba(169,212,190,.16);padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:12.5px;color:#a5a3d8}
 
     /* ─── FLOATING ─── */
     .nv-fab-whatsapp{position:fixed;bottom:96px;right:22px;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 12px 30px rgba(37,211,102,.4);z-index:200;transition:all .2s}
     .nv-fab-whatsapp:hover{transform:scale(1.08);color:#fff}
     @media(max-width:680px){.nv-fab-whatsapp{right:16px;bottom:82px;width:48px;height:48px;font-size:20px}}
-    .nv-scroll-top{position:fixed;bottom:22px;right:22px;width:46px;height:46px;border-radius:50%;background:var(--grad);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 10px 26px rgba(124,58,237,.36);z-index:200;cursor:pointer;opacity:0;pointer-events:none;transition:all .25s}
+    .nv-scroll-top{position:fixed;bottom:22px;right:22px;width:46px;height:46px;border-radius:50%;background:var(--grad);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 10px 26px rgba(13,98,58,.36);z-index:200;cursor:pointer;opacity:0;pointer-events:none;transition:all .25s}
     .nv-scroll-top.show{opacity:1;pointer-events:auto}
     @media(max-width:680px){.nv-scroll-top{right:19px;bottom:138px;width:42px;height:42px}}
 
     /* ─── MOBILE BOTTOM BAR ─── */
-    .nv-mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ede9fe;padding:8px 4px;z-index:250;box-shadow:0 -8px 24px rgba(76,29,149,.1)}
+    .nv-mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e6f2e5;padding:8px 4px;z-index:250;box-shadow:0 -8px 24px rgba(8,69,38,.1)}
     @media(max-width:880px){.nv-mobile-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}}
     .nv-mobile-bar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;font-size:10.5px;color:var(--ink-2);font-weight:600;min-width:0;border-radius:8px;transition:background .15s}
-    .nv-mobile-bar a:hover,.nv-mobile-bar a.active{background:#faf5ff;color:var(--p1)}
+    .nv-mobile-bar a:hover,.nv-mobile-bar a.active{background:#f5faf4;color:var(--p1)}
     .nv-mobile-bar a i{font-size:18px;margin-bottom:2px}
     @media(max-width:880px){body{padding-bottom:64px}}
 
@@ -371,7 +371,7 @@ $logo = $ayarlar['logo_path'] ?? '';
     <a href="#" class="nv-brand">
       <div class="nv-logo">
         <?php if (!empty($logo)): ?>
-          <img src="<?= htmlspecialchars($logo) ?>" alt="<?= $s('company_name','Nuverna') ?>">
+          <img src="<?= htmlspecialchars($logo) ?>" alt="<?= $s('company_name','Nymagro') ?>">
         <?php else: ?>
           <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M22 78 V22 L78 78 V22" stroke="white" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -379,7 +379,7 @@ $logo = $ayarlar['logo_path'] ?? '';
         <?php endif; ?>
       </div>
       <div class="nv-brand-text">
-        <?= $s('company_name','Nuverna') ?>
+        <?= $s('company_name','Nymagro') ?>
         <small data-i18n="brand_tag"><?= $s('tagline','Trade · Fresh Export') ?></small>
       </div>
     </a>
@@ -390,7 +390,7 @@ $logo = $ayarlar['logo_path'] ?? '';
       <a href="#products" data-i18n="nav_products">Ürünler</a>
       <a href="#markets"  data-i18n="nav_markets">İhracat Bölgeleri</a>
       <a href="#services" data-i18n="nav_services">Hizmetler</a>
-      <a href="#why"      data-i18n="nav_why">Neden Nuverna?</a>
+      <a href="#why"      data-i18n="nav_why">Neden Nymagro?</a>
       <a href="#gallery"  data-i18n="nav_gallery">Galeri</a>
       <a href="#contact"  data-i18n="nav_contact">İletişim</a>
     </nav>
@@ -432,7 +432,7 @@ $logo = $ayarlar['logo_path'] ?? '';
   <a href="#products" data-i18n="nav_products">Ürünler</a>
   <a href="#markets" data-i18n="nav_markets">İhracat Bölgeleri</a>
   <a href="#services" data-i18n="nav_services">Hizmetler</a>
-  <a href="#why" data-i18n="nav_why">Neden Nuverna?</a>
+  <a href="#why" data-i18n="nav_why">Neden Nymagro?</a>
   <a href="#gallery" data-i18n="nav_gallery">Galeri</a>
   <a href="#contact" data-i18n="nav_contact">İletişim</a>
   <div class="mm-cta">
@@ -456,7 +456,7 @@ $logo = $ayarlar['logo_path'] ?? '';
         <span data-i18n="hero_title_1"><?= $s('hero_title_1', "Anadolu'dan dünyaya") ?></span><br>
         <span data-i18n="hero_title_2"><?= $s('hero_title_2', 'taze ihracat') ?></span>
       </h1>
-      <p class="lead" data-i18n="hero_desc"><?= $s('hero_desc', 'Nuverna Trade, kaliteli yaş sebze ve meyveleri dünya pazarlarına ulaştırır.') ?></p>
+      <p class="lead" data-i18n="hero_desc"><?= $s('hero_desc', 'Nymagro, kaliteli yaş sebze ve meyveleri dünya pazarlarına ulaştırır.') ?></p>
       <div class="nv-hero-actions">
         <a class="nv-btn nv-btn-primary" href="#products"><i class="fa-solid fa-leaf"></i> <span data-i18n="hero_btn_products">Ürünleri İncele</span></a>
         <a class="nv-btn nv-btn-ghost" href="#contact"><i class="fa-solid fa-envelope-open-text"></i> <span data-i18n="hero_btn_contact">İletişime Geç</span></a>
@@ -515,7 +515,7 @@ $logo = $ayarlar['logo_path'] ?? '';
       <div class="nv-section-tag" data-i18n="about_tag">Hakkımızda</div>
       <h2 data-i18n="about_title">Kalite, güven ve süreklilik üzerine kurulu bir ihracat firması.</h2>
       <p data-i18n="about_p1">
-        Nuverna Trade, Türkiye'nin verimli topraklarında yetişen kaliteli yaş sebze ve meyveleri uluslararası pazarlara ulaştıran profesyonel bir ihracat firmasıdır. Ürünlerin seçimi, kalite kontrolü, paketlenmesi ve sevkiyat sürecinde titizlikle hareket ederiz.
+        Nymagro, Türkiye'nin verimli topraklarında yetişen kaliteli yaş sebze ve meyveleri uluslararası pazarlara ulaştıran profesyonel bir ihracat firmasıdır. Ürünlerin seçimi, kalite kontrolü, paketlenmesi ve sevkiyat sürecinde titizlikle hareket ederiz.
       </p>
       <p data-i18n="about_p2">
         Amacımız; müşterilerimize süreklilik, kalite ve güven sunmaktır. Her bir kasanın arkasında titizlikle çalışan bir ekip vardır.
@@ -658,11 +658,11 @@ $logo = $ayarlar['logo_path'] ?? '';
   </div>
 </section>
 
-<!-- ═══════════════ WHY NUVERNA ═══════════════ -->
+<!-- ═══════════════ WHY NYMAGRO ═══════════════ -->
 <section class="nv-section" id="why">
   <div class="container">
     <div class="nv-section-head">
-      <div class="nv-section-tag" data-i18n="why_tag">Neden Nuverna?</div>
+      <div class="nv-section-tag" data-i18n="why_tag">Neden Nymagro?</div>
       <h2 data-i18n="why_title">Güveniniz, kalitemizden başlar.</h2>
       <p data-i18n="why_desc">Her aşamada müşteri memnuniyetine, ürün kalitesine ve operasyon güvenliğine odaklanırız.</p>
     </div>
@@ -775,7 +775,7 @@ $logo = $ayarlar['logo_path'] ?? '';
 
     <div class="nv-contact-grid">
       <div class="nv-contact-info">
-        <h3><?= $s('company_name','Nuverna Trade') ?></h3>
+        <h3><?= $s('company_name','Nymagro') ?></h3>
         <p class="intro" data-i18n="contact_intro">Türkiye merkezli ihracat operasyonumuzla 7/24 ulaşılabiliriz. Mesajınızı bekliyoruz.</p>
 
         <?php if (!empty($ayarlar['address'])): ?>
@@ -878,7 +878,7 @@ $logo = $ayarlar['logo_path'] ?? '';
         <div class="nv-footer-brand">
           <div class="nv-logo">
             <?php if (!empty($logo)): ?>
-              <img src="<?= htmlspecialchars($logo) ?>" alt="<?= $s('company_name','Nuverna') ?>">
+              <img src="<?= htmlspecialchars($logo) ?>" alt="<?= $s('company_name','Nymagro') ?>">
             <?php else: ?>
               <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M22 78 V22 L78 78 V22" stroke="white" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -886,7 +886,7 @@ $logo = $ayarlar['logo_path'] ?? '';
             <?php endif; ?>
           </div>
           <div class="nv-brand-text">
-            <?= $s('company_name','Nuverna') ?>
+            <?= $s('company_name','Nymagro') ?>
             <small data-i18n="brand_tag"><?= $s('tagline','Trade · Fresh Export') ?></small>
           </div>
         </div>
@@ -923,7 +923,7 @@ $logo = $ayarlar['logo_path'] ?? '';
       </div>
     </div>
     <div class="nv-footer-bottom">
-      <span>© <?= date('Y') ?> Nuverna Trade. <span data-i18n="rights">Tüm hakları saklıdır.</span></span>
+      <span>© <?= date('Y') ?> Nymagro. <span data-i18n="rights">Tüm hakları saklıdır.</span></span>
       <span data-i18n="tagline">Fresh Fruits &amp; Vegetables Export from Türkiye</span>
     </div>
   </div>
@@ -973,15 +973,15 @@ $logo = $ayarlar['logo_path'] ?? '';
 <script>
 const i18n = {
   tr: {
-    meta_title:"Nuverna Trade | Türkiye'den Taze Meyve & Sebze İhracatı",
-    meta_desc:"Nuverna Trade — Türkiye'den Avrupa, Körfez, Mısır ve Rusya'ya premium kalite taze meyve-sebze ihracatı. Özenli paketleme, güvenilir sevkiyat.",
+    meta_title:"Nymagro | Türkiye'den Taze Meyve & Sebze İhracatı",
+    meta_desc:"Nymagro — Türkiye'den Avrupa, Körfez, Mısır ve Rusya'ya premium kalite taze meyve-sebze ihracatı. Özenli paketleme, güvenilir sevkiyat.",
     brand_tag:"Trade · Fresh Export",
     nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_products:"Ürünler", nav_markets:"İhracat Bölgeleri",
-    nav_services:"Hizmetler", nav_why:"Neden Nuverna?", nav_gallery:"Galeri", nav_contact:"İletişim",
+    nav_services:"Hizmetler", nav_why:"Neden Nymagro?", nav_gallery:"Galeri", nav_contact:"İletişim",
     nav_login:"Giriş Yap", nav_panel:"Panele Git",
     hero_eyebrow:"Türkiye'den Dünyaya İhracat",
     hero_title_1:"Anadolu'dan dünyaya", hero_title_2:"taze ihracat",
-    hero_desc:"Nuverna Trade, Anadolu'nun en kaliteli yaş sebze ve meyvelerini özenle seçer, paketler ve dünya pazarlarına güvenle ulaştırır. Avrupa, Dubai, Suudi Arabistan, Mısır ve Rusya'ya premium kalite ihracat çözümleri.",
+    hero_desc:"Nymagro, Anadolu'nun en kaliteli yaş sebze ve meyvelerini özenle seçer, paketler ve dünya pazarlarına güvenle ulaştırır. Avrupa, Dubai, Suudi Arabistan, Mısır ve Rusya'ya premium kalite ihracat çözümleri.",
     hero_btn_products:"Ürünleri İncele", hero_btn_contact:"İletişime Geç",
     stat_countries:"Ülkeye İhracat", stat_products:"Ürün Çeşidi", stat_quality:"Kalite Kontrol",
     badge_v:"Premium", badge_l:"Quality",
@@ -989,7 +989,7 @@ const i18n = {
     slide2_tag:"Premium Paketleme", slide2_title:"Kalite Kontrol & Paketleme", slide2_desc:"Her ürün, hedef pazara uygun standartta kontrol edilir ve paketlenir.",
     slide3_tag:"Global Ulaşım", slide3_title:"Avrupa, Körfez, Rusya Pazarlarına", slide3_desc:"15+ ülkeye düzenli ve güvenilir sevkiyat ağı.",
     about_tag:"Hakkımızda", about_title:"Kalite, güven ve süreklilik üzerine kurulu bir ihracat firması.",
-    about_p1:"Nuverna Trade, Türkiye'nin verimli topraklarında yetişen kaliteli yaş sebze ve meyveleri uluslararası pazarlara ulaştıran profesyonel bir ihracat firmasıdır. Ürünlerin seçimi, kalite kontrolü, paketlenmesi ve sevkiyat sürecinde titizlikle hareket ederiz.",
+    about_p1:"Nymagro, Türkiye'nin verimli topraklarında yetişen kaliteli yaş sebze ve meyveleri uluslararası pazarlara ulaştıran profesyonel bir ihracat firmasıdır. Ürünlerin seçimi, kalite kontrolü, paketlenmesi ve sevkiyat sürecinde titizlikle hareket ederiz.",
     about_p2:"Amacımız; müşterilerimize süreklilik, kalite ve güven sunmaktır. Her bir kasanın arkasında titizlikle çalışan bir ekip vardır.",
     about_li1:"Kalite odaklı yaklaşım ve tedarik ağı", about_li2:"Hedef pazara uygun paketleme standartları",
     about_li3:"Yıllık deneyim ve güvenilir operasyon", about_li4:"Zamanında teslimat ve müşteri memnuniyeti",
@@ -1019,7 +1019,7 @@ const i18n = {
     srv4_t:"İhracat Operasyonu", srv4_d:"Gümrük, evrak ve uluslararası sevk süreç yönetimi.",
     srv5_t:"Lojistik Koordinasyon", srv5_d:"Soğuk zincir, kara/deniz/hava tercih bazlı planlama.",
     srv6_t:"Müşteri Odaklı Tedarik", srv6_d:"Talebe özel kalibre, paket ve teslim çözümleri.",
-    why_tag:"Neden Nuverna?", why_title:"Güveniniz, kalitemizden başlar.",
+    why_tag:"Neden Nymagro?", why_title:"Güveniniz, kalitemizden başlar.",
     why_desc:"Her aşamada müşteri memnuniyetine, ürün kalitesine ve operasyon güvenliğine odaklanırız.",
     why1_t:"Güvenilir Tedarik", why1_d:"Doğrulanmış üretim noktaları ve sürekli kalite takibi.",
     why2_t:"Taze ve Premium", why2_d:"Hasat, paketleme ve sevkiyat arasındaki süre minimumda.",
@@ -1047,15 +1047,15 @@ const i18n = {
   },
 
   en: {
-    meta_title:"Nuverna Trade | Fresh Fruits & Vegetables Export from Türkiye",
-    meta_desc:"Nuverna Trade — premium fresh produce export from Türkiye to Europe, GCC, Egypt and Russia. Quality packaging and reliable logistics.",
+    meta_title:"Nymagro | Fresh Fruits & Vegetables Export from Türkiye",
+    meta_desc:"Nymagro — premium fresh produce export from Türkiye to Europe, GCC, Egypt and Russia. Quality packaging and reliable logistics.",
     brand_tag:"Trade · Fresh Export",
     nav_home:"Home", nav_about:"About", nav_products:"Products", nav_markets:"Export Markets",
-    nav_services:"Services", nav_why:"Why Nuverna?", nav_gallery:"Gallery", nav_contact:"Contact",
+    nav_services:"Services", nav_why:"Why Nymagro?", nav_gallery:"Gallery", nav_contact:"Contact",
     nav_login:"Sign In", nav_panel:"Open Panel",
     hero_eyebrow:"From Türkiye to the World",
     hero_title_1:"Fresh export from", hero_title_2:"Anatolia to the world",
-    hero_desc:"Nuverna Trade carefully sources, packages and ships premium fresh fruits & vegetables from Türkiye to Europe, Dubai, Saudi Arabia, Egypt and Russia.",
+    hero_desc:"Nymagro carefully sources, packages and ships premium fresh fruits & vegetables from Türkiye to Europe, Dubai, Saudi Arabia, Egypt and Russia.",
     hero_btn_products:"Explore Products", hero_btn_contact:"Get in Touch",
     stat_countries:"Export Countries", stat_products:"Product Range", stat_quality:"Quality Controlled",
     badge_v:"Premium", badge_l:"Quality",
@@ -1063,7 +1063,7 @@ const i18n = {
     slide2_tag:"Premium Packing", slide2_title:"Quality Control & Packaging", slide2_desc:"Every product is checked and packed to target market standards.",
     slide3_tag:"Global Reach", slide3_title:"Europe, Gulf and Russia", slide3_desc:"Reliable shipping network to 15+ countries.",
     about_tag:"About Us", about_title:"An export firm built on quality, trust and continuity.",
-    about_p1:"Nuverna Trade is a professional export company delivering premium fresh fruits and vegetables grown in Türkiye to international markets, with rigorous quality control at every step.",
+    about_p1:"Nymagro is a professional export company delivering premium fresh fruits and vegetables grown in Türkiye to international markets, with rigorous quality control at every step.",
     about_p2:"Our purpose is to provide our clients with continuity, quality and trust. There's a dedicated team behind every shipment.",
     about_li1:"Quality-focused sourcing and supply network", about_li2:"Packaging tailored to each market",
     about_li3:"Years of export experience", about_li4:"On-time delivery and customer satisfaction",
@@ -1093,7 +1093,7 @@ const i18n = {
     srv4_t:"Export Operations", srv4_d:"Customs, paperwork and international shipment management.",
     srv5_t:"Logistics", srv5_d:"Cold chain planning across road, sea and air.",
     srv6_t:"Customer-Focused Supply", srv6_d:"On-demand calibre, pack and delivery solutions.",
-    why_tag:"Why Nuverna?", why_title:"Your trust starts with our quality.",
+    why_tag:"Why Nymagro?", why_title:"Your trust starts with our quality.",
     why_desc:"We focus on customer satisfaction, product quality and operational safety at every step.",
     why1_t:"Reliable Sourcing", why1_d:"Verified production points and continuous QC.",
     why2_t:"Fresh & Premium", why2_d:"Minimum time between harvest, pack and ship.",
@@ -1121,15 +1121,15 @@ const i18n = {
   },
 
   ru: {
-    meta_title:"Nuverna Trade | Экспорт свежих фруктов и овощей из Турции",
-    meta_desc:"Nuverna Trade — премиум-экспорт свежих фруктов и овощей из Турции в Европу, Залив, Египет и Россию. Качественная упаковка, надёжная логистика.",
+    meta_title:"Nymagro | Экспорт свежих фруктов и овощей из Турции",
+    meta_desc:"Nymagro — премиум-экспорт свежих фруктов и овощей из Турции в Европу, Залив, Египет и Россию. Качественная упаковка, надёжная логистика.",
     brand_tag:"Trade · Свежий экспорт",
     nav_home:"Главная", nav_about:"О нас", nav_products:"Продукция", nav_markets:"Рынки экспорта",
-    nav_services:"Услуги", nav_why:"Почему Nuverna?", nav_gallery:"Галерея", nav_contact:"Контакты",
+    nav_services:"Услуги", nav_why:"Почему Nymagro?", nav_gallery:"Галерея", nav_contact:"Контакты",
     nav_login:"Войти", nav_panel:"Перейти в панель",
     hero_eyebrow:"Из Турции в мир",
     hero_title_1:"Из Анатолии в мир —", hero_title_2:"свежий экспорт",
-    hero_desc:"Nuverna Trade тщательно отбирает, упаковывает и поставляет свежие фрукты и овощи премиум-качества из Турции в Европу, Дубай, Саудовскую Аравию, Египет и Россию.",
+    hero_desc:"Nymagro тщательно отбирает, упаковывает и поставляет свежие фрукты и овощи премиум-качества из Турции в Европу, Дубай, Саудовскую Аравию, Египет и Россию.",
     hero_btn_products:"Смотреть продукцию", hero_btn_contact:"Связаться",
     stat_countries:"Страны экспорта", stat_products:"Виды продукции", stat_quality:"Контроль качества",
     badge_v:"Премиум", badge_l:"Качество",
@@ -1137,7 +1137,7 @@ const i18n = {
     slide2_tag:"Премиум упаковка", slide2_title:"Контроль и упаковка", slide2_desc:"Каждый продукт проверяется и упаковывается под стандарты целевого рынка.",
     slide3_tag:"Глобальная доставка", slide3_title:"Европа, Залив, Россия", slide3_desc:"Надёжная сеть отгрузок в 15+ стран.",
     about_tag:"О нас", about_title:"Экспортная компания, построенная на качестве и доверии.",
-    about_p1:"Nuverna Trade — профессиональная экспортная компания, поставляющая премиум-фрукты и овощи из Турции на международные рынки с тщательным контролем на каждом этапе.",
+    about_p1:"Nymagro — профессиональная экспортная компания, поставляющая премиум-фрукты и овощи из Турции на международные рынки с тщательным контролем на каждом этапе.",
     about_p2:"Наша цель — стабильность, качество и доверие. За каждой поставкой стоит преданная команда.",
     about_li1:"Сеть надёжных поставщиков", about_li2:"Упаковка под каждый рынок",
     about_li3:"Многолетний опыт экспорта", about_li4:"Своевременные поставки",
@@ -1167,7 +1167,7 @@ const i18n = {
     srv4_t:"Экспортные операции", srv4_d:"Таможня, документы и международная отгрузка.",
     srv5_t:"Логистика", srv5_d:"Холодовая цепь — авто, море, авиа.",
     srv6_t:"Под клиента", srv6_d:"Калибровка, упаковка и доставка по запросу.",
-    why_tag:"Почему Nuverna?", why_title:"Ваше доверие начинается с нашего качества.",
+    why_tag:"Почему Nymagro?", why_title:"Ваше доверие начинается с нашего качества.",
     why_desc:"Мы сфокусированы на качестве, удовлетворённости клиентов и безопасности операций.",
     why1_t:"Надёжная поставка", why1_d:"Проверенные пункты производства и постоянный КК.",
     why2_t:"Свежесть и премиум", why2_d:"Минимум времени между сбором, упаковкой и отгрузкой.",

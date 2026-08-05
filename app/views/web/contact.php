@@ -1,24 +1,24 @@
 <?php /* Contact + form */ ?>
 <style>
-.page-hero{padding:5rem 0 3rem;background:linear-gradient(135deg,#1f1334 0%,#3b1c5e 60%,#7c3aed 100%);color:#fff;position:relative;overflow:hidden}
+.page-hero{padding:5rem 0 3rem;background:linear-gradient(135deg,#06281a 0%,#073820 60%,#0d623a 100%);color:#fff;position:relative;overflow:hidden}
 .page-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:32px 32px}
 .page-hero h1{color:#fff;max-width:760px}
-.page-hero p{color:#e6dffa;max-width:760px;font-size:1.1rem}
-.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#cdb9ee;font-size:.9rem;margin-bottom:1rem}
-.bcrumb a{color:#cdb9ee}.bcrumb a:hover{color:#fff}
+.page-hero p{color:#dcebdb;max-width:760px;font-size:1.1rem}
+.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#a8cfb8;font-size:.9rem;margin-bottom:1rem}
+.bcrumb a{color:#a8cfb8}.bcrumb a:hover{color:#fff}
 .contact-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:2.5rem;align-items:start}
 @media(max-width:992px){.contact-grid{grid-template-columns:1fr}}
-.info-card{background:#fff;border:1px solid rgba(124,58,237,.1);border-radius:18px;padding:1.6rem 1.8rem;margin-bottom:1rem}
+.info-card{background:#fff;border:1px solid rgba(13,98,58,.1);border-radius:18px;padding:1.6rem 1.8rem;margin-bottom:1rem}
 .info-card h3{font-size:1.15rem;margin-bottom:1rem;color:var(--ink)}
-.info-row{display:flex;align-items:flex-start;gap:.85rem;padding:.7rem 0;border-bottom:1px solid rgba(124,58,237,.08)}
+.info-row{display:flex;align-items:flex-start;gap:.85rem;padding:.7rem 0;border-bottom:1px solid rgba(13,98,58,.08)}
 .info-row:last-child{border-bottom:0}
-.info-row .ic{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(192,38,211,.1));color:var(--p1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.info-row .ic{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,rgba(13,98,58,.12),rgba(217,122,12,.1));color:var(--p1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .info-row strong{display:block;font-size:.78rem;color:var(--ink2);text-transform:uppercase;letter-spacing:.1em}
 .info-row a, .info-row span{color:var(--ink);font-weight:600;display:block;font-size:.95rem;word-break:break-word}
-.form-card{background:#fff;border:1px solid rgba(124,58,237,.1);border-radius:18px;padding:2rem 2.2rem;box-shadow:0 22px 50px -22px rgba(31,19,52,.18)}
+.form-card{background:#fff;border:1px solid rgba(13,98,58,.1);border-radius:18px;padding:2rem 2.2rem;box-shadow:0 22px 50px -22px rgba(6,40,26,.18)}
 .form-card label{font-size:.84rem;font-weight:700;color:var(--ink2);margin-bottom:.4rem;display:block}
-.form-card input, .form-card textarea, .form-card select{width:100%;border:1.5px solid rgba(124,58,237,.18);border-radius:12px;padding:.8rem 1rem;font-size:.95rem;background:#fff;transition:.2s}
-.form-card input:focus, .form-card textarea:focus, .form-card select:focus{border-color:var(--p1);outline:none;box-shadow:0 0 0 4px rgba(124,58,237,.12)}
+.form-card input, .form-card textarea, .form-card select{width:100%;border:1.5px solid rgba(13,98,58,.18);border-radius:12px;padding:.8rem 1rem;font-size:.95rem;background:#fff;transition:.2s}
+.form-card input:focus, .form-card textarea:focus, .form-card select:focus{border-color:var(--p1);outline:none;box-shadow:0 0 0 4px rgba(13,98,58,.12)}
 .form-card textarea{min-height:140px;resize:vertical}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:768px){.form-grid{grid-template-columns:1fr}}
@@ -28,7 +28,7 @@
 .consent{display:flex;gap:.6rem;align-items:flex-start;font-size:.85rem;color:var(--ink2)}
 .consent input{width:auto;margin-top:.25rem}
 .honey{position:absolute;left:-9999px;top:-9999px;visibility:hidden}
-.map-frame{border-radius:18px;overflow:hidden;border:1px solid rgba(124,58,237,.1);height:300px;margin-top:1rem}
+.map-frame{border-radius:18px;overflow:hidden;border:1px solid rgba(13,98,58,.1);height:300px;margin-top:1rem}
 .map-frame iframe{width:100%;height:100%;border:0}
 </style>
 
@@ -74,7 +74,7 @@
         <div class="map-frame">
           <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
             src="https://www.google.com/maps?q=<?= urlencode((string)($ayarlar['address'] ?? 'Antalya, Türkiye')) ?>&output=embed"
-            title="Nuverna Trade — Antalya"></iframe>
+            title="Nymagro — Antalya"></iframe>
         </div>
       </div>
 

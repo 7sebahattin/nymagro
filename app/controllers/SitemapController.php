@@ -66,7 +66,7 @@ class SitemapController extends Controller
             '/uploads/masraflar/',
         ];
 
-        echo "# Nuverna Trade — robots.txt\n";
+        echo "# Nymagro — robots.txt\n";
         echo "# Public site (TR/EN/RU) is indexable. Admin panel and private routes are disallowed.\n\n";
         echo "User-agent: *\n";
         echo "Allow: /\n";

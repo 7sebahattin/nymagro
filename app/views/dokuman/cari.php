@@ -44,7 +44,7 @@ $formatDate = static function ($value): string {
 .doc-card h3{margin:0 0 16px;color:#253044;font-size:16px;font-weight:900}
 .doc-form{display:flex;flex-direction:column;gap:13px}
 .doc-form label{font-size:12px;font-weight:900;color:#475569;margin-bottom:6px}
-.doc-form .form-control{border-color:#d8c7ff;border-radius:6px}
+.doc-form .form-control{border-color:#bfe0cd;border-radius:6px}
 .doc-help{font-size:12px;color:#64748b;line-height:1.45}
 .doc-info{background:#fff9df;color:#9a741d;border-radius:4px;padding:18px;font-size:14px;line-height:1.5;box-shadow:0 10px 22px rgba(15,23,42,.12)}
 .doc-table{width:100%;border-collapse:collapse;font-size:13px}

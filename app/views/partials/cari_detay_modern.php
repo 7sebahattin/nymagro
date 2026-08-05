@@ -105,12 +105,12 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 .cd-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .cd-btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:4px;padding:9px 12px;color:#fff;text-decoration:none;font-size:12.5px;font-weight:600;box-shadow:0 5px 11px rgba(15,23,42,.18);line-height:1.15;letter-spacing:0}
 .cd-btn:hover{filter:brightness(1.05);color:#fff;transform:translateY(-1px)}
-.cd-dark{background:#334155}.cd-orange{background:#f6a633}.cd-success{background:#35ad50}.cd-info{background:#40a9c4}.cd-purple{background:#5b21b6}.cd-danger{background:#d84a43}
+.cd-dark{background:#334155}.cd-orange{background:#f6a633}.cd-success{background:#35ad50}.cd-info{background:#40a9c4}.cd-purple{background:#0b5533}.cd-danger{background:#d84a43}
 .cd-more{position:relative}
 .cd-more .dropdown-menu{min-width:255px;padding:0;border:1px solid #cbd5e1;border-radius:4px;box-shadow:0 14px 30px rgba(15,23,42,.18);overflow:hidden}
 .cd-more .dropdown-item{display:flex;align-items:center;gap:12px;padding:13px 18px;font-size:14px;color:#253044;border-bottom:1px solid #e5e7eb}
 .cd-more .dropdown-item:last-child{border-bottom:0}
-.cd-more .dropdown-item:hover{background:#f8fafc;color:#7c3aed}
+.cd-more .dropdown-item:hover{background:#f8fafc;color:#0d623a}
 .cd-more .dropdown-item i{width:22px;text-align:center;font-size:20px;color:#2f83c7}
 .cd-more .dropdown-item.is-green i{color:#248c41}
 .cd-more .dropdown-item.is-gold i{color:#9a6b25}

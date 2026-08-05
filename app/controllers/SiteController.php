@@ -2,7 +2,7 @@
 /**
  * SiteController
  * --------------------------------------------------------
- * Public landing page (Nuverna Trade) içerik yönetimi.
+ * Public landing page (Nymagro) içerik yönetimi.
  *
  * /site            → ayarlar (ana sayfa içerik yönetimi — varsayılan)
  * /site/urun-kaydet  POST AJAX

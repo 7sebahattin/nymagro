@@ -81,7 +81,7 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
 .cari-name-btn i{font-size:11px;opacity:.85}
 .cari-badge-active,.cari-badge-passive,.cari-badge-extra{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
 .cari-badge-active{background:#dcfce7;color:#15803d}.cari-badge-passive{background:#fee2e2;color:#b91c1c}.cari-badge-extra{background:#eff6ff;color:#1d4ed8;margin-left:4px}
-.cari-amount{font-size:13px;font-weight:700;color:#1e293b}.cari-amount.zero{color:#94a3b8;font-weight:400}.cari-amount.pos{color:#15803d}.cari-amount.neg{color:#b91c1c}.cari-amount.purple{color:#7c3aed}
+.cari-amount{font-size:13px;font-weight:700;color:#1e293b}.cari-amount.zero{color:#94a3b8;font-weight:400}.cari-amount.pos{color:#15803d}.cari-amount.neg{color:#b91c1c}.cari-amount.purple{color:#0d623a}
 .td-right{text-align:right}.td-center{text-align:center}
 .cari-action-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;border-radius:5px;font-size:12px;text-decoration:none;margin-right:4px;transition:background .15s}
 .cari-action-view{background:#e0f2fe;color:#0369a1}.cari-action-view:hover{background:#bae6fd;color:#0369a1}

@@ -1,5 +1,5 @@
 <?php
-/** Public Home — Nuverna Trade landing page (locale aware) */
+/** Public Home — Nymagro landing page (locale aware) */
 $LL        = I18n::all();
 $siteText  = $siteText ?? static fn(string $k, string $d = '') => $d;
 $defaultSlides = $LL['home']['hero']['slides']     ?? [];
@@ -25,19 +25,19 @@ for ($i = 1; $i <= $slideCount; $i++) {
 
 <style>
 /* HERO */
-.hero{position:relative;min-height:88vh;display:flex;align-items:center;color:#fff;overflow:hidden;background:#1f1334}
+.hero{position:relative;min-height:88vh;display:flex;align-items:center;color:#fff;overflow:hidden;background:#06281a}
 .hero .slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;background-position:center;background-size:cover}
-.hero .slide::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,rgba(31,19,52,.85) 0%,rgba(124,58,237,.55) 60%,rgba(192,38,211,.35) 100%)}
+.hero .slide::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,rgba(6,40,26,.85) 0%,rgba(13,98,58,.55) 60%,rgba(217,122,12,.35) 100%)}
 .hero .slide.is-active{opacity:1}
 .hero-inner{position:relative;z-index:3;padding:5rem 0}
 .hero-kicker{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.12);padding:.5rem 1.1rem;border-radius:999px;font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:1.4rem;backdrop-filter:blur(6px)}
 .hero h1{color:#fff;font-size:clamp(2.2rem,5vw,4rem);max-width:780px;margin:0 0 1.25rem}
-.hero p.lead{color:#e0d2f5;font-size:clamp(1.05rem,1.6vw,1.25rem);max-width:680px;margin-bottom:2rem}
+.hero p.lead{color:#c6e2d1;font-size:clamp(1.05rem,1.6vw,1.25rem);max-width:680px;margin-bottom:2rem}
 .hero-cta{display:flex;flex-wrap:wrap;gap:.7rem}
 .hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-top:3rem;max-width:560px}
 .hero-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:1rem 1.1rem;backdrop-filter:blur(8px)}
 .hero-stat strong{font-family:'Manrope';font-size:1.6rem;display:block;color:#fff}
-.hero-stat span{color:#cdb9ee;font-size:.78rem;text-transform:uppercase;letter-spacing:.12em}
+.hero-stat span{color:#a8cfb8;font-size:.78rem;text-transform:uppercase;letter-spacing:.12em}
 .hero-controls{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:4;display:flex;gap:.5rem}
 .hero-dot{width:30px;height:5px;border-radius:99px;background:rgba(255,255,255,.3);border:0;transition:.2s;cursor:pointer}
 .hero-dot.is-active{background:#fff;width:48px}
@@ -47,30 +47,30 @@ for ($i = 1; $i <= $slideCount; $i++) {
 
 /* PRODUCT GRID */
 .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem}
-.product-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 22px -10px rgba(31,19,52,.18);border:1px solid rgba(124,58,237,.08);transition:.25s;display:flex;flex-direction:column}
-.product-card:hover{transform:translateY(-6px);box-shadow:0 22px 50px -22px rgba(124,58,237,.4);border-color:rgba(124,58,237,.2)}
-.product-img{position:relative;height:180px;overflow:hidden;background:#f3edff}
+.product-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 22px -10px rgba(6,40,26,.18);border:1px solid rgba(13,98,58,.08);transition:.25s;display:flex;flex-direction:column}
+.product-card:hover{transform:translateY(-6px);box-shadow:0 22px 50px -22px rgba(13,98,58,.4);border-color:rgba(13,98,58,.2)}
+.product-img{position:relative;height:180px;overflow:hidden;background:#eef6ed}
 .product-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .product-card:hover .product-img img{transform:scale(1.05)}
 .product-tag{position:absolute;top:.7rem;left:.7rem;background:var(--grad);color:#fff;font-size:.65rem;font-weight:800;letter-spacing:.12em;padding:.3rem .7rem;border-radius:999px}
 .product-body{padding:1rem 1.1rem 1.2rem;flex:1;display:flex;flex-direction:column}
 .product-body h4{margin:0 0 .35rem;font-size:1.1rem}
-.product-body p{color:#5a4774;margin:0 0 .9rem;font-size:.86rem;flex:1}
+.product-body p{color:#47745f;margin:0 0 .9rem;font-size:.86rem;flex:1}
 .product-link{font-weight:700;font-size:.85rem;color:var(--p1);display:inline-flex;align-items:center;gap:.4rem}
 .product-link:hover{color:var(--p3)}
 
 /* MARKETS */
 .markets-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem}
-.market-card{position:relative;border-radius:18px;overflow:hidden;height:200px;background:linear-gradient(135deg,#3b1c5e,#7c3aed);color:#fff;padding:1.5rem;display:flex;flex-direction:column;justify-content:flex-end;transition:.25s}
+.market-card{position:relative;border-radius:18px;overflow:hidden;height:200px;background:linear-gradient(135deg,#073820,#0d623a);color:#fff;padding:1.5rem;display:flex;flex-direction:column;justify-content:flex-end;transition:.25s}
 .market-card:hover{transform:translateY(-4px);color:#fff}
 .market-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.25),transparent 70%)}
 .market-card h4{color:#fff;margin-bottom:.4rem}
-.market-card p{margin:0;color:#e6dffa;font-size:.85rem}
+.market-card p{margin:0;color:#dcebdb;font-size:.85rem}
 
 /* PROCESS */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem}
-.step{position:relative;padding:1.6rem;background:#fff;border-radius:18px;border:1px solid rgba(124,58,237,.08);text-align:center}
-.step-num{width:54px;height:54px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:800;font-size:1.2rem;margin:0 auto 1rem;box-shadow:0 14px 30px -10px rgba(124,58,237,.5)}
+.step{position:relative;padding:1.6rem;background:#fff;border-radius:18px;border:1px solid rgba(13,98,58,.08);text-align:center}
+.step-num{width:54px;height:54px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:800;font-size:1.2rem;margin:0 auto 1rem;box-shadow:0 14px 30px -10px rgba(13,98,58,.5)}
 .step h4{margin-bottom:.4rem}
 
 /* CTA BAND */
@@ -80,18 +80,18 @@ for ($i = 1; $i <= $slideCount; $i++) {
 .cta-band::after{width:220px;height:220px;bottom:-80px;left:-60px}
 .cta-band > *{position:relative;z-index:2}
 .cta-band h2{color:#fff;margin-bottom:.7rem}
-.cta-band p{color:#f0e9fc;margin-bottom:2rem;max-width:600px;margin-left:auto;margin-right:auto}
+.cta-band p{color:#e9f4e8;margin-bottom:2rem;max-width:600px;margin-left:auto;margin-right:auto}
 .cta-band .btn-w{background:#fff;color:var(--p1);font-weight:800;padding:1rem 2rem;border-radius:999px;display:inline-flex;align-items:center;gap:.6rem}
-.cta-band .btn-w:hover{transform:translateY(-2px);background:#f3edff}
+.cta-band .btn-w:hover{transform:translateY(-2px);background:#eef6ed}
 
 /* WHY LIST */
 .why-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
-.why-list li{display:flex;align-items:flex-start;gap:.8rem;padding:1.1rem 1.25rem;background:linear-gradient(135deg,#f8f4ff 0%,#fdf6ff 100%);border:1px solid rgba(124,58,237,.1);border-radius:14px;color:var(--ink2);font-weight:600;list-style:none}
-.why-list li::before{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;color:var(--p1);background:rgba(124,58,237,.1);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.why-list li{display:flex;align-items:flex-start;gap:.8rem;padding:1.1rem 1.25rem;background:linear-gradient(135deg,#f4faf3 0%,#fff9f2 100%);border:1px solid rgba(13,98,58,.1);border-radius:14px;color:var(--ink2);font-weight:600;list-style:none}
+.why-list li::before{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;color:var(--p1);background:rgba(13,98,58,.1);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
 /* GALLERY MASONRY */
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));grid-auto-rows:200px;gap:1rem}
-.gallery-item{position:relative;border-radius:14px;overflow:hidden;background:#1f1334}
+.gallery-item{position:relative;border-radius:14px;overflow:hidden;background:#06281a}
 .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s,filter .3s}
 .gallery-item:hover img{transform:scale(1.06);filter:brightness(.7)}
 .gallery-item .tag{position:absolute;left:.8rem;bottom:.8rem;background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;font-weight:700;padding:.35rem .8rem;border-radius:999px;backdrop-filter:blur(4px);opacity:0;transition:opacity .3s}
@@ -103,8 +103,8 @@ for ($i = 1; $i <= $slideCount; $i++) {
 @media(max-width:992px){.about-flex{grid-template-columns:1fr}}
 .about-img{border-radius:24px;overflow:hidden;height:480px;position:relative}
 .about-img img{width:100%;height:100%;object-fit:cover}
-.about-img::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(124,58,237,.25) 100%)}
-.about-badge{position:absolute;bottom:1.5rem;left:1.5rem;background:#fff;border-radius:18px;padding:1.2rem 1.5rem;box-shadow:0 22px 50px -16px rgba(31,19,52,.3);max-width:240px;z-index:2}
+.about-img::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(13,98,58,.25) 100%)}
+.about-badge{position:absolute;bottom:1.5rem;left:1.5rem;background:#fff;border-radius:18px;padding:1.2rem 1.5rem;box-shadow:0 22px 50px -16px rgba(6,40,26,.3);max-width:240px;z-index:2}
 .about-badge strong{font-family:'Manrope';font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;line-height:1}
 .about-badge span{color:var(--ink2);font-weight:600;font-size:.85rem}
 </style>
@@ -167,11 +167,11 @@ for ($i = 1; $i <= $slideCount; $i++) {
 </section>
 
 <!-- ABOUT -->
-<section class="block" style="background:linear-gradient(180deg,#fff 0%,#faf6ff 100%)">
+<section class="block" style="background:linear-gradient(180deg,#fff 0%,#f6fbf5 100%)">
   <div class="container-xxl">
     <div class="about-flex fade-in">
       <div class="about-img">
-        <img src="<?= htmlspecialchars((string)($ayarlar['about_img'] ?? '')) ?>" alt="Nuverna Trade Antalya — fresh produce sourcing" loading="lazy" width="800" height="600">
+        <img src="<?= htmlspecialchars((string)($ayarlar['about_img'] ?? '')) ?>" alt="Nymagro Antalya — bitki besleme ürünleri" loading="lazy" width="800" height="600">
         <div class="about-badge"><strong>15+</strong><span><?= htmlspecialchars(I18n::t('common.markets')) ?></span></div>
       </div>
       <div>
@@ -209,7 +209,7 @@ for ($i = 1; $i <= $slideCount; $i++) {
       ?>
         <a href="<?= I18n::altUrl('products', $locale, $slug) ?>" class="product-card fade-in">
           <div class="product-img">
-            <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($ad) ?> — Nuverna Trade fresh export" loading="lazy" width="400" height="300">
+            <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($ad) ?> — Nymagro bitki besleme ürünü" loading="lazy" width="400" height="300">
             <span class="product-tag"><?= htmlspecialchars($etiket) ?></span>
           </div>
           <div class="product-body">
@@ -228,7 +228,7 @@ for ($i = 1; $i <= $slideCount; $i++) {
 </section>
 
 <!-- MARKETS -->
-<section class="block" style="background:linear-gradient(180deg,#faf6ff 0%,#fff 100%)">
+<section class="block" style="background:linear-gradient(180deg,#f6fbf5 0%,#fff 100%)">
   <div class="container-xxl">
     <div class="section-head fade-in">
       <span class="kicker"><i class="fas fa-globe"></i> <?= htmlspecialchars($siteText('markets_tag', I18n::t('home.markets.kicker'))) ?></span>
@@ -314,7 +314,7 @@ for ($i = 1; $i <= $slideCount; $i++) {
 
 <!-- GALLERY -->
 <?php if (!empty($galeri)): ?>
-<section class="block" style="background:linear-gradient(180deg,#fff 0%,#faf6ff 100%)">
+<section class="block" style="background:linear-gradient(180deg,#fff 0%,#f6fbf5 100%)">
   <div class="container-xxl">
     <div class="section-head fade-in">
       <span class="kicker"><i class="fas fa-images"></i> <?= htmlspecialchars($siteText('gallery_tag', I18n::t('home.gallery.kicker'))) ?></span>
@@ -327,7 +327,7 @@ for ($i = 1; $i <= $slideCount; $i++) {
         $tag = $g['etiket_'.$locale] ?? $g['etiket_tr'] ?? '';
       ?>
         <div class="gallery-item fade-in">
-          <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($tag ?: 'Nuverna Trade gallery') ?>" loading="lazy">
+          <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($tag ?: 'Nymagro galeri') ?>" loading="lazy">
           <?php if ($tag): ?><span class="tag"><?= htmlspecialchars($tag) ?></span><?php endif; ?>
         </div>
       <?php endforeach; ?>

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Giriş — Nuverna Trade</title>
+  <title>Giriş — Nymagro</title>
   <link rel="icon" href="<?= htmlspecialchars(BASE_URL) ?>/favicon.ico?v=20260501" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="<?= htmlspecialchars(BASE_URL) ?>/favicon-32x32.png?v=20260501">
   <link rel="apple-touch-icon" sizes="180x180" href="<?= htmlspecialchars(BASE_URL) ?>/apple-touch-icon.png?v=20260501">
@@ -16,8 +16,8 @@
       min-height:100vh;
       display:flex; align-items:center; justify-content:center;
       background:
-        radial-gradient(ellipse at top right, rgba(124,58,237,.22), transparent 60%),
-        radial-gradient(ellipse at bottom left, rgba(192,38,211,.18), transparent 55%),
+        radial-gradient(ellipse at top right, rgba(13,98,58,.22), transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(217,122,12,.18), transparent 55%),
         #0f172a;
       padding:20px;
     }
@@ -49,7 +49,7 @@
       transition:border-color .15s, box-shadow .15s;
       background:#fff;
     }
-    .lf-input:focus { border-color:#a855f7; box-shadow:0 0 0 3px rgba(168,85,247,.14); }
+    .lf-input:focus { border-color:#1e8c55; box-shadow:0 0 0 3px rgba(30,140,85,.14); }
 
     .lf-toggle-pass {
       position:absolute; right:12px; top:50%; transform:translateY(-50%);
@@ -60,19 +60,19 @@
     .lf-extra { display:flex; justify-content:space-between; align-items:center; margin:8px 0 22px; }
     .lf-remember { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:#475569; }
     .lf-remember input { width:14px; height:14px; cursor:pointer; }
-    .lf-forgot { font-size:12.5px; color:#7c3aed; text-decoration:none; font-weight:600; }
+    .lf-forgot { font-size:12.5px; color:#0d623a; text-decoration:none; font-weight:600; }
     .lf-forgot:hover { text-decoration:underline; }
 
     .lf-submit {
       width:100%; padding:13px;
-      background:linear-gradient(135deg,#7c3aed,#c026d3);
+      background:linear-gradient(135deg,#0d623a,#d97a0c);
       color:#fff; border:none; border-radius:9px;
       font-size:14px; font-weight:700; cursor:pointer;
       display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      box-shadow:0 4px 14px rgba(124,58,237,.32);
+      box-shadow:0 4px 14px rgba(13,98,58,.32);
       transition:transform .12s, box-shadow .15s, filter .15s;
     }
-    .lf-submit:hover  { filter:brightness(1.05); box-shadow:0 6px 20px rgba(124,58,237,.42); transform:translateY(-1px); }
+    .lf-submit:hover  { filter:brightness(1.05); box-shadow:0 6px 20px rgba(13,98,58,.42); transform:translateY(-1px); }
     .lf-submit:active { transform:translateY(0); }
 
     .lf-divider { display:flex; align-items:center; gap:10px; margin:20px 0; color:#94a3b8; font-size:11px; }

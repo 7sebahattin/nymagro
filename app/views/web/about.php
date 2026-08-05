@@ -2,16 +2,16 @@
 $LL = I18n::all();
 ?>
 <style>
-.page-hero{padding:5rem 0 3rem;background:linear-gradient(135deg,#1f1334 0%,#3b1c5e 60%,#7c3aed 100%);color:#fff;position:relative;overflow:hidden}
+.page-hero{padding:5rem 0 3rem;background:linear-gradient(135deg,#06281a 0%,#073820 60%,#0d623a 100%);color:#fff;position:relative;overflow:hidden}
 .page-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:32px 32px}
 .page-hero h1{color:#fff;max-width:760px}
-.page-hero p{color:#e6dffa;max-width:760px;font-size:1.1rem}
-.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#cdb9ee;font-size:.9rem;margin-bottom:1rem}
-.bcrumb a{color:#cdb9ee}.bcrumb a:hover{color:#fff}
+.page-hero p{color:#dcebdb;max-width:760px;font-size:1.1rem}
+.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#a8cfb8;font-size:.9rem;margin-bottom:1rem}
+.bcrumb a{color:#a8cfb8}.bcrumb a:hover{color:#fff}
 .about-section .row{align-items:center;gap:0}
 .about-section img{border-radius:24px;width:100%;height:100%;object-fit:cover;max-height:500px}
-.value-card{padding:1.4rem;border-radius:14px;background:#fff;border:1px solid rgba(124,58,237,.1);height:100%}
-.value-card .ic{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(192,38,211,.1));color:var(--p1);display:flex;align-items:center;justify-content:center;margin-bottom:.85rem}
+.value-card{padding:1.4rem;border-radius:14px;background:#fff;border:1px solid rgba(13,98,58,.1);height:100%}
+.value-card .ic{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,rgba(13,98,58,.12),rgba(217,122,12,.1));color:var(--p1);display:flex;align-items:center;justify-content:center;margin-bottom:.85rem}
 </style>
 
 <section class="page-hero">
@@ -26,7 +26,7 @@ $LL = I18n::all();
   <div class="container-xxl">
     <div class="row g-5">
       <div class="col-lg-6">
-        <img src="<?= htmlspecialchars((string)($ayarlar['about_img'] ?? '')) ?>" alt="Nuverna Trade — fresh produce export from Türkiye" loading="lazy">
+        <img src="<?= htmlspecialchars((string)($ayarlar['about_img'] ?? '')) ?>" alt="Nymagro — bitki besleme ürünleri, Antalya" loading="lazy">
       </div>
       <div class="col-lg-6">
         <p style="color:var(--ink2);font-size:1.05rem"><?= htmlspecialchars(I18n::t('about.p1')) ?></p>
@@ -52,7 +52,7 @@ $LL = I18n::all();
   </div>
 </section>
 
-<section class="block" style="background:linear-gradient(180deg,#fff 0%,#faf6ff 100%)">
+<section class="block" style="background:linear-gradient(180deg,#fff 0%,#f6fbf5 100%)">
   <div class="container-xxl">
     <div class="section-head">
       <span class="kicker"><i class="fas fa-heart"></i> <?= htmlspecialchars(I18n::t('about.values_title')) ?></span>

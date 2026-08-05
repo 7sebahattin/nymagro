@@ -1,6 +1,6 @@
 {
-  "name": "Nuverna Trade",
-  "short_name": "Nuverna",
+  "name": "Nymagro",
+  "short_name": "Nymagro",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#7c3aed",
+  "theme_color": "#0d623a",
   "background_color": "#ffffff",
   "display": "standalone"
 }

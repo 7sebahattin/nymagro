@@ -2,15 +2,15 @@
 /**
  * WebsiteController
  * --------------------------------------------------------
- * Nuverna Trade public web sitesi (TR / EN / RU) için tüm sayfaları yönetir.
+ * Nymagro public web sitesi (TR / EN / RU) için tüm sayfaları yönetir.
  *
  * URL örnekleri:
  *   /tr                       → home()
  *   /en/about                 → about()
- *   /tr/urunler/kiraz         → productDetail('kiraz')
- *   /en/products/cherries     → productDetail('cherries')
- *   /tr/ihracat-bolgeleri     → exportMarkets()
- *   /en/export/dubai-uae      → exportRegion('dubai-uae')
+ *   /tr/urunler/silatrix      → productDetail('silatrix')
+ *   /en/products/silatrix     → productDetail('silatrix')
+ *   /tr/urun-gruplari         → exportMarkets()
+ *   /en/product-group/foliar-fertilizers → exportRegion('foliar-fertilizers')
  *   /tr/iletisim              → contact()
  *   /tr/iletisim/gonder (POST)→ contactSubmit()
  */
@@ -25,28 +25,28 @@ class WebsiteController extends Controller
     private ?SiteIcerik $site = null;
     private array $ayarlar;
 
-    /** İhracat bölgesi tanımları (slug → key) */
+    /** Ürün grubu tanımları (slug → key) */
     private const REGION_SLUGS = [
         'tr' => [
-            'avrupa'           => 'europe',
-            'dubai-bae'        => 'dubai-uae',
-            'suudi-arabistan'  => 'saudi-arabia',
-            'misir'            => 'egypt',
-            'rusya'            => 'russia',
+            'mikro-element-gubreleri' => 'micro',
+            'yaprak-gubreleri'        => 'foliar',
+            'damlama-gubreleri'       => 'fertigation',
+            'makro-besin-urunleri'    => 'macro',
+            'biyostimulantlar'        => 'biostimulant',
         ],
         'en' => [
-            'europe'           => 'europe',
-            'dubai-uae'        => 'dubai-uae',
-            'saudi-arabia'     => 'saudi-arabia',
-            'egypt'            => 'egypt',
-            'russia'           => 'russia',
+            'micronutrient-fertilizers' => 'micro',
+            'foliar-fertilizers'        => 'foliar',
+            'fertigation-products'      => 'fertigation',
+            'macronutrient-products'    => 'macro',
+            'biostimulants'             => 'biostimulant',
         ],
         'ru' => [
-            'europe'           => 'europe',
-            'dubai-uae'        => 'dubai-uae',
-            'saudi-arabia'     => 'saudi-arabia',
-            'egypt'            => 'egypt',
-            'russia'           => 'russia',
+            'micronutrient-fertilizers' => 'micro',
+            'foliar-fertilizers'        => 'foliar',
+            'fertigation-products'      => 'fertigation',
+            'macronutrient-products'    => 'macro',
+            'biostimulants'             => 'biostimulant',
         ],
     ];
 
@@ -178,10 +178,10 @@ class WebsiteController extends Controller
         }
 
         $title = ($this->locale === 'en'
-                    ? "Fresh {$ad} Exporter from Türkiye | Nuverna Trade"
+                    ? "{$ad} | Plant Nutrition Product — Nymagro"
                     : ($this->locale === 'ru'
-                        ? "Экспорт свежей продукции «{$ad}» из Турции | Nuverna Trade"
-                        : "{$ad} İhracatı | Nuverna Trade"));
+                        ? "{$ad} | Продукт питания растений — Nymagro"
+                        : "{$ad} | Bitki Besleme Ürünü — Nymagro"));
 
         $seo = $this->baseSeo('products');
         $seo->setTitle($title)
@@ -197,8 +197,8 @@ class WebsiteController extends Controller
             'name'        => $ad,
             'description' => $aciklama,
             'image'       => $img,
-            'category'    => 'Fresh produce',
-            'brand'       => 'Nuverna Trade',
+            'category'    => 'Plant nutrition',
+            'brand'       => 'Nymagro',
         ]));
 
         $seo->addJsonLd(SeoMeta::breadcrumbSchema([
@@ -301,9 +301,9 @@ class WebsiteController extends Controller
         }
 
         $titleTpl = [
-            'tr' => "{$regionName} Pazarına Yaş Sebze Meyve İhracatı | Nuverna Trade",
-            'en' => "Fresh Produce Exporter to {$regionName} | Nuverna Trade",
-            'ru' => "Экспорт свежих фруктов и овощей: {$regionName} | Nuverna Trade",
+            'tr' => "{$regionName} | Nymagro Bitki Besleme Ürünleri",
+            'en' => "{$regionName} | Nymagro Plant Nutrition Products",
+            'ru' => "{$regionName} | Продукты питания растений Nymagro",
         ];
 
         $seo = $this->baseSeo('export_region');
@@ -473,7 +473,7 @@ class WebsiteController extends Controller
     {
         http_response_code(404);
         $seo = $this->baseSeo('home');
-        $seo->setTitle(I18n::t('errors.404_title') . ' | Nuverna Trade')
+        $seo->setTitle(I18n::t('errors.404_title') . ' | Nymagro')
             ->setDescription(I18n::t('errors.404_desc'))
             ->setNoindex(true)
             ->setCanonical($this->canonical('home'));
@@ -494,7 +494,7 @@ class WebsiteController extends Controller
         }
         $seo = new SeoMeta();
         $seo->setLocale($this->locale)
-            ->setSiteName('Nuverna Trade')
+            ->setSiteName('Nymagro')
             ->setOgImage($this->ogImageUrl());
         return $seo;
     }
@@ -521,7 +521,7 @@ class WebsiteController extends Controller
     {
         // Organization + WebSite — her sayfada
         $seo->addJsonLd(SeoMeta::organizationSchema([
-            'name'    => 'Nuverna Trade',
+            'name'    => 'Nymagro',
             'url'     => I18n::url('', $this->locale),
             'logo'    => $this->absoluteLogo(),
             'email'   => (string)($this->ayarlar['email'] ?? ''),
@@ -538,11 +538,11 @@ class WebsiteController extends Controller
             ])),
         ]));
 
-        $seo->addJsonLd(SeoMeta::websiteSchema(I18n::url('', $this->locale), 'Nuverna Trade', $this->locale));
+        $seo->addJsonLd(SeoMeta::websiteSchema(I18n::url('', $this->locale), 'Nymagro', $this->locale));
 
         if ($type === 'contact' || $type === 'home') {
             $seo->addJsonLd(SeoMeta::localBusinessSchema([
-                'name'    => 'Nuverna Trade',
+                'name'    => 'Nymagro',
                 'url'     => I18n::url('', $this->locale),
                 'logo'    => $this->absoluteLogo(),
                 'email'   => (string)($this->ayarlar['email'] ?? ''),
@@ -560,7 +560,8 @@ class WebsiteController extends Controller
     private function absoluteLogo(): string
     {
         $path = (string)($this->ayarlar['logo_path'] ?? '');
-        if ($path === '') return '';
+        // Panelden logo yüklenmemişse depodaki marka logosuna düş
+        if ($path === '') $path = '/img/nymagro-logo.png';
         return $this->publicAssetUrl($path);
     }
 
@@ -659,22 +660,22 @@ class WebsiteController extends Controller
     {
         if ($this->locale === 'en') {
             return [
-                ['q' => "Do you export {$ad} from Türkiye?", 'a' => "Yes — Nuverna Trade exports fresh {$ad} from Türkiye to Europe, Dubai, Saudi Arabia, Russia and surrounding markets."],
-                ['q' => 'What packaging options do you offer?', 'a' => 'We offer market-tailored packaging options including cartons, plastic punnets and customised B2B packaging.'],
-                ['q' => 'How can I request a quote?', 'a' => 'You can request a quote via the contact form, e-mail or WhatsApp on our contact page.'],
+                ['q' => "How is {$ad} applied?", 'a' => "{$ad} can be applied both foliarly and through drip irrigation. Please follow the dose recommendations on the product label and adjust them to your soil and leaf analysis results."],
+                ['q' => 'What packaging options are available?', 'a' => 'Depending on the product, packaging is available in 1 L, 5 L and 10 L containers, and in 1 kg and 5 kg for powder products.'],
+                ['q' => 'How can I request a quote?', 'a' => 'You can request a quote via the contact form, e-mail or WhatsApp on our contact page. Our technical team will get back to you.'],
             ];
         }
         if ($this->locale === 'ru') {
             return [
-                ['q' => "Экспортируете ли вы «{$ad}» из Турции?", 'a' => "Да — Nuverna Trade поставляет свежую продукцию «{$ad}» из Турции в Европу, Дубай, Саудовскую Аравию, Россию и соседние рынки."],
-                ['q' => 'Какие варианты упаковки вы предлагаете?', 'a' => 'Мы предлагаем варианты упаковки под рынок — картонные коробки, пластиковые упаковки и индивидуальные B2B-решения.'],
-                ['q' => 'Как запросить предложение?', 'a' => 'Запросите предложение через форму контактов, e-mail или WhatsApp на нашей странице «Контакты».'],
+                ['q' => "Как применять «{$ad}»?", 'a' => "«{$ad}» можно применять как по листу, так и через капельное орошение. Следуйте рекомендациям по дозировке на этикетке и корректируйте их по результатам анализа почвы и листа."],
+                ['q' => 'Какие варианты упаковки доступны?', 'a' => 'В зависимости от продукта доступны упаковки 1 л, 5 л и 10 л, а для порошковых продуктов — 1 кг и 5 кг.'],
+                ['q' => 'Как запросить предложение?', 'a' => 'Запросите предложение через форму контактов, e-mail или WhatsApp на странице «Контакты» — с вами свяжется наша техническая команда.'],
             ];
         }
         return [
-            ['q' => "Türkiye’den {$ad} ihracatı yapıyor musunuz?", 'a' => "Evet — Nuverna Trade, Türkiye’den Avrupa, Dubai, Suudi Arabistan, Rusya ve çevre pazarlara taze {$ad} ihraç eder."],
-            ['q' => 'Hangi paketleme seçeneklerini sunuyorsunuz?', 'a' => 'Hedef pazara uygun karton, plastik kaset ve özel B2B paketleme seçenekleri sunuyoruz.'],
-            ['q' => 'Nasıl teklif alabilirim?', 'a' => 'İletişim sayfasındaki form, e-posta veya WhatsApp üzerinden teklif talebinde bulunabilirsiniz.'],
+            ['q' => "{$ad} nasıl uygulanır?", 'a' => "{$ad}, hem yapraktan hem de damlama sulama ile uygulanabilir. Ürün etiketindeki doz tavsiyelerine uyunuz ve toprak/yaprak analizi sonucunuza göre dozu ayarlayınız."],
+            ['q' => 'Hangi ambalaj seçenekleri var?', 'a' => 'Ürüne göre 1 L, 5 L ve 10 L ambalaj seçenekleri; toz ürünlerde 1 kg ve 5 kg seçenekleri sunulmaktadır.'],
+            ['q' => 'Nasıl teklif alabilirim?', 'a' => 'İletişim sayfasındaki form, e-posta veya WhatsApp üzerinden teklif talebinde bulunabilirsiniz. Teknik ekibimiz size dönüş yapar.'],
         ];
     }
 

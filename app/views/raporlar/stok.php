@@ -59,7 +59,7 @@
     /* Custom Colors */
     .bg-urunler { background-color: #ba3805; }
     .bg-stokhareketleri { background-color: #0c9191; }
-    .bg-depodurumu { background-color: #7b0542; }
+    .bg-depodurumu { background-color: #7a3d05; }
     .bg-stoksatiskarsilama { background-color: #fd8e2a; }
     .bg-hareketgormeyen { background-color: #2fb510; }
 
@@ -131,7 +131,7 @@
     /* Custom Colors */
     .bg-urunler { background-color: #ba3805; }
     .bg-stokhareketleri { background-color: #0c9191; }
-    .bg-depodurumu { background-color: #7b0542; }
+    .bg-depodurumu { background-color: #7a3d05; }
     .bg-stoksatiskarsilama { background-color: #fd8e2a; }
     .bg-hareketgormeyen { background-color: #2fb510; }
 
@@ -184,7 +184,7 @@
     overflow-wrap: anywhere;
     word-break: normal;
   }
-  .nav-link.active:focus { color:#c4b5fd; outline:none; }
+  .nav-link.active:focus { color:#a9d4be; outline:none; }
   @media (max-width: 768px) {
     .report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .col-span-2,

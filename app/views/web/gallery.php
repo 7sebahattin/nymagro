@@ -1,13 +1,13 @@
 <?php /* Gallery */ ?>
 <style>
-.page-hero{padding:5rem 0 3rem;background:linear-gradient(135deg,#1f1334 0%,#3b1c5e 60%,#7c3aed 100%);color:#fff;position:relative;overflow:hidden}
+.page-hero{padding:5rem 0 3rem;background:linear-gradient(135deg,#06281a 0%,#073820 60%,#0d623a 100%);color:#fff;position:relative;overflow:hidden}
 .page-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:32px 32px}
 .page-hero h1{color:#fff;max-width:760px}
-.page-hero p{color:#e6dffa;max-width:760px;font-size:1.1rem}
-.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#cdb9ee;font-size:.9rem;margin-bottom:1rem}
-.bcrumb a{color:#cdb9ee}.bcrumb a:hover{color:#fff}
+.page-hero p{color:#dcebdb;max-width:760px;font-size:1.1rem}
+.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#a8cfb8;font-size:.9rem;margin-bottom:1rem}
+.bcrumb a{color:#a8cfb8}.bcrumb a:hover{color:#fff}
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));grid-auto-rows:220px;gap:1rem}
-.gallery-item{position:relative;border-radius:14px;overflow:hidden;background:#1f1334}
+.gallery-item{position:relative;border-radius:14px;overflow:hidden;background:#06281a}
 .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s,filter .3s}
 .gallery-item:hover img{transform:scale(1.06);filter:brightness(.7)}
 .gallery-item .tag{position:absolute;left:.8rem;bottom:.8rem;background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;font-weight:700;padding:.35rem .8rem;border-radius:999px;backdrop-filter:blur(4px);opacity:0;transition:opacity .3s}
@@ -32,7 +32,7 @@
           $tag = $g['etiket_'.$locale] ?? $g['etiket_tr'] ?? '';
         ?>
           <div class="gallery-item fade-in">
-            <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($tag ?: 'Nuverna Trade — fresh produce export gallery') ?>" loading="lazy">
+            <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($tag ?: 'Nymagro — ürün ve saha uygulama galerisi') ?>" loading="lazy">
             <?php if ($tag): ?><span class="tag"><?= htmlspecialchars($tag) ?></span><?php endif; ?>
           </div>
         <?php endforeach; ?>

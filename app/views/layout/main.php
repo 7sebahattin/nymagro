@@ -73,9 +73,9 @@ $periodStatusLabels = ['open' => 'Açık', 'locked' => 'Kilitli', 'closed' => 'K
 $periodStatusClass = ['open' => 'success', 'locked' => 'warning', 'closed' => 'secondary', 'archived' => 'dark'];
 $tenantTheme = $activeCompanySettings['theme_color'] ?? 'violet';
 $tenantPalettes = [
-    'emerald' => ['accent' => '#8b5cf6', 'soft' => 'rgba(139,92,246,.16)', 'text' => '#c4b5fd'],
+    'emerald' => ['accent' => '#1e8c55', 'soft' => 'rgba(30,140,85,.16)', 'text' => '#a9d4be'],
     'blue' => ['accent' => '#3b82f6', 'soft' => 'rgba(59,130,246,.16)', 'text' => '#93c5fd'],
-    'violet' => ['accent' => '#8b5cf6', 'soft' => 'rgba(139,92,246,.16)', 'text' => '#c4b5fd'],
+    'violet' => ['accent' => '#1e8c55', 'soft' => 'rgba(30,140,85,.16)', 'text' => '#a9d4be'],
     'amber' => ['accent' => '#f59e0b', 'soft' => 'rgba(245,158,11,.16)', 'text' => '#fcd34d'],
     'rose' => ['accent' => '#f43f5e', 'soft' => 'rgba(244,63,94,.16)', 'text' => '#fda4af'],
     'cyan' => ['accent' => '#06b6d4', 'soft' => 'rgba(6,182,212,.16)', 'text' => '#67e8f9'],
@@ -116,7 +116,7 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
     /* â”€â”€ Sidebar â”€â”€ */
     .sidebar { width: 250px; min-height: 100vh; background: #1e293b; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: 4px 0 20px rgba(0,0,0,.35); position: fixed; top: 0; left: 0; z-index: 200; }
     .sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.06); }
-    .sidebar__brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg,#7c3aed,#c026d3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; flex-shrink: 0; box-shadow:0 8px 20px rgba(124,58,237,.32); }
+    .sidebar__brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg,#0d623a,#d97a0c); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; flex-shrink: 0; box-shadow:0 8px 20px rgba(13,98,58,.32); }
     .sidebar__brand-text { font-size: 15px; font-weight: 700; color: #f1f5f9; }
     .sidebar__brand-sub  { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .8px; }
     .sidebar__nav { flex: 1; overflow-y: auto; padding: 10px 0; scrollbar-width: thin; scrollbar-color: #334155 transparent; }
@@ -125,42 +125,42 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
     .nav-item { list-style: none; }
     .nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: #94a3b8; text-decoration: none; font-size: 13.5px; font-weight: 500; transition: background .18s, color .18s; cursor: pointer; }
     .nav-link:hover { background: #334155; color: #e2e8f0; }
-    .nav-link.active { background: rgba(124,58,237,.18); color: #c4b5fd; border-right: 3px solid #a855f7; }
-    .nav-link.active .nav-icon { color: #c4b5fd; }
+    .nav-link.active { background: rgba(13,98,58,.18); color: #a9d4be; border-right: 3px solid #1e8c55; }
+    .nav-link.active .nav-icon { color: #a9d4be; }
     .nav-icon { width: 18px; text-align: center; font-size: 14px; color: #64748b; flex-shrink: 0; transition: color .18s; }
     .nav-link:hover .nav-icon { color: #94a3b8; }
     .nav-label { flex: 1; line-height: 1; text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
 
-    .badge-new { background: #a855f7; color: #fff; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .badge-new { background: #1e8c55; color: #fff; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
     .nav-toggle { font-size: 11px; color: #475569; transition: transform .28s ease, color .18s; }
     .nav-link[aria-expanded="true"] .nav-toggle { transform: rotate(45deg); color: #94a3b8; }
     .submenu { background: #162032; list-style: none; }
     .submenu-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px 9px 46px; color: #64748b; text-decoration: none; font-size: 12.5px; transition: background .15s, color .15s; }
     .submenu-link::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #334155; flex-shrink: 0; transition: background .15s; }
     .submenu-link:hover { background: #1e293b; color: #cbd5e1; }
-    .submenu-link:hover::before { background: #a855f7; }
-    .submenu.show { border-left: 3px solid rgba(168,85,247,.38); }
-    .submenu-link.active { color: #c4b5fd; font-weight: 700; background: rgba(124,58,237,.20); }
-    .submenu-link.active::before { background: #a855f7; }
+    .submenu-link:hover::before { background: #1e8c55; }
+    .submenu.show { border-left: 3px solid rgba(30,140,85,.38); }
+    .submenu-link.active { color: #a9d4be; font-weight: 700; background: rgba(13,98,58,.20); }
+    .submenu-link.active::before { background: #1e8c55; }
     .submenu-link.site-management-btn {
       margin: 6px 12px 8px 36px;
       padding: 9px 12px;
       border-radius: 8px;
-      background: linear-gradient(135deg,#7c3aed,#c026d3);
+      background: linear-gradient(135deg,#0d623a,#d97a0c);
       color: #fff;
       font-weight: 800;
-      box-shadow: 0 8px 18px rgba(124,58,237,.22);
+      box-shadow: 0 8px 18px rgba(13,98,58,.22);
     }
     .submenu-link.site-management-btn::before { background: #fff; }
     .submenu-link.site-management-btn:hover,
     .submenu-link.site-management-btn.active {
       color: #fff;
-      background: linear-gradient(135deg,#6d28d9,#a21caf);
+      background: linear-gradient(135deg,#0d623a,#a85c07);
     }
     .submenu-link.site-management-btn.active::before { background:#fff; }
     .nav-divider { height: 1px; background: rgba(255,255,255,.05); margin: 6px 16px; }
     .sidebar__footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; gap: 10px; }
-    .sidebar__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; font-weight: 600; flex-shrink: 0; }
+    .sidebar__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#1e8c55); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; font-weight: 600; flex-shrink: 0; }
     .sidebar__user-name { font-size: 12.5px; font-weight: 600; color: #e2e8f0; }
     .sidebar__user-role { font-size: 10.5px; color: #475569; }
     .tenant-panel { padding: 9px 12px; border-top: 1px solid rgba(255,255,255,.08); background: rgba(15,23,42,.58); }
@@ -171,7 +171,7 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
     .tenant-panel__period { display: flex; align-items: center; gap: 7px; color: #cbd5e1; font-size: 11.5px; line-height:1.2; margin-top:3px; min-width:0; }
     .tenant-panel__period-name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .tenant-panel__status { font-size: 10px; border-radius: 999px; padding: 2px 7px; font-weight: 800; }
-    .tenant-panel__status.success { background: rgba(124,58,237,.20); color: #c4b5fd; }
+    .tenant-panel__status.success { background: rgba(13,98,58,.20); color: #a9d4be; }
     .tenant-panel__status.warning { background: rgba(245,158,11,.18); color: #fcd34d; }
     .tenant-panel__status.secondary { background: rgba(148,163,184,.18); color: #cbd5e1; }
     .tenant-panel__status.dark { background: rgba(15,23,42,.8); color: #94a3b8; }
@@ -190,7 +190,7 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
     .topbar__right { display: flex; align-items: center; gap: 14px; }
     .topbar__avatar-btn { display: flex; align-items: center; gap: 8px; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: background .15s; }
     .topbar__avatar-btn:hover { background: #f1f5f9; }
-    .topbar__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; font-weight: 600; }
+    .topbar__avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#1e8c55); display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; font-weight: 600; }
     .topbar__uname { font-size: 13px; font-weight: 600; color: #1e293b; }
     .notif-btn { position: relative; background: none; border: none; cursor: pointer; color: #64748b; font-size: 16px; padding: 6px; border-radius: 8px; transition: background .15s, color .15s; }
     .notif-btn:hover { background: #f1f5f9; color: #1e293b; }
@@ -209,7 +209,7 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
     .topbar__profile-btn:hover { background: #334155; }
     .topbar__profile-avatar {
       width: 32px; height: 32px; border-radius: 7px;
-      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      background: linear-gradient(135deg,#6366f1,#1e8c55);
       display: flex; align-items: center; justify-content: center;
       font-size: 14px; color: #fff; flex-shrink: 0;
       overflow: hidden;
@@ -237,7 +237,7 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
     }
     .pd-header-avatar {
       width: 38px; height: 38px; border-radius: 8px;
-      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      background: linear-gradient(135deg,#6366f1,#1e8c55);
       display: flex; align-items: center; justify-content: center;
       font-size: 16px; color: #fff; flex-shrink: 0;
       overflow: hidden;
@@ -258,8 +258,8 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
       display: flex; align-items: center; justify-content: center;
       font-size: 12px; flex-shrink: 0;
     }
-    .pd-item.pd-hesabim .pd-icon  { background: #ede9fe; color: #7c3aed; }
-    .pd-item.pd-hesabim:hover      { border-left-color: #7c3aed; color: #7c3aed; }
+    .pd-item.pd-hesabim .pd-icon  { background: #e6f2e5; color: #0d623a; }
+    .pd-item.pd-hesabim:hover      { border-left-color: #0d623a; color: #0d623a; }
     .pd-item.pd-sifre .pd-icon     { background: #dbeafe; color: #2563eb; }
     .pd-item.pd-sifre:hover        { border-left-color: #2563eb; color: #2563eb; }
     .pd-item.pd-cikis .pd-icon     { background: #fee2e2; color: #dc2626; }
@@ -267,7 +267,7 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
     .pd-item.pd-cikis              { border-top: 1px solid #f1f5f9; }
 
     .nav-link:focus { color: #94a3b8; outline: none; }
-    .nav-link.active:focus { color: #c4b5fd; outline: none; }
+    .nav-link.active:focus { color: #a9d4be; outline: none; }
 
     @media (max-width: 768px) {
       .sidebar { width: 200px; } .page-wrapper { margin-left: 200px; }
@@ -453,7 +453,7 @@ $currentUserRoleLabel = $roleLabels[$currentUserRole] ?? 'Kullanıcı';
       <?php if (!empty($topbarTitle)): ?>
         <div class="topbar__title" style="font-size:15px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
           <?php if (!empty($topbarIcon)): ?>
-            <i class="<?= htmlspecialchars($topbarIcon) ?>" style="color:#7c3aed;"></i>
+            <i class="<?= htmlspecialchars($topbarIcon) ?>" style="color:#0d623a;"></i>
           <?php endif; ?>
           <?= htmlspecialchars($topbarTitle) ?>
         </div>

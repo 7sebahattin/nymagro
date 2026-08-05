@@ -1,6 +1,6 @@
 <?php
 /**
- * Site Yönetimi — Nuverna Trade
+ * Site Yönetimi — Nymagro
  * @var array $ayarlar
  * @var array $urunler
  * @var array $galeri
@@ -30,12 +30,12 @@ $sections = [
         'id'    => 'hero',
         'icon'  => 'fa-bullhorn',
         'title' => 'Anasayfa Hero',
-        'color' => '#7c3aed',
+        'color' => '#0d623a',
         'fields' => [
-            'hero_eyebrow'      => ['label'=>'Üst etiket (kicker)',       'type'=>'text', 'd'=>['tr'=>"Türkiye'den Dünyaya",'en'=>'From Türkiye to the World','ru'=>'Из Турции в мир']],
-            'hero_title_1'      => ['label'=>'Başlık 1. satır',           'type'=>'text', 'd'=>['tr'=>"Anadolu'dan dünyaya",'en'=>'Fresh export from','ru'=>'Из Анатолии в мир']],
-            'hero_title_2'      => ['label'=>'Başlık 2. satır (vurgulu)', 'type'=>'text', 'd'=>['tr'=>'taze ihracat','en'=>'Anatolia','ru'=>'свежий экспорт']],
-            'hero_desc'         => ['label'=>'Açıklama metni',            'type'=>'area', 'd'=>['tr'=>'Nuverna Trade, Anadolu\'nun en kaliteli yaş sebze ve meyvelerini özenle seçer, paketler ve dünya pazarlarına ulaştırır.','en'=>'Nuverna Trade carefully sources, packages and ships premium fresh fruits & vegetables from Türkiye to global markets.','ru'=>'Nuverna Trade тщательно отбирает, упаковывает и поставляет свежие фрукты и овощи из Турции.']],
+            'hero_eyebrow'      => ['label'=>'Üst etiket (kicker)',       'type'=>'text', 'd'=>['tr'=>'Toprağa Değer, Bitkiye Güç','en'=>'Value for the Soil, Strength for the Plant','ru'=>'Ценность для почвы, сила для растения']],
+            'hero_title_1'      => ['label'=>'Başlık 1. satır',           'type'=>'text', 'd'=>['tr'=>'Toprağa değer,','en'=>'Value for the soil,','ru'=>'Ценность для почвы,']],
+            'hero_title_2'      => ['label'=>'Başlık 2. satır (vurgulu)', 'type'=>'text', 'd'=>['tr'=>'bitkiye güç','en'=>'strength for the plant','ru'=>'сила для растения']],
+            'hero_desc'         => ['label'=>'Açıklama metni',            'type'=>'area', 'd'=>['tr'=>'Nymagro, EC Fertilizer standardında üretilen şelatlı mikro element ve sıvı bitki besin ürünlerini İspanya\'dan ithal ederek Türk üreticisinin hizmetine sunar.','en'=>'Nymagro imports chelated micronutrients and liquid plant nutrition products manufactured in Spain to EC Fertilizer standards and brings them to Turkish growers.','ru'=>'Nymagro импортирует из Испании хелатные микроэлементы и жидкие продукты питания растений стандарта EC Fertilizer и поставляет их турецким производителям.']],
             'hero_btn_products' => ['label'=>'Ürün butonu yazısı',        'type'=>'text', 'd'=>['tr'=>'Ürünleri İncele','en'=>'Explore Products','ru'=>'Смотреть продукцию']],
             'hero_btn_contact'  => ['label'=>'İletişim butonu yazısı',    'type'=>'text', 'd'=>['tr'=>'İletişime Geç','en'=>'Get in Touch','ru'=>'Связаться']],
         ],
@@ -44,16 +44,16 @@ $sections = [
         'id'    => 'about',
         'icon'  => 'fa-circle-info',
         'title' => 'Hakkımızda',
-        'color' => '#0ea5e9',
+        'color' => '#1e8c55',
         'fields' => [
             'about_tag'   => ['label'=>'Bölüm etiketi',  'type'=>'text', 'd'=>['tr'=>'Hakkımızda','en'=>'About Us','ru'=>'О нас']],
-            'about_title' => ['label'=>'Ana başlık',     'type'=>'text', 'd'=>['tr'=>'Güven ve kalite üzerine ihracat.','en'=>'Export built on trust and quality.','ru'=>'Экспорт на основе доверия и качества.']],
-            'about_p1'    => ['label'=>'1. paragraf',    'type'=>'area', 'd'=>['tr'=>'Nuverna Trade, Türkiye\'nin verimli topraklarında yetişen yaş sebze ve meyveleri uluslararası pazarlara taşıyan profesyonel bir ihracat firmasıdır.','en'=>'Nuverna Trade is a professional export company delivering premium fresh fruits and vegetables from Türkiye to international markets.','ru'=>'Nuverna Trade — профессиональная экспортная компания, поставляющая свежие фрукты и овощи из Турции.']],
-            'about_p2'    => ['label'=>'2. paragraf',    'type'=>'area', 'd'=>['tr'=>'Amacımız; müşterilerimize süreklilik, kalite ve güven sunmaktır.','en'=>'Our purpose is to provide clients with continuity, quality and trust.','ru'=>'Наша цель — стабильность, качество и доверие.']],
-            'about_li1'   => ['label'=>'Madde 1',        'type'=>'text', 'd'=>['tr'=>'Kalite odaklı tedarik ağı','en'=>'Quality-focused sourcing','ru'=>'Контроль качества']],
-            'about_li2'   => ['label'=>'Madde 2',        'type'=>'text', 'd'=>['tr'=>'Hedef pazara uygun paketleme','en'=>'Market-tailored packaging','ru'=>'Упаковка под рынок']],
-            'about_li3'   => ['label'=>'Madde 3',        'type'=>'text', 'd'=>['tr'=>'Yıllık ihracat deneyimi','en'=>'Years of export experience','ru'=>'Многолетний опыт']],
-            'about_li4'   => ['label'=>'Madde 4',        'type'=>'text', 'd'=>['tr'=>'Zamanında teslimat','en'=>'On-time delivery','ru'=>'Своевременные поставки']],
+            'about_title' => ['label'=>'Ana başlık',     'type'=>'text', 'd'=>['tr'=>'Bilgi ve kalite üzerine bitki besleme.','en'=>'Plant nutrition built on knowledge and quality.','ru'=>'Питание растений на основе знаний и качества.']],
+            'about_p1'    => ['label'=>'1. paragraf',    'type'=>'area', 'd'=>['tr'=>'Nymagro, İspanya\'da EC Fertilizer standardında üretilen şelatlı mikro element ve sıvı bitki besin ürünlerini Türkiye\'ye ithal eden, Antalya merkezli bir tarım firmasıdır.','en'=>'Nymagro is an Antalya based agricultural company importing chelated micronutrients and liquid plant nutrition products manufactured in Spain to EC Fertilizer standards.','ru'=>'Nymagro — компания из Анталии, импортирующая хелатные микроэлементы и жидкие продукты питания растений, произведённые в Испании по стандарту EC Fertilizer.']],
+            'about_p2'    => ['label'=>'2. paragraf',    'type'=>'area', 'd'=>['tr'=>'Amacımız; üreticiye belgeli ürün, doğru doz ve sürekli teknik destek sunmaktır.','en'=>'Our purpose is to offer growers documented products, the right dose and continuous technical support.','ru'=>'Наша цель — документированный продукт, правильная доза и постоянная техническая поддержка.']],
+            'about_li1'   => ['label'=>'Madde 1',        'type'=>'text', 'd'=>['tr'=>'Bakanlık tescilli ürün portföyü','en'=>'Officially registered product range','ru'=>'Зарегистрированный ассортимент']],
+            'about_li2'   => ['label'=>'Madde 2',        'type'=>'text', 'd'=>['tr'=>'EDTA şelatlı, yüksek alınabilirlik','en'=>'EDTA chelated, high availability','ru'=>'Хелат ЭДТА, высокая усвояемость']],
+            'about_li3'   => ['label'=>'Madde 3',        'type'=>'text', 'd'=>['tr'=>'Analize dayalı gübreleme programı','en'=>'Analysis based fertilization programme','ru'=>'Программа питания на основе анализа']],
+            'about_li4'   => ['label'=>'Madde 4',        'type'=>'text', 'd'=>['tr'=>'Türkiye genelinde bayi ağı','en'=>'Dealer network across Türkiye','ru'=>'Дилерская сеть по всей Турции']],
         ],
     ],
     [
@@ -63,78 +63,78 @@ $sections = [
         'color' => '#16a34a',
         'fields' => [
             'products_tag'   => ['label'=>'Bölüm etiketi', 'type'=>'text', 'd'=>['tr'=>'Ürünlerimiz','en'=>'Our Products','ru'=>'Продукция']],
-            'products_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'Premium kalite, taze ürün yelpazesi','en'=>'Premium quality, fresh range','ru'=>'Свежий ассортимент премиум-качества']],
-            'products_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>"Anadolu'nun bereketli topraklarından dünya soframıza uzanan taze ürünler.",'en'=>"From Anatolia's bountiful soils to global tables.",'ru'=>'С плодородных земель Анатолии — на стол всему миру.']],
+            'products_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'Bitkinin her döneminde doğru besin','en'=>'The right nutrient at every growth stage','ru'=>'Нужное питание на каждом этапе']],
+            'products_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>'Mikro element eksikliğinden meyve kalitesine kadar geniş bir ürün portföyü.','en'=>'A broad portfolio, from micronutrient deficiencies to fruit quality.','ru'=>'Широкий портфель — от дефицита микроэлементов до качества плодов.']],
         ],
     ],
     [
         'id'    => 'markets',
-        'icon'  => 'fa-globe',
-        'title' => 'İhracat Bölgeleri',
-        'color' => '#d97706',
+        'icon'  => 'fa-layer-group',
+        'title' => 'Ürün Grupları',
+        'color' => '#f3911f',
         'fields' => [
-            'markets_tag'   => ['label'=>'Bölüm etiketi', 'type'=>'text', 'd'=>['tr'=>'İhracat Bölgeleri','en'=>'Export Markets','ru'=>'Рынки экспорта']],
-            'markets_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>"Türkiye'den dünyaya tedarik ağı",'en'=>'Supply network from Türkiye to the world','ru'=>'Снабжающая сеть из Турции в мир']],
-            'markets_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>'Farklı pazarların kalite ve paketleme beklentilerine uygun çözümler.','en'=>'Solutions tailored to each market\'s quality and packaging expectations.','ru'=>'Решения под каждый целевой рынок.']],
-            'market_eu'     => ['label'=>'🇪🇺 Avrupa adı', 'type'=>'text', 'd'=>['tr'=>'Avrupa','en'=>'Europe','ru'=>'Европа']],
-            'market_eu_d'   => ['label'=>'🇪🇺 Avrupa açık.','type'=>'text', 'd'=>['tr'=>'Almanya · Hollanda · Polonya','en'=>'Germany · Netherlands · Poland','ru'=>'Германия · Нидерланды · Польша']],
-            'market_uae'    => ['label'=>'🇦🇪 BAE adı',    'type'=>'text', 'd'=>['tr'=>'BAE / Dubai','en'=>'UAE / Dubai','ru'=>'ОАЭ / Дубай']],
-            'market_uae_d'  => ['label'=>'🇦🇪 BAE açık.',  'type'=>'text', 'd'=>['tr'=>'Premium Market','en'=>'Premium Market','ru'=>'Премиум-рынок']],
-            'market_sa'     => ['label'=>'🇸🇦 S. Arabistan adı','type'=>'text', 'd'=>['tr'=>'Suudi Arabistan','en'=>'Saudi Arabia','ru'=>'Саудовская Аравия']],
-            'market_sa_d'   => ['label'=>'🇸🇦 S. Arabistan açık.','type'=>'text', 'd'=>['tr'=>'Körfez Bölgesi','en'=>'Gulf Region','ru'=>'Регион Залива']],
-            'market_ru'     => ['label'=>'🇷🇺 Rusya adı',  'type'=>'text', 'd'=>['tr'=>'Rusya','en'=>'Russia','ru'=>'Россия']],
-            'market_ru_d'   => ['label'=>'🇷🇺 Rusya açık.','type'=>'text', 'd'=>['tr'=>'BDT Bölgesi','en'=>'CIS Region','ru'=>'СНГ']],
+            'markets_tag'   => ['label'=>'Bölüm etiketi', 'type'=>'text', 'd'=>['tr'=>'Ürün Gruplarımız','en'=>'Our Product Groups','ru'=>'Группы продукции']],
+            'markets_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'İhtiyacınıza göre beş ana grup','en'=>'Five core groups for every need','ru'=>'Пять основных групп под любую задачу']],
+            'markets_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>'Uygulama şekline ve bitkinin ihtiyacına göre ayrılmış ürün grupları.','en'=>'Product groups organised by application method and plant requirement.','ru'=>'Группы продукции по способу применения и потребности растения.']],
+            'market_eu'     => ['label'=>'Grup 1 adı',    'type'=>'text', 'd'=>['tr'=>'Şelatlı Mikro Elementler','en'=>'Chelated Micronutrients','ru'=>'Хелатные микроэлементы']],
+            'market_eu_d'   => ['label'=>'Grup 1 açık.',  'type'=>'text', 'd'=>['tr'=>'Fe · Zn · Mn · Cu · B','en'=>'Fe · Zn · Mn · Cu · B','ru'=>'Fe · Zn · Mn · Cu · B']],
+            'market_uae'    => ['label'=>'Grup 2 adı',    'type'=>'text', 'd'=>['tr'=>'Yaprak Gübreleri','en'=>'Foliar Fertilizers','ru'=>'Листовые удобрения']],
+            'market_uae_d'  => ['label'=>'Grup 2 açık.',  'type'=>'text', 'd'=>['tr'=>'Hızlı Etki','en'=>'Fast Acting','ru'=>'Быстрое действие']],
+            'market_sa'     => ['label'=>'Grup 3 adı',    'type'=>'text', 'd'=>['tr'=>'Damlama Gübreleri','en'=>'Fertigation Products','ru'=>'Продукты для фертигации']],
+            'market_sa_d'   => ['label'=>'Grup 3 açık.',  'type'=>'text', 'd'=>['tr'=>'Kök Bölgesi','en'=>'Root Zone','ru'=>'Корневая зона']],
+            'market_ru'     => ['label'=>'Grup 4 adı',    'type'=>'text', 'd'=>['tr'=>'Biyostimülantlar','en'=>'Biostimulants','ru'=>'Биостимуляторы']],
+            'market_ru_d'   => ['label'=>'Grup 4 açık.',  'type'=>'text', 'd'=>['tr'=>'Stres Yönetimi','en'=>'Stress Management','ru'=>'Управление стрессом']],
         ],
     ],
     [
         'id'    => 'quality',
         'icon'  => 'fa-shield-halved',
-        'title' => 'Kalite & Paketleme',
-        'color' => '#7c3aed',
+        'title' => 'Kalite & Tescil',
+        'color' => '#0d623a',
         'fields' => [
-            'quality_h1'     => ['label'=>'Sayfa başlığı',  'type'=>'text', 'd'=>['tr'=>'Kalite ve Paketleme','en'=>'Quality & Packaging','ru'=>'Качество и упаковка']],
-            'quality_lead'   => ['label'=>'Açıklama',        'type'=>'area', 'd'=>['tr'=>'Tarladan ihracata kontrollü süreç.','en'=>'Controlled process from field to export.','ru'=>'Контролируемый процесс.']],
-            'quality_step1_t'=> ['label'=>'Adım 1 başlık',  'type'=>'text', 'd'=>['tr'=>'Ürün Seçimi','en'=>'Sourcing','ru'=>'Отбор']],
-            'quality_step1_d'=> ['label'=>'Adım 1 açık.',   'type'=>'text', 'd'=>['tr'=>'Hasat zamanı ve bölgeye göre seçim.','en'=>'Selection by harvest period and region.','ru'=>'Подбор по сезону и региону.']],
-            'quality_step2_t'=> ['label'=>'Adım 2 başlık',  'type'=>'text', 'd'=>['tr'=>'Kalite Kontrol','en'=>'Quality Control','ru'=>'Контроль качества']],
-            'quality_step2_d'=> ['label'=>'Adım 2 açık.',   'type'=>'text', 'd'=>['tr'=>'Görsel kontrol ve kalibrasyon.','en'=>'Visual control and calibration.','ru'=>'Визуальный контроль.']],
-            'quality_step3_t'=> ['label'=>'Adım 3 başlık',  'type'=>'text', 'd'=>['tr'=>'Paketleme','en'=>'Packaging','ru'=>'Упаковка']],
-            'quality_step3_d'=> ['label'=>'Adım 3 açık.',   'type'=>'text', 'd'=>['tr'=>'Hedef pazara uygun ambalaj.','en'=>'Market-tailored packaging.','ru'=>'Упаковка под рынок.']],
-            'quality_step4_t'=> ['label'=>'Adım 4 başlık',  'type'=>'text', 'd'=>['tr'=>'Sevkiyat','en'=>'Shipping','ru'=>'Отгрузка']],
-            'quality_step4_d'=> ['label'=>'Adım 4 açık.',   'type'=>'text', 'd'=>['tr'=>'Soğuk zincir ve zamanında teslim.','en'=>'Cold chain and on-time delivery.','ru'=>'Холодовая цепь.']],
+            'quality_h1'     => ['label'=>'Sayfa başlığı',  'type'=>'text', 'd'=>['tr'=>'Kalite ve Tescil','en'=>'Quality & Registration','ru'=>'Качество и регистрация']],
+            'quality_lead'   => ['label'=>'Açıklama',        'type'=>'area', 'd'=>['tr'=>'Üretimden tarlaya belgeli ve kontrollü süreç.','en'=>'A documented, controlled process from production to the field.','ru'=>'Документированный и контролируемый процесс.']],
+            'quality_step1_t'=> ['label'=>'Adım 1 başlık',  'type'=>'text', 'd'=>['tr'=>'EC Fertilizer Standardı','en'=>'EC Fertilizer Standard','ru'=>'Стандарт EC Fertilizer']],
+            'quality_step1_d'=> ['label'=>'Adım 1 açık.',   'type'=>'text', 'd'=>['tr'=>'AB gübre mevzuatına göre formülasyon.','en'=>'Formulated to EU fertilizer regulation.','ru'=>'Формула по регламенту ЕС.']],
+            'quality_step2_t'=> ['label'=>'Adım 2 başlık',  'type'=>'text', 'd'=>['tr'=>'Parti Bazlı Analiz','en'=>'Batch Analysis','ru'=>'Анализ партии']],
+            'quality_step2_d'=> ['label'=>'Adım 2 açık.',   'type'=>'text', 'd'=>['tr'=>'İçerik, şelat kararlılığı ve pH kontrolü.','en'=>'Content, chelate stability and pH control.','ru'=>'Состав, стабильность хелата и pH.']],
+            'quality_step3_t'=> ['label'=>'Adım 3 başlık',  'type'=>'text', 'd'=>['tr'=>'Bakanlık Tescili','en'=>'Ministry Registration','ru'=>'Регистрация в министерстве']],
+            'quality_step3_d'=> ['label'=>'Adım 3 açık.',   'type'=>'text', 'd'=>['tr'=>'Tescil belgesi ile piyasaya arz.','en'=>'Placed on the market with a registration certificate.','ru'=>'Вывод на рынок со свидетельством.']],
+            'quality_step4_t'=> ['label'=>'Adım 4 başlık',  'type'=>'text', 'd'=>['tr'=>'İzlenebilirlik','en'=>'Traceability','ru'=>'Прослеживаемость']],
+            'quality_step4_d'=> ['label'=>'Adım 4 açık.',   'type'=>'text', 'd'=>['tr'=>'Parti no, üretim ve son kullanma tarihi.','en'=>'Batch number, production and expiry date.','ru'=>'Номер партии, даты производства и годности.']],
         ],
     ],
     [
         'id'    => 'services',
         'icon'  => 'fa-handshake',
         'title' => 'Hizmetlerimiz',
-        'color' => '#0ea5e9',
+        'color' => '#1e8c55',
         'fields' => [
             'services_tag'   => ['label'=>'Bölüm etiketi', 'type'=>'text', 'd'=>['tr'=>'Hizmetlerimiz','en'=>'Our Services','ru'=>'Услуги']],
-            'services_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'Uçtan uca ihracat çözümleri','en'=>'End-to-end export solutions','ru'=>'Полный цикл экспорта']],
-            'srv1_t'  => ['label'=>'Hizmet 1 başlık', 'type'=>'text', 'd'=>['tr'=>'Ürün Tedariki','en'=>'Sourcing','ru'=>'Поставка']],
-            'srv1_d'  => ['label'=>'Hizmet 1 açık.',  'type'=>'text', 'd'=>['tr'=>"Türkiye'nin en verimli bölgelerinden tedarik.",'en'=>"Sourcing from Türkiye's best regions.",'ru'=>'Прямая закупка в лучших регионах.']],
-            'srv2_t'  => ['label'=>'Hizmet 2 başlık', 'type'=>'text', 'd'=>['tr'=>'Kalite Kontrol','en'=>'Quality Control','ru'=>'Контроль качества']],
-            'srv2_d'  => ['label'=>'Hizmet 2 açık.',  'type'=>'text', 'd'=>['tr'=>'Titiz inceleme ve ayrım.','en'=>'Rigorous inspection.','ru'=>'Тщательная проверка.']],
-            'srv3_t'  => ['label'=>'Hizmet 3 başlık', 'type'=>'text', 'd'=>['tr'=>'Paketleme','en'=>'Packaging','ru'=>'Упаковка']],
-            'srv3_d'  => ['label'=>'Hizmet 3 açık.',  'type'=>'text', 'd'=>['tr'=>'Müşteri ve ülke spesifik ambalaj.','en'=>'Country-specific packing.','ru'=>'Упаковка под клиента.']],
-            'srv4_t'  => ['label'=>'Hizmet 4 başlık', 'type'=>'text', 'd'=>['tr'=>'İhracat Operasyonu','en'=>'Export Operations','ru'=>'Экспортные операции']],
-            'srv4_d'  => ['label'=>'Hizmet 4 açık.',  'type'=>'text', 'd'=>['tr'=>'Gümrük ve sevkiyat süreç yönetimi.','en'=>'Customs and shipment management.','ru'=>'Таможня и отгрузка.']],
+            'services_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'Üründen teknik desteğe uçtan uca çözüm','en'=>'End-to-end solutions, from product to technical support','ru'=>'Комплексные решения — от продукта до поддержки']],
+            'srv1_t'  => ['label'=>'Hizmet 1 başlık', 'type'=>'text', 'd'=>['tr'=>'Ürün Tedariki','en'=>'Product Supply','ru'=>'Поставка продукции']],
+            'srv1_d'  => ['label'=>'Hizmet 1 açık.',  'type'=>'text', 'd'=>['tr'=>'Avrupa üretim tesisinden doğrudan tedarik.','en'=>'Direct supply from the European facility.','ru'=>'Прямые поставки с завода в Европе.']],
+            'srv2_t'  => ['label'=>'Hizmet 2 başlık', 'type'=>'text', 'd'=>['tr'=>'Teknik Tarla Desteği','en'=>'Technical Field Support','ru'=>'Поддержка в поле']],
+            'srv2_d'  => ['label'=>'Hizmet 2 açık.',  'type'=>'text', 'd'=>['tr'=>'Saha ziyareti ve eksiklik teşhisi.','en'=>'Field visits and deficiency diagnosis.','ru'=>'Выезды и диагностика дефицитов.']],
+            'srv3_t'  => ['label'=>'Hizmet 3 başlık', 'type'=>'text', 'd'=>['tr'=>'Gübreleme Programı','en'=>'Fertilization Programme','ru'=>'Программа питания']],
+            'srv3_d'  => ['label'=>'Hizmet 3 açık.',  'type'=>'text', 'd'=>['tr'=>'Toprak ve yaprak analizine göre program.','en'=>'Programme based on soil and leaf analysis.','ru'=>'Программа по анализу почвы и листа.']],
+            'srv4_t'  => ['label'=>'Hizmet 4 başlık', 'type'=>'text', 'd'=>['tr'=>'Bayilik','en'=>'Dealership','ru'=>'Дилерство']],
+            'srv4_d'  => ['label'=>'Hizmet 4 açık.',  'type'=>'text', 'd'=>['tr'=>'Bölge temsilciliği ve stok desteği.','en'=>'Regional representation and stock support.','ru'=>'Региональное представительство и склад.']],
             'srv5_t'  => ['label'=>'Hizmet 5 başlık', 'type'=>'text', 'd'=>['tr'=>'Lojistik','en'=>'Logistics','ru'=>'Логистика']],
-            'srv5_d'  => ['label'=>'Hizmet 5 açık.',  'type'=>'text', 'd'=>['tr'=>'Soğuk zincir lojistik.','en'=>'Cold chain logistics.','ru'=>'Холодовая цепь.']],
-            'srv6_t'  => ['label'=>'Hizmet 6 başlık', 'type'=>'text', 'd'=>['tr'=>'Özel Tedarik','en'=>'Custom Supply','ru'=>'Под запрос']],
-            'srv6_d'  => ['label'=>'Hizmet 6 açık.',  'type'=>'text', 'd'=>['tr'=>'Talebe özel kalibre ve paket.','en'=>'On-demand calibre and pack.','ru'=>'Под запрос.']],
+            'srv5_d'  => ['label'=>'Hizmet 5 açık.',  'type'=>'text', 'd'=>['tr'=>'Düzenli sevkiyat ve hızlı teslimat.','en'=>'Regular shipments and fast delivery.','ru'=>'Регулярные отгрузки и быстрая доставка.']],
+            'srv6_t'  => ['label'=>'Hizmet 6 başlık', 'type'=>'text', 'd'=>['tr'=>'Eğitim ve Tanıtım','en'=>'Training and Promotion','ru'=>'Обучение и продвижение']],
+            'srv6_d'  => ['label'=>'Hizmet 6 açık.',  'type'=>'text', 'd'=>['tr'=>'Üretici toplantıları ve demo parseller.','en'=>'Grower meetings and demo plots.','ru'=>'Встречи и демоучастки.']],
         ],
     ],
     [
         'id'    => 'gallery',
         'icon'  => 'fa-images',
         'title' => 'Galeri',
-        'color' => '#c026d3',
+        'color' => '#d97a0c',
         'fields' => [
             'gallery_tag'   => ['label'=>'Bölüm etiketi', 'type'=>'text', 'd'=>['tr'=>'Galeri','en'=>'Gallery','ru'=>'Галерея']],
-            'gallery_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'Sahadan kareler','en'=>'Frames from the field','ru'=>'Кадры с поля']],
-            'gallery_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>'Üretim ve paketleme süreçlerinden anlar.','en'=>'Moments from production and packaging.','ru'=>'Моменты с производства.']],
+            'gallery_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'Üründen tarlaya','en'=>'From product to field','ru'=>'От продукта до поля']],
+            'gallery_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>'Ürünlerimiz ve saha uygulamalarımızdan anlar.','en'=>'Moments from our products and field applications.','ru'=>'Моменты продукции и полевых применений.']],
         ],
     ],
 ];
@@ -145,9 +145,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 <style>
 /* ── Değişkenler ──────────────────────────────────────── */
 :root {
-  --p: #7c3aed; --ps: rgba(124,58,237,.1);
-  --ink: #1e1b4b; --muted: #6b7280; --border: #e8e3f5;
-  --rad: 12px; --card-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(124,58,237,.06);
+  --p: #0d623a; --ps: rgba(13,98,58,.1);
+  --ink: #1e1b4b; --muted: #6b7280; --border: #e0efdf;
+  --rad: 12px; --card-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(13,98,58,.06);
 }
 
 /* ── Layout ───────────────────────────────────────────── */
@@ -176,7 +176,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 
 /* ── Card ─────────────────────────────────────────────── */
 .sm-card { background:#fff; border:1px solid var(--border); border-radius:var(--rad); margin-bottom:14px; box-shadow:var(--card-shadow); overflow:hidden; }
-.sm-card-head { padding:16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); background:#faf8ff; }
+.sm-card-head { padding:16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); background:#f8fcf7; }
 .sm-card-head .ico { width:32px; height:32px; border-radius:8px; background:var(--ps); color:var(--p); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
 .sm-card-head h3 { font-size:14px; font-weight:800; color:var(--ink); margin:0; }
 .sm-card-head p  { font-size:11.5px; color:var(--muted); margin:2px 0 0; }
@@ -194,21 +194,21 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
   width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:9px;
   font-size:13px; color:var(--ink); background:#fff; outline:none; transition:.15s; font-family:inherit;
 }
-.sm-inp:focus, .sm-area:focus { border-color:var(--p); box-shadow:0 0 0 3px rgba(124,58,237,.1); }
+.sm-inp:focus, .sm-area:focus { border-color:var(--p); box-shadow:0 0 0 3px rgba(13,98,58,.1); }
 .sm-area { min-height:78px; resize:vertical; }
 
 /* ── Logo box ─────────────────────────────────────────── */
-.sm-logo-box { display:flex; align-items:center; gap:16px; padding:16px; background:#f8f5ff; border-radius:10px; border:1px dashed #c4b5fd; }
-.sm-logo-prev { width:80px; height:80px; border-radius:12px; background:linear-gradient(135deg,#7c3aed,#c026d3); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
+.sm-logo-box { display:flex; align-items:center; gap:16px; padding:16px; background:#f5faf4; border-radius:10px; border:1px dashed #a9d4be; }
+.sm-logo-prev { width:80px; height:80px; border-radius:12px; background:linear-gradient(135deg,#0d623a,#d97a0c); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
 .sm-logo-prev img { width:100%; height:100%; object-fit:cover; }
 .sm-logo-prev svg { width:40px; height:40px; color:#fff; }
 
 /* ── Buttons ──────────────────────────────────────────── */
 .sm-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; transition:.15s; line-height:1; white-space:nowrap; }
-.sm-btn-primary { background:linear-gradient(135deg,#7c3aed,#c026d3); color:#fff; box-shadow:0 4px 14px rgba(124,58,237,.3); }
+.sm-btn-primary { background:linear-gradient(135deg,#0d623a,#d97a0c); color:#fff; box-shadow:0 4px 14px rgba(13,98,58,.3); }
 .sm-btn-primary:hover { filter:brightness(1.07); transform:translateY(-1px); }
 .sm-btn-ghost   { background:#fff; border:1.5px solid var(--border); color:var(--p); }
-.sm-btn-ghost:hover { background:#f5f0ff; }
+.sm-btn-ghost:hover { background:#f1f7f0; }
 .sm-btn-danger  { background:#fee2e2; color:#991b1b; border:none; }
 .sm-btn-danger:hover { background:#fecaca; }
 .sm-btn-sm { padding:6px 12px; font-size:12px; }
@@ -217,8 +217,8 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 
 /* ── Image preview tiles ───────────────────────────────── */
 .sm-img-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
-.sm-img-tile { border:1px solid var(--border); border-radius:10px; overflow:hidden; background:#faf8ff; }
-.sm-img-prev { height:130px; background:#f0ebff center/cover no-repeat; }
+.sm-img-tile { border:1px solid var(--border); border-radius:10px; overflow:hidden; background:#f8fcf7; }
+.sm-img-prev { height:130px; background:#ecf5eb center/cover no-repeat; }
 .sm-img-tile-body { padding:10px 12px; }
 .sm-img-tile-body label { font-size:11.5px; font-weight:700; color:var(--ink); display:block; margin-bottom:6px; }
 .sm-img-tile-body .sm-inp { font-size:12px; padding:7px 10px; }
@@ -226,7 +226,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .sm-section-media { margin-bottom:16px; }
 .sm-section-media .sm-img-grid { grid-template-columns:repeat(auto-fit,minmax(240px,360px)); }
 .sm-slider-list { display:flex; flex-direction:column; gap:14px; margin-bottom:16px; }
-.sm-slider-card { border:1px solid var(--border); border-radius:12px; background:#faf8ff; overflow:hidden; }
+.sm-slider-card { border:1px solid var(--border); border-radius:12px; background:#f8fcf7; overflow:hidden; }
 .sm-slider-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-bottom:1px solid var(--border); background:#fff; }
 .sm-slider-head h4 { margin:0; font-size:13px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:7px; }
 .sm-slider-body { padding:14px; }
@@ -234,10 +234,10 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 
 /* ── Accordion ────────────────────────────────────────── */
 .accord-item { border:1px solid var(--border); border-radius:var(--rad); margin-bottom:8px; background:#fff; overflow:hidden; transition:box-shadow .15s; }
-.accord-item.open { box-shadow:0 4px 20px rgba(124,58,237,.1); border-color:#c4b5fd; }
+.accord-item.open { box-shadow:0 4px 20px rgba(13,98,58,.1); border-color:#a9d4be; }
 .accord-head { width:100%; display:flex; align-items:center; gap:10px; padding:14px 18px; background:none; border:none; cursor:pointer; text-align:left; transition:background .15s; }
-.accord-head:hover { background:#faf8ff; }
-.accord-item.open .accord-head { background:#f5f0ff; border-bottom:1px solid var(--border); }
+.accord-head:hover { background:#f8fcf7; }
+.accord-item.open .accord-head { background:#f1f7f0; border-bottom:1px solid var(--border); }
 .accord-ico { width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
 .accord-title { flex:1; font-size:13.5px; font-weight:800; color:var(--ink); }
 .accord-arrow { color:var(--muted); font-size:11px; transition:transform .2s; }
@@ -248,7 +248,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 /* ── Language switcher (accordion içi) ────────────────── */
 .lang-pills { display:flex; gap:6px; margin-bottom:16px; }
 .lang-pill { padding:6px 14px; border:1.5px solid var(--border); border-radius:99px; background:#fff; color:var(--muted); font-size:12px; font-weight:700; cursor:pointer; transition:.12s; display:inline-flex; align-items:center; gap:5px; }
-.lang-pill.active { background:var(--p); color:#fff; border-color:var(--p); box-shadow:0 3px 10px rgba(124,58,237,.25); }
+.lang-pill.active { background:var(--p); color:#fff; border-color:var(--p); box-shadow:0 3px 10px rgba(13,98,58,.25); }
 .lang-panel { display:none; }
 .lang-panel.active { display:block; }
 
@@ -258,31 +258,31 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .social-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1.5px solid var(--border); border-radius:9px; background:#fff; }
 .social-item .sico { width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
 .social-item .sm-inp { border:none; padding:0; font-size:13px; flex:1; outline:none; }
-.social-item:focus-within { border-color:var(--p); box-shadow:0 0 0 3px rgba(124,58,237,.1); }
+.social-item:focus-within { border-color:var(--p); box-shadow:0 0 0 3px rgba(13,98,58,.1); }
 
 /* ── Product grid ─────────────────────────────────────── */
 .pr-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
 .pr-card { background:#fff; border:1px solid var(--border); border-radius:var(--rad); overflow:hidden; transition:.15s; }
-.pr-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,58,237,.12); border-color:#c4b5fd; }
-.pr-card-img { height:150px; background:#f0ebff center/cover no-repeat; position:relative; }
-.pr-card-tag { position:absolute; top:8px; left:8px; padding:3px 8px; background:linear-gradient(135deg,#7c3aed,#c026d3); color:#fff; font-size:10px; font-weight:800; border-radius:4px; letter-spacing:.5px; }
+.pr-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(13,98,58,.12); border-color:#a9d4be; }
+.pr-card-img { height:150px; background:#ecf5eb center/cover no-repeat; position:relative; }
+.pr-card-tag { position:absolute; top:8px; left:8px; padding:3px 8px; background:linear-gradient(135deg,#0d623a,#d97a0c); color:#fff; font-size:10px; font-weight:800; border-radius:4px; letter-spacing:.5px; }
 .pr-card-passive { position:absolute; top:8px; right:8px; padding:3px 8px; background:#71717a; color:#fff; font-size:10px; border-radius:4px; }
 .pr-card-body { padding:12px 14px 8px; }
 .pr-card-body h4 { font-size:13.5px; font-weight:800; color:var(--ink); margin-bottom:3px; }
 .pr-card-body p  { font-size:11.5px; color:var(--muted); line-height:1.45; height:30px; overflow:hidden; }
 .pr-card-foot { padding:8px 12px 12px; display:flex; gap:6px; }
 .pr-card-foot button { flex:1; padding:7px; font-size:11.5px; font-weight:700; border:none; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:4px; }
-.pr-edit { background:#ede9fe; color:#4c1d95; }
-.pr-edit:hover { background:#ddd6fe; }
+.pr-edit { background:#e6f2e5; color:#084526; }
+.pr-edit:hover { background:#cfe1cd; }
 .pr-del  { background:#fee2e2; color:#991b1b; }
 .pr-del:hover  { background:#fecaca; }
-.pr-empty { text-align:center; padding:40px; color:var(--muted); background:#faf8ff; border:1px dashed #c4b5fd; border-radius:var(--rad); }
-.pr-empty i { font-size:28px; color:#c4b5fd; display:block; margin-bottom:10px; }
+.pr-empty { text-align:center; padding:40px; color:var(--muted); background:#f8fcf7; border:1px dashed #a9d4be; border-radius:var(--rad); }
+.pr-empty i { font-size:28px; color:#a9d4be; display:block; margin-bottom:10px; }
 
 /* ── Gallery grid ─────────────────────────────────────── */
 .gal-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; }
 .gal-card { border:1px solid var(--border); border-radius:10px; overflow:hidden; background:#fff; }
-.gal-card-img { height:120px; background:#f0ebff center/cover no-repeat; position:relative; }
+.gal-card-img { height:120px; background:#ecf5eb center/cover no-repeat; position:relative; }
 .gal-card-passive { position:absolute; top:6px; right:6px; padding:2px 7px; background:#6b7280; color:#fff; font-size:10px; border-radius:4px; }
 .gal-card-body { padding:8px 10px; display:flex; align-items:center; justify-content:space-between; }
 .gal-card-body span { font-size:11.5px; color:var(--muted); font-weight:600; }
@@ -292,39 +292,39 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 /* ── Messages table ───────────────────────────────────── */
 .msg-wrap { border:1px solid var(--border); border-radius:var(--rad); overflow-x:auto; background:#fff; }
 .msg-table { width:100%; border-collapse:collapse; font-size:12.5px; }
-.msg-table th { background:#faf8ff; color:var(--ink); font-weight:800; font-size:11.5px; padding:10px 12px; text-align:left; border-bottom:2px solid var(--border); white-space:nowrap; }
-.msg-table td { padding:10px 12px; border-bottom:1px solid #f3f0fa; vertical-align:top; }
+.msg-table th { background:#f8fcf7; color:var(--ink); font-weight:800; font-size:11.5px; padding:10px 12px; text-align:left; border-bottom:2px solid var(--border); white-space:nowrap; }
+.msg-table td { padding:10px 12px; border-bottom:1px solid #f0f7ef; vertical-align:top; }
 .msg-table tr:last-child td { border-bottom:none; }
-.msg-table tr:hover td { background:#faf8ff; }
+.msg-table tr:hover td { background:#f8fcf7; }
 .msg-badge { display:inline-flex; align-items:center; padding:3px 9px; border-radius:99px; font-size:10.5px; font-weight:800; }
 .msg-badge.new     { background:#dbeafe; color:#1d4ed8; }
 .msg-badge.read    { background:#dcfce7; color:#15803d; }
-.msg-badge.replied { background:#ede9fe; color:#6d28d9; }
+.msg-badge.replied { background:#e6f2e5; color:#0d623a; }
 .msg-badge.spam    { background:#fee2e2; color:#991b1b; }
 .msg-locale-badge  { font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:3px; }
 .msg-acts { display:flex; gap:4px; flex-wrap:wrap; }
 .msg-acts button { padding:4px 9px; border:none; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; }
-.msg-read-btn    { background:#ede9fe; color:#4c1d95; }
+.msg-read-btn    { background:#e6f2e5; color:#084526; }
 .msg-replied-btn { background:#dcfce7; color:#065f46; }
 .msg-del-btn     { background:#fee2e2; color:#991b1b; }
 .msg-text-toggle { color:var(--p); font-size:11.5px; font-weight:600; cursor:pointer; display:block; margin-top:3px; }
-.msg-full-text   { display:none; background:#f8f8fc; border-radius:6px; padding:8px; margin-top:5px; font-size:12px; white-space:pre-wrap; line-height:1.5; border:1px solid #e5e2f5; }
+.msg-full-text   { display:none; background:#f8f8fc; border-radius:6px; padding:8px; margin-top:5px; font-size:12px; white-space:pre-wrap; line-height:1.5; border:1px solid #dcebdb; }
 .msg-filter-bar  { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
 .msg-filter { padding:6px 13px; border:1.5px solid var(--border); background:#fff; border-radius:99px; font-size:12px; font-weight:700; cursor:pointer; color:var(--muted); }
 .msg-filter.active { background:var(--p); color:#fff; border-color:var(--p); }
 
 /* ── Modal ────────────────────────────────────────────── */
-.sm-overlay { position:fixed; inset:0; background:rgba(30,15,60,.55); z-index:900; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
+.sm-overlay { position:fixed; inset:0; background:rgba(15,60,39,.55); z-index:900; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
 .sm-overlay.open { display:flex; }
 .sm-modal { background:#fff; border-radius:14px; width:min(680px,100%); max-height:calc(100dvh - 32px); box-shadow:0 24px 60px rgba(0,0,0,.22); display:flex; flex-direction:column; overflow:hidden; }
 .sm-modal form { display:flex; flex-direction:column; flex:1; min-height:0; }
-.sm-mhdr { background:linear-gradient(135deg,#7c3aed,#c026d3); color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.sm-mhdr { background:linear-gradient(135deg,#0d623a,#d97a0c); color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
 .sm-mhdr h4 { font-size:15px; font-weight:800; }
 .sm-mclose { background:rgba(255,255,255,.2); border:none; color:#fff; width:30px; height:30px; border-radius:7px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .sm-mclose:hover { background:rgba(255,255,255,.3); }
 .sm-mbody { padding:20px; overflow-y:auto; flex:1; min-height:0; overscroll-behavior:contain; }
-.sm-mftr  { padding:12px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; flex-shrink:0; background:#faf8ff; }
-.sm-trans-box { background:#f8f5ff; border:1px solid var(--border); border-radius:9px; padding:14px; margin-top:12px; }
+.sm-mftr  { padding:12px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; flex-shrink:0; background:#f8fcf7; }
+.sm-trans-box { background:#f5faf4; border:1px solid var(--border); border-radius:9px; padding:14px; margin-top:12px; }
 .sm-trans-box summary { cursor:pointer; font-size:13px; font-weight:700; color:var(--p); list-style:none; display:flex; align-items:center; gap:6px; }
 .sm-trans-box summary::-webkit-details-marker { display:none; }
 .sm-trans-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
@@ -356,7 +356,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 <div class="sm-header">
   <div>
     <h2><i class="fa-solid fa-globe"></i> Site Yönetimi</h2>
-    <p>Nuverna Trade web sitesinin tüm içeriklerini buradan yönetin.</p>
+    <p>Nymagro web sitesinin tüm içeriklerini buradan yönetin.</p>
   </div>
   <a href="<?= BASE_URL ?>/tr" target="_blank" class="sm-preview-btn">
     <i class="fa-solid fa-arrow-up-right-from-square"></i> Siteyi Görüntüle
@@ -420,7 +420,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
         <div class="sm-grid">
           <div class="sm-field">
             <label>Şirket Adı *</label>
-            <input type="text" name="company_name" class="sm-inp" value="<?= $v('company_name', 'Nuverna Trade') ?>" required>
+            <input type="text" name="company_name" class="sm-inp" value="<?= $v('company_name', 'Nymagro') ?>" required>
           </div>
           <div class="sm-field">
             <label>Slogan</label>
@@ -440,7 +440,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
         <div class="sm-grid">
           <div class="sm-field">
             <label>E-Posta</label>
-            <input type="email" name="email" class="sm-inp" value="<?= $v('email') ?>" placeholder="info@nuvernatrade.com">
+            <input type="email" name="email" class="sm-inp" value="<?= $v('email') ?>" placeholder="nymagrotarim@gmail.com">
           </div>
           <div class="sm-field">
             <label>Sabit Telefon</label>
@@ -472,8 +472,8 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
       <div class="sm-card-body">
         <div class="social-grid">
           <div class="social-item">
-            <div class="sico" style="background:#fce8f3"><i class="fa-brands fa-instagram" style="color:#e4405f"></i></div>
-            <input type="url" name="instagram" class="sm-inp" value="<?= $v('instagram') ?>" placeholder="https://instagram.com/nuvernatrade">
+            <div class="sico" style="background:#fdecd6"><i class="fa-brands fa-instagram" style="color:#e4405f"></i></div>
+            <input type="url" name="instagram" class="sm-inp" value="<?= $v('instagram') ?>" placeholder="https://instagram.com/nymagro">
           </div>
           <div class="social-item">
             <div class="sico" style="background:#e8f0fc"><i class="fa-brands fa-linkedin-in" style="color:#0077b5"></i></div>
@@ -481,11 +481,11 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           </div>
           <div class="social-item">
             <div class="sico" style="background:#e8f0fc"><i class="fa-brands fa-facebook-f" style="color:#1877f2"></i></div>
-            <input type="url" name="facebook" class="sm-inp" value="<?= $v('facebook') ?>" placeholder="https://facebook.com/nuvernatrade">
+            <input type="url" name="facebook" class="sm-inp" value="<?= $v('facebook') ?>" placeholder="https://facebook.com/nymagro">
           </div>
           <div class="social-item">
             <div class="sico" style="background:#f3f4f6"><i class="fa-brands fa-x-twitter" style="color:#111"></i></div>
-            <input type="url" name="twitter" class="sm-inp" value="<?= $v('twitter') ?>" placeholder="https://x.com/nuvernatrade">
+            <input type="url" name="twitter" class="sm-inp" value="<?= $v('twitter') ?>" placeholder="https://x.com/nymagro">
           </div>
         </div>
       </div>
@@ -667,7 +667,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
       <div class="pr-card" id="urun-<?= (int)$u['id'] ?>" data-urun='<?= htmlspecialchars(json_encode($u, JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>'>
         <div class="pr-card-img" style="background-image:url('<?= htmlspecialchars($u['gorsel'] ?? '') ?>')">
           <span class="pr-card-tag"><?= htmlspecialchars($u['etiket'] ?? 'FRESH') ?></span>
-          <span class="pr-card-tag" style="right:8px;left:auto;background:rgba(255,255,255,.92);color:#6d28d9;border:1px solid rgba(124,58,237,.18)">
+          <span class="pr-card-tag" style="right:8px;left:auto;background:rgba(255,255,255,.92);color:#0d623a;border:1px solid rgba(13,98,58,.18)">
             <?= (($u['kategori'] ?? 'meyve') === 'sebze') ? 'SEBZE' : 'MEYVE' ?>
           </span>
           <?php if (empty($u['aktif_mi'])): ?><span class="pr-card-passive">PASİF</span><?php endif; ?>
@@ -799,7 +799,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
         <div class="sm-grid">
           <div class="sm-field full">
             <label>Görsel</label>
-            <div id="urunGorselPrev" style="height:130px;background:#f0ebff center/cover no-repeat;border-radius:8px;margin-bottom:8px;display:none;border:1px solid var(--border)"></div>
+            <div id="urunGorselPrev" style="height:130px;background:#ecf5eb center/cover no-repeat;border-radius:8px;margin-bottom:8px;display:none;border:1px solid var(--border)"></div>
             <input type="file" name="gorsel" accept="image/*" class="sm-inp" onchange="smPrevImg(this,'urunGorselPrev',true)">
             <input type="url" name="gorsel_url" class="sm-inp" placeholder="veya görsel URL'si yapıştır" style="margin-top:6px;">
             <span style="font-size:11px;color:var(--muted)">Düzenleme yapıyorsanız boş bırakırsanız mevcut görsel korunur.</span>
@@ -869,7 +869,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
       <div class="sm-mbody">
         <div class="sm-field" style="margin-bottom:12px;">
           <label>Görsel</label>
-          <div id="galPrev" style="height:150px;background:#f0ebff center/cover no-repeat;border-radius:8px;margin-bottom:8px;display:none;border:1px solid var(--border)"></div>
+          <div id="galPrev" style="height:150px;background:#ecf5eb center/cover no-repeat;border-radius:8px;margin-bottom:8px;display:none;border:1px solid var(--border)"></div>
           <input type="file" name="gorsel" accept="image/*" class="sm-inp" onchange="smPrevImg(this,'galPrev',true)">
           <input type="url" name="gorsel_url" class="sm-inp" placeholder="veya görsel URL'si" style="margin-top:6px;">
         </div>

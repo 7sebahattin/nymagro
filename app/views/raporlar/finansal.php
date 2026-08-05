@@ -58,7 +58,7 @@
 
     /* Custom Colors */
     .bg-r1c1 { background-color: #2a7ab9; }
-    .bg-r1c2 { background-color: #67169a; }
+    .bg-r1c2 { background-color: #094a2b; }
     .bg-r1c3 { background-color: #000000; }
     .bg-r1c4 { background-color: #f65511; }
 
@@ -143,7 +143,7 @@
 
     /* Custom Colors */
     .bg-r1c1 { background-color: #2a7ab9; }
-    .bg-r1c2 { background-color: #67169a; }
+    .bg-r1c2 { background-color: #094a2b; }
     .bg-r1c3 { background-color: #000000; }
     .bg-r1c4 { background-color: #f65511; }
 
@@ -214,7 +214,7 @@
     overflow-wrap: anywhere;
     word-break: normal;
   }
-  .nav-link.active:focus { color:#c4b5fd; outline:none; }
+  .nav-link.active:focus { color:#a9d4be; outline:none; }
   @media (max-width: 992px) {
     .report-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
     .col-span-3 { grid-column: span 3; }

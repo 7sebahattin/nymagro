@@ -341,7 +341,7 @@ $durumBadge = function(string $d): string {
           <a href="<?= BASE_URL ?>/alis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#fefce8; color:#a16207; font-size:12px; font-weight:600;">
             <i class="fa-solid fa-truck"></i> Alış Faturası
           </a>
-          <a href="<?= BASE_URL ?>/urun/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#fdf4ff; color:#7e22ce; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/urun/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#fff8ef; color:#0c5c36; font-size:12px; font-weight:600;">
             <i class="fa-solid fa-box"></i> Ürün Ekle
           </a>
           <a href="<?= BASE_URL ?>/musteri" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#f0f9ff; color:#0369a1; font-size:12px; font-weight:600;">

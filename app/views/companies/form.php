@@ -6,7 +6,7 @@ $v = fn(string $key, string $default = '') => htmlspecialchars((string)($company
 $themeColors = [
   'emerald' => ['label' => 'Yeşil', 'hex' => '#22c55e'],
   'blue' => ['label' => 'Mavi', 'hex' => '#3b82f6'],
-  'violet' => ['label' => 'Mor', 'hex' => '#8b5cf6'],
+  'violet' => ['label' => 'Mor', 'hex' => '#1e8c55'],
   'amber' => ['label' => 'Sarı', 'hex' => '#f59e0b'],
   'rose' => ['label' => 'Kırmızı', 'hex' => '#f43f5e'],
   'cyan' => ['label' => 'Camgöbeği', 'hex' => '#06b6d4'],

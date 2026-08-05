@@ -24,7 +24,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
     .b-duzenle { background: #414e62; }
     .b-iptal { background: #d9534f; }
     .b-paylas { background: #5cb85c; }
-    .b-kopyala { background: #673ab7; }
+    .b-kopyala { background: #14603c; }
     .b-tedarikci { background: #5bc0de; }
 
     /* ── Panels Container ── */

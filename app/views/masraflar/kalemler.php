@@ -6,7 +6,7 @@
  * $flash       : array
  */
 
-$renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#9b59b6','#34495e','#e67e22','#2980b9','#1abc9c','#e74c3c','#3498db','#8e44ad'];
+$renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22','#2980b9','#1abc9c','#e74c3c','#3498db','#2a6b4a'];
 ?>
 <style>
   :root { --navy:#2c3e6b; --green:#5cb85c; --red:#d9534f; --orange:#f0ad4e; }
@@ -128,7 +128,7 @@ $sagKat = array_filter($kategoriler, fn($k, $i) => $i % 2 !== 0, ARRAY_FILTER_US
 
 <?php
 function renderKat(array $kat): string {
-    $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#9b59b6','#34495e','#e67e22','#2980b9','#1abc9c','#e74c3c'];
+    $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22','#2980b9','#1abc9c','#e74c3c'];
     ob_start();
     ?>
     <div class="mk-card" id="kat-<?= $kat['id'] ?>">

@@ -1,32 +1,32 @@
 <?php /* Product detail page — SEO landing per product */ ?>
 <style>
-.pd-hero{background:linear-gradient(135deg,#1f1334 0%,#3b1c5e 60%,#7c3aed 100%);color:#fff;padding:3rem 0 5rem;position:relative;overflow:hidden}
+.pd-hero{background:linear-gradient(135deg,#06281a 0%,#073820 60%,#0d623a 100%);color:#fff;padding:3rem 0 5rem;position:relative;overflow:hidden}
 .pd-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:32px 32px}
 .pd-hero h1{color:#fff;margin:.5rem 0 1rem}
-.pd-hero p{color:#e6dffa;font-size:1.05rem;max-width:600px}
-.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#cdb9ee;font-size:.9rem;margin-bottom:1rem;flex-wrap:wrap}
-.bcrumb a{color:#cdb9ee}
+.pd-hero p{color:#dcebdb;font-size:1.05rem;max-width:600px}
+.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#a8cfb8;font-size:.9rem;margin-bottom:1rem;flex-wrap:wrap}
+.bcrumb a{color:#a8cfb8}
 .bcrumb a:hover{color:#fff}
 .pd-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:3rem;align-items:center}
 @media(max-width:992px){.pd-grid{grid-template-columns:1fr}}
 .pd-image{border-radius:24px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.5);max-height:520px}
 .pd-image img{width:100%;height:520px;object-fit:cover}
 .spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem}
-.spec-card{background:#fff;border:1px solid rgba(124,58,237,.1);border-radius:14px;padding:1.2rem}
+.spec-card{background:#fff;border:1px solid rgba(13,98,58,.1);border-radius:14px;padding:1.2rem}
 .spec-card h4{font-size:.85rem;color:var(--p1);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem}
 .spec-card p{margin:0;color:var(--ink);font-weight:600}
-.faq-item{background:#fff;border:1px solid rgba(124,58,237,.1);border-radius:14px;margin-bottom:.85rem;overflow:hidden}
+.faq-item{background:#fff;border:1px solid rgba(13,98,58,.1);border-radius:14px;margin-bottom:.85rem;overflow:hidden}
 .faq-item summary{cursor:pointer;padding:1.1rem 1.3rem;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
 .faq-item summary::-webkit-details-marker{display:none}
 .faq-item summary::after{content:'\f078';font-family:'Font Awesome 6 Free';font-weight:900;color:var(--p1);transition:transform .2s}
 .faq-item[open] summary::after{transform:rotate(180deg)}
 .faq-item .body{padding:0 1.3rem 1.2rem;color:var(--ink2)}
-.inquiry-card{background:linear-gradient(135deg,#7c3aed,#c026d3);color:#fff;padding:2.5rem;border-radius:24px;text-align:center;margin-top:2rem}
+.inquiry-card{background:linear-gradient(135deg,#0d623a,#d97a0c);color:#fff;padding:2.5rem;border-radius:24px;text-align:center;margin-top:2rem}
 .inquiry-card h3{color:#fff;margin-bottom:.7rem}
-.inquiry-card p{color:#f0e9fc;margin-bottom:1.6rem}
+.inquiry-card p{color:#e9f4e8;margin-bottom:1.6rem}
 .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem}
-.rel-card{display:flex;flex-direction:column;background:#fff;border-radius:16px;border:1px solid rgba(124,58,237,.08);overflow:hidden;transition:.25s}
-.rel-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -18px rgba(124,58,237,.4)}
+.rel-card{display:flex;flex-direction:column;background:#fff;border-radius:16px;border:1px solid rgba(13,98,58,.08);overflow:hidden;transition:.25s}
+.rel-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -18px rgba(13,98,58,.4)}
 .rel-card img{height:160px;width:100%;object-fit:cover}
 .rel-card .body{padding:.85rem 1rem 1rem}
 .rel-card h4{margin:0 0 .3rem;font-size:1rem;color:var(--ink)}
@@ -48,7 +48,7 @@
 <section class="container-xxl" style="margin-top:-4rem;position:relative;z-index:5">
   <div class="pd-grid">
     <div class="pd-image">
-      <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($ad) ?> — Nuverna Trade Türkiye fresh produce export" width="900" height="520">
+      <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($ad) ?> — Nymagro bitki besleme ürünü" width="900" height="520">
     </div>
     <div>
       <span class="kicker"><i class="fas fa-leaf"></i> <?= htmlspecialchars(I18n::t('common.fresh')) ?></span>
@@ -116,7 +116,7 @@
 
 <!-- RELATED -->
 <?php if (!empty($ilgili)): ?>
-<section class="block" style="background:linear-gradient(180deg,#fff 0%,#faf6ff 100%)">
+<section class="block" style="background:linear-gradient(180deg,#fff 0%,#f6fbf5 100%)">
   <div class="container-xxl">
     <div class="section-head">
       <h2><?= htmlspecialchars(I18n::t('products.detail.related')) ?></h2>
