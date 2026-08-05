@@ -1,0 +1,19 @@
+# Yüklenen görsel dosyaları sitede görüntülenebilir olsun.
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order Allow,Deny
+    Allow from all
+</IfModule>
+
+# Yükleme klasöründe çalıştırılabilir dosya riskini kapat.
+<FilesMatch "\.(php|phtml|phar|pl|py|jsp|asp|sh|cgi|exe|bat|cmd|com|msi)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
+</FilesMatch>

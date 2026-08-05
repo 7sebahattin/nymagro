@@ -1,0 +1,105 @@
+<?php /* Products list page */ ?>
+<style>
+.page-hero{padding:4.5rem 0 3rem;background:linear-gradient(135deg,#1f1334 0%,#3b1c5e 60%,#7c3aed 100%);color:#fff;position:relative;overflow:hidden}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:32px 32px}
+.page-hero h1{color:#fff;max-width:760px}
+.page-hero p{color:#e6dffa;max-width:760px;font-size:1.1rem}
+.bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#cdb9ee;font-size:.9rem;margin-bottom:1rem}
+.bcrumb a{color:#cdb9ee}.bcrumb a:hover{color:#fff}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.4rem}
+.product-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 22px -10px rgba(31,19,52,.18);border:1px solid rgba(124,58,237,.08);transition:.25s;display:flex;flex-direction:column}
+.product-card:hover{transform:translateY(-6px);box-shadow:0 22px 50px -22px rgba(124,58,237,.4);border-color:rgba(124,58,237,.2)}
+.product-img{position:relative;height:200px;overflow:hidden;background:#f3edff}
+.product-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.product-card:hover .product-img img{transform:scale(1.05)}
+.product-tag{position:absolute;top:.7rem;left:.7rem;background:var(--grad);color:#fff;font-size:.65rem;font-weight:800;letter-spacing:.12em;padding:.3rem .7rem;border-radius:999px}
+.product-body{padding:1.1rem 1.2rem 1.3rem;flex:1;display:flex;flex-direction:column;gap:.5rem}
+.product-body h3{font-size:1.15rem;margin:0}
+.product-body p{color:#5a4774;font-size:.86rem;flex:1;margin:0}
+.product-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0}
+.meta-pill{font-size:.7rem;color:var(--p1);background:rgba(124,58,237,.08);padding:.25rem .6rem;border-radius:999px;font-weight:600}
+.product-cta{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
+.product-cta a.detail{font-weight:700;font-size:.85rem;color:var(--p1)}
+.product-cta a.quote{font-weight:700;font-size:.78rem;background:var(--grad);color:#fff;padding:.4rem .9rem;border-radius:999px}
+.product-filters{display:flex;justify-content:center;gap:.55rem;flex-wrap:wrap;margin:0 auto 2rem}
+.product-filter{display:inline-flex;align-items:center;gap:.45rem;border:1px solid rgba(124,58,237,.16);background:#fff;color:var(--ink2);font-weight:800;border-radius:999px;padding:.68rem 1.15rem;box-shadow:0 12px 30px -22px rgba(31,19,52,.35);transition:.2s}
+.product-filter:hover{color:var(--p1);border-color:rgba(124,58,237,.35);background:#faf6ff}
+.product-filter.is-active{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 18px 40px -22px rgba(124,58,237,.75)}
+.product-empty{display:none;text-align:center;color:var(--ink2);padding:2rem 1rem}
+@media(max-width:575.98px){.product-filter{flex:1 1 95px;justify-content:center;padding:.65rem .75rem}}
+</style>
+
+<section class="page-hero">
+  <div class="container-xxl" style="position:relative;z-index:2">
+    <span class="bcrumb"><a href="<?= I18n::url('', $locale) ?>"><?= htmlspecialchars(I18n::t('breadcrumb.home')) ?></a> / <span><?= htmlspecialchars(I18n::t('common.products')) ?></span></span>
+    <h1><?= htmlspecialchars(I18n::t('products.h1')) ?></h1>
+    <p><?= htmlspecialchars(I18n::t('products.lead')) ?></p>
+  </div>
+</section>
+
+<section class="block">
+  <div class="container-xxl">
+    <?php
+      $filterLabels = [
+        'tr' => ['all' => 'Tümü', 'meyve' => 'Meyve', 'sebze' => 'Sebze', 'empty' => 'Bu kategoride ürün bulunamadı.'],
+        'en' => ['all' => 'All', 'meyve' => 'Fruits', 'sebze' => 'Vegetables', 'empty' => 'No products found in this category.'],
+        'ru' => ['all' => 'Все', 'meyve' => 'Фрукты', 'sebze' => 'Овощи', 'empty' => 'В этой категории нет товаров.'],
+      ][$locale] ?? ['all' => 'Tümü', 'meyve' => 'Meyve', 'sebze' => 'Sebze', 'empty' => 'Bu kategoride ürün bulunamadı.'];
+    ?>
+    <div class="product-filters" role="tablist" aria-label="Product filters">
+      <button type="button" class="product-filter is-active" data-filter="all"><i class="fas fa-border-all"></i> <?= htmlspecialchars($filterLabels['all']) ?></button>
+      <button type="button" class="product-filter" data-filter="meyve"><i class="fas fa-apple-whole"></i> <?= htmlspecialchars($filterLabels['meyve']) ?></button>
+      <button type="button" class="product-filter" data-filter="sebze"><i class="fas fa-carrot"></i> <?= htmlspecialchars($filterLabels['sebze']) ?></button>
+    </div>
+
+    <div class="products-grid">
+      <?php foreach ($urunler as $u):
+        $ad   = $u['ad_'.$locale]   ?? $u['ad_tr']   ?? '';
+        $desc = $u['aciklama_'.$locale] ?? $u['aciklama_tr'] ?? '';
+        $slug = $u['slug_'.$locale] ?? $u['slug_tr'] ?? SiteIcerik::slugify($ad);
+        $img  = $u['gorsel'] ?? '';
+        $sezon = $u['sezon_'.$locale] ?? '';
+        $etiket = $u['etiket'] ?? 'FRESH';
+        $kategori = in_array(($u['kategori'] ?? 'meyve'), ['meyve', 'sebze'], true) ? $u['kategori'] : 'meyve';
+      ?>
+        <article class="product-card fade-in" data-category="<?= htmlspecialchars($kategori) ?>">
+          <a href="<?= I18n::altUrl('products', $locale, $slug) ?>" class="product-img" aria-label="<?= htmlspecialchars($ad) ?>">
+            <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($ad) ?> — Nuverna Trade fresh export" loading="lazy" width="400" height="300">
+            <span class="product-tag"><?= htmlspecialchars($etiket) ?></span>
+          </a>
+          <div class="product-body">
+            <h3><a href="<?= I18n::altUrl('products', $locale, $slug) ?>" style="color:var(--ink)"><?= htmlspecialchars($ad) ?></a></h3>
+            <p><?= htmlspecialchars(mb_strimwidth($desc, 0, 120, '…')) ?></p>
+            <?php if ($sezon): ?><div class="product-meta"><span class="meta-pill"><i class="far fa-calendar"></i> <?= htmlspecialchars($sezon) ?></span></div><?php endif; ?>
+            <div class="product-cta">
+              <a href="<?= I18n::altUrl('products', $locale, $slug) ?>" class="detail"><?= htmlspecialchars(I18n::t('common.cta_more')) ?> <i class="fas fa-arrow-right"></i></a>
+              <a href="<?= I18n::altUrl('contact', $locale) ?>?p=<?= urlencode($ad) ?>" class="quote"><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></a>
+            </div>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    </div>
+    <div class="product-empty" id="productEmpty"><?= htmlspecialchars($filterLabels['empty']) ?></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const buttons = document.querySelectorAll('.product-filter');
+  const cards = document.querySelectorAll('.product-card[data-category]');
+  const empty = document.getElementById('productEmpty');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter || 'all';
+      let shown = 0;
+      buttons.forEach(b => b.classList.toggle('is-active', b === btn));
+      cards.forEach(card => {
+        const visible = filter === 'all' || card.dataset.category === filter;
+        card.style.display = visible ? '' : 'none';
+        if (visible) shown++;
+      });
+      if (empty) empty.style.display = shown ? 'none' : 'block';
+    });
+  });
+})();
+</script>

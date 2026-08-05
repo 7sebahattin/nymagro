@@ -1,0 +1,3 @@
+# /app dizinine doğrudan erişimi engelle
+Order deny,allow
+Deny from all

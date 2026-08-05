@@ -1,0 +1,265 @@
+<?php
+/**
+ * Model: Urun
+ * --------------------------------------------------------
+ * urunler_hizmetler tablosu üzerinde CRUD işlemleri.
+ * tip: 'urun' | 'hizmet'
+ */
+
+class Urun
+{
+    private Database $db;
+
+    /** Toplu atama için izin verilen sütunlar */
+    private array $fillable = [
+        'tip', 'stok_kodu', 'barkod', 'ad', 'aciklama', 'birim',
+        'satis_fiyati', 'alis_fiyati', 'kdv_orani', 'para_birimi',
+        'stok_miktari', 'kritik_stok', 'kategori', 'marka', 'resim_yolu',
+        'company_id',
+    ];
+
+    public function __construct()
+    {
+        $this->db = Database::getInstance();
+    }
+
+    /**
+     * Sayfalanmış ürün listesi.
+     * $tip: '' = hepsi, 'urun', 'hizmet'
+     */
+    public function listele(
+        string $arama   = '',
+        string $tip     = '',
+        string $kategori= '',
+        string $marka   = '',
+        int    $limit   = 50,
+        int    $offset  = 0
+    ): array {
+        [$where, $params] = $this->buildWhere($arama, $tip, $kategori, $marka);
+
+        $sql = "SELECT * FROM urunler_hizmetler
+                WHERE {$where}
+                ORDER BY olusturulma_tarihi DESC
+                LIMIT :limit OFFSET :offset";
+
+        $params[':limit']  = $limit;
+        $params[':offset'] = $offset;
+
+        return $this->db->select($sql, $params);
+    }
+
+    /** Toplam kayıt sayısı (filtreyle birlikte). */
+    public function say(
+        string $arama   = '',
+        string $tip     = '',
+        string $kategori= '',
+        string $marka   = ''
+    ): int {
+        [$where, $params] = $this->buildWhere($arama, $tip, $kategori, $marka);
+        $row = $this->db->selectOne(
+            "SELECT COUNT(*) AS n FROM urunler_hizmetler WHERE {$where}",
+            $params
+        );
+        return (int)($row['n'] ?? 0);
+    }
+
+    /** Tekil kayıt getir. */
+    public function getir(int $id): ?array
+    {
+        return $this->db->selectOne(
+            "SELECT * FROM urunler_hizmetler WHERE id = :id AND silindi_mi = 0 AND company_id = :cid",
+            [':id' => $id, ':cid' => TenantContext::activeCompanyId()]
+        );
+    }
+
+    /** Yeni kayıt ekle. */
+    public function ekle(array $veri): int
+    {
+        $temiz = array_intersect_key($veri, array_flip($this->fillable));
+        return $this->db->insert('urunler_hizmetler', $temiz);
+    }
+
+    /** Kayıt güncelle. */
+    public function guncelle(int $id, array $veri): int
+    {
+        $temiz = array_intersect_key($veri, array_flip($this->fillable));
+        return $this->db->update('urunler_hizmetler', $temiz, ['id' => $id]);
+    }
+
+    /** Soft-delete. */
+    public function sil(int $id): int
+    {
+        return $this->db->softDelete('urunler_hizmetler', $id);
+    }
+
+    /** Stok kodu/barkod benzersiz mi? */
+    public function kodMevcutMu(string $alan, string $deger, int $haricId = 0): bool
+    {
+        $alan = in_array($alan, ['stok_kodu', 'barkod']) ? $alan : 'stok_kodu';
+        $row = $this->db->selectOne(
+            "SELECT id FROM urunler_hizmetler
+             WHERE `{$alan}` = :deger AND silindi_mi = 0 AND id <> :haric AND company_id = :cid",
+            [':deger' => $deger, ':haric' => $haricId, ':cid' => TenantContext::activeCompanyId()]
+        );
+        return $row !== null;
+    }
+
+    /** Mevcut kategorileri listele (distinct). */
+    public function kategoriler(): array
+    {
+        return $this->db->select(
+            "SELECT DISTINCT kategori FROM urunler_hizmetler
+             WHERE silindi_mi = 0 AND company_id = :cid AND kategori IS NOT NULL AND kategori <> ''
+             ORDER BY kategori"
+            , [':cid' => TenantContext::activeCompanyId()]
+        );
+    }
+
+    /** Mevcut markaları listele (distinct). */
+    public function markalar(): array
+    {
+        return $this->db->select(
+            "SELECT DISTINCT marka FROM urunler_hizmetler
+             WHERE silindi_mi = 0 AND company_id = :cid AND marka IS NOT NULL AND marka <> ''
+             ORDER BY marka"
+            , [':cid' => TenantContext::activeCompanyId()]
+        );
+    }
+
+    // ─── STOK VE GEÇMİŞ İŞLEMLERİ ───────────────────────────────────────
+
+    /** Manuel stok hareketi ekle ve stok miktarını güncelle */
+    public function stokHareketiEkle(int $urunId, float $miktar, string $islemTipi, string $aciklama = '', ?int $depoId = null): bool
+    {
+        try {
+            $this->db->begin();
+
+            // Hareketi kaydet
+            $this->db->insert('stok_hareketleri', [
+                'urun_id'    => $urunId,
+                'depo_id'    => $depoId,
+                'islem_tipi' => $islemTipi,
+                'hareket_tipi' => $islemTipi,
+                'miktar'     => $miktar,
+                'aciklama'   => $aciklama,
+                'company_id'  => TenantContext::activeCompanyId(),
+                'period_id'   => TenantContext::activePeriodId(),
+            ]);
+
+            // Depo bazlı stok güncelle
+            if ($depoId) {
+                $op = $islemTipi === 'giris' ? '+' : '-';
+                $sqlDepo = "INSERT INTO urun_stok_depo (urun_id, depo_id, miktar, company_id) 
+                            VALUES (:uid, :did, :miktar, :company_id)
+                            ON DUPLICATE KEY UPDATE miktar = miktar {$op} VALUES(miktar)";
+                $this->db->query($sqlDepo, [
+                    ':uid'    => $urunId, 
+                    ':did'    => $depoId, 
+                    ':miktar' => $miktar,
+                    ':company_id' => TenantContext::activeCompanyId(),
+                ]);
+            }
+
+            // Genel Stok miktarını güncelle (Toplam)
+            $operator = $islemTipi === 'giris' ? '+' : '-';
+            $sqlTotal = "UPDATE urunler_hizmetler SET stok_miktari = stok_miktari {$operator} :miktar WHERE id = :id AND company_id = :company_id";
+            $this->db->query($sqlTotal, [':miktar' => $miktar, ':id' => $urunId, ':company_id' => TenantContext::activeCompanyId()]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+
+    /** Önceki Satışlar (faturalar tablosundan) */
+    public function satisGecmisi(int $urunId): array
+    {
+        $sql = "SELECT f.fatura_no, f.fatura_tarihi, f.belge_tipi, c.unvan as cari_unvan, 
+                       fk.miktar, fk.birim_fiyat, fk.toplam
+                FROM fatura_kalemleri fk
+                JOIN faturalar f ON fk.fatura_id = f.id
+                LEFT JOIN cariler c ON f.cari_id = c.id
+                WHERE fk.urun_id = :urun_id 
+                  AND f.belge_tipi IN ('satis', 'perakende') 
+                  AND f.silindi_mi = 0 AND fk.silindi_mi = 0
+                  AND f.company_id = :company_id AND f.period_id = :period_id
+                ORDER BY f.fatura_tarihi DESC, f.olusturulma_tarihi DESC
+                LIMIT 50";
+        return $this->db->select($sql, [':urun_id' => $urunId, ':company_id' => TenantContext::activeCompanyId(), ':period_id' => TenantContext::activePeriodId()]);
+    }
+
+    /** Önceki Alışlar (faturalar tablosundan) */
+    public function alisGecmisi(int $urunId): array
+    {
+        $sql = "SELECT f.fatura_no, f.fatura_tarihi, f.belge_tipi, c.unvan as cari_unvan, 
+                       fk.miktar, fk.birim_fiyat, fk.toplam
+                FROM fatura_kalemleri fk
+                JOIN faturalar f ON fk.fatura_id = f.id
+                LEFT JOIN cariler c ON f.cari_id = c.id
+                WHERE fk.urun_id = :urun_id 
+                  AND f.belge_tipi = 'alis' 
+                  AND f.silindi_mi = 0 AND fk.silindi_mi = 0
+                  AND f.company_id = :company_id AND f.period_id = :period_id
+                ORDER BY f.fatura_tarihi DESC, f.olusturulma_tarihi DESC
+                LIMIT 50";
+        return $this->db->select($sql, [':urun_id' => $urunId, ':company_id' => TenantContext::activeCompanyId(), ':period_id' => TenantContext::activePeriodId()]);
+    }
+
+    /** Manuel Stok Hareketleri */
+    public function stokHareketleri(int $urunId): array
+    {
+        $sql = "SELECT sh.*, d.ad as depo_adi 
+                FROM stok_hareketleri sh
+                LEFT JOIN depolar d ON sh.depo_id = d.id
+                WHERE sh.urun_id = :urun_id 
+                  AND sh.company_id = :company_id AND sh.period_id = :period_id
+                ORDER BY sh.olusturulma_tarihi DESC 
+                LIMIT 100";
+        return $this->db->select($sql, [':urun_id' => $urunId, ':company_id' => TenantContext::activeCompanyId(), ':period_id' => TenantContext::activePeriodId()]);
+    }
+
+    /** Ürünün depolara göre stok dağılımını getirir */
+    public function depoStoklariniGetir(int $urunId): array
+    {
+        $sql = "SELECT d.ad as depo_adi, usd.miktar 
+                FROM urun_stok_depo usd
+                JOIN depolar d ON usd.depo_id = d.id
+                WHERE usd.urun_id = :urun_id AND d.silindi_mi = 0 AND usd.company_id = :company_id
+                ORDER BY d.ad ASC";
+        return $this->db->select($sql, [':urun_id' => $urunId, ':company_id' => TenantContext::activeCompanyId()]);
+    }
+
+    // ─── Private Helpers ──────────────────────────────────────────────────
+
+    private function buildWhere(
+        string $arama,
+        string $tip,
+        string $kategori,
+        string $marka
+    ): array {
+        $conds  = ['silindi_mi = 0'];
+        $params = [':company_id' => TenantContext::activeCompanyId()];
+        $conds[] = 'company_id = :company_id';
+
+        if ($arama !== '') {
+            $conds[]        = "(ad LIKE :arama OR stok_kodu LIKE :arama OR barkod LIKE :arama)";
+            $params[':arama'] = '%' . $arama . '%';
+        }
+        if ($tip !== '') {
+            $conds[]      = "tip = :tip";
+            $params[':tip'] = $tip;
+        }
+        if ($kategori !== '') {
+            $conds[]          = "kategori = :kategori";
+            $params[':kategori'] = $kategori;
+        }
+        if ($marka !== '') {
+            $conds[]        = "marka = :marka";
+            $params[':marka'] = $marka;
+        }
+
+        return [implode(' AND ', $conds), $params];
+    }
+}

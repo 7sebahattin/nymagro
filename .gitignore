@@ -1,0 +1,41 @@
+# Bagimliliklar
+node_modules/
+vendor/
+
+# Derleme ciktilari
+dist/
+build/
+
+# Ortam ve sirlar
+.env
+.env.local
+.env.*.local
+
+# Loglar
+*.log
+error_log
+logs/
+storage/logs/
+
+# Yuklenen dosyalar (calisma zamani icerigi, kod degil)
+public/uploads/*
+!public/uploads/.htaccess
+!public/uploads/*/
+public/uploads/**/*.png
+public/uploads/**/*.jpg
+public/uploads/**/*.jpeg
+public/uploads/**/*.gif
+public/uploads/**/*.webp
+
+# Isletim sistemi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# Sunucuya ozel yapilandirma (config.example.php kopyalanarak olusturulur)
+app/config/config.php
