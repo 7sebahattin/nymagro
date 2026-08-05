@@ -73,12 +73,12 @@ jobs:
             printf("tr/en/ru: %d anahtar, tam eşleşme.\n", count($tr));
           '
 
+      # Yalnızca sunucuya gidecek kod taranır. Belgeler (*.md), marka
+      # kaynakları ve SQL betikleri eski markadan bilinçli olarak söz eder.
       - name: Eski marka kalıntısı var mı?
         run: |
-          if grep -rniE "nuverna" . \
-               --exclude-dir=.git --exclude-dir=.github \
-               --exclude-dir=brand --exclude-dir=db > /tmp/kalinti.txt; then
-            echo "::error::Kodda hâlâ 'nuverna' geçiyor:"
+          if grep -rniE "nuverna" app public > /tmp/kalinti.txt; then
+            echo "::error::Sunucuya gidecek kodda hâlâ 'nuverna' geçiyor:"
             cat /tmp/kalinti.txt
             exit 1
           fi
