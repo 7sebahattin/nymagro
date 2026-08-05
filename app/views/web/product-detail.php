@@ -76,7 +76,7 @@
         <?php endif; ?>
         <div class="spec-card">
           <h4><?= htmlspecialchars(I18n::t('products.detail.quality')) ?></h4>
-          <p><?= htmlspecialchars(I18n::t('quality.steps.1.d') ?: 'GlobalGAP, ISO 22000') ?></p>
+          <p><?= htmlspecialchars(I18n::t('quality.steps.1.d') ?: 'EC Fertilizer standardı') ?></p>
         </div>
       </div>
 

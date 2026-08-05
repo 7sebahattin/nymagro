@@ -1,8 +1,11 @@
 # Nuverna Trade → Nymagro Değişim Haritası
 
-Proje kodu depoya yüklendiğinde bu harita sırayla uygulanır. **Sadece marka ve
-içerik alanları değişir**; kod yapısı, fonksiyon/değişken mimarisi ve veritabanı
-tablo/kolon isimleri korunur.
+**Durum: uygulandı.** Kod tarafındaki tüm maddeler tamamlandı; depoda `nuverna`
+geçişi kalmadı. Veritabanı tarafı için `db/nymagro-rebrand.sql` çalıştırılmalıdır
+(bkz. `KURULUM.md`).
+
+Sadece marka ve içerik alanları değişti; kod yapısı, fonksiyon/değişken mimarisi
+ve veritabanı tablo/kolon isimleri korundu.
 
 ---
 

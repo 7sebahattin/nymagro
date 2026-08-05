@@ -14,22 +14,22 @@ foreach ($defaultSteps as $i => $step) {
 }
 $certDefaultsByLang = [
     'tr' => [
-        ['icon'=>'fa-award','t'=>'GlobalGAP','d'=>'Sürdürülebilir tarım uygulamaları'],
-        ['icon'=>'fa-shield-halved','t'=>'ISO 22000','d'=>'Gıda güvenliği yönetimi'],
-        ['icon'=>'fa-temperature-low','t'=>'HACCP','d'=>'Soğuk zincir ve hijyen'],
-        ['icon'=>'fa-leaf','t'=>'BRC','d'=>'Gıda güvenliği global standardı'],
+        ['icon'=>'fa-certificate','t'=>'Bakanlık Tescili','d'=>'T.C. Tarım ve Orman Bakanlığı tescil belgesi'],
+        ['icon'=>'fa-flask','t'=>'EC Fertilizer','d'=>'AB gübre mevzuatı kriterlerine uygun üretim'],
+        ['icon'=>'fa-file-shield','t'=>'İthalat Lisansı','d'=>'Lisanslı ithalatçı — Lisans No: 6002'],
+        ['icon'=>'fa-atom','t'=>'EDTA Şelat','d'=>'2–10 pH aralığında kararlı, çökelme yapmaz'],
     ],
     'en' => [
-        ['icon'=>'fa-award','t'=>'GlobalGAP','d'=>'Sustainable agriculture practices'],
-        ['icon'=>'fa-shield-halved','t'=>'ISO 22000','d'=>'Food safety management'],
-        ['icon'=>'fa-temperature-low','t'=>'HACCP','d'=>'Cold chain and hygiene'],
-        ['icon'=>'fa-leaf','t'=>'BRC','d'=>'Global Standard for Food Safety'],
+        ['icon'=>'fa-certificate','t'=>'Ministry Registration','d'=>'Registration certificate from the Turkish Ministry of Agriculture and Forestry'],
+        ['icon'=>'fa-flask','t'=>'EC Fertilizer','d'=>'Manufactured to EU fertilizer regulation criteria'],
+        ['icon'=>'fa-file-shield','t'=>'Import Licence','d'=>'Licensed importer — licence no. 6002'],
+        ['icon'=>'fa-atom','t'=>'EDTA Chelate','d'=>'Stable between pH 2–10, no precipitation'],
     ],
     'ru' => [
-        ['icon'=>'fa-award','t'=>'GlobalGAP','d'=>'Устойчивые сельскохозяйственные практики'],
-        ['icon'=>'fa-shield-halved','t'=>'ISO 22000','d'=>'Управление безопасностью пищевой продукции'],
-        ['icon'=>'fa-temperature-low','t'=>'HACCP','d'=>'Холодовая цепь и гигиена'],
-        ['icon'=>'fa-leaf','t'=>'BRC','d'=>'Глобальный стандарт пищевой безопасности'],
+        ['icon'=>'fa-certificate','t'=>'Регистрация в министерстве','d'=>'Свидетельство Министерства сельского и лесного хозяйства Турции'],
+        ['icon'=>'fa-flask','t'=>'EC Fertilizer','d'=>'Производство по критериям регламента ЕС об удобрениях'],
+        ['icon'=>'fa-file-shield','t'=>'Импортная лицензия','d'=>'Лицензированный импортёр — лицензия № 6002'],
+        ['icon'=>'fa-atom','t'=>'Хелат ЭДТА','d'=>'Стабилен в диапазоне pH 2–10, без осадка'],
     ],
 ];
 $defaultCerts = $LL['quality']['certs'] ?? ($certDefaultsByLang[$lang] ?? $certDefaultsByLang['en']);
@@ -93,12 +93,6 @@ foreach ($defaultCerts as $i => $cert) {
           <p style="margin:0;color:var(--ink2);font-size:.85rem"><?= htmlspecialchars($cert['d']) ?></p>
         </div>
       <?php endforeach; ?>
-      <?php if (false): ?>
-      <div class="cert"><i class="fas fa-award"></i><h4>GlobalGAP</h4><p style="margin:0;color:var(--ink2);font-size:.85rem">Sürdürülebilir tarım uygulamaları</p></div>
-      <div class="cert"><i class="fas fa-shield-halved"></i><h4>ISO 22000</h4><p style="margin:0;color:var(--ink2);font-size:.85rem">Gıda güvenliği yönetimi</p></div>
-      <div class="cert"><i class="fas fa-temperature-low"></i><h4>HACCP</h4><p style="margin:0;color:var(--ink2);font-size:.85rem">Soğuk zincir & hijyen</p></div>
-      <div class="cert"><i class="fas fa-leaf"></i><h4>BRC</h4><p style="margin:0;color:var(--ink2);font-size:.85rem">Global Standart for Food Safety</p></div>
-      <?php endif; ?>
     </div>
   </div>
 </section>
