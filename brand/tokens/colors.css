@@ -1,0 +1,41 @@
+/* NYMAGRO marka renk değişkenleri
+ * Kaynak: brand/BRAND.md
+ * Projedeki mevcut renk değişkenlerinin üzerine bu değerleri yazın;
+ * değişken isimlerini projenin kendi isimlendirmesine uydurun. */
+
+:root {
+  /* Birincil — Nymagro Green */
+  --nym-green-50: #f1f7f0;
+  --nym-green-100: #cfe1cd;
+  --nym-green-300: #8bc0a2;
+  --nym-green-500: #1e8c55;
+  --nym-green-700: #0d623a;
+  --nym-green-900: #06381f;
+
+  /* Vurgu — Nymagro Orange */
+  --nym-orange-100: #fdecd6;
+  --nym-orange-300: #f8b96b;
+  --nym-orange-500: #f3911f;
+  --nym-orange-600: #d97a0c;
+  --nym-orange-700: #a85c07;
+
+  /* Nötr */
+  --nym-ink: #231f20;
+  --nym-gray: #6d6e71;
+  --nym-gray-200: #e5e5e6;
+  --nym-white: #ffffff;
+
+  /* Semantik eşlemeler */
+  --nym-brand: var(--nym-green-700);
+  --nym-accent: var(--nym-orange-500);
+  --nym-bg: var(--nym-white);
+  --nym-bg-subtle: var(--nym-green-50);
+  --nym-text: var(--nym-ink);
+  --nym-text-muted: var(--nym-gray);
+  --nym-border: var(--nym-gray-200);
+  --nym-header-bg: var(--nym-green-700);
+  --nym-footer-bg: var(--nym-green-900);
+  --nym-cta-bg: var(--nym-orange-500);
+  --nym-cta-bg-hover: var(--nym-orange-600);
+  --nym-cta-text: var(--nym-white);
+}

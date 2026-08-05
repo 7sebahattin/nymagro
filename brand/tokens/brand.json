@@ -1,0 +1,78 @@
+{
+  "brand": {
+    "name": "Nymagro",
+    "legalName": "NYMAGRO TARIM SANAYİ VE TİCARET LİMİTED ŞİRKETİ",
+    "shortLegalName": "NYMAGRO TARIM SAN. ve TİC. LTD. ŞTİ.",
+    "tagline": "Tarım Sanayi ve Ticaret Ltd. Şti.",
+    "domain": "nymagro.com",
+    "url": "https://www.nymagro.com",
+    "logo": "/brand/logo/nymagro-logo.png"
+  },
+  "contact": {
+    "email": "nymagrotarim@gmail.com",
+    "phone": "+90 242 464 12 44",
+    "phoneDisplay": "(0242) 464 12 44",
+    "mobile": "+90 543 961 73 03",
+    "mobileDisplay": "0543 961 73 03",
+    "address": {
+      "street": "Çamköy Mah. Atatürk Blv. No: 394",
+      "district": "Aksu",
+      "city": "Antalya",
+      "country": "TR",
+      "full": "Çamköy Mah. Atatürk Blv. No: 394, Aksu / ANTALYA"
+    }
+  },
+  "licence": {
+    "type": "İthalatçı",
+    "licenceNo": "6002",
+    "authority": "T.C. Tarım ve Orman Bakanlığı"
+  },
+  "colors": {
+    "green": {
+      "50": "#f1f7f0",
+      "100": "#cfe1cd",
+      "300": "#8bc0a2",
+      "500": "#1e8c55",
+      "700": "#0d623a",
+      "900": "#06381f"
+    },
+    "orange": {
+      "100": "#fdecd6",
+      "300": "#f8b96b",
+      "500": "#f3911f",
+      "600": "#d97a0c",
+      "700": "#a85c07"
+    },
+    "neutral": {
+      "ink": "#231f20",
+      "gray": "#6d6e71",
+      "gray200": "#e5e5e6",
+      "white": "#ffffff"
+    },
+    "semantic": {
+      "brand": "#0d623a",
+      "accent": "#f3911f",
+      "headerBg": "#0d623a",
+      "footerBg": "#06381f",
+      "ctaBg": "#f3911f",
+      "ctaText": "#ffffff"
+    }
+  },
+  "seo": {
+    "title": "Nymagro Tarım | Bitki Besleme Ürünleri ve Sıvı Gübre",
+    "titleTemplate": "%s | Nymagro Tarım",
+    "description": "Nymagro Tarım San. ve Tic. Ltd. Şti. — ithal mikro bitki besin maddeleri, şelatlı sıvı gübre ve bitki besleme çözümleri. Antalya merkezli, Tarım ve Orman Bakanlığı lisanslı ithalatçı.",
+    "keywords": [
+      "bitki besleme",
+      "sıvı gübre",
+      "mikro besin elementi",
+      "şelatlı gübre",
+      "EDTA gübre",
+      "yaprak gübresi",
+      "damlama gübre",
+      "Nymagro"
+    ],
+    "locale": "tr_TR",
+    "twitterCard": "summary_large_image"
+  }
+}
