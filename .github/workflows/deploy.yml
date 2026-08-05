@@ -1,0 +1,149 @@
+name: Canlıya Al (FTP)
+
+# Depoya push edildiğinde siteyi otomatik günceller.
+# Elle çalıştırmak için: Actions → "Canlıya Al (FTP)" → Run workflow
+on:
+  push:
+    branches:
+      - claude/nymagro-brand-adaptation-bkkphw
+      - main
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Deneme modu — hiçbir dosya yazılmaz, sadece ne yapılacağı loglanır'
+        type: boolean
+        default: true
+
+concurrency:
+  group: ftp-deploy
+  cancel-in-progress: false
+
+jobs:
+  # ── 1. Kod sağlam mı? Bozuk PHP canlıya gitmesin ──────────────────
+  kontrol:
+    name: Söz dizimi kontrolü
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP kur
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Tüm PHP dosyalarını denetle
+        run: |
+          hata=0
+          while IFS= read -r f; do
+            if ! php -l "$f" > /dev/null 2>&1; then
+              echo "::error file=$f::PHP söz dizimi hatası"
+              php -l "$f" || true
+              hata=1
+            fi
+          done < <(find app public -name '*.php')
+          if [ "$hata" -ne 0 ]; then
+            echo "Söz dizimi hatası var — dağıtım durduruldu."
+            exit 1
+          fi
+          echo "$(find app public -name '*.php' | wc -l) PHP dosyası denetlendi, hata yok."
+
+      - name: Dil dosyalarının anahtarları eşleşiyor mu?
+        run: |
+          php -r '
+            function flat($a, $p = "") {
+              $o = [];
+              foreach ($a as $k => $v) {
+                $key = $p === "" ? $k : "$p.$k";
+                if (is_array($v)) { $o = array_merge($o, flat($v, $key)); }
+                else { $o[] = $key; }
+              }
+              return $o;
+            }
+            $tr = flat(include "app/lang/tr.php");
+            $en = flat(include "app/lang/en.php");
+            $ru = flat(include "app/lang/ru.php");
+            $fark = array_merge(
+              array_diff($tr, $en), array_diff($en, $tr),
+              array_diff($tr, $ru), array_diff($ru, $tr)
+            );
+            if ($fark) {
+              fwrite(STDERR, "Dil dosyalarında eksik anahtar: " . implode(", ", $fark) . "\n");
+              exit(1);
+            }
+            printf("tr/en/ru: %d anahtar, tam eşleşme.\n", count($tr));
+          '
+
+      - name: Eski marka kalıntısı var mı?
+        run: |
+          if grep -rniE "nuverna" . \
+               --exclude-dir=.git --exclude-dir=.github \
+               --exclude-dir=brand --exclude-dir=db > /tmp/kalinti.txt; then
+            echo "::error::Kodda hâlâ 'nuverna' geçiyor:"
+            cat /tmp/kalinti.txt
+            exit 1
+          fi
+          echo "Eski marka kalıntısı yok."
+
+  # ── 2. FTP ile sunucuya yükle ─────────────────────────────────────
+  yukle:
+    name: FTP ile yükle
+    needs: kontrol
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Gerekli secret'lar tanımlı mı?
+        env:
+          SUNUCU: ${{ secrets.FTP_SERVER }}
+          KULLANICI: ${{ secrets.FTP_USERNAME }}
+          SIFRE: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          eksik=""
+          [ -z "$SUNUCU" ]    && eksik="$eksik FTP_SERVER"
+          [ -z "$KULLANICI" ] && eksik="$eksik FTP_USERNAME"
+          [ -z "$SIFRE" ]     && eksik="$eksik FTP_PASSWORD"
+          if [ -n "$eksik" ]; then
+            echo "::error::Eksik repository secret:$eksik"
+            echo "Settings → Secrets and variables → Actions bölümünden ekleyin."
+            exit 1
+          fi
+          echo "Secret'lar tamam."
+
+      - name: Dosyaları gönder
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:      ${{ secrets.FTP_SERVER }}
+          username:    ${{ secrets.FTP_USERNAME }}
+          password:    ${{ secrets.FTP_PASSWORD }}
+          protocol:    ${{ vars.FTP_PROTOCOL   || 'ftps' }}
+          port:        ${{ vars.FTP_PORT       || 21 }}
+          server-dir:  ${{ vars.FTP_SERVER_DIR || './' }}
+          local-dir:   ./
+          dry-run:     ${{ inputs.dry_run || false }}
+          # Sunucuda olup depoda olmayan dosyalar silinmez —
+          # yalnızca aşağıdaki exclude listesi dışındakiler senkronlanır.
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/node_modules/**
+            **/vendor/**
+            brand/**
+            db/**
+            *.md
+            **/.DS_Store
+            **/Thumbs.db
+            app/config/config.php
+            public/uploads/**
+            public/error_log
+            **/*.log
+
+      - name: Özet
+        run: |
+          echo "### Dağıtım tamamlandı" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Deneme modu: \`${{ inputs.dry_run || false }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Sunucuya gönderilmeyenler:** \`app/config/config.php\` (veritabanı bilgileri), \`public/uploads/\` (yüklenen görseller), \`db/\` (SQL betikleri), \`brand/\` (marka kaynakları), \`*.md\`" >> $GITHUB_STEP_SUMMARY
