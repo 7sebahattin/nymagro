@@ -181,7 +181,7 @@ section.block{padding:5rem 0}
 .footer-inner{position:relative;z-index:2}
 .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2.5rem;margin-bottom:2.5rem}
 .footer-brand{display:flex;align-items:center;margin-bottom:1rem}
-.footer-brand .brand-logo{height:44px;width:auto;display:flex;align-items:center;overflow:hidden}
+.footer-brand .brand-logo{height:60px;width:auto;display:flex;align-items:center;overflow:hidden}
 .footer-brand .brand-logo img{height:100%;width:auto;object-fit:contain;display:block}
 .footer h4{color:#fff;font-size:1.05rem;margin-bottom:1rem}
 .footer ul{list-style:none;padding:0;margin:0}
