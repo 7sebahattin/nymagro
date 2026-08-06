@@ -52,8 +52,12 @@ class DepoController extends Controller
         if ($id === 1) {
             $this->setFlash('error', 'Ana Depo silinemez.');
         } else {
-            $this->depo->sil($id);
-            $this->setFlash('success', 'Depo silindi.');
+            try {
+                $this->depo->sil($id);
+                $this->setFlash('success', 'Depo silindi.');
+            } catch (RuntimeException $e) {
+                $this->setFlash('error', $e->getMessage());
+            }
         }
         $this->redirect('depo');
     }
@@ -117,27 +121,29 @@ class DepoController extends Controller
     /** Stok Sayımı Kaydet */
     public function sayimKaydet(int $id)
     {
+        $depo = $this->depo->getir($id);
+        if (!$depo) {
+            $this->setFlash('error', 'Depo bulunamadı.');
+            $this->redirect('depo');
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sayimlar = $_POST['sayim'] ?? []; // [urun_id => miktar]
-            
+
             require_once MODELS_PATH . '/Urun.php';
             $uModel = new Urun();
-            
+
             foreach ($sayimlar as $urunId => $yeniMiktar) {
-                // Mevcut miktarı bul
-                $mevcut = 0;
-                $sql = "SELECT miktar FROM urun_stok_depo WHERE urun_id = :uid AND depo_id = :did";
-                $row = $this->depo->db()->selectOne($sql, [':uid' => $urunId, ':did' => $id]);
-                if ($row) $mevcut = (float)$row['miktar'];
-                
+                $urunId = (int)$urunId;
+                $mevcut = $this->depo->urunStokMiktari($urunId, $id);
                 $fark = (float)$yeniMiktar - $mevcut;
-                
+
                 if ($fark != 0) {
                     $tip = $fark > 0 ? 'giris' : 'cikis';
                     $uModel->stokHareketiEkle($urunId, abs($fark), $tip, 'Stok Sayımı Farkı', $id);
                 }
             }
-            
+
             $this->setFlash('success', 'Stok sayımı başarıyla kaydedildi.');
         }
         $this->redirect('depo/detay/' . $id);
