@@ -202,12 +202,18 @@ final class TakvimController extends Controller
             $dateColumn = $this->columnExists($table, 'odeme_tarihi') ? 'odeme_tarihi' : ($this->columnExists($table, 'tarih') ? 'tarih' : '');
             if ($dateColumn === '') continue;
             $amountColumn = $this->columnExists($table, 'tutar') ? 'tutar' : ($this->columnExists($table, 'taksit_tutari') ? 'taksit_tutari' : '0');
+            $hasCompanyId = $this->columnExists($table, 'company_id');
+            $hasPeriodId = $this->columnExists($table, 'period_id');
+            $tenantSql = ($hasCompanyId ? ' AND company_id = :cid' : '') . ($hasPeriodId ? ' AND period_id = :pid' : '');
+            $params = [':start' => $start, ':end' => $end];
+            if ($hasCompanyId) $params[':cid'] = TenantContext::activeCompanyId();
+            if ($hasPeriodId) $params[':pid'] = TenantContext::activePeriodId();
             $rows = $this->db->select(
                 "SELECT {$dateColumn} AS tarih, {$amountColumn} AS tutar
                  FROM {$table}
-                 WHERE {$dateColumn} BETWEEN :start AND :end
+                 WHERE {$dateColumn} BETWEEN :start AND :end{$tenantSql}
                  ORDER BY {$dateColumn}",
-                [':start' => $start, ':end' => $end]
+                $params
             );
             return array_map(fn(array $r): array => [
                 'date' => $r['tarih'],

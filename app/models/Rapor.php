@@ -633,7 +633,9 @@ class Rapor
         [$purchaseDateSql, $purchaseDateParams] = $this->dateWhereForPrefix($filters, 'f.fatura_tarihi', 'p');
         [$salesDateSql, $salesDateParams] = $this->dateWhereForPrefix($filters, 'f.fatura_tarihi', 's');
         $params = $purchaseDateParams + $salesDateParams;
-        $extra = [];
+        $params[':tenant_company_id'] = TenantContext::activeCompanyId();
+        $params[':tenant_period_id'] = TenantContext::activePeriodId();
+        $extra = ['u.company_id = :tenant_company_id'];
         if (!empty($filters['product_id'])) {
             $extra[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -669,14 +671,18 @@ class Rapor
                 SELECT fk.urun_id, SUM(fk.miktar) AS purchase_qty, SUM(fk.toplam) AS purchase_total
                 FROM fatura_kalemleri fk
                 JOIN faturalar f ON f.id = fk.fatura_id
-                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0 AND f.durum <> 'iptal' AND f.belge_tipi = 'alis' {$purchaseDateSql}
+                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0
+                  AND f.company_id = :tenant_company_id AND f.period_id = :tenant_period_id
+                  AND f.durum <> 'iptal' AND f.belge_tipi = 'alis' {$purchaseDateSql}
                 GROUP BY fk.urun_id
              ) p ON p.urun_id = u.id
              LEFT JOIN (
                 SELECT fk.urun_id, SUM(fk.miktar) AS sales_qty, SUM(fk.toplam) AS sales_total
                 FROM fatura_kalemleri fk
                 JOIN faturalar f ON f.id = fk.fatura_id
-                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0 AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende') {$salesDateSql}
+                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0
+                  AND f.company_id = :tenant_company_id AND f.period_id = :tenant_period_id
+                  AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende') {$salesDateSql}
                 GROUP BY fk.urun_id
              ) s ON s.urun_id = u.id
              {$where}
