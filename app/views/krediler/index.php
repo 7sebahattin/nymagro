@@ -45,7 +45,10 @@ $hesaplar = $hesaplar ?? [];
           <td><?= (int)$row['kalan_taksit_sayisi'] ?></td>
           <td><?= $h($row['siradaki_taksit'] ?: '-') ?></td>
           <td><?= $h($row['odeme_takvimi']) ?></td>
-          <td><a class="nm-btn danger" href="<?= BASE_URL ?>/kredi/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Kredi silinsin mi?')"><i class="fa-solid fa-trash"></i></a></td>
+          <td style="display:flex;gap:8px">
+            <a class="nm-btn primary" href="<?= BASE_URL ?>/kredi/detay/<?= (int)$row['id'] ?>"><i class="fa-solid fa-list-check"></i> Taksitler</a>
+            <a class="nm-btn danger" href="<?= BASE_URL ?>/kredi/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Kredi silinsin mi?')"><i class="fa-solid fa-trash"></i></a>
+          </td>
         </tr><?php endforeach; ?></tbody>
       </table></div>
     <?php endif; ?>

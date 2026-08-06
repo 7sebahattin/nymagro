@@ -46,4 +46,37 @@ class KrediController extends Controller
         }
         $this->redirect('kredi');
     }
+
+    public function detay(int $id): void
+    {
+        $kredi = $this->model->krediGetir($id);
+        if (!$kredi) {
+            $this->setFlash('error', 'Kredi bulunamadı.');
+            $this->redirect('kredi');
+        }
+
+        $this->view('krediler/detay', [
+            'pageTitle'   => 'Kredi Detayı',
+            'activeMenu'  => 'krediler',
+            'topbarTitle' => $kredi['ad'],
+            'topbarIcon'  => 'fa-solid fa-building-columns',
+            'kredi'       => $kredi,
+            'taksitler'   => $this->model->taksitler($id),
+            'flash'       => $this->getFlash(),
+        ]);
+    }
+
+    public function taksitOde(int $id = 0): void
+    {
+        try {
+            if ($id > 0) {
+                $this->model->taksitOde($id);
+                $this->setFlash('success', 'Taksit ödendi olarak işaretlendi.');
+            }
+        } catch (Throwable $e) {
+            $this->setFlash('error', $e->getMessage());
+        }
+        $krediId = (int)($_POST['kredi_id'] ?? $_GET['kredi_id'] ?? 0);
+        $this->redirect($krediId > 0 ? 'kredi/detay/' . $krediId : 'kredi');
+    }
 }

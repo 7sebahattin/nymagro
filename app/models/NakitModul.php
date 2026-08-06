@@ -82,6 +82,80 @@ class NakitModul
         $this->db->update('kredi_odeme_plani', ['silindi_mi' => 1], ['kredi_id' => $id]);
     }
 
+    public function krediGetir(int $id): ?array
+    {
+        return $this->db->selectOne(
+            "SELECT * FROM krediler WHERE id = :id AND silindi_mi = 0 AND company_id = :cid AND period_id = :pid",
+            array_merge([':id' => $id], $this->tenantParams())
+        );
+    }
+
+    public function taksitler(int $krediId): array
+    {
+        return $this->db->select(
+            "SELECT * FROM kredi_odeme_plani
+             WHERE kredi_id = :kid AND silindi_mi = 0 AND company_id = :cid AND period_id = :pid
+             ORDER BY taksit_no ASC",
+            array_merge([':kid' => $krediId], $this->tenantParams())
+        );
+    }
+
+    /** Bir taksiti ödendi olarak işaretler, krediyi günceller ve varsa kasa hareketi oluşturur. */
+    public function taksitOde(int $planId): void
+    {
+        $plan = $this->db->selectOne(
+            "SELECT * FROM kredi_odeme_plani WHERE id = :id AND silindi_mi = 0 AND company_id = :cid AND period_id = :pid",
+            array_merge([':id' => $planId], $this->tenantParams())
+        );
+        if (!$plan) {
+            throw new InvalidArgumentException('Taksit bulunamadı.');
+        }
+        if ((int)$plan['odendi'] === 1) {
+            return; // zaten ödenmiş, tekrar işlenmesin
+        }
+
+        $kredi = $this->krediGetir((int)$plan['kredi_id']);
+        if (!$kredi) {
+            throw new InvalidArgumentException('Kredi bulunamadı.');
+        }
+
+        $this->db->begin();
+        try {
+            $this->db->update('kredi_odeme_plani', ['odendi' => 1], ['id' => $planId]);
+
+            $this->db->query(
+                "UPDATE krediler
+                 SET kalan_borc = GREATEST(kalan_borc - :tutar, 0),
+                     kalan_taksit_sayisi = GREATEST(kalan_taksit_sayisi - 1, 0)
+                 WHERE id = :id",
+                [':tutar' => $plan['tutar'], ':id' => $kredi['id']]
+            );
+
+            if (!empty($kredi['hesap_id'])) {
+                $this->db->insert('kasa_hareketleri', [
+                    'kasa_id'       => (int)$kredi['hesap_id'],
+                    'kasa_banka_id' => (int)$kredi['hesap_id'],
+                    'hareket_tipi'  => 'kredi_odeme',
+                    'islem_tipi'    => 'cikis',
+                    'tutar'         => $plan['tutar'],
+                    'tarih'         => date('Y-m-d H:i:s'),
+                    'aciklama'      => trim($kredi['ad'] . ' - Taksit #' . $plan['taksit_no']),
+                    'para_birimi'   => 'TRY',
+                ]);
+
+                $this->db->query(
+                    "UPDATE kasa_banka SET guncel_bakiye = guncel_bakiye - :tutar WHERE id = :id AND company_id = :cid",
+                    [':tutar' => $plan['tutar'], ':id' => (int)$kredi['hesap_id'], ':cid' => TenantContext::activeCompanyId()]
+                );
+            }
+
+            $this->db->commit();
+        } catch (Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
     public function demirbaslar(): array
     {
         return $this->listele('demirbaslar', 'alis_tarihi DESC, id DESC');
