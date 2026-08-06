@@ -24,7 +24,7 @@ class Cari
         'tc_kimlik_no', 'telefon', 'cep_telefon', 'eposta',
         'adres', 'il', 'ilce', 'ulke', 'cari_kodu',
         'bakiye', 'para_birimi', 'notlar', 'company_id',
-        'sinif_1', 'sinif_2',
+        'sinif_1', 'sinif_2', 'resim_yolu',
         // 'aktif_mi', 'eticaret_mi',   // v2: tabloya eklenince aktif edilecek
     ];
 
@@ -32,6 +32,7 @@ class Cari
     {
         $this->db = Database::getInstance();
         $this->ensureSiniflandirmaColumns();
+        $this->ensureResimYoluColumn();
     }
 
     /** cariler.sinif_1/sinif_2 yoksa ekler (müşteri/tedarikçi sınıflandırma). */
@@ -47,6 +48,20 @@ class Cari
                 if (!$var) {
                     $this->db->query("ALTER TABLE cariler ADD COLUMN {$col} VARCHAR(100) NULL");
                 }
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
+    }
+
+    /** cariler.resim_yolu yoksa ekler (müşteri/tedarikçi fotoğrafı). */
+    private function ensureResimYoluColumn(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cariler' AND COLUMN_NAME = 'resim_yolu'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE cariler ADD COLUMN resim_yolu VARCHAR(255) NULL");
             }
         } catch (\Throwable $e) { /* sessizce geç */ }
     }
@@ -132,27 +147,7 @@ class Cari
                     c.olusturulma_tarihi,
                     -- Anlık açık bakiye: (Satışlar + Ödemeler) - (Alışlar + Tahsilatlar)
                     -- Veya daha basit: (Borç İşlemleri - Alacak İşlemleri)
-                    ({$balanceSql}) + 0 * (COALESCE((
-                        SELECT SUM(CASE 
-                            WHEN f.belge_tipi IN ('satis', 'perakende') THEN f.genel_toplam 
-                            WHEN f.belge_tipi = 'alis' THEN -f.genel_toplam 
-                            ELSE 0 END)
-                        FROM   faturalar f
-                        WHERE  f.cari_id    = c.id
-                          AND  f.silindi_mi = 0
-                          AND  f.company_id = :tenant_company_id
-                          AND  f.period_id = :tenant_period_id
-                          AND  f.durum NOT IN ('iptal')
-                    ), 0) - COALESCE((
-                        SELECT SUM(CASE 
-                            WHEN kh.islem_tipi = 'giris' THEN kh.tutar 
-                            WHEN kh.islem_tipi = 'cikis' THEN -kh.tutar 
-                            ELSE 0 END)
-                        FROM kasa_hareketleri kh
-                        WHERE kh.cari_id = c.id
-                          AND kh.company_id = :tenant_company_id
-                          AND kh.period_id = :tenant_period_id
-                    ), 0)) AS acik_bakiye,
+                    ({$balanceSql}) AS acik_bakiye,
                     -- Portföyde bekleyen çek/senet toplamı (tablo henüz oluşturulmadı)
                     0 AS cek_senet_bakiye
                 FROM cariler c

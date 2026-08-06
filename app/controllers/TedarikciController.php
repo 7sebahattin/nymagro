@@ -234,8 +234,11 @@ class TedarikciController extends Controller
 
     public function sil(int $id): void
     {
-        $this->cariModel->sil($id);
-        $this->setFlash('success', 'Tedarikçi silindi.');
+        if ($this->cariModel->sil($id) > 0) {
+            $this->setFlash('success', 'Tedarikçi silindi.');
+        } else {
+            $this->setFlash('error', 'Tedarikçi bulunamadı.');
+        }
         $this->redirect('tedarikci');
     }
 

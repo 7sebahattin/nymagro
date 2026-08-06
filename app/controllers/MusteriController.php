@@ -130,6 +130,23 @@ final class MusteriController extends Controller
             'notlar'         => trim($_POST['notlar']         ?? ''),
         ];
 
+        try {
+            $resimYolu = $this->handleResimUpload();
+            if ($resimYolu !== null) {
+                $veri['resim_yolu'] = $resimYolu;
+            }
+        } catch (RuntimeException $e) {
+            $this->view('musteriler/ekle', [
+                'pageTitle'   => 'Yeni Müşteri Ekle',
+                'activeMenu'  => 'musteriler',
+                'topbarIcon'  => 'fa-solid fa-user-plus',
+                'topbarTitle' => 'Yeni Müşteri Ekle',
+                'hatalar'     => ['resim' => $e->getMessage()],
+                'eski'        => $_POST,
+            ]);
+            return;
+        }
+
         // ── Doğrulama ─────────────────────────────────────
         $hatalar = [];
 
@@ -294,4 +311,59 @@ final class MusteriController extends Controller
         }
     }
 
+    /** Müşteri fotoğrafı yükleme (opsiyonel). Yüklenen yoksa null döner. */
+    private function handleResimUpload(): ?string
+    {
+        $file = $_FILES['resim'] ?? null;
+        if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+            throw new RuntimeException('Fotoğraf yüklenemedi. Hata kodu: ' . (int)$file['error']);
+        }
+
+        if (($file['size'] ?? 0) > 2 * 1024 * 1024) {
+            throw new RuntimeException('Fotoğraf dosyası 2MB boyutunu geçemez.');
+        }
+
+        $tmpPath = (string)($file['tmp_name'] ?? '');
+        if ($tmpPath === '' || !is_uploaded_file($tmpPath)) {
+            throw new RuntimeException('Fotoğraf dosyası doğrulanamadı.');
+        }
+
+        $mime = null;
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = $finfo ? finfo_file($finfo, $tmpPath) : null;
+            if ($finfo) {
+                finfo_close($finfo);
+            }
+        } elseif (function_exists('mime_content_type')) {
+            $mime = mime_content_type($tmpPath);
+        }
+
+        $allowed = [
+            'image/png' => 'png',
+            'image/jpeg' => 'jpg',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+        ];
+        if (!isset($allowed[$mime])) {
+            throw new RuntimeException('Fotoğraf için sadece PNG, JPG, WEBP veya GIF yüklenebilir.');
+        }
+
+        $uploadDir = ROOT_PATH . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'cari-fotograflar';
+        if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true)) {
+            throw new RuntimeException('Fotoğraf klasörü oluşturulamadı.');
+        }
+
+        $fileName = 'musteri-' . date('YmdHis') . '-' . bin2hex(random_bytes(6)) . '.' . $allowed[$mime];
+        $target = $uploadDir . DIRECTORY_SEPARATOR . $fileName;
+        if (!move_uploaded_file($tmpPath, $target)) {
+            throw new RuntimeException('Fotoğraf dosyası kaydedilemedi.');
+        }
+
+        return 'uploads/cari-fotograflar/' . $fileName;
+    }
 }

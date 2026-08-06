@@ -32,8 +32,11 @@ class PersonelController extends Controller
 
     public function sil(int $id): void
     {
-        $this->model('Personel')->sil($id);
-        $this->setFlash('success', 'Personel kaydı silindi.');
+        if ($this->model('Personel')->sil($id) > 0) {
+            $this->setFlash('success', 'Personel kaydı silindi.');
+        } else {
+            $this->setFlash('error', 'Personel bulunamadı.');
+        }
         $this->redirect('personel');
     }
 

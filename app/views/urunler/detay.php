@@ -93,12 +93,12 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
 
 <div class="page-container">
 
-  <?php if (!empty($_SESSION['flash'])): ?>
-    <div class="alert alert-<?= $_SESSION['flash']['tip'] === 'success' ? 'success' : 'error' ?>">
-      <i class="fa-solid fa-<?= $_SESSION['flash']['tip'] === 'success' ? 'check-circle' : 'circle-exclamation' ?>"></i>
-      <?= htmlspecialchars($_SESSION['flash']['mesaj']) ?>
+  <?php $flash = $flash ?? []; ?>
+  <?php if (!empty($flash)): ?>
+    <div class="alert alert-<?= $flash['tip'] === 'success' ? 'success' : 'error' ?>">
+      <i class="fa-solid fa-<?= $flash['tip'] === 'success' ? 'check-circle' : 'circle-exclamation' ?>"></i>
+      <?= htmlspecialchars($flash['mesaj']) ?>
     </div>
-    <?php unset($_SESSION['flash']); ?>
   <?php endif; ?>
   
   <!-- Header & Tags -->
