@@ -204,6 +204,11 @@ class Company
 
     public function setPeriodStatus(int $id, string $status): void
     {
+        $current = $this->findPeriod($id);
+        if ($current && $current['status'] === 'archived' && $status !== 'archived') {
+            throw new RuntimeException('Arşivlenmiş bir dönem tekrar açılamaz.');
+        }
+
         $data = ['status' => $status];
         if ($status === 'closed') {
             $data['closing_date'] = date('Y-m-d');

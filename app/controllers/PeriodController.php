@@ -141,8 +141,12 @@ final class PeriodController extends Controller
             die('Dönem yönetim yetkiniz yok.');
         }
 
-        $this->company->setPeriodStatus($id, $status);
-        $this->setFlash('success', $message);
+        try {
+            $this->company->setPeriodStatus($id, $status);
+            $this->setFlash('success', $message);
+        } catch (Throwable $e) {
+            $this->setFlash('error', $e->getMessage());
+        }
         $this->redirect('companies/periods/' . (int)$period['company_id']);
     }
 }

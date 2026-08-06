@@ -41,10 +41,12 @@
             <?php if ($period['status'] === 'open'): ?>
               <a href="<?= BASE_URL ?>/periods/lock/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-warning">Kilitle</a>
               <a href="<?= BASE_URL ?>/periods/close/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Dönem kapatılsın mı?')">Kapat</a>
-            <?php else: ?>
+            <?php elseif ($period['status'] !== 'archived'): ?>
               <a href="<?= BASE_URL ?>/periods/reopen/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-success">Yeniden Aç</a>
             <?php endif; ?>
-            <a href="<?= BASE_URL ?>/periods/archive/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-secondary">Arşivle</a>
+            <?php if ($period['status'] !== 'archived'): ?>
+              <a href="<?= BASE_URL ?>/periods/archive/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-secondary">Arşivle</a>
+            <?php endif; ?>
           </td>
         </tr>
       <?php endforeach; ?>
