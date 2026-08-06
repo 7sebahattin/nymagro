@@ -47,6 +47,230 @@ class SiteIcerik
         'about_stat_value'     => '5',
     ];
 
+    /**
+     * Bakanlık tescilli 8 gerçek Nymagro ürünü — db/nymagro-urunler.sql ile
+     * birebir aynı veri. İlk kurulumda seedNymagroUrunleriIfMissing() ile
+     * otomatik yüklenir; elle SQL çalıştırmaya gerek yoktur.
+     */
+    private const NYMAGRO_URUNLERI = [
+        [
+            'sira' => 1,
+            'kategori' => "micro",
+            'ad_tr' => "SILATRIX",
+            'ad_en' => "SILATRIX",
+            'ad_ru' => "SILATRIX",
+            'slug_tr' => "silatrix",
+            'slug_en' => "silatrix",
+            'slug_ru' => "silatrix",
+            'aciklama_tr' => "Mangan (Mn-EDTA) ve çinko (Zn-EDTA) içeren, tamamı EDTA ile şelatlı sıvı mikro bitki besin karışımı. Suda çözünür mangan %1, suda çözünür çinko %1. EDTA şelatı 2–10 pH aralığında kararlıdır; toprakta bağlanmaz, bitki tarafından hızla alınır. Yapraktan ve damlama sulama ile uygulanır.",
+            'aciklama_en' => "A liquid micronutrient blend of manganese (Mn-EDTA) and zinc (Zn-EDTA), fully chelated with EDTA. Water soluble manganese 1%, water soluble zinc 1%. The EDTA chelate is stable across a pH range of 2–10; it resists fixation in the soil and is rapidly taken up by the plant. Applied both foliar and via drip irrigation.",
+            'aciklama_ru' => "Жидкая смесь микроэлементов — марганца (Mn-EDTA) и цинка (Zn-EDTA), полностью хелатированных ЭДТА. Водорастворимый марганец 1%, водорастворимый цинк 1%. Хелат ЭДТА стабилен в диапазоне pH 2–10, не связывается в почве и быстро усваивается растением. Применяется по листу и через капельное орошение.",
+            'sezon_tr' => "Vejetasyon dönemi boyunca, eksiklik belirtisi görüldüğünde",
+            'sezon_en' => "Throughout the growing season, when deficiency symptoms appear",
+            'sezon_ru' => "В течение вегетации, при признаках дефицита",
+            'paketleme_tr' => "1 L (1,1 kg) · 5 L (5,5 kg) · 10 L (11 kg)",
+            'paketleme_en' => "1 L (1.1 kg) · 5 L (5.5 kg) · 10 L (11 kg)",
+            'paketleme_ru' => "1 л (1,1 кг) · 5 л (5,5 кг) · 10 л (11 кг)",
+            'tescil_no' => "2026TK13785",
+            'ph_araligi' => "2–10",
+            'icerik_tr' => "Suda Çözünür Mangan (Mn) (Tamamı EDTA ile şelatlıdır.)|%1\nSuda Çözünür Çinko (Zn) (Tamamı EDTA ile şelatlıdır.)|%1",
+            'icerik_en' => "Water Soluble Manganese (Mn) (Fully chelated with EDTA.)|1%\nWater Soluble Zinc (Zn) (Fully chelated with EDTA.)|1%",
+            'icerik_ru' => "Водорастворимый марганец (Mn) (Полностью хелатирован ЭДТА.)|1%\nВодорастворимый цинк (Zn) (Полностью хелатирован ЭДТА.)|1%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+        [
+            'sira' => 2,
+            'kategori' => "micro",
+            'ad_tr' => "SILECKO MoZ",
+            'ad_en' => "SILECKO MoZ",
+            'ad_ru' => "SILECKO MoZ",
+            'slug_tr' => "silecko-moz",
+            'slug_en' => "silecko-moz",
+            'slug_ru' => "silecko-moz",
+            'aciklama_tr' => "Molibden (Mo) ve çinko (Zn) içeren sıvı mikro bitki besin ürünü. Suda çözünür molibden %0,1, suda çözünür çinko %1,9. Baklagillerde ve sebzelerde azot metabolizmasını destekler. Uygulama suyunun pH değerinin 6,0–6,7 aralığında olması önerilir.",
+            'aciklama_en' => "A liquid micronutrient product containing molybdenum (Mo) and zinc (Zn). Water soluble molybdenum 0.1%, water soluble zinc 1.9%. Supports nitrogen metabolism in legumes and vegetables. An application water pH of 6.0–6.7 is recommended.",
+            'aciklama_ru' => "Жидкий микроэлементный продукт с молибденом (Mo) и цинком (Zn). Водорастворимый молибден 0,1%, водорастворимый цинк 1,9%. Поддерживает азотный обмен у бобовых и овощных культур. Рекомендуемый pH рабочего раствора — 6,0–6,7.",
+            'sezon_tr' => "Vejetasyon dönemi boyunca",
+            'sezon_en' => "Throughout the growing season",
+            'sezon_ru' => "В течение вегетации",
+            'paketleme_tr' => "1 L (1,15 kg) · 5 L (5,75 kg) · 10 L (11,5 kg)",
+            'paketleme_en' => "1 L (1.15 kg) · 5 L (5.75 kg) · 10 L (11.5 kg)",
+            'paketleme_ru' => "1 л (1,15 кг) · 5 л (5,75 кг) · 10 л (11,5 кг)",
+            'tescil_no' => "2026TK13783",
+            'ph_araligi' => "",
+            'icerik_tr' => "Suda Çözünür Molibden (Mo)|%0,1\nSuda Çözünür Çinko (Zn)|%1,9",
+            'icerik_en' => "Water Soluble Molybdenum (Mo)|0.1%\nWater Soluble Zinc (Zn)|1.9%",
+            'icerik_ru' => "Водорастворимый молибден (Mo)|0,1%\nВодорастворимый цинк (Zn)|1,9%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+        [
+            'sira' => 3,
+            'kategori' => "micro",
+            'ad_tr' => "CUPPERA",
+            'ad_en' => "CUPPERA",
+            'ad_ru' => "CUPPERA",
+            'slug_tr' => "cuppera",
+            'slug_en' => "cuppera",
+            'slug_ru' => "cuppera",
+            'aciklama_tr' => "Bakır (Cu) içeren sıvı mikro bitki besin ürünü. Suda çözünür bakır %6,5. Bakır eksikliğinin görüldüğü koşullarda bitkinin besin dengesini destekler ve mantari hastalıklara karşı doğal dirence katkı sağlar.",
+            'aciklama_en' => "A liquid micronutrient product containing copper (Cu). Water soluble copper 6.5%. Supports the plant's nutrient balance where copper deficiency occurs and contributes to natural resistance against fungal disease.",
+            'aciklama_ru' => "Жидкий микроэлементный продукт с медью (Cu). Водорастворимая медь 6,5%. Поддерживает баланс питания при дефиците меди и способствует естественной устойчивости к грибковым заболеваниям.",
+            'sezon_tr' => "Vejetasyon dönemi boyunca",
+            'sezon_en' => "Throughout the growing season",
+            'sezon_ru' => "В течение вегетации",
+            'paketleme_tr' => "1 L (1,25 kg) · 5 L (6,25 kg) · 10 L (12,5 kg)",
+            'paketleme_en' => "1 L (1.25 kg) · 5 L (6.25 kg) · 10 L (12.5 kg)",
+            'paketleme_ru' => "1 л (1,25 кг) · 5 л (6,25 кг) · 10 л (12,5 кг)",
+            'tescil_no' => "2026TK13784",
+            'ph_araligi' => "",
+            'icerik_tr' => "Suda Çözünür Bakır (Cu)|%6,5",
+            'icerik_en' => "Water Soluble Copper (Cu)|6.5%",
+            'icerik_ru' => "Водорастворимая медь (Cu)|6,5%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+        [
+            'sira' => 4,
+            'kategori' => "micro",
+            'ad_tr' => "FORTIVIUM",
+            'ad_en' => "FORTIVIUM",
+            'ad_ru' => "FORTIVIUM",
+            'slug_tr' => "fortivium",
+            'slug_en' => "fortivium",
+            'slug_ru' => "fortivium",
+            'aciklama_tr' => "Bakır (Cu-EDTA), mangan (Mn-EDTA) ve çinko (Zn-EDTA) içeren, tamamı EDTA ile şelatlı sıvı mikro bitki besin karışımı. Suda çözünür bakır %1,1, mangan %0,4, çinko %0,5. EDTA şelatı 2–9 pH aralığında kararlıdır.",
+            'aciklama_en' => "A liquid micronutrient blend of copper (Cu-EDTA), manganese (Mn-EDTA) and zinc (Zn-EDTA), fully chelated with EDTA. Water soluble copper 1.1%, manganese 0.4%, zinc 0.5%. The EDTA chelate is stable across a pH range of 2–9.",
+            'aciklama_ru' => "Жидкая смесь микроэлементов — меди (Cu-EDTA), марганца (Mn-EDTA) и цинка (Zn-EDTA), полностью хелатированных ЭДТА. Водорастворимая медь 1,1%, марганец 0,4%, цинк 0,5%. Хелат стабилен в диапазоне pH 2–9.",
+            'sezon_tr' => "Vejetasyon dönemi boyunca, eksiklik belirtisi görüldüğünde",
+            'sezon_en' => "Throughout the growing season, when deficiency symptoms appear",
+            'sezon_ru' => "В течение вегетации, при признаках дефицита",
+            'paketleme_tr' => "1 L (1,1 kg) · 5 L (5,5 kg) · 10 L (11 kg)",
+            'paketleme_en' => "1 L (1.1 kg) · 5 L (5.5 kg) · 10 L (11 kg)",
+            'paketleme_ru' => "1 л (1,1 кг) · 5 л (5,5 кг) · 10 л (11 кг)",
+            'tescil_no' => "2026TK13786",
+            'ph_araligi' => "2–9",
+            'icerik_tr' => "Suda Çözünür Bakır (Cu) (Tamamı EDTA ile şelatlıdır.)|%1,1\nSuda Çözünür Mangan (Mn) (Tamamı EDTA ile şelatlıdır.)|%0,4\nSuda Çözünür Çinko (Zn) (Tamamı EDTA ile şelatlıdır.)|%0,5",
+            'icerik_en' => "Water Soluble Copper (Cu) (Fully chelated with EDTA.)|1.1%\nWater Soluble Manganese (Mn) (Fully chelated with EDTA.)|0.4%\nWater Soluble Zinc (Zn) (Fully chelated with EDTA.)|0.5%",
+            'icerik_ru' => "Водорастворимая медь (Cu) (Полностью хелатирована ЭДТА.)|1,1%\nВодорастворимый марганец (Mn) (Полностью хелатирован ЭДТА.)|0,4%\nВодорастворимый цинк (Zn) (Полностью хелатирован ЭДТА.)|0,5%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+        [
+            'sira' => 5,
+            'kategori' => "micro",
+            'ad_tr' => "NYMATEX",
+            'ad_en' => "NYMATEX",
+            'ad_ru' => "NYMATEX",
+            'slug_tr' => "nymatex",
+            'slug_en' => "nymatex",
+            'slug_ru' => "nymatex",
+            'aciklama_tr' => "Bakır (Cu-EDTA) ve çinko (Zn-EDTA) içeren, tamamı EDTA ile şelatlı sıvı mikro bitki besin karışımı. Suda çözünür bakır %0,5, çinko %1,5. EDTA şelatı 2–10 pH aralığında kararlıdır; yapraktan ve damlama sulama ile uygulanır.",
+            'aciklama_en' => "A liquid micronutrient blend of copper (Cu-EDTA) and zinc (Zn-EDTA), fully chelated with EDTA. Water soluble copper 0.5%, zinc 1.5%. The EDTA chelate is stable across a pH range of 2–10; applied both foliar and via drip irrigation.",
+            'aciklama_ru' => "Жидкая смесь микроэлементов — меди (Cu-EDTA) и цинка (Zn-EDTA), полностью хелатированных ЭДТА. Водорастворимая медь 0,5%, цинк 1,5%. Хелат стабилен в диапазоне pH 2–10, применяется по листу и через капельное орошение.",
+            'sezon_tr' => "Vejetasyon dönemi boyunca, eksiklik belirtisi görüldüğünde",
+            'sezon_en' => "Throughout the growing season, when deficiency symptoms appear",
+            'sezon_ru' => "В течение вегетации, при признаках дефицита",
+            'paketleme_tr' => "1 L (1,1 kg) · 5 L (5,5 kg) · 10 L (11 kg)",
+            'paketleme_en' => "1 L (1.1 kg) · 5 L (5.5 kg) · 10 L (11 kg)",
+            'paketleme_ru' => "1 л (1,1 кг) · 5 л (5,5 кг) · 10 л (11 кг)",
+            'tescil_no' => "2026TK13855",
+            'ph_araligi' => "2–10",
+            'icerik_tr' => "Suda Çözünür Bakır (Cu) (Tamamı EDTA ile şelatlıdır.)|%0,5\nSuda Çözünür Çinko (Zn) (Tamamı EDTA ile şelatlıdır.)|%1,5",
+            'icerik_en' => "Water Soluble Copper (Cu) (Fully chelated with EDTA.)|0.5%\nWater Soluble Zinc (Zn) (Fully chelated with EDTA.)|1.5%",
+            'icerik_ru' => "Водорастворимая медь (Cu) (Полностью хелатирована ЭДТА.)|0,5%\nВодорастворимый цинк (Zn) (Полностью хелатирован ЭДТА.)|1,5%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+        [
+            'sira' => 6,
+            'kategori' => "macro",
+            'ad_tr' => "BRILIXA",
+            'ad_en' => "BRILIXA",
+            'ad_ru' => "BRILIXA",
+            'slug_tr' => "brilixa",
+            'slug_en' => "brilixa",
+            'slug_ru' => "brilixa",
+            'aciklama_tr' => "Fosfor (P2O5 %23) ve potasyum (K2O %36) ağırlıklı, iz elementlerle (B, Fe-EDTA, Mn-EDTA, Mo, Zn-EDTA) desteklenmiş toz makro besin ürünü. Meyve tutumu, kalibre ve dayanıklılık üzerinde doğrudan etkilidir. Suda tamamen çözünür; yapraktan ve damlama sulama ile uygulanır.",
+            'aciklama_en' => "A powder macronutrient product built around phosphorus (P2O5 23%) and potassium (K2O 36%), supported by trace elements (B, Fe-EDTA, Mn-EDTA, Mo, Zn-EDTA). Has a direct effect on fruit set, size and firmness. Fully water soluble; applied both foliar and via drip irrigation.",
+            'aciklama_ru' => "Порошковый макроэлементный продукт на основе фосфора (P2O5 23%) и калия (K2O 36%), дополненный микроэлементами (B, Fe-EDTA, Mn-EDTA, Mo, Zn-EDTA). Напрямую влияет на завязь, калибр и прочность плодов. Полностью водорастворим, применяется по листу и через капельное орошение.",
+            'sezon_tr' => "Çiçeklenmeden meyve tutumuna",
+            'sezon_en' => "From flowering to fruit set",
+            'sezon_ru' => "От цветения до завязи плодов",
+            'paketleme_tr' => "0,5 kg · 1 kg · 5 kg · 10 kg",
+            'paketleme_en' => "0.5 kg · 1 kg · 5 kg · 10 kg",
+            'paketleme_ru' => "0,5 кг · 1 кг · 5 кг · 10 кг",
+            'tescil_no' => "2026TK13932",
+            'ph_araligi' => "2–9",
+            'icerik_tr' => "Suda Çözünür Fosfor Pentaoksit (P2O5)|%23\nSuda Çözünür Potasyum Oksit (K2O)|%36\nSuda Çözünür Bor (B)|%0,05\nSuda Çözünür Demir (Fe) (EDTA ile şelatlı)|%0,2\nSuda Çözünür Mangan (Mn) (EDTA ile şelatlı)|%0,1\nSuda Çözünür Molibden (Mo)|%0,05\nSuda Çözünür Çinko (Zn) (EDTA ile şelatlı)|%0,1",
+            'icerik_en' => "Water Soluble Phosphorus Pentoxide (P2O5)|23%\nWater Soluble Potassium Oxide (K2O)|36%\nWater Soluble Boron (B)|0.05%\nWater Soluble Iron (Fe) (EDTA chelated)|0.2%\nWater Soluble Manganese (Mn) (EDTA chelated)|0.1%\nWater Soluble Molybdenum (Mo)|0.05%\nWater Soluble Zinc (Zn) (EDTA chelated)|0.1%",
+            'icerik_ru' => "Водорастворимый пентоксид фосфора (P2O5)|23%\nВодорастворимый оксид калия (K2O)|36%\nВодорастворимый бор (B)|0,05%\nВодорастворимое железо (Fe) (хелат ЭДТА)|0,2%\nВодорастворимый марганец (Mn) (хелат ЭДТА)|0,1%\nВодорастворимый молибден (Mo)|0,05%\nВодорастворимый цинк (Zn) (хелат ЭДТА)|0,1%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+        [
+            'sira' => 7,
+            'kategori' => "macro",
+            'ad_tr' => "SLASTYK",
+            'ad_en' => "SLASTYK",
+            'ad_ru' => "SLASTYK",
+            'slug_tr' => "slastyk",
+            'slug_en' => "slastyk",
+            'slug_ru' => "slastyk",
+            'aciklama_tr' => "Fosfor (P2O5 %10) ve potasyum (K2O %12) içeren, bor (B %0,3) ile desteklenmiş sıvı makro besin ürünü. Çiçeklenme ve meyve tutumu döneminde kullanılır; kalibre ve şeker birikimini destekler.",
+            'aciklama_en' => "A liquid macronutrient product containing phosphorus (P2O5 10%) and potassium (K2O 12%), supported by boron (B 0.3%). Used during flowering and fruit set; supports size and sugar accumulation.",
+            'aciklama_ru' => "Жидкий макроэлементный продукт с фосфором (P2O5 10%) и калием (K2O 12%), дополненный бором (B 0,3%). Применяется в период цветения и завязи плодов, способствует калибру и накоплению сахаров.",
+            'sezon_tr' => "Çiçeklenme ve meyve tutumu döneminde",
+            'sezon_en' => "During flowering and fruit set",
+            'sezon_ru' => "В период цветения и завязи плодов",
+            'paketleme_tr' => "1 L (1,3 kg) · 5 L (6,5 kg)",
+            'paketleme_en' => "1 L (1.3 kg) · 5 L (6.5 kg)",
+            'paketleme_ru' => "1 л (1,3 кг) · 5 л (6,5 кг)",
+            'tescil_no' => "2026TK13933",
+            'ph_araligi' => "",
+            'icerik_tr' => "Suda Çözünür Fosfor Pentaoksit (P2O5)|%10\nSuda Çözünür Potasyum Oksit (K2O)|%12\nSuda Çözünür Bor (B)|%0,3",
+            'icerik_en' => "Water Soluble Phosphorus Pentoxide (P2O5)|10%\nWater Soluble Potassium Oxide (K2O)|12%\nWater Soluble Boron (B)|0.3%",
+            'icerik_ru' => "Водорастворимый пентоксид фосфора (P2O5)|10%\nВодорастворимый оксид калия (K2O)|12%\nВодорастворимый бор (B)|0,3%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+        [
+            'sira' => 8,
+            'kategori' => "macro",
+            'ad_tr' => "NutriDyn KALICALZ",
+            'ad_en' => "NutriDyn KALICALZ",
+            'ad_ru' => "NutriDyn KALICALZ",
+            'slug_tr' => "nutridyn-kalicalz",
+            'slug_en' => "nutridyn-kalicalz",
+            'slug_ru' => "nutridyn-kalicalz",
+            'aciklama_tr' => "Azot (N %5), potasyum (K2O %17), kalsiyum (CaO %14) ve magnezyum (MgO %2) içeren, demir (Fe-EDTA) ile desteklenmiş toz makro besin ürünü. Meyve sertliği, raf ömrü ve hücre duvarı dayanıklılığını destekler.",
+            'aciklama_en' => "A powder macronutrient product containing nitrogen (N 5%), potassium (K2O 17%), calcium (CaO 14%) and magnesium (MgO 2%), supported by iron (Fe-EDTA). Supports fruit firmness, shelf life and cell wall strength.",
+            'aciklama_ru' => "Порошковый макроэлементный продукт с азотом (N 5%), калием (K2O 17%), кальцием (CaO 14%) и магнием (MgO 2%), дополненный железом (Fe-EDTA). Поддерживает плотность плодов, лёжкость и прочность клеточной стенки.",
+            'sezon_tr' => "Meyve gelişimi ve olgunlaşma döneminde",
+            'sezon_en' => "During fruit development and ripening",
+            'sezon_ru' => "В период развития и созревания плодов",
+            'paketleme_tr' => "1 kg · 5 kg · 10 kg",
+            'paketleme_en' => "1 kg · 5 kg · 10 kg",
+            'paketleme_ru' => "1 кг · 5 кг · 10 кг",
+            'tescil_no' => "2026TK13914",
+            'ph_araligi' => "2–10",
+            'icerik_tr' => "Toplam Azot (N)|%5\nNitrat Azotu (N)|%5\nSuda Çözünür Potasyum Oksit (K2O)|%17\nSuda Çözünür Kalsiyum Oksit (CaO)|%14\nSuda Çözünür Magnezyum Oksit (MgO)|%2\nSuda Çözünür Demir (Fe) (EDTA ile şelatlı)|%0,1",
+            'icerik_en' => "Total Nitrogen (N)|5%\nNitrate Nitrogen (N)|5%\nWater Soluble Potassium Oxide (K2O)|17%\nWater Soluble Calcium Oxide (CaO)|14%\nWater Soluble Magnesium Oxide (MgO)|2%\nWater Soluble Iron (Fe) (EDTA chelated)|0.1%",
+            'icerik_ru' => "Общий азот (N)|5%\nНитратный азот (N)|5%\nВодорастворимый оксид калия (K2O)|17%\nВодорастворимый оксид кальция (CaO)|14%\nВодорастворимый оксид магния (MgO)|2%\nВодорастворимое железо (Fe) (хелат ЭДТА)|0,1%",
+            'gorsel' => "",
+            'etiket' => "TESCİLLİ",
+            'aktif_mi' => 1,
+        ],
+    ];
+
     /** Slug bazlı arama için */
     public function urunBySlug(string $slug, string $locale = 'tr'): ?array
     {
@@ -439,8 +663,11 @@ class SiteIcerik
             }
         }
 
-        // Not: Ürün kataloğu artık db/nymagro-urunler.sql ile elle yönetiliyor.
-        // Otomatik varsayılan ürün seed'i (eski meyve-sebze kataloğu) kaldırıldı.
+        // İlk kurulumda 8 gerçek Nymagro ürününü otomatik yükle (elle SQL
+        // çalıştırmaya gerek kalmaz). Tek seferlik ve tamamen zararsızdır —
+        // devralınan eski ürünleri yalnızca ilk seferde pasife alır, kendi
+        // ürünlerini pasife alanları veya sildiklerini asla geri açmaz.
+        $this->seedNymagroUrunleriIfMissing();
 
         // Backfill: slug_tr/en eksikse otomatik üret
         $missing = $this->db->select("SELECT id, ad_tr, ad_en, ad_ru, slug_tr, slug_en, slug_ru FROM site_urunler WHERE silindi_mi = 0");
@@ -454,6 +681,47 @@ class SiteIcerik
                 $this->db->query("UPDATE site_urunler SET " . implode(', ', $upd) . " WHERE id = :id", $params);
             }
         }
+    }
+
+    /**
+     * Bakanlık tescilli 8 ürünü ilk kurulumda otomatik yükler.
+     * site_settings.nymagro_urunler_seeded bayrağı ile tek seferlik çalışır;
+     * tekrar çağrılırsa hiçbir şey yapmaz (site sahibinin panelden yaptığı
+     * değişiklikleri asla ezmez).
+     */
+    private function seedNymagroUrunleriIfMissing(): void
+    {
+        $bayrak = $this->db->selectOne(
+            "SELECT setting_value FROM site_settings WHERE setting_key = 'nymagro_urunler_seeded'"
+        );
+        if (!empty($bayrak['setting_value'])) {
+            return;
+        }
+
+        // Devralınan eski ürünleri (varsa) pasife al — yalnızca bu ilk seferde
+        $this->db->query("UPDATE site_urunler SET aktif_mi = 0, updated_at = NOW() WHERE aktif_mi = 1 AND silindi_mi = 0");
+
+        foreach (self::NYMAGRO_URUNLERI as $u) {
+            $var = $this->db->selectOne("SELECT id FROM site_urunler WHERE slug_tr = :s", [':s' => $u['slug_tr']]);
+            if ($var) {
+                continue;
+            }
+            $kolonlar = array_keys($u);
+            $yerTutucular = array_map(fn($k) => ':' . $k, $kolonlar);
+            $params = [];
+            foreach ($u as $k => $v) {
+                $params[':' . $k] = $v;
+            }
+            $this->db->query(
+                "INSERT INTO site_urunler (" . implode(', ', $kolonlar) . ") VALUES (" . implode(', ', $yerTutucular) . ")",
+                $params
+            );
+        }
+
+        $this->db->query(
+            "INSERT INTO site_settings (setting_key, setting_value) VALUES ('nymagro_urunler_seeded', '1')
+             ON DUPLICATE KEY UPDATE setting_value = '1'"
+        );
     }
 
     private function uniqueSlug(string $source, string $column, ?int $ignoreId = null): string
