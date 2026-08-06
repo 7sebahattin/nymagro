@@ -184,9 +184,10 @@ class Masraf
         $temiz = array_intersect_key($veri, array_flip($this->fillable));
         if (empty($temiz)) return 0;
 
+        $mevcut = $this->getir($id);
+
         // KDV yeniden hesapla
         if (isset($temiz['tutar']) || isset($temiz['kdv_orani'])) {
-            $mevcut   = $this->getir($id);
             $tutar    = (float)($temiz['tutar']     ?? $mevcut['tutar']     ?? 0);
             $kdvOrani = (float)($temiz['kdv_orani'] ?? $mevcut['kdv_orani'] ?? 0);
             $temiz['kdv_tutari'] = round($tutar * $kdvOrani / (100 + $kdvOrani), 2);
@@ -200,6 +201,15 @@ class Masraf
 
         $rows = $this->db->update('masraflar', $temiz, ['id' => $id]);
         $this->syncPersonelHareketi($id, $personelTip);
+
+        // Düzenleme formundan "Ödendi" durumuna geçildiyse, ekle()/odemeYap()
+        // ile aynı şekilde kasa hareketi oluştur. kasaHareketiEkle() zaten
+        // tekrar kayıt oluşturmayı engelleyen bir güvenlik kontrolü içeriyor.
+        $guncel = array_merge($mevcut ?: [], $temiz);
+        if (($guncel['odeme_durumu'] ?? '') === 'odendi' && !empty($guncel['kasa_id'])) {
+            $this->kasaHareketiEkle($id, $guncel);
+        }
+
         return $rows;
     }
 
