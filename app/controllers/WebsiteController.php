@@ -63,6 +63,7 @@ class WebsiteController extends Controller
     {
         $urunler = $this->safeProducts();
         $galeri  = $this->safeGallery();
+        $regions = $this->productGroupSummaries();
 
         $seo = $this->baseSeo('home');
         $seo->setTitle(I18n::t('meta.home_title'))
@@ -83,8 +84,29 @@ class WebsiteController extends Controller
             'ayarlar' => $this->ayarlar,
             'urunler' => $urunler,
             'galeri'  => $galeri,
+            'regions' => $regions,
             'currentPage' => 'home',
         ]);
+    }
+
+    /** Ürün grubu (kategori) özetleri — gerçek ürün sayısıyla. Ana sayfa ve /urun-gruplari ortak kullanır. */
+    private function productGroupSummaries(): array
+    {
+        $regions = [];
+        $localeMap = self::REGION_SLUGS[$this->locale] ?? self::REGION_SLUGS['en'];
+        foreach ($localeMap as $slug => $key) {
+            $count = 0;
+            try { $count = $this->site ? count($this->site->urunlerByKategori($key, true)) : 0; } catch (Throwable $e) {}
+            $regions[] = [
+                'slug'  => $slug,
+                'key'   => $key,
+                'name'  => I18n::t("markets.list.{$key}.name"),
+                'desc'  => I18n::t("markets.list.{$key}.desc"),
+                'url'   => I18n::altUrl('export_region', $this->locale, $slug),
+                'count' => $count,
+            ];
+        }
+        return $regions;
     }
 
     public function about(): void
@@ -256,22 +278,7 @@ class WebsiteController extends Controller
         ], BASE_URL));
 
         // Ürün grubu listesi (locale slug ile), her grubun gerçek ürün sayısıyla
-        $regions = [];
-        $localeMap = self::REGION_SLUGS[$this->locale] ?? self::REGION_SLUGS['en'];
-        foreach ($localeMap as $slug => $key) {
-            $info  = I18n::t("markets.list.{$key}.name");
-            $desc  = I18n::t("markets.list.{$key}.desc");
-            $count = 0;
-            try { $count = count($this->site->urunlerByKategori($key, true)); } catch (Throwable $e) {}
-            $regions[] = [
-                'slug'  => $slug,
-                'key'   => $key,
-                'name'  => $info,
-                'desc'  => $desc,
-                'url'   => I18n::altUrl('export_region', $this->locale, $slug),
-                'count' => $count,
-            ];
-        }
+        $regions = $this->productGroupSummaries();
 
         $seo->addJsonLd(SeoMeta::itemListSchema(array_map(function($r) {
             return ['name' => $r['name'], 'url' => $r['url']];

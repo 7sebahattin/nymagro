@@ -113,11 +113,8 @@ a:hover{color:var(--p3)}
 .header-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 0}
 .brand{display:flex;align-items:center;gap:.75rem;color:var(--ink);font-weight:800}
 .brand:hover{color:var(--ink)}
-.brand-logo{width:42px;height:42px;border-radius:11px;background:#fff;border:1px solid rgba(13,98,58,.12);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.2rem;box-shadow:0 10px 26px -10px rgba(13,98,58,.6);overflow:hidden}
-.brand-logo img{width:100%;height:100%;object-fit:contain;background:#fff;padding:4px}
-.brand-text{display:flex;flex-direction:column;line-height:1.05}
-.brand-text strong{font-size:1.05rem;font-family:'Manrope';font-weight:800;letter-spacing:-.01em}
-.brand-text small{font-size:.7rem;color:var(--p3);letter-spacing:.2em;text-transform:uppercase}
+.brand-logo{height:40px;width:auto;display:flex;align-items:center;overflow:hidden}
+.brand-logo img{height:100%;width:auto;object-fit:contain;display:block}
 .nav-main{display:none;gap:.25rem;align-items:center}
 @media(min-width:1100px){.nav-main{display:flex}}
 .nav-link-x{display:inline-flex;align-items:center;padding:.55rem .9rem;color:var(--ink2);font-weight:600;font-size:.94rem;border-radius:999px;transition:.18s}
@@ -183,8 +180,9 @@ section.block{padding:5rem 0}
 .site-footer::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:32px 32px;opacity:.4}
 .footer-inner{position:relative;z-index:2}
 .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2.5rem;margin-bottom:2.5rem}
-.footer-brand{font-family:'Manrope';font-size:1.4rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.7rem;margin-bottom:1rem}
-.footer-brand .brand-logo{width:38px;height:38px;font-size:1.05rem}
+.footer-brand{display:flex;align-items:center;margin-bottom:1rem}
+.footer-brand .brand-logo{height:44px;width:auto;display:flex;align-items:center;overflow:hidden}
+.footer-brand .brand-logo img{height:100%;width:auto;object-fit:contain;display:block}
 .footer h4{color:#fff;font-size:1.05rem;margin-bottom:1rem}
 .footer ul{list-style:none;padding:0;margin:0}
 .footer ul li{margin-bottom:.55rem}
@@ -215,11 +213,7 @@ img{max-width:100%;height:auto}
         <span class="brand-logo">
           <?php if ($logoPath): ?>
             <img src="<?= htmlspecialchars($logoPath) ?>" alt="<?= htmlspecialchars($brand) ?>">
-          <?php else: ?>N<?php endif; ?>
-        </span>
-        <span class="brand-text">
-          <strong><?= htmlspecialchars($brand) ?></strong>
-          <small><?= htmlspecialchars($tagline) ?></small>
+          <?php else: ?><?= htmlspecialchars($brand) ?><?php endif; ?>
         </span>
       </a>
 
@@ -283,9 +277,8 @@ img{max-width:100%;height:auto}
         <span class="brand-logo">
           <?php if ($logoPath): ?>
             <img src="<?= htmlspecialchars($logoPath) ?>" alt="<?= htmlspecialchars($brand) ?>">
-          <?php else: ?>N<?php endif; ?>
+          <?php else: ?><?= htmlspecialchars($brand) ?><?php endif; ?>
         </span>
-        <strong><?= htmlspecialchars($brand) ?></strong>
       </a>
       <button type="button" class="menu-toggle" id="menuClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
     </div>
@@ -372,23 +365,12 @@ section[id],
   background:#fff;
 }
 .site-header .brand-logo{
-  width:66px;
-  height:66px;
-  border-radius:14px;
-  flex:0 0 66px;
-  background:#fff;
-  border:1px solid rgba(13,98,58,.12);
-  box-shadow:0 12px 30px -18px rgba(6,40,26,.35);
-  transition:transform .22s ease, box-shadow .22s ease;
-  transform-origin:center;
+  height:52px;
+  width:auto;
+  transition:transform .22s ease;
 }
 .site-header .brand:hover .brand-logo{
-  transform:scale(1.12);
-  box-shadow:0 18px 38px -18px rgba(13,98,58,.65);
-}
-.site-header .brand-logo img{
-  padding:2px;
-  background:#fff;
+  transform:scale(1.06);
 }
 .header-inner{
   height:var(--header-h-desktop);
@@ -399,12 +381,6 @@ section[id],
 .header-cta,
 .nav-main{
   min-width:0;
-}
-.brand-text{
-  min-width:0;
-}
-.brand-text strong{
-  white-space:nowrap;
 }
 .nav-main{
   gap:.5rem;
@@ -748,33 +724,15 @@ html[lang="ru"] .mob-bb-item.cta span{
   }
   .brand{
     gap:.5rem;
-    flex:1 1 auto;
+    flex:0 0 auto;
   }
   .brand-logo{
-    width:36px;
-    height:36px;
-    border-radius:10px;
-    flex:0 0 36px;
+    height:32px;
+    width:auto;
   }
   .site-header .brand-logo{
-    width:36px;
-    height:36px;
-    border-radius:10px;
-    flex-basis:36px;
-  }
-  .brand-text strong{
-    max-width:132px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    font-size:.96rem;
-  }
-  .brand-text small{
-    max-width:132px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    font-size:.58rem;
-    letter-spacing:.13em;
+    height:32px;
+    width:auto;
   }
   .header-cta{
     flex:0 0 auto;
@@ -988,12 +946,6 @@ html[lang="ru"] .mob-bb-item.cta span{
     padding-left:.8rem;
     padding-right:.8rem;
   }
-  .brand-text strong{
-    max-width:122px;
-  }
-  .brand-text small{
-    max-width:122px;
-  }
   .btn-primary-grad,
   .btn-outline-grad{
     padding:.78rem 1.05rem;
@@ -1026,21 +978,12 @@ html[lang="ru"] .mob-bb-item.cta span{
     padding-right:.7rem;
   }
   .brand-logo{
-    width:34px;
-    height:34px;
-    flex-basis:34px;
+    height:28px;
+    width:auto;
   }
   .site-header .brand-logo{
-    width:34px;
-    height:34px;
-    flex-basis:34px;
-  }
-  .brand-text strong{
-    max-width:108px;
-    font-size:.9rem;
-  }
-  .brand-text small{
-    display:none;
+    height:28px;
+    width:auto;
   }
   .lang-btn{
     padding:.36rem .45rem;
@@ -1076,9 +1019,8 @@ html[lang="ru"] .mob-bb-item.cta span{
       <div>
         <div class="footer-brand">
           <span class="brand-logo">
-            <?php if ($logoPath): ?><img src="<?= htmlspecialchars($logoPath) ?>" alt=""><?php else: ?>N<?php endif; ?>
+            <?php if ($logoPath): ?><img src="<?= htmlspecialchars($logoPath) ?>" alt="<?= htmlspecialchars($brand) ?>"><?php else: ?><?= htmlspecialchars($brand) ?><?php endif; ?>
           </span>
-          <?= htmlspecialchars($brand) ?>
         </div>
         <p style="color:#a8cfb8;margin-bottom:1.25rem;font-size:.95rem">
           <?= htmlspecialchars($siteText('about_p1', I18n::t('home.about.p1'))) ?>

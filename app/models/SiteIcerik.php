@@ -41,10 +41,10 @@ class SiteIcerik
         'slide4_img'      => 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1400&q=80',
         'about_img'       => 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1200&q=80',
         'og_image'        => '/img/og-image.jpg',
-        'stat_countries_value' => '5',
+        'stat_countries_value' => '3',
         'stat_products_value'  => '8+',
         'stat_quality_value'   => '100%',
-        'about_stat_value'     => '5',
+        'about_stat_value'     => '3',
     ];
 
     /**
@@ -668,6 +668,20 @@ class SiteIcerik
         // devralınan eski ürünleri yalnızca ilk seferde pasife alır, kendi
         // ürünlerini pasife alanları veya sildiklerini asla geri açmaz.
         $this->seedNymagroUrunleriIfMissing();
+
+        // Ana sayfadaki "Ürün Grupları" istatistiği eski 5 gruplu taksonomiden
+        // kalma '5' değerindeyse (hiç değiştirilmemişse) 3'e düzelt. Panelden
+        // elle değiştirilmişse veya zaten düzeltilmişse bir daha dokunulmaz —
+        // yukarıdaki ürün seed'inden bağımsız, her bootstrap'ta kontrol edilir.
+        foreach (['stat_countries_value', 'about_stat_value'] as $statKey) {
+            $stat = $this->db->selectOne("SELECT setting_value FROM site_settings WHERE setting_key = :k", [':k' => $statKey]);
+            if (($stat['setting_value'] ?? null) === '5') {
+                $this->db->query(
+                    "UPDATE site_settings SET setting_value = '3' WHERE setting_key = :k",
+                    [':k' => $statKey]
+                );
+            }
+        }
 
         // Backfill: slug_tr/en eksikse otomatik üret
         $missing = $this->db->select("SELECT id, ad_tr, ad_en, ad_ru, slug_tr, slug_en, slug_ru FROM site_urunler WHERE silindi_mi = 0");

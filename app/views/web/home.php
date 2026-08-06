@@ -66,6 +66,8 @@ for ($i = 1; $i <= $slideCount; $i++) {
 .market-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.25),transparent 70%)}
 .market-card h4{color:#fff;margin-bottom:.4rem}
 .market-card p{margin:0;color:#dcebdb;font-size:.85rem}
+.market-card .count-pill{position:absolute;top:1rem;left:1rem;background:rgba(255,255,255,.16);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.06em;padding:.28rem .65rem;border-radius:999px}
+.market-card.is-empty{opacity:.72}
 
 /* PROCESS */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.4rem}
@@ -237,29 +239,16 @@ for ($i = 1; $i <= $slideCount; $i++) {
     </div>
     <div class="markets-grid">
       <?php
-        $regionMap = [
-          'tr' => ['avrupa','dubai-bae','suudi-arabistan','misir','rusya'],
-          'en' => ['europe','dubai-uae','saudi-arabia','egypt','russia'],
-          'ru' => ['europe','dubai-uae','saudi-arabia','egypt','russia'],
-        ];
-        $keyMap = ['avrupa'=>'europe','dubai-bae'=>'dubai-uae','suudi-arabistan'=>'saudi-arabia','misir'=>'egypt','rusya'=>'russia',
-                   'europe'=>'europe','dubai-uae'=>'dubai-uae','saudi-arabia'=>'saudi-arabia','egypt'=>'egypt','russia'=>'russia'];
-        $marketTextKeys = [
-          'europe' => ['market_eu', 'market_eu_d'],
-          'dubai-uae' => ['market_uae', 'market_uae_d'],
-          'saudi-arabia' => ['market_sa', 'market_sa_d'],
-          'egypt' => ['market_eg', 'market_eg_d'],
-          'russia' => ['market_ru', 'market_ru_d'],
-        ];
-        foreach ($regionMap[$locale] as $slug):
-          $key = $keyMap[$slug] ?? $slug;
-          $textKeys = $marketTextKeys[$key] ?? null;
-          $name = $textKeys ? $siteText($textKeys[0], $LL['markets']['list'][$key]['name'] ?? '') : ($LL['markets']['list'][$key]['name'] ?? '');
-          $desc = $textKeys ? $siteText($textKeys[1], $LL['markets']['list'][$key]['desc'] ?? '') : ($LL['markets']['list'][$key]['desc'] ?? '');
+        $regionIcons = ['micro' => 'fa-flask', 'macro' => 'fa-seedling', 'biostimulant' => 'fa-bolt'];
+        $comingSoonLabel = ['tr' => 'Yakında', 'en' => 'Coming soon', 'ru' => 'Скоро'][$locale] ?? 'Yakında';
+        foreach (($regions ?? []) as $r):
+          $count = (int)($r['count'] ?? 0);
       ?>
-        <a href="<?= I18n::altUrl('export_region', $locale, $slug) ?>" class="market-card fade-in">
-          <h4><?= htmlspecialchars($name) ?></h4>
-          <p><?= htmlspecialchars(mb_strimwidth($desc, 0, 110, '…')) ?></p>
+        <a href="<?= htmlspecialchars($r['url']) ?>" class="market-card fade-in<?= $count === 0 ? ' is-empty' : '' ?>">
+          <i class="fas <?= htmlspecialchars($regionIcons[$r['key']] ?? 'fa-leaf') ?>" style="position:absolute;top:1rem;right:1rem;font-size:1.2rem;opacity:.5"></i>
+          <span class="count-pill"><?= $count > 0 ? (int)$count . ' ' . ($locale === 'en' ? ($count === 1 ? 'product' : 'products') : ($locale === 'ru' ? 'товар(ов)' : 'ürün')) : htmlspecialchars($comingSoonLabel) ?></span>
+          <h4><?= htmlspecialchars($r['name']) ?></h4>
+          <p><?= htmlspecialchars(mb_strimwidth($r['desc'], 0, 110, '…')) ?></p>
         </a>
       <?php endforeach; ?>
     </div>
