@@ -298,11 +298,11 @@
                   <i class="fa-solid fa-plus"></i> yeni sınıflandırma ekle
                 </button>
               </div>
-              <select class="form-select" id="sinif1Select">
+              <select class="form-select" name="sinif_1" id="sinif1Select">
                 <option value="">— Seçiniz —</option>
-                <option>Yerli</option>
-                <option>Yabancı</option>
-                <option>Distribütör</option>
+                <?php foreach (($sinif1ler ?? []) as $s): ?>
+                  <option value="<?= htmlspecialchars($s['ad']) ?>"><?= htmlspecialchars($s['ad']) ?></option>
+                <?php endforeach; ?>
               </select>
             </div>
             <div class="form-group">
@@ -315,11 +315,11 @@
                   <i class="fa-solid fa-plus"></i> yeni sınıflandırma ekle
                 </button>
               </div>
-              <select class="form-select" id="sinif2Select">
+              <select class="form-select" name="sinif_2" id="sinif2Select">
                 <option value="">— Seçiniz —</option>
-                <option>Bölge A</option>
-                <option>Bölge B</option>
-                <option>Bölge C</option>
+                <?php foreach (($sinif2ler ?? []) as $s): ?>
+                  <option value="<?= htmlspecialchars($s['ad']) ?>"><?= htmlspecialchars($s['ad']) ?></option>
+                <?php endforeach; ?>
               </select>
             </div>
             <div class="form-group">
@@ -444,6 +444,35 @@
         showToast('Sunucu ile iletişim kurulamadı.', 'error');
       }
     });
+  }
+
+  /* ── Yeni sınıflandırma ekle ── */
+  function yeniSiniflandirmaEkle(tur, selectEl) {
+    const ad = prompt('Yeni sınıflandırma adı:');
+    if (!ad || !ad.trim()) return;
+    const body = new URLSearchParams({ tur: tur, ad: ad.trim(), renk: 'green' });
+    fetch('<?= BASE_URL ?>/tanim/kaydetAjax', { method: 'POST', body: body })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) { showToast(data.error || 'Kaydedilemedi.', 'error'); return; }
+        if (!selectEl.querySelector(`option[value="${CSS.escape(data.ad)}"]`)) {
+          const opt = document.createElement('option');
+          opt.value = data.ad;
+          opt.textContent = data.ad;
+          selectEl.appendChild(opt);
+        }
+        selectEl.value = data.ad;
+      })
+      .catch(() => showToast('Kaydedilemedi.', 'error'));
+  }
+
+  const btnAddSinif1 = document.getElementById('btnAddSinif1');
+  if (btnAddSinif1) {
+    btnAddSinif1.addEventListener('click', () => yeniSiniflandirmaEkle('tedarikci_sinif_1', document.getElementById('sinif1Select')));
+  }
+  const btnAddSinif2 = document.getElementById('btnAddSinif2');
+  if (btnAddSinif2) {
+    btnAddSinif2.addEventListener('click', () => yeniSiniflandirmaEkle('tedarikci_sinif_2', document.getElementById('sinif2Select')));
   }
 
 })();

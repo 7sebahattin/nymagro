@@ -22,7 +22,6 @@ class TedarikciController extends Controller
         $toplam = $this->cariModel->say('tedarikci', $arama, $aktifMi, $eticaretMi, $sadeceBakiyeli);
         $tedarikciler = $this->cariModel->listele('tedarikci', $arama, $limit, $offset, $aktifMi, $eticaretMi, $sadeceBakiyeli);
         $ozetler = $this->cariModel->ozetler('tedarikci');
-        $ozetler['borclu_sayisi'] = count(array_filter($tedarikciler, fn($row) => (float)($row['acik_bakiye'] ?? 0) > 0));
         $sayfaSayisi = (int)ceil($toplam / $limit);
 
         $this->view('tedarikciler/index', [
@@ -46,11 +45,14 @@ class TedarikciController extends Controller
 
     public function ekle()
     {
+        $tanimGrouped = $this->model('Tanim')->grouped();
         $this->view('tedarikciler/ekle', [
             'pageTitle'   => 'Yeni Tedarikçi Ekle',
             'activeMenu'  => 'tedarikciler',
             'topbarTitle' => 'Yeni Tedarikçi Ekle',
-            'topbarIcon'  => 'fa-solid fa-industry'
+            'topbarIcon'  => 'fa-solid fa-industry',
+            'sinif1ler'   => $tanimGrouped['tedarikci_sinif_1'] ?? [],
+            'sinif2ler'   => $tanimGrouped['tedarikci_sinif_2'] ?? [],
         ]);
     }
 
@@ -71,7 +73,9 @@ class TedarikciController extends Controller
                 'para_birimi' => trim($_POST['para_birimi'] ?? 'TRY'),
                 'bakiye' => trim($_POST['bakiye'] ?? 0),
                 'yetkili_kisi' => trim($_POST['yetkili_kisi'] ?? ''),
-                'notlar' => trim($_POST['notlar'] ?? '')
+                'notlar' => trim($_POST['notlar'] ?? ''),
+                'sinif_1' => trim($_POST['sinif_1'] ?? '') ?: null,
+                'sinif_2' => trim($_POST['sinif_2'] ?? '') ?: null,
             ];
 
             if (empty($data['unvan'])) {

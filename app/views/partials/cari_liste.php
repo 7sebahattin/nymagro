@@ -121,7 +121,7 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
 
   <div class="cari-action-bar">
     <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/ekle" class="cari-btn-add"><i class="fa-solid fa-plus"></i> <?= $h($cfg['addText']) ?></a>
-    <button class="cari-btn-excel" type="button"><i class="fa-solid fa-file-excel"></i> <?= $h($cfg['excelText']) ?></button>
+    <button class="cari-btn-excel" type="button" onclick="alert('Excelden toplu yükleme özelliği yakında eklenecek.')"><i class="fa-solid fa-file-excel"></i> <?= $h($cfg['excelText']) ?></button>
     <div class="cari-badge-total"><i class="fa-solid <?= $h($cfg['icon']) ?>"></i><span><?= number_format($toplam) ?></span> <?= $h($cfg['totalLabel']) ?></div>
   </div>
 

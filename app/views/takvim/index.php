@@ -160,7 +160,9 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
                 $type = $eventTypes[$event['type']] ?? $eventTypes['other'];
                 $content = '<i class="fa-solid ' . $h($type['icon']) . '"></i><span>' . $h($event['title']) . '</span>';
               ?>
-                <?php if (!empty($event['url'])): ?>
+                <?php if ($event['type'] === 'note' && !empty($event['note_id'])): ?>
+                  <a class="cal-event event-<?= $h($type['class']) ?>" href="<?= BASE_URL ?>/takvim/not_sil/<?= (int)$event['note_id'] ?>" onclick="return confirm('Bu not silinsin mi?')" title="<?= $h(($event['title'] ?? '') . ' ' . ($event['meta'] ?? '') . ' — silmek için tıklayın') ?>"><?= $content ?></a>
+                <?php elseif (!empty($event['url'])): ?>
                   <a class="cal-event event-<?= $h($type['class']) ?>" href="<?= $h($event['url']) ?>" title="<?= $h(($event['title'] ?? '') . ' ' . ($event['meta'] ?? '')) ?>"><?= $content ?></a>
                 <?php else: ?>
                   <span class="cal-event event-<?= $h($type['class']) ?>" title="<?= $h(($event['title'] ?? '') . ' ' . ($event['meta'] ?? '')) ?>"><?= $content ?></span>
@@ -202,9 +204,10 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
         <?php endif; ?>
         <?php foreach ($upcomingEvents as $event):
           $dt = new DateTimeImmutable($event['date']);
-          $href = !empty($event['url']) ? $event['url'] : '#';
+          $isNote = $event['type'] === 'note' && !empty($event['note_id']);
+          $href = $isNote ? (BASE_URL . '/takvim/not_sil/' . (int)$event['note_id']) : (!empty($event['url']) ? $event['url'] : '#');
         ?>
-          <a class="upcoming-item" href="<?= $h($href) ?>">
+          <a class="upcoming-item" href="<?= $h($href) ?>" <?= $isNote ? 'onclick="return confirm(\'Bu not silinsin mi?\')"' : '' ?>>
             <div class="upcoming-date"><b><?= $h($dt->format('j')) ?></b><span><?= $h($monthNames[(int)$dt->format('n')]) ?></span></div>
             <div style="min-width:0;">
               <div class="upcoming-title"><?= $h($event['title']) ?></div>

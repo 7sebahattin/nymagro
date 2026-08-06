@@ -24,12 +24,31 @@ class Cari
         'tc_kimlik_no', 'telefon', 'cep_telefon', 'eposta',
         'adres', 'il', 'ilce', 'ulke', 'cari_kodu',
         'bakiye', 'para_birimi', 'notlar', 'company_id',
+        'sinif_1', 'sinif_2',
         // 'aktif_mi', 'eticaret_mi',   // v2: tabloya eklenince aktif edilecek
     ];
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->ensureSiniflandirmaColumns();
+    }
+
+    /** cariler.sinif_1/sinif_2 yoksa ekler (müşteri/tedarikçi sınıflandırma). */
+    private function ensureSiniflandirmaColumns(): void
+    {
+        try {
+            foreach (['sinif_1', 'sinif_2'] as $col) {
+                $var = $this->db->selectOne(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cariler' AND COLUMN_NAME = :col",
+                    [':col' => $col]
+                );
+                if (!$var) {
+                    $this->db->query("ALTER TABLE cariler ADD COLUMN {$col} VARCHAR(100) NULL");
+                }
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
     }
 
     // ──────────────────────────────────────────────────────

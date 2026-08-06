@@ -172,16 +172,16 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
     }
   </script>
 
-  <button class="btn-action btn-excel">
+  <button class="btn-action btn-excel" onclick="alert('Excelden toplu yükleme özelliği yakında eklenecek.')">
     <i class="fa-solid fa-bars"></i> Excelden Ürün Yükle
   </button>
-  <button class="btn-action btn-update">
+  <button class="btn-action btn-update" onclick="alert('Toplu ürün güncelleme özelliği yakında eklenecek.')">
     <i class="fa-solid fa-arrows-rotate"></i> Toplu Ürün Güncelleme
   </button>
-  <button class="btn-action btn-resim">
+  <button class="btn-action btn-resim" onclick="alert('Toplu resim yükleme özelliği yakında eklenecek.')">
     <i class="fa-regular fa-image"></i> Toplu Resim Yükleme
   </button>
-  <button class="btn-action btn-sil">
+  <button class="btn-action btn-sil" onclick="alert('Toplu ürün silme özelliği yakında eklenecek.')">
     <i class="fa-solid fa-trash-can"></i> Toplu Ürün Silme
   </button>
 </div>
@@ -248,26 +248,28 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
         <?php foreach ($urunler as $u): ?>
           <tr>
             <td>
-              <a href="<?= BASE_URL ?>/urun/detay/<?= $u['id'] ?>" class="td-name-cell" style="display:flex;">
-                <?= mb_strtoupper(htmlspecialchars($u['ad'])) ?>
-                
-                <?php if ($u['tip'] === 'urun'): ?>
-                  <span class="badge-ticari">TİCARİ MAL</span>
-                <?php endif; ?>
-                
-                <?php if (!empty($u['marka'])): ?>
-                  <span class="badge-brand"><?= mb_strtoupper(htmlspecialchars($u['marka'])) ?></span>
-                <?php endif; ?>
-                
-                <?php if (!empty($u['kod'])): ?>
-                   <span class="badge-tag"><?= mb_strtoupper(htmlspecialchars($u['kod'])) ?></span>
-                <?php endif; ?>
-                
+              <div class="td-name-cell">
+                <a href="<?= BASE_URL ?>/urun/detay/<?= $u['id'] ?>" style="display:flex; align-items:center; gap:8px; flex:1;">
+                  <?= mb_strtoupper(htmlspecialchars($u['ad'])) ?>
+
+                  <?php if ($u['tip'] === 'urun'): ?>
+                    <span class="badge-ticari">TİCARİ MAL</span>
+                  <?php endif; ?>
+
+                  <?php if (!empty($u['marka'])): ?>
+                    <span class="badge-brand"><?= mb_strtoupper(htmlspecialchars($u['marka'])) ?></span>
+                  <?php endif; ?>
+
+                  <?php if (!empty($u['kod'])): ?>
+                     <span class="badge-tag"><?= mb_strtoupper(htmlspecialchars($u['kod'])) ?></span>
+                  <?php endif; ?>
+                </a>
+
                 <div class="row-actions">
-                  <span class="btn-edit-row"><i class="fa-solid fa-pen"></i></span>
-                  <object><a href="<?= BASE_URL ?>/urun/sil/<?= $u['id'] ?>" class="btn-del-row" onclick="return confirm('Emin misiniz?')"><i class="fa-solid fa-trash-can"></i></a></object>
+                  <a href="<?= BASE_URL ?>/urun/duzenle/<?= $u['id'] ?>" class="btn-edit-row"><i class="fa-solid fa-pen"></i></a>
+                  <a href="<?= BASE_URL ?>/urun/sil/<?= $u['id'] ?>" class="btn-del-row" onclick="return confirm('Emin misiniz?')"><i class="fa-solid fa-trash-can"></i></a>
                 </div>
-              </a>
+              </div>
             </td>
             <td class="td-price-cell">
                <?= $u['satis_fiyati'] > 0 ? $fmt($u['satis_fiyati']) : '' ?>

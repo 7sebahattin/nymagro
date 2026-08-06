@@ -168,7 +168,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   <button type="button" class="btn-action" style="background:#d9534f; color:#fff;" data-bs-toggle="modal" data-bs-target="#kayitliMusteriModal">
     <i class="fa-solid fa-plus"></i> Kayıtlı Müşteriye Satış Gir
   </button>
-  <a href="#" class="btn-action" style="background:#f0ad4e; color:#fff;">
+  <a href="javascript:void(0)" class="btn-action" style="background:#f0ad4e; color:#fff;" onclick="alert('Serbest Meslek Makbuzları özelliği yakında eklenecek.')">
     <i class="fa-solid fa-file-invoice"></i> Serbest Meslek Makbuzları
   </a>
 </div>
