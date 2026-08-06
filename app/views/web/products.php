@@ -41,15 +41,16 @@
   <div class="container-xxl">
     <?php
       $filterLabels = [
-        'tr' => ['all' => 'Tümü', 'meyve' => 'Meyve', 'sebze' => 'Sebze', 'empty' => 'Bu kategoride ürün bulunamadı.'],
-        'en' => ['all' => 'All', 'meyve' => 'Fruits', 'sebze' => 'Vegetables', 'empty' => 'No products found in this category.'],
-        'ru' => ['all' => 'Все', 'meyve' => 'Фрукты', 'sebze' => 'Овощи', 'empty' => 'В этой категории нет товаров.'],
-      ][$locale] ?? ['all' => 'Tümü', 'meyve' => 'Meyve', 'sebze' => 'Sebze', 'empty' => 'Bu kategoride ürün bulunamadı.'];
+        'tr' => ['all' => 'Tümü', 'micro' => 'Mikro Element', 'macro' => 'Makro Besin', 'biostimulant' => 'Biyostimülant', 'empty' => 'Bu kategoride ürün bulunamadı.'],
+        'en' => ['all' => 'All', 'micro' => 'Micronutrient', 'macro' => 'Macronutrient', 'biostimulant' => 'Biostimulant', 'empty' => 'No products found in this category.'],
+        'ru' => ['all' => 'Все', 'micro' => 'Микроэлементы', 'macro' => 'Макроэлементы', 'biostimulant' => 'Биостимуляторы', 'empty' => 'В этой категории нет товаров.'],
+      ][$locale] ?? ['all' => 'Tümü', 'micro' => 'Mikro Element', 'macro' => 'Makro Besin', 'biostimulant' => 'Biyostimülant', 'empty' => 'Bu kategoride ürün bulunamadı.'];
     ?>
     <div class="product-filters" role="tablist" aria-label="Product filters">
       <button type="button" class="product-filter is-active" data-filter="all"><i class="fas fa-border-all"></i> <?= htmlspecialchars($filterLabels['all']) ?></button>
-      <button type="button" class="product-filter" data-filter="meyve"><i class="fas fa-apple-whole"></i> <?= htmlspecialchars($filterLabels['meyve']) ?></button>
-      <button type="button" class="product-filter" data-filter="sebze"><i class="fas fa-carrot"></i> <?= htmlspecialchars($filterLabels['sebze']) ?></button>
+      <button type="button" class="product-filter" data-filter="micro"><i class="fas fa-flask"></i> <?= htmlspecialchars($filterLabels['micro']) ?></button>
+      <button type="button" class="product-filter" data-filter="macro"><i class="fas fa-seedling"></i> <?= htmlspecialchars($filterLabels['macro']) ?></button>
+      <button type="button" class="product-filter" data-filter="biostimulant"><i class="fas fa-bolt"></i> <?= htmlspecialchars($filterLabels['biostimulant']) ?></button>
     </div>
 
     <div class="products-grid">
@@ -59,8 +60,8 @@
         $slug = $u['slug_'.$locale] ?? $u['slug_tr'] ?? SiteIcerik::slugify($ad);
         $img  = $u['gorsel'] ?? '';
         $sezon = $u['sezon_'.$locale] ?? '';
-        $etiket = $u['etiket'] ?? 'FRESH';
-        $kategori = in_array(($u['kategori'] ?? 'meyve'), ['meyve', 'sebze'], true) ? $u['kategori'] : 'meyve';
+        $etiket = $u['etiket'] ?? 'YENİ';
+        $kategori = in_array(($u['kategori'] ?? 'micro'), ['micro', 'macro', 'biostimulant'], true) ? $u['kategori'] : 'micro';
       ?>
         <article class="product-card fade-in" data-category="<?= htmlspecialchars($kategori) ?>">
           <a href="<?= I18n::altUrl('products', $locale, $slug) ?>" class="product-img" aria-label="<?= htmlspecialchars($ad) ?>">

@@ -69,6 +69,19 @@ $regionCardIcons = ['fa-leaf','fa-box-open','fa-truck-fast','fa-handshake'];
     </div>
   </div>
 </section>
+<?php else: ?>
+<section class="block" style="background:linear-gradient(180deg,#fff 0%,#f6fbf5 100%)">
+  <div class="container-xxl" style="text-align:center;padding:2rem 1rem">
+    <i class="fas fa-hourglass-half" style="font-size:1.8rem;color:var(--p1);opacity:.6;margin-bottom:.8rem;display:inline-block"></i>
+    <p style="color:var(--ink2);max-width:520px;margin:0 auto">
+      <?= htmlspecialchars([
+        'tr' => 'Bu ürün grubu portföyümüze yakında eklenecek. Güncel ürünlerimiz için bizimle iletişime geçin.',
+        'en' => 'This product group will be added to our portfolio soon. Contact us for our current products.',
+        'ru' => 'Эта группа продукции скоро появится в нашем портфеле. Свяжитесь с нами по действующим продуктам.',
+      ][$locale] ?? 'Bu ürün grubu portföyümüze yakında eklenecek.') ?>
+    </p>
+  </div>
+</section>
 <?php endif; ?>
 
 <section class="container-xxl">

@@ -10,7 +10,7 @@
  *   /tr/urunler/silatrix      → productDetail('silatrix')
  *   /en/products/silatrix     → productDetail('silatrix')
  *   /tr/urun-gruplari         → exportMarkets()
- *   /en/product-group/foliar-fertilizers → exportRegion('foliar-fertilizers')
+ *   /en/product-group/micronutrient-fertilizers → exportRegion('micronutrient-fertilizers')
  *   /tr/iletisim              → contact()
  *   /tr/iletisim/gonder (POST)→ contactSubmit()
  */
@@ -25,26 +25,20 @@ class WebsiteController extends Controller
     private ?SiteIcerik $site = null;
     private array $ayarlar;
 
-    /** Ürün grubu tanımları (slug → key) */
+    /** Ürün grubu tanımları (slug → key). Katalog 3 gerçek gruba göre şekillenir. */
     private const REGION_SLUGS = [
         'tr' => [
             'mikro-element-gubreleri' => 'micro',
-            'yaprak-gubreleri'        => 'foliar',
-            'damlama-gubreleri'       => 'fertigation',
             'makro-besin-urunleri'    => 'macro',
             'biyostimulantlar'        => 'biostimulant',
         ],
         'en' => [
             'micronutrient-fertilizers' => 'micro',
-            'foliar-fertilizers'        => 'foliar',
-            'fertigation-products'      => 'fertigation',
             'macronutrient-products'    => 'macro',
             'biostimulants'             => 'biostimulant',
         ],
         'ru' => [
             'micronutrient-fertilizers' => 'micro',
-            'foliar-fertilizers'        => 'foliar',
-            'fertigation-products'      => 'fertigation',
             'macronutrient-products'    => 'macro',
             'biostimulants'             => 'biostimulant',
         ],
@@ -171,6 +165,16 @@ class WebsiteController extends Controller
         $img     = (string)$urun['gorsel'];
         $current = $this->site->urunSlug($urun, $this->locale);
 
+        $icerik = SiteIcerik::parseIcerik((string)($urun['icerik_' . $this->locale] ?? $urun['icerik_tr'] ?? ''));
+        $doz    = SiteIcerik::parseDoz((string)($urun['doz_' . $this->locale] ?? $urun['doz_tr'] ?? ''));
+        $uygunBitkiler = SiteIcerik::bitkiListesi((string)($urun['doz_' . $this->locale] ?? $urun['doz_tr'] ?? ''));
+
+        $kategoriEtiket = [
+            'micro'        => 'Micronutrient fertilizer',
+            'macro'        => 'Macronutrient fertilizer',
+            'biostimulant' => 'Biostimulant',
+        ][$urun['kategori'] ?? 'micro'] ?? 'Plant nutrition';
+
         // hreflang slug-aware
         $hreflang = [];
         foreach (['tr','en','ru'] as $loc) {
@@ -197,7 +201,7 @@ class WebsiteController extends Controller
             'name'        => $ad,
             'description' => $aciklama,
             'image'       => $img,
-            'category'    => 'Plant nutrition',
+            'category'    => $kategoriEtiket,
             'brand'       => 'Nymagro',
         ]));
 
@@ -211,11 +215,15 @@ class WebsiteController extends Controller
         $faqs = $this->productFaqs($ad);
         $seo->addJsonLd(SeoMeta::faqSchema($faqs));
 
-        // İlgili ürünler
-        $ilgili = array_filter($this->safeProducts(), function($u) use ($urun) {
-            return (int)$u['id'] !== (int)$urun['id'];
-        });
-        $ilgili = array_slice($ilgili, 0, 4);
+        // İlgili ürünler — önce aynı kategoriden, yetmezse diğer ürünlerden tamamla
+        $tumUrunler = $this->safeProducts();
+        $ayniKategori = array_values(array_filter($tumUrunler, function($u) use ($urun) {
+            return (int)$u['id'] !== (int)$urun['id'] && ($u['kategori'] ?? '') === ($urun['kategori'] ?? '');
+        }));
+        $digerleri = array_values(array_filter($tumUrunler, function($u) use ($urun) {
+            return (int)$u['id'] !== (int)$urun['id'] && ($u['kategori'] ?? '') !== ($urun['kategori'] ?? '');
+        }));
+        $ilgili = array_slice(array_merge($ayniKategori, $digerleri), 0, 4);
 
         $this->renderPage('product-detail', [
             'seo'     => $seo,
@@ -226,6 +234,9 @@ class WebsiteController extends Controller
             'img'     => $img,
             'faqs'    => $faqs,
             'ilgili'  => $ilgili,
+            'icerik'  => $icerik,
+            'doz'     => $doz,
+            'uygunBitkiler' => $uygunBitkiler,
             'currentPage' => 'products',
         ]);
     }
@@ -244,18 +255,21 @@ class WebsiteController extends Controller
             ['name' => I18n::t('common.markets'),  'url' => $this->canonical('export_markets')],
         ], BASE_URL));
 
-        // Bölge listesi (locale slug ile)
+        // Ürün grubu listesi (locale slug ile), her grubun gerçek ürün sayısıyla
         $regions = [];
         $localeMap = self::REGION_SLUGS[$this->locale] ?? self::REGION_SLUGS['en'];
         foreach ($localeMap as $slug => $key) {
-            $info = I18n::t("markets.list.{$key}.name");
-            $desc = I18n::t("markets.list.{$key}.desc");
+            $info  = I18n::t("markets.list.{$key}.name");
+            $desc  = I18n::t("markets.list.{$key}.desc");
+            $count = 0;
+            try { $count = count($this->site->urunlerByKategori($key, true)); } catch (Throwable $e) {}
             $regions[] = [
-                'slug' => $slug,
-                'key'  => $key,
-                'name' => $info,
-                'desc' => $desc,
-                'url'  => I18n::altUrl('export_region', $this->locale, $slug),
+                'slug'  => $slug,
+                'key'   => $key,
+                'name'  => $info,
+                'desc'  => $desc,
+                'url'   => I18n::altUrl('export_region', $this->locale, $slug),
+                'count' => $count,
             ];
         }
 
@@ -319,13 +333,18 @@ class WebsiteController extends Controller
             ['name' => $regionName,                   'url' => I18n::altUrl('export_region', $this->locale, $slug)],
         ], BASE_URL));
 
+        $urunler = [];
+        try {
+            $urunler = array_map([$this, 'normalizeProduct'], $this->site->urunlerByKategori($key, true));
+        } catch (Throwable $e) {}
+
         $this->renderPage('export-region', [
             'seo'        => $seo,
             'ayarlar'    => $this->ayarlar,
             'regionName' => $regionName,
             'regionDesc' => $regionDesc,
             'regionKey'  => $key,
-            'urunler'    => array_slice($this->safeProducts(), 0, 8),
+            'urunler'    => $urunler,
             'currentPage' => 'markets',
         ]);
     }
@@ -611,9 +630,9 @@ class WebsiteController extends Controller
 
     private function normalizeProduct(array $product): array
     {
-        if (!empty($product['gorsel'])) {
-            $product['gorsel'] = $this->publicAssetUrl((string)$product['gorsel']);
-        }
+        $product['gorsel'] = !empty($product['gorsel'])
+            ? $this->publicAssetUrl((string)$product['gorsel'])
+            : (BASE_URL . '/img/urun-placeholder.jpg');
         return $product;
     }
 

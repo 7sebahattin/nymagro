@@ -97,8 +97,8 @@ return [
         ],
         'markets' => [
             'kicker' => 'Our Product Groups',
-            'title'  => 'Five core groups for every need',
-            'desc'   => 'Chelated micronutrients, foliar fertilizers, fertigation products, macronutrient solutions and biostimulants.',
+            'title'  => 'Three core groups for every need',
+            'desc'   => 'Chelated micronutrient fertilizers, macronutrient solutions and a biostimulant range coming soon.',
         ],
         'process' => [
             'kicker' => 'Quality and Registration',
@@ -160,18 +160,24 @@ return [
             'related'     => 'Related Products',
             'faq'         => 'Frequently Asked Questions',
             'inquiry'     => 'Request a Quote for This Product',
+            'reg_no'      => 'Registration No',
+            'ph_range'    => 'pH Range',
+            'dose'        => 'Application Method and Dose',
+            'dose_plant'  => 'Crop',
+            'dose_foliar' => 'Foliar (per 100 L water)',
+            'dose_drip'   => 'Fertigation',
+            'content_name'  => 'Content',
+            'content_value' => 'Ratio',
         ],
     ],
 
     'markets' => [
         'h1'    => 'Our Product Groups',
-        'lead'  => 'Five core product groups, organised by plant requirement and application method.',
+        'lead'  => 'Three core product groups, organised by the plant nutrient they supply.',
         'list'  => [
-            'micro'        => ['name'=>'Chelated Micronutrient Fertilizers','desc'=>'Liquid micronutrient products containing iron, zinc, manganese, copper and boron, fully chelated with EDTA. They resist fixation in the soil, stay stable across a wide pH range and are rapidly taken up by the plant.'],
-            'foliar'       => ['name'=>'Foliar Fertilizers','desc'=>'Fast acting liquid nutrient solutions applied to the leaves throughout the growing season. They correct visible deficiency symptoms quickly and support the plant during periods of stress.'],
-            'fertigation'  => ['name'=>'Fertigation Products','desc'=>'Formulations suited to drip systems that leave no residue and do not clog emitters. They provide a steady flow of nutrients to the root zone, supporting shoot and fruit development.'],
-            'macro'        => ['name'=>'Macronutrient Products','desc'=>'Liquid and powder macronutrient solutions containing potassium, calcium, nitrogen and phosphorus, with a direct effect on fruit set, size and shelf life.'],
-            'biostimulant' => ['name'=>'Biostimulants','desc'=>'Products containing amino acids, seaweed extract and organic matter that accelerate root development and increase tolerance to cold, heat and salinity stress.'],
+            'micro'        => ['name'=>'Chelated Micronutrient Fertilizers','desc'=>'Liquid micronutrient products containing zinc, copper, manganese and molybdenum, chelated with EDTA (SILATRIX, SILECKO MoZ, CUPPERA, FORTIVIUM, NYMATEX). They resist fixation in the soil, stay stable across a wide pH range, and are applied both foliar and via drip irrigation.'],
+            'macro'        => ['name'=>'Macronutrient Products','desc'=>'Liquid and powder macronutrient solutions containing phosphorus, potassium, calcium and nitrogen, with a direct effect on fruit set and size (BRILIXA, SLASTYK, NutriDyn KALICALZ).'],
+            'biostimulant' => ['name'=>'Biostimulants','desc'=>'Our biostimulant range, aimed at accelerating root development and boosting tolerance to stress, is coming soon.'],
         ],
     ],
 

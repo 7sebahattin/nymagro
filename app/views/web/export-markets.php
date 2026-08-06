@@ -1,14 +1,21 @@
 <?php
-/* Export markets list page */
+/* Ürün grupları listesi (kategori bazlı) */
 // $siteText controller tarafından inject edilir
 $siteText = $siteText ?? static fn(string $k, string $d = '') => $d;
-$marketTextKeys = [
-    'europe' => ['market_eu', 'market_eu_d'],
-    'dubai-uae' => ['market_uae', 'market_uae_d'],
-    'saudi-arabia' => ['market_sa', 'market_sa_d'],
-    'egypt' => ['market_eg', 'market_eg_d'],
-    'russia' => ['market_ru', 'market_ru_d'],
-];
+$comingSoonLabel = [
+    'tr' => 'Yakında',
+    'en' => 'Coming soon',
+    'ru' => 'Скоро',
+][$locale] ?? 'Yakında';
+$productCountLabel = static function (int $count, string $locale): string {
+    if ($count === 0) return '';
+    $labels = [
+        'tr' => "{$count} ürün",
+        'en' => $count === 1 ? '1 product' : "{$count} products",
+        'ru' => "{$count} товар(ов)",
+    ];
+    return $labels[$locale] ?? $labels['en'];
+};
 ?>
 <style>
 .page-hero{padding:5rem 0 3rem;background:linear-gradient(135deg,#06281a 0%,#073820 60%,#0d623a 100%);color:#fff;position:relative;overflow:hidden}
@@ -25,6 +32,8 @@ $marketTextKeys = [
 .region-card h2{color:#fff;margin-bottom:.6rem;font-size:1.6rem}
 .region-card p{color:#dcebdb;margin:0 0 1rem;font-size:.94rem}
 .region-card .more{display:inline-flex;align-items:center;gap:.4rem;font-weight:700;font-size:.9rem;color:#fff}
+.region-card .count-pill{position:absolute;top:1.4rem;left:1.4rem;background:rgba(255,255,255,.16);color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.06em;padding:.3rem .7rem;border-radius:999px}
+.region-card.is-empty{opacity:.72}
 </style>
 
 <section class="page-hero">
@@ -40,19 +49,19 @@ $marketTextKeys = [
     <div class="region-grid">
       <?php
         $regionIcons = [
-          'europe'       => 'fa-earth-europe',
-          'dubai-uae'    => 'fa-mosque',
-          'saudi-arabia' => 'fa-kaaba',
-          'egypt'        => 'fa-monument',
-          'russia'       => 'fa-snowflake',
+          'micro'        => 'fa-flask',
+          'macro'        => 'fa-seedling',
+          'biostimulant' => 'fa-bolt',
         ];
         foreach ($regions as $r):
-          $textKeys = $marketTextKeys[$r['key']] ?? null;
-          $name = $textKeys ? $siteText($textKeys[0], $r['name']) : $r['name'];
-          $desc = $textKeys ? $siteText($textKeys[1], $r['desc']) : $r['desc'];
+          $name  = $r['name'];
+          $desc  = $r['desc'];
+          $count = (int)($r['count'] ?? 0);
+          $countText = $count > 0 ? $productCountLabel($count, $locale) : $comingSoonLabel;
       ?>
-        <a href="<?= htmlspecialchars($r['url']) ?>" class="region-card fade-in">
+        <a href="<?= htmlspecialchars($r['url']) ?>" class="region-card fade-in<?= $count === 0 ? ' is-empty' : '' ?>">
           <i class="fas <?= htmlspecialchars($regionIcons[$r['key']] ?? 'fa-globe') ?> icon"></i>
+          <span class="count-pill"><?= htmlspecialchars($countText) ?></span>
           <h2><?= htmlspecialchars($name) ?></h2>
           <p><?= htmlspecialchars($desc) ?></p>
           <span class="more"><?= htmlspecialchars(I18n::t('common.cta_more')) ?> <i class="fas fa-arrow-right"></i></span>

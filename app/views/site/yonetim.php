@@ -666,9 +666,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
       <?php foreach ($aktifUrunler as $u): ?>
       <div class="pr-card" id="urun-<?= (int)$u['id'] ?>" data-urun='<?= htmlspecialchars(json_encode($u, JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>'>
         <div class="pr-card-img" style="background-image:url('<?= htmlspecialchars($u['gorsel'] ?? '') ?>')">
-          <span class="pr-card-tag"><?= htmlspecialchars($u['etiket'] ?? 'FRESH') ?></span>
+          <span class="pr-card-tag"><?= htmlspecialchars($u['etiket'] ?? 'YENİ') ?></span>
           <span class="pr-card-tag" style="right:8px;left:auto;background:rgba(255,255,255,.92);color:#0d623a;border:1px solid rgba(13,98,58,.18)">
-            <?= (($u['kategori'] ?? 'meyve') === 'sebze') ? 'SEBZE' : 'MEYVE' ?>
+            <?= ['micro'=>'MİKRO ELEMENT','macro'=>'MAKRO BESİN','biostimulant'=>'BİYOSTİMÜLANT'][$u['kategori'] ?? 'micro'] ?? 'MİKRO ELEMENT' ?>
           </span>
           <?php if (empty($u['aktif_mi'])): ?><span class="pr-card-passive">PASİF</span><?php endif; ?>
         </div>
@@ -811,11 +811,29 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           </div>
           <div class="sm-field">
             <label>Etiket</label>
-            <input type="text" name="etiket" id="urunEtiket" class="sm-inp" value="FRESH" maxlength="20">
+            <input type="text" name="etiket" id="urunEtiket" class="sm-inp" value="YENİ" maxlength="20">
           </div>
           <div class="sm-field full">
             <label>Açıklama (TR)</label>
             <textarea name="aciklama_tr" id="urunAciklamaTr" class="sm-area" rows="2"></textarea>
+          </div>
+          <div class="sm-field">
+            <label>Tescil No</label>
+            <input type="text" name="tescil_no" id="urunTescilNo" class="sm-inp" placeholder="Örn: 2026TK13785">
+          </div>
+          <div class="sm-field">
+            <label>pH Aralığı</label>
+            <input type="text" name="ph_araligi" id="urunPhAraligi" class="sm-inp" placeholder="Örn: 2–10 (opsiyonel)">
+          </div>
+          <div class="sm-field full">
+            <label>Garanti Edilen İçerik (TR)</label>
+            <textarea name="icerik_tr" id="urunIcerikTr" class="sm-area" rows="4" placeholder="Her satıra bir madde: Ad|Yüzde&#10;Örn: Suda Çözünür Çinko (Zn) (EDTA ile şelatlı)|%1"></textarea>
+            <span style="font-size:11px;color:var(--muted)">Her satır: <code>Ad|Yüzde</code> formatında.</span>
+          </div>
+          <div class="sm-field full">
+            <label>Uygulama Dozu (TR)</label>
+            <textarea name="doz_tr" id="urunDozTr" class="sm-area" rows="4" placeholder="Her satıra bir bitki grubu: Bitki|Yapraktan|Damlama&#10;Örn: Sebzeler|100-150 ml/100L|300-500 ml/da"></textarea>
+            <span style="font-size:11px;color:var(--muted)">Her satır: <code>Bitki|Yapraktan|Damlama</code> formatında.</span>
           </div>
         </div>
 
@@ -826,6 +844,10 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
             <div class="sm-field"><label>Ad (RU)</label><input type="text" name="ad_ru" id="urunAdRu" class="sm-inp"></div>
             <div class="sm-field"><label>Açıklama (EN)</label><textarea name="aciklama_en" id="urunAciklamaEn" class="sm-area" rows="2"></textarea></div>
             <div class="sm-field"><label>Açıklama (RU)</label><textarea name="aciklama_ru" id="urunAciklamaRu" class="sm-area" rows="2"></textarea></div>
+            <div class="sm-field full"><label>Garanti Edilen İçerik (EN)</label><textarea name="icerik_en" id="urunIcerikEn" class="sm-area" rows="3" placeholder="Ad|Yüzde"></textarea></div>
+            <div class="sm-field full"><label>Garanti Edilen İçerik (RU)</label><textarea name="icerik_ru" id="urunIcerikRu" class="sm-area" rows="3" placeholder="Ad|Yüzde"></textarea></div>
+            <div class="sm-field full"><label>Uygulama Dozu (EN)</label><textarea name="doz_en" id="urunDozEn" class="sm-area" rows="3" placeholder="Bitki|Yapraktan|Damlama"></textarea></div>
+            <div class="sm-field full"><label>Uygulama Dozu (RU)</label><textarea name="doz_ru" id="urunDozRu" class="sm-area" rows="3" placeholder="Bitki|Yapraktan|Damlama"></textarea></div>
           </div>
         </details>
 
@@ -837,8 +859,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           <div class="sm-field">
             <label>Kategori</label>
             <select name="kategori" id="urunKategori" class="sm-inp">
-              <option value="meyve">Meyve</option>
-              <option value="sebze">Sebze</option>
+              <option value="micro">Şelatlı Mikro Element</option>
+              <option value="macro">Makro Besin</option>
+              <option value="biostimulant">Biyostimülant</option>
             </select>
           </div>
           <div class="sm-field">
@@ -1036,8 +1059,8 @@ function smLogoPreview(input) {
 function smFormSifirla() {
   document.getElementById('formUrun')?.reset();
   document.getElementById('urunId').value = '0';
-  document.getElementById('urunEtiket').value = 'FRESH';
-  document.getElementById('urunKategori').value = 'meyve';
+  document.getElementById('urunEtiket').value = 'YENİ';
+  document.getElementById('urunKategori').value = 'micro';
   document.getElementById('urunAktif').checked = true;
   document.getElementById('urunGorselPrev').style.display = 'none';
   document.getElementById('urunModalBaslik').innerHTML = '<i class="fa-solid fa-leaf"></i> Yeni Ürün';
@@ -1049,14 +1072,22 @@ function smUrunDuzenle(id) {
   document.getElementById('formUrun').reset();
   document.getElementById('urunId').value          = u.id;
   document.getElementById('urunSira').value        = u.sira || 0;
-  document.getElementById('urunKategori').value    = u.kategori || 'meyve';
-  document.getElementById('urunEtiket').value      = u.etiket || 'FRESH';
+  document.getElementById('urunKategori').value    = u.kategori || 'micro';
+  document.getElementById('urunEtiket').value      = u.etiket || 'YENİ';
   document.getElementById('urunAdTr').value        = u.ad_tr || '';
   document.getElementById('urunAdEn').value        = u.ad_en || '';
   document.getElementById('urunAdRu').value        = u.ad_ru || '';
   document.getElementById('urunAciklamaTr').value  = u.aciklama_tr || '';
   document.getElementById('urunAciklamaEn').value  = u.aciklama_en || '';
   document.getElementById('urunAciklamaRu').value  = u.aciklama_ru || '';
+  document.getElementById('urunTescilNo').value    = u.tescil_no || '';
+  document.getElementById('urunPhAraligi').value   = u.ph_araligi || '';
+  document.getElementById('urunIcerikTr').value    = u.icerik_tr || '';
+  document.getElementById('urunIcerikEn').value    = u.icerik_en || '';
+  document.getElementById('urunIcerikRu').value    = u.icerik_ru || '';
+  document.getElementById('urunDozTr').value       = u.doz_tr || '';
+  document.getElementById('urunDozEn').value       = u.doz_en || '';
+  document.getElementById('urunDozRu').value       = u.doz_ru || '';
   document.getElementById('urunAktif').checked     = !!parseInt(u.aktif_mi);
   const prev = document.getElementById('urunGorselPrev');
   if (u.gorsel) { prev.style.backgroundImage = `url(${u.gorsel})`; prev.style.display = 'block'; }

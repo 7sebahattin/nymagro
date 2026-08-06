@@ -97,8 +97,8 @@ return [
         ],
         'markets' => [
             'kicker' => 'Ürün Gruplarımız',
-            'title'  => 'İhtiyacınıza göre beş ana grup',
-            'desc'   => 'Şelatlı mikro elementler, yaprak gübreleri, damlama sulama ürünleri, makro besin çözümleri ve biyostimülantlar.',
+            'title'  => 'İhtiyacınıza göre üç ana grup',
+            'desc'   => 'Şelatlı mikro element gübreleri, makro besin çözümleri ve yakında eklenecek biyostimülant ürün grubu.',
         ],
         'process' => [
             'kicker' => 'Kalite ve Tescil',
@@ -160,18 +160,24 @@ return [
             'related'     => 'İlgili Ürünler',
             'faq'         => 'Sık Sorulan Sorular',
             'inquiry'     => 'Bu Ürün İçin Teklif Alın',
+            'reg_no'      => 'Tescil No',
+            'ph_range'    => 'pH Aralığı',
+            'dose'        => 'Uygulama Şekli ve Dozu',
+            'dose_plant'  => 'Bitki',
+            'dose_foliar' => 'Yapraktan (100 L Suya)',
+            'dose_drip'   => 'Damlama',
+            'content_name'  => 'İçerik',
+            'content_value' => 'Oran',
         ],
     ],
 
     'markets' => [
         'h1'    => 'Ürün Gruplarımız',
-        'lead'  => 'Bitkinin ihtiyacına ve uygulama şekline göre ayrılmış beş ana ürün grubu.',
+        'lead'  => 'Bitkinin besin ihtiyacına göre ayrılmış üç ana ürün grubu.',
         'list'  => [
-            'micro'        => ['name'=>'Şelatlı Mikro Element Gübreleri','desc'=>'Demir, çinko, mangan, bakır ve bor içeren, tamamı EDTA ile şelatlı sıvı mikro besin ürünleri. Toprakta bağlanmaz, geniş pH aralığında kararlı kalır ve bitki tarafından hızla alınır.'],
-            'foliar'       => ['name'=>'Yaprak Gübreleri','desc'=>'Vejetasyon dönemi boyunca yapraktan uygulanan, hızlı etki gösteren sıvı besin çözeltileri. Görülen eksiklik belirtilerini kısa sürede giderir, stres dönemlerinde bitkiyi destekler.'],
-            'fertigation'  => ['name'=>'Damlama Sulama Gübreleri','desc'=>'Damlama sistemine uygun, tortu bırakmayan ve damlatıcı tıkamayan formülasyonlar. Kök bölgesine düzenli besin akışı sağlayarak sürgün ve meyve gelişimini destekler.'],
-            'macro'        => ['name'=>'Makro Besin Ürünleri','desc'=>'Potasyum, kalsiyum, azot ve fosfor içeren, meyve tutumu, kalibre ve dayanıklılık üzerinde doğrudan etkili sıvı ve toz formda makro besin çözümleri.'],
-            'biostimulant' => ['name'=>'Biyostimülantlar','desc'=>'Amino asit, deniz yosunu ekstraktı ve organik madde içeren, kök gelişimini hızlandıran ve bitkinin soğuk, sıcak, tuzluluk gibi stres koşullarına dayanımını artıran ürünler.'],
+            'micro'        => ['name'=>'Şelatlı Mikro Element Gübreleri','desc'=>'Çinko, bakır, mangan ve molibden içeren, EDTA ile şelatlı sıvı mikro besin ürünleri (SILATRIX, SILECKO MoZ, CUPPERA, FORTIVIUM, NYMATEX). Toprakta bağlanmaz, geniş pH aralığında kararlı kalır, yapraktan ve damlama sulama ile uygulanır.'],
+            'macro'        => ['name'=>'Makro Besin Ürünleri','desc'=>'Fosfor, potasyum, kalsiyum ve azot içeren, meyve tutumu ve kalibresini destekleyen sıvı ve toz formda makro besin çözümleri (BRILIXA, SLASTYK, NutriDyn KALICALZ).'],
+            'biostimulant' => ['name'=>'Biyostimülantlar','desc'=>'Kök gelişimini hızlandıran ve bitkinin stres koşullarına dayanımını artıran biyostimülant ürün grubumuz yakında portföyümüze eklenecek.'],
         ],
     ],
 

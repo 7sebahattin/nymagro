@@ -70,22 +70,33 @@ SELECT COUNT(*) FROM site_galeri   WHERE etiket_tr    LIKE '%Nuverna%';
 Sitede hâlâ devralınan yaş sebze-meyve ürünleri (kiraz, domates vb.) var.
 İki seçeneğiniz var:
 
-**a) Hazır şablonu kullanın** (hızlı)
+**a) Hazır şablonu kullanın** (önerilen)
 
 ```bash
 mysql -u KULLANICI -p VERITABANI < db/nymagro-urunler.sql
 ```
 
-Eski ürünleri pasife alır, sekiz Nymagro ürününü ekler.
+Eski ürünleri pasife alır, sekiz Nymagro ürününü (SILATRIX, SILECKO MoZ,
+CUPPERA, FORTIVIUM, NYMATEX, BRILIXA, SLASTYK, NutriDyn KALICALZ) ekler.
+**Sekizi de T.C. Tarım ve Orman Bakanlığı tescil belgelerinden doğrulanmış**
+tescil no, garanti edilen içerik (%) ve şelat pH kararlılığı verileriyle
+doğrudan çalıştırılabilir.
 
-> **Önemli:** Bu şablonda yalnızca **SILATRIX**'in teknik verileri tescil
-> belgesinden alınmıştır ve doğrudur. Diğer yedi ürünün açıklamaları taslaktır
-> ve içlerinde `[Teknik içerik ... doğrulanacaktır]` ibaresi geçer. Her ürünü
-> kendi tescil belgesiyle karşılaştırıp düzeltmeden yayına almayın.
+> **Eksik olan tek şey:** Bitki bazlı uygulama dozu tabloları (`doz_tr` /
+> `doz_en` / `doz_ru`) bu şablonda YOK. Panel → Site Yönetimi → Ürünler →
+> ürünü düzenle → "Uygulama Dozu" alanına, ürünün tescil belgesindeki doz
+> tablosunu `Bitki|Yapraktan|Damlama` formatında satır satır girin.
+> Girilmezse ürün sayfasında "Uygulama Şekli ve Dozu" tablosu görünmez.
+>
+> Ürün görselleri de boş — yüklenene kadar `public/img/urun-placeholder.jpg`
+> (Nymagro renkleriyle üretilmiş jenerik görsel) otomatik gösterilir. Gerçek
+> ürün fotoğrafı geldikçe panelden ürün başına tek tek değiştirin.
 
 **b) Panelden elle girin**
 
-Panel → Site Yönetimi → Ürünler.
+Panel → Site Yönetimi → Ürünler. Yeni alanlar: Tescil No, pH Aralığı,
+Garanti Edilen İçerik (`Ad|Yüzde` formatında, satır satır), Uygulama Dozu
+(`Bitki|Yapraktan|Damlama` formatında, satır satır).
 
 ---
 
@@ -153,7 +164,9 @@ Yayına almadan önce tarayıcıdan doğrulayın:
 - [ ] İletişim formu mesaj gönderiyor ve panele düşüyor
 - [ ] Panele giriş yapılıyor, şifre değiştirilmiş
 - [ ] Ürün listesinde eski meyve-sebze kayıtları görünmüyor
-- [ ] Ürün açıklamalarında `[Teknik içerik ... doğrulanacaktır]` ibaresi kalmamış
+- [ ] 3 ürün grubu sayfası (mikro element / makro besin / biyostimülant) açılıyor
+- [ ] 8 ürün detay sayfasında Tescil No, garanti edilen içerik tablosu görünüyor
+- [ ] Uygulama dozu tabloları panelden girildi (bkz. bölüm 3)
 
 ---
 

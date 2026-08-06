@@ -158,15 +158,23 @@ class SiteController extends Controller
             $id   = (int)($_POST['id'] ?? 0);
             $veri = [
                 'sira'        => (int)($_POST['sira'] ?? 0),
-                'kategori'    => in_array(($_POST['kategori'] ?? 'meyve'), ['meyve', 'sebze'], true) ? $_POST['kategori'] : 'meyve',
+                'kategori'    => in_array(($_POST['kategori'] ?? 'micro'), ['micro', 'macro', 'biostimulant'], true) ? $_POST['kategori'] : 'micro',
                 'ad_tr'       => trim($_POST['ad_tr'] ?? ''),
                 'ad_en'       => trim($_POST['ad_en'] ?? ''),
                 'ad_ru'       => trim($_POST['ad_ru'] ?? ''),
                 'aciklama_tr' => trim($_POST['aciklama_tr'] ?? ''),
                 'aciklama_en' => trim($_POST['aciklama_en'] ?? ''),
                 'aciklama_ru' => trim($_POST['aciklama_ru'] ?? ''),
-                'etiket'      => trim($_POST['etiket'] ?? 'FRESH'),
+                'etiket'      => trim($_POST['etiket'] ?? 'YENİ'),
                 'aktif_mi'    => !empty($_POST['aktif_mi']),
+                'tescil_no'   => trim($_POST['tescil_no'] ?? ''),
+                'ph_araligi'  => trim($_POST['ph_araligi'] ?? ''),
+                'icerik_tr'   => trim($_POST['icerik_tr'] ?? ''),
+                'icerik_en'   => trim($_POST['icerik_en'] ?? ''),
+                'icerik_ru'   => trim($_POST['icerik_ru'] ?? ''),
+                'doz_tr'      => trim($_POST['doz_tr'] ?? ''),
+                'doz_en'      => trim($_POST['doz_en'] ?? ''),
+                'doz_ru'      => trim($_POST['doz_ru'] ?? ''),
             ];
 
             if ($veri['ad_tr'] === '') throw new Exception('Türkçe ürün adı zorunludur.');
