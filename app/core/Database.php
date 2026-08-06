@@ -25,6 +25,9 @@ final class Database
     /** @var PDOStatement|false */
     private $stmt = false;
 
+    /** İç içe begin()/commit() çağrılarını doğru saymak için derinlik sayacı. */
+    private int $transactionDepth = 0;
+
     // --------------------------------------------------------------
     // Yapıcı (private) — Singleton
     // --------------------------------------------------------------
@@ -187,26 +190,43 @@ final class Database
     // --------------------------------------------------------------
     // Transactions
     // --------------------------------------------------------------
-    public function begin(): bool    
-    { 
-        if (!$this->pdo->inTransaction()) {
-            return $this->pdo->beginTransaction(); 
+    /**
+     * İç içe begin()/commit() çağrılarını destekler: yalnızca en dıştaki
+     * begin() gerçek bir PDO transaction'ı başlatır; iç çağrılar sadece
+     * derinlik sayacını artırır. Böylece bir model başka bir modelin
+     * (örn. Fatura::ekle() içinden Urun::stokHareketiEkle()) kendi
+     * begin()/commit() çağrısı, dıştaki transaction'ı erken kapatmaz.
+     */
+    public function begin(): bool
+    {
+        if ($this->transactionDepth === 0) {
+            $this->pdo->beginTransaction();
+        }
+        $this->transactionDepth++;
+        return true;
+    }
+
+    public function commit(): bool
+    {
+        if ($this->transactionDepth <= 0) {
+            return false;
+        }
+        $this->transactionDepth--;
+        if ($this->transactionDepth === 0 && $this->pdo->inTransaction()) {
+            return $this->pdo->commit();
         }
         return true;
     }
-    
-    public function commit(): bool   
-    { 
-        if ($this->pdo->inTransaction()) {
-            return $this->pdo->commit(); 
+
+    /** Herhangi bir seviyeden rollBack() tüm iç içe işlemi geri alır (savepoint desteği yok). */
+    public function rollBack(): bool
+    {
+        if ($this->transactionDepth <= 0) {
+            return false;
         }
-        return false;
-    }
-    
-    public function rollBack(): bool 
-    { 
+        $this->transactionDepth = 0;
         if ($this->pdo->inTransaction()) {
-            return $this->pdo->rollBack(); 
+            return $this->pdo->rollBack();
         }
         return false;
     }

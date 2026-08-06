@@ -87,6 +87,156 @@ final class SatisController extends Controller
         ]);
     }
 
+    public function duzenle(int $id): void
+    {
+        $f = $this->fatura->getir($id);
+        if (!$f) {
+            $this->setFlash('error', 'Fatura bulunamadı.');
+            $this->redirect('satis');
+        }
+        if ($f['durum'] === 'iptal') {
+            $this->setFlash('error', 'İptal edilmiş fatura düzenlenemez.');
+            $this->redirect('satis/detay/' . $id);
+        }
+
+        $eski = $f;
+        $eski['fatura_tarihi'] = $this->tarihGoster($f['fatura_tarihi']);
+        $eski['vade_tarihi']   = $f['vade_tarihi'] ? $this->tarihGoster($f['vade_tarihi']) : '';
+
+        $cari = !empty($f['cari_id']) ? $this->cariModel->getir((int)$f['cari_id']) : null;
+
+        $this->view('satislar/duzenle', [
+            'fatura'      => $f,
+            'kalemler'    => $this->fatura->kalemleriGetir($id),
+            'hatalar'     => [],
+            'eski'        => $eski,
+            'cari'        => $cari,
+            'topbarTitle' => 'Fatura Düzenle — ' . $f['fatura_no'],
+            'topbarIcon'  => 'fa-file-invoice-dollar',
+        ]);
+    }
+
+    public function guncelle(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('satis/duzenle/' . $id);
+        }
+
+        $mevcut = $this->fatura->getir($id);
+        if (!$mevcut) {
+            $this->setFlash('error', 'Fatura bulunamadı.');
+            $this->redirect('satis');
+        }
+
+        $eski    = $_POST;
+        $hatalar = [];
+
+        $faturaNo   = trim($_POST['fatura_no']    ?? '');
+        $faturaT    = trim($_POST['fatura_tarihi'] ?? '');
+        $belgeTipi  = $_POST['belge_tipi'] ?? $mevcut['belge_tipi'];
+        if (!in_array($belgeTipi, ['siparis', 'irsaliye', 'proforma', 'satis'])) {
+            $belgeTipi = 'satis';
+        }
+        $durum      = $_POST['durum'] ?? $mevcut['durum'];
+        $cariId     = !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null;
+        $paraBirimi = trim($_POST['para_birimi'] ?? 'TRY');
+        $odemeSekli = trim($_POST['odeme_sekli'] ?? '');
+        $aciklama   = trim($_POST['aciklama']    ?? '');
+        $vadeTarihi = trim($_POST['vade_tarihi'] ?? '') ?: null;
+
+        if ($faturaNo === '') {
+            $hatalar['fatura_no'] = 'Fatura no zorunludur.';
+        }
+        if ($faturaT === '') {
+            $hatalar['fatura_tarihi'] = 'Fatura tarihi zorunludur.';
+        } else {
+            $faturaT = $this->tarihCevir($faturaT);
+        }
+        if ($vadeTarihi !== null) {
+            $vadeTarihi = $this->tarihCevir($vadeTarihi);
+        }
+
+        $kalemAdlari  = $_POST['kalem_urun_adi']      ?? [];
+        $kalemUrunId  = $_POST['kalem_urun_id']       ?? [];
+        $kalemMiktar  = $_POST['kalem_miktar']        ?? [];
+        $kalemFiyat   = $_POST['kalem_birim_fiyat']   ?? [];
+        $kalemKdv     = $_POST['kalem_kdv_orani']     ?? [];
+        $kalemIskonto = $_POST['kalem_iskonto_orani'] ?? [];
+        $kalemBirim   = $_POST['kalem_birim']         ?? [];
+
+        $kalemler = [];
+        foreach ($kalemAdlari as $i => $ad) {
+            $ad = trim($ad);
+            if ($ad === '') continue;
+            $kalemler[] = [
+                'urun_id'       => !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null,
+                'urun_adi'      => $ad,
+                'miktar'        => max(0.001, (float)str_replace(',', '.', $kalemMiktar[$i] ?? '1')),
+                'birim_fiyat'   => max(0, (float)str_replace(',', '.', $kalemFiyat[$i] ?? '0')),
+                'kdv_orani'     => (float)($kalemKdv[$i] ?? 20),
+                'iskonto_orani' => (float)($kalemIskonto[$i] ?? 0),
+                'birim'         => $kalemBirim[$i] ?? 'Adet',
+            ];
+        }
+
+        if (empty($kalemler)) {
+            $hatalar['kalemler'] = 'En az bir ürün/hizmet kalemi ekleyin.';
+        }
+
+        if (!empty($hatalar)) {
+            $this->view('satislar/duzenle', [
+                'fatura'      => $mevcut,
+                'kalemler'    => $this->fatura->kalemleriGetir($id),
+                'hatalar'     => $hatalar,
+                'eski'        => $eski,
+                'cari'        => $cariId ? $this->cariModel->getir($cariId) : null,
+                'topbarTitle' => 'Fatura Düzenle — ' . $mevcut['fatura_no'],
+                'topbarIcon'  => 'fa-file-invoice-dollar',
+            ]);
+            return;
+        }
+
+        $araToplam    = 0;
+        $iskontoTutar = 0;
+        $kdvTutar     = 0;
+        foreach ($kalemler as $k) {
+            $at  = $k['miktar'] * $k['birim_fiyat'];
+            $it  = $at * ($k['iskonto_orani'] / 100);
+            $kdt = ($at - $it) * ($k['kdv_orani'] / 100);
+            $araToplam    += $at;
+            $iskontoTutar += $it;
+            $kdvTutar     += $kdt;
+        }
+        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+
+        $faturaVeri = [
+            'belge_tipi'     => $belgeTipi,
+            'fatura_no'      => $faturaNo,
+            'cari_id'        => $cariId,
+            'fatura_tarihi'  => $faturaT,
+            'vade_tarihi'    => $vadeTarihi,
+            'ara_toplam'     => round($araToplam, 2),
+            'iskonto_tutari' => round($iskontoTutar, 2),
+            'kdv_tutari'     => round($kdvTutar, 2),
+            'genel_toplam'   => round($genelToplam, 2),
+            'kalan_tutar'    => round($genelToplam - (float)($mevcut['odenen_tutar'] ?? 0), 2),
+            'para_birimi'    => $paraBirimi,
+            'durum'          => $durum === 'taslak' ? 'taslak' : ($mevcut['durum'] === 'taslak' ? 'onaylandi' : $mevcut['durum']),
+            'odeme_sekli'    => $odemeSekli ?: null,
+            'aciklama'       => $aciklama   ?: null,
+        ];
+
+        $depoId = !empty($_POST['depo_id']) ? (int)$_POST['depo_id'] : (int)($mevcut['depo_id'] ?: 1);
+
+        try {
+            $this->fatura->guncelle($id, $faturaVeri, $kalemler, $depoId);
+            $this->setFlash('success', "Fatura #{$faturaNo} güncellendi.");
+        } catch (Throwable $e) {
+            $this->setFlash('error', $e->getMessage());
+        }
+        $this->redirect('satis/detay/' . $id);
+    }
+
     public function fatura($id = 0, string $mode = ''): void
     {
         if ($mode !== 'print') {
@@ -392,6 +542,15 @@ final class SatisController extends Controller
             return "{$y}-{$a}-{$g}";
         }
         return $t; // zaten yyyy-mm-dd
+    }
+
+    /** yyyy-mm-dd → dd.mm.yyyy (düzenleme formunda göstermek için) */
+    private function tarihGoster(?string $t): string
+    {
+        if ($t && preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $t, $m)) {
+            return "{$m[3]}.{$m[2]}.{$m[1]}";
+        }
+        return (string)$t;
     }
 
 }

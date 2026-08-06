@@ -78,6 +78,11 @@ $printUrl = BASE_URL . '/satis/fatura/' . (int)$fatura['id'] . '/print';
 
 <div class="invoice-actions no-print">
     <a href="<?= BASE_URL ?>/satis" class="btn-action btn-back"><i class="fa-solid fa-arrow-left"></i> Geri Don</a>
+    <?php if (($fatura['durum'] ?? '') !== 'iptal'): ?>
+    <a href="<?= BASE_URL ?>/satis/duzenle/<?= (int)$fatura['id'] ?>" class="btn-action btn-print">
+        <i class="fa-solid fa-pen"></i> Duzenle
+    </a>
+    <?php endif; ?>
     <button type="button" onclick="window.open('<?= htmlspecialchars($printUrl) ?>', '_blank', 'noopener')" class="btn-action btn-print">
         <i class="fa-solid fa-print"></i> Yazdir
     </button>

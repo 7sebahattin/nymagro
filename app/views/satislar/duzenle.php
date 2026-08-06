@@ -1,12 +1,15 @@
 <?php
 /**
- * View: satislar/ekle.php
+ * View: satislar/duzenle.php
  * Beklenen değişkenler:
- *   $faturaNo  string — önerilen fatura no
- *   $bugun     string — bugünün tarihi (dd.mm.yyyy)
+ *   $fatura    array  — düzenlenen fatura kaydı
+ *   $kalemler  array  — faturanın mevcut kalemleri
  *   $hatalar   array
- *   $eski      array
+ *   $eski      array  — form alanlarını doldurmak için (fatura ile aynı anahtarlar)
+ *   $cari      array|null
  */
+$faturaNo = $fatura['fatura_no'] ?? '';
+$bugun = $eski['fatura_tarihi'] ?? date('d.m.Y');
 $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_QUOTES);
 $err = function(string $k) use ($hatalar): string {
     if (empty($hatalar[$k])) return '';
@@ -98,7 +101,7 @@ $err = function(string $k) use ($hatalar): string {
     <i class="fa-solid fa-shopping-cart"></i> Satışlar
   </a>
   <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
-  <span>Yeni Fatura</span>
+  <span>Fatura Düzenle — <?= htmlspecialchars($faturaNo) ?></span>
 </div>
 
 <?php if (!empty($hatalar['kalemler'])): ?>
@@ -108,21 +111,15 @@ $err = function(string $k) use ($hatalar): string {
   </div>
 <?php endif; ?>
 
-<form id="faturaForm" method="POST" action="<?= BASE_URL ?>/satis/kaydet">
+<form id="faturaForm" method="POST" action="<?= BASE_URL ?>/satis/guncelle/<?= (int)$fatura['id'] ?>">
 
 
 <!-- Action Buttons -->
 <div class="top-action-row">
-  <button type="submit" name="belge_tipi" value="proforma" class="top-btn" style="background:#5cb85c; color:#fff;">
-    <i class="fa-solid fa-cloud-arrow-up"></i> Proforma Kaydet
+  <button type="submit" name="belge_tipi" value="<?= htmlspecialchars($fatura['belge_tipi']) ?>" class="top-btn btn-kaydet">
+    <i class="fa-solid fa-check"></i> Güncelle
   </button>
-  <button type="submit" name="belge_tipi" value="irsaliye" class="top-btn" style="background:#5bc0de; color:#fff;">
-    <i class="fa-solid fa-truck"></i> İrsaliye Kaydet
-  </button>
-  <button type="submit" name="belge_tipi" value="satis" class="top-btn btn-kaydet">
-    <i class="fa-solid fa-bolt"></i> Fatura Kaydet
-  </button>
-  <a href="<?= BASE_URL ?>/satis" class="top-btn btn-geridon">
+  <a href="<?= BASE_URL ?>/satis/detay/<?= (int)$fatura['id'] ?>" class="top-btn btn-geridon">
     <i class="fa-solid fa-reply"></i> Geri Dön
   </a>
 </div>
@@ -154,7 +151,7 @@ $err = function(string $k) use ($hatalar): string {
       <div class="fg <?= !empty($hatalar['fatura_no']) ? 'is-err' : '' ?>">
         <label>Fatura No</label>
         <div class="fg-inp-wrap">
-          <input type="text" name="fatura_no" class="fi"
+          <input type="text" name="fatura_no" class="fi" readonly
                  value="<?= $val('fatura_no', $faturaNo) ?>" />
         </div>
       </div>
@@ -408,7 +405,7 @@ $err = function(string $k) use ($hatalar): string {
       </td>
       <td>
         <input type="number" name="kalem_miktar[]" class="kalem-input"
-               value="1" min="0.001" step="any"
+               value="${parseFloat(urun.miktar||1)}" min="0.001" step="any"
                oninput="satirHesapla('${idx}')" style="width:65px;" />
       </td>
       <td>
@@ -417,7 +414,7 @@ $err = function(string $k) use ($hatalar): string {
       </td>
       <td>
         <input type="number" name="kalem_birim_fiyat[]" class="kalem-input"
-               value="${parseFloat(urun.satis_fiyati||0).toFixed(2)}" min="0" step="any"
+               value="${parseFloat(urun.satis_fiyati||urun.birim_fiyat||0).toFixed(2)}" min="0" step="any"
                oninput="satinHesapla('${idx}')" />
       </td>
       <td>
@@ -428,11 +425,11 @@ $err = function(string $k) use ($hatalar): string {
       </td>
       <td>
         <input type="number" name="kalem_iskonto_orani[]" class="kalem-input"
-               value="0" min="0" max="100" step="any"
+               value="${parseFloat(urun.iskonto_orani||0)}" min="0" max="100" step="any"
                oninput="satinHesapla('${idx}')" style="width:50px;" />
       </td>
       <td class="td-r" id="toplam-${idx}" style="font-weight:700;white-space:nowrap;">
-        ${formatPara(urun.satis_fiyati)} ₺
+        ${formatPara(urun.satis_fiyati||urun.birim_fiyat||0)} ₺
       </td>
       <td class="td-sil">
         <button type="button" class="btn-kalem-sil" onclick="kalemSil('${idx}')">
@@ -441,6 +438,7 @@ $err = function(string $k) use ($hatalar): string {
       </td>`;
     tbody.insertBefore(tr, emptyRow);
     genelHesapla();
+    return idx;
   }
 
   window.kalemEkle = kalemEkle;
@@ -503,6 +501,20 @@ $err = function(string $k) use ($hatalar): string {
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  /* ══════════════════════════════════════
+     MEVCUT KALEMLERİ ÖN YÜKLE (düzenleme)
+  ══════════════════════════════════════ */
+  const mevcutKalemler = <?= json_encode(array_map(fn($k) => [
+      'id'            => $k['urun_id'],
+      'ad'            => $k['urun_adi'],
+      'birim'         => $k['birim'],
+      'birim_fiyat'   => $k['birim_fiyat'],
+      'kdv_orani'     => $k['kdv_orani'],
+      'iskonto_orani' => $k['iskonto_orani'],
+      'miktar'        => $k['miktar'],
+  ], $kalemler ?? []), JSON_UNESCAPED_UNICODE) ?>;
+  mevcutKalemler.forEach(k => kalemEkle(k));
 
 })();
 </script>

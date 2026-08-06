@@ -359,7 +359,6 @@ final class UrunController extends Controller
             'alis_fiyati'  => $alisFiyati,
             'kdv_orani'    => $kdvOrani,
             'para_birimi'  => trim($_POST['para_birimi'] ?? 'TRY'),
-            'stok_miktari' => (float)($_POST['stok_miktari'] ?? 0),
             'kritik_stok'  => (float)($_POST['kritik_stok'] ?? 0),
             'kategori'     => trim($_POST['kategori'] ?? '') ?: null,
             'marka'        => trim($_POST['marka'] ?? '') ?: null,
@@ -367,6 +366,16 @@ final class UrunController extends Controller
         ];
 
         $this->urun->guncelle($id, $veri);
+
+        // Stok miktarı formdan doğrudan ezilmez; farkı stok hareketi olarak
+        // (Ana Depo üzerinden) audit-trailed şekilde işleriz.
+        $mevcutStok = (float)($this->urun->getir($id)['stok_miktari'] ?? 0);
+        $yeniStok = (float)($_POST['stok_miktari'] ?? $mevcutStok);
+        $fark = $yeniStok - $mevcutStok;
+        if ($fark != 0) {
+            $tip = $fark > 0 ? 'giris' : 'cikis';
+            $this->urun->stokHareketiEkle($id, abs($fark), $tip, 'Ürün Düzenleme Farkı', 1);
+        }
 
         // Varyantları kaydet
         $vModel = new Varyant();

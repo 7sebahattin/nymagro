@@ -95,7 +95,9 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
 <!-- Action Buttons -->
 <div class="top-action-row no-print">
   <button class="btn-act b-yazdir" onclick="window.print()"><i class="fa-solid fa-print"></i> Yazdır</button>
-  <a href="<?= BASE_URL ?>/alis/ekle" class="btn-act b-duzenle"><i class="fa-solid fa-pen"></i> Düzenle</a>
+  <?php if (($fatura['durum'] ?? '') !== 'iptal'): ?>
+  <a href="<?= BASE_URL ?>/alis/duzenle/<?= (int)$fatura['id'] ?>" class="btn-act b-duzenle"><i class="fa-solid fa-pen"></i> Düzenle</a>
+  <?php endif; ?>
   <button class="btn-act b-iptal" onclick="if(confirm('İptal edilsin mi?')) window.location.href='<?= BASE_URL ?>/alis/iptal/<?= $fatura['id'] ?>'"><i class="fa-solid fa-xmark"></i> İptal Et</button>
   <button class="btn-act b-paylas"><i class="fa-regular fa-envelope"></i> Paylaş</button>
   <button class="btn-act b-tedarikci" onclick="window.location.href='<?= BASE_URL ?>/cari/detay/<?= $fatura['cari_id'] ?>'"><i class="fa-solid fa-user"></i> Tedarikçi Sayfası</button>

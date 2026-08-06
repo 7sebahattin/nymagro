@@ -221,6 +221,94 @@ class Fatura
     }
 
     /**
+     * Var olan bir faturayı ve kalemlerini günceller: eski stok/bakiye etkisini
+     * geri alır, kalemleri değiştirir, yeni stok/bakiye etkisini uygular.
+     * İptal edilmiş faturalar düzenlenemez.
+     */
+    public function guncelle(int $id, array $fatura, array $kalemler, int $depoId = 1): int
+    {
+        TenantContext::assertWritablePeriod('faturalar');
+        require_once MODELS_PATH . '/Urun.php';
+        $uModel = new Urun();
+
+        $this->db->begin();
+        try {
+            $mevcut = $this->getir($id);
+            if (!$mevcut) {
+                throw new RuntimeException('Fatura bulunamadı.');
+            }
+            if ($mevcut['durum'] === 'iptal') {
+                throw new RuntimeException('İptal edilmiş fatura düzenlenemez.');
+            }
+
+            // Eski kalemlerin stok/bakiye etkisini geri al
+            $this->reverseStockAndBalance($mevcut);
+
+            // Eski kalemleri kaldır
+            $this->db->update('fatura_kalemleri', ['silindi_mi' => 1], ['fatura_id' => $id]);
+
+            $temizFatura = array_intersect_key($fatura, array_flip($this->fillable));
+            $temizFatura['depo_id'] = $depoId;
+            $this->assertCariBelongsToCompany($temizFatura['cari_id'] ?? null);
+            $this->db->update('faturalar', $temizFatura, ['id' => $id]);
+
+            $islemTipi = in_array($fatura['belge_tipi'], ['alis', 'iade_satis'], true) ? 'giris' : 'cikis';
+
+            foreach ($kalemler as $sira => $k) {
+                $miktar      = (float)($k['miktar']       ?? 1);
+                $birimFiyat  = (float)($k['birim_fiyat']  ?? 0);
+                $kdvOrani    = (float)($k['kdv_orani']    ?? 20);
+                $iskontoOran = (float)($k['iskonto_orani'] ?? 0);
+
+                $araToplam    = $miktar * $birimFiyat;
+                $iskontoTutar = $araToplam * ($iskontoOran / 100);
+                $kdvTabani    = $araToplam - $iskontoTutar;
+                $kdvTutari    = $kdvTabani * ($kdvOrani / 100);
+                $toplam       = $kdvTabani + $kdvTutari;
+
+                $kalemVeri = [
+                    'fatura_id'      => $id,
+                    'urun_id'        => !empty($k['urun_id']) ? (int)$k['urun_id'] : null,
+                    'urun_adi'       => $k['urun_adi'] ?? '',
+                    'aciklama'       => $k['aciklama'] ?? null,
+                    'miktar'         => $miktar,
+                    'birim'          => $k['birim'] ?? 'Adet',
+                    'birim_fiyat'    => $birimFiyat,
+                    'iskonto_orani'  => $iskontoOran,
+                    'iskonto_tutari' => round($iskontoTutar, 2),
+                    'kdv_orani'      => $kdvOrani,
+                    'kdv_tutari'     => round($kdvTutari, 2),
+                    'ara_toplam'     => round($araToplam, 2),
+                    'toplam'         => round($toplam, 2),
+                    'sira_no'        => $sira + 1,
+                    'company_id'      => TenantContext::activeCompanyId(),
+                    'period_id'       => TenantContext::activePeriodId(),
+                ];
+                $this->assertProductBelongsToCompany($kalemVeri['urun_id']);
+
+                $this->db->insert('fatura_kalemleri', $kalemVeri);
+
+                if ($kalemVeri['urun_id'] && in_array($fatura['belge_tipi'], self::STOK_ETKILEYEN_TIPLER, true)) {
+                    $moveDesc = 'Fatura #' . ($fatura['fatura_no'] ?? $mevcut['fatura_no']) . ' düzenleme';
+                    $uModel->stokHareketiEkle($kalemVeri['urun_id'], $miktar, $islemTipi, $moveDesc, $depoId);
+                }
+            }
+
+            if ((int)($fatura['cari_id'] ?? 0) > 0) {
+                $this->recomputeCariBalance((int)$fatura['cari_id']);
+            }
+
+            $this->db->commit();
+            return $id;
+        } catch (\Throwable $e) {
+            if ($this->db->pdo()->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Cari bakiyesini faturalar VE kasa hareketleri (tahsilat/ödeme) üzerinden
      * yeniden hesaplar ve yazar. Tek doğruluk kaynağı — Nakit modeli de
      * (tahsilat/ödeme kaydından sonra) bunu çağırır, kendi kopya sorgusunu
