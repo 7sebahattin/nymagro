@@ -108,7 +108,8 @@ jobs:
           SUNUCU: ${{ secrets.FTP_SERVER }}
           KULLANICI: ${{ secrets.FTP_USERNAME }}
           SIFRE: ${{ secrets.FTP_PASSWORD }}
-          HEDEF: ${{ vars.FTP_SERVER_DIR }}
+          # Variables veya Secrets — hangisine konduysa oradan okunur
+          HEDEF: ${{ vars.FTP_SERVER_DIR || secrets.FTP_SERVER_DIR }}
           DENEME: ${{ inputs.dry_run }}
           ONAY: ${{ inputs.onay }}
         run: |
@@ -124,8 +125,9 @@ jobs:
           # Hedef dizin ZORUNLU. Varsayılan yok — boş bırakılırsa FTP kökü
           # hedeflenir ve orada başka bir site varsa dosyaları silinir.
           if [ -z "$HEDEF" ]; then
-            echo "::error::FTP_SERVER_DIR variable'ı tanımlı değil."
-            echo "Settings → Secrets and variables → Actions → Variables'tan ekleyin."
+            echo "::error::FTP_SERVER_DIR tanımlı değil."
+            echo "Settings → Secrets and variables → Actions altında"
+            echo "Variables veya Secrets sekmesine ekleyin; ikisi de kabul edilir."
             echo "Boş bırakmak FTP kök dizinini hedefler ve oradaki dosyaları siler."
             exit 1
           fi
@@ -138,7 +140,10 @@ jobs:
               exit 1 ;;
           esac
 
+          # Secrets'a konduysa GitHub log'da '***' olarak maskeler ve hedefi
+          # doğrulayamayız. Harf aralıklı kopya maskeye takılmaz, okunabilir.
           echo "Hedef dizin: $HEDEF"
+          echo "Hedef dizin (okunur): $(printf '%s' "$HEDEF" | sed 's/./& /g')"
 
           if [ "$DENEME" = "true" ]; then
             echo "DENEME MODU — hiçbir dosya yazılmayacak veya silinmeyecek."
@@ -161,7 +166,7 @@ jobs:
           password:    ${{ secrets.FTP_PASSWORD }}
           protocol:    ${{ vars.FTP_PROTOCOL || 'ftps' }}
           port:        ${{ vars.FTP_PORT     || 21 }}
-          server-dir:  ${{ vars.FTP_SERVER_DIR }}
+          server-dir:  ${{ vars.FTP_SERVER_DIR || secrets.FTP_SERVER_DIR }}
           local-dir:   ./
           dry-run:     ${{ inputs.dry_run }}
           dangerous-clean-slate: false
@@ -186,7 +191,7 @@ jobs:
           {
             echo "### Dağıtım tamamlandı"
             echo ""
-            echo "- Hedef dizin: \`${{ vars.FTP_SERVER_DIR }}\`"
+            echo "- Hedef dizin: \`${{ vars.FTP_SERVER_DIR || secrets.FTP_SERVER_DIR }}\`"
             echo "- Commit: \`${{ github.sha }}\`"
             echo "- Deneme modu: \`${{ inputs.dry_run }}\`"
             echo ""
