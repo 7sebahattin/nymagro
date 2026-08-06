@@ -755,8 +755,13 @@ class SiteIcerik
      */
     private function resetLegacyContentOverridesIfNeeded(): void
     {
+        // v2: v1 yalnızca about_*/products_*/markets_*/quality_*/gallery_*/slide*_*
+        // temizledi. Kategori sistemi 5 gruptan 3'e indiğinde market_eu/uae/sa/ru
+        // (ve olası i18n_{locale}_ önekli kopyaları) unutulmuştu — v2 bunları da
+        // temizler. Ayrı bayrak kullanılır ki v1 zaten çalışmış kurulumlarda da
+        // bu ek temizlik bir kez daha çalışsın.
         $bayrak = $this->db->selectOne(
-            "SELECT setting_value FROM site_settings WHERE setting_key = 'nymagro_content_overrides_reset'"
+            "SELECT setting_value FROM site_settings WHERE setting_key = 'nymagro_content_overrides_reset_v2'"
         );
         if (!empty($bayrak['setting_value'])) {
             return;
@@ -766,6 +771,8 @@ class SiteIcerik
             'about_tag', 'about_title', 'about_p1', 'about_p2',
             'products_tag', 'products_title', 'products_desc',
             'markets_tag', 'markets_title', 'markets_desc',
+            'market_eu', 'market_eu_d', 'market_uae', 'market_uae_d',
+            'market_sa', 'market_sa_d', 'market_ru', 'market_ru_d',
             'quality_h1', 'quality_lead',
             'gallery_tag', 'gallery_title', 'gallery_desc',
         ];
@@ -781,11 +788,19 @@ class SiteIcerik
             }
         }
 
-        $placeholders = implode(',', array_fill(0, count($keys), '?'));
-        $this->db->query("DELETE FROM site_settings WHERE setting_key IN ({$placeholders})", $keys);
+        // Her anahtarın hem düz hem de i18n_{locale}_ önekli hallerini temizle
+        $allKeys = $keys;
+        foreach (['tr', 'en', 'ru'] as $loc) {
+            foreach ($keys as $k) {
+                $allKeys[] = "i18n_{$loc}_{$k}";
+            }
+        }
+
+        $placeholders = implode(',', array_fill(0, count($allKeys), '?'));
+        $this->db->query("DELETE FROM site_settings WHERE setting_key IN ({$placeholders})", $allKeys);
 
         $this->db->query(
-            "INSERT INTO site_settings (setting_key, setting_value) VALUES ('nymagro_content_overrides_reset', '1')
+            "INSERT INTO site_settings (setting_key, setting_value) VALUES ('nymagro_content_overrides_reset_v2', '1')
              ON DUPLICATE KEY UPDATE setting_value = '1'"
         );
     }

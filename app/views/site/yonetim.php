@@ -29,16 +29,9 @@ $sections = [
     [
         'id'    => 'hero',
         'icon'  => 'fa-bullhorn',
-        'title' => 'Anasayfa Hero',
+        'title' => 'Anasayfa Hero (Slider)',
         'color' => '#0d623a',
-        'fields' => [
-            'hero_eyebrow'      => ['label'=>'Üst etiket (kicker)',       'type'=>'text', 'd'=>['tr'=>'Toprağa Değer, Bitkiye Güç','en'=>'Value for the Soil, Strength for the Plant','ru'=>'Ценность для почвы, сила для растения']],
-            'hero_title_1'      => ['label'=>'Başlık 1. satır',           'type'=>'text', 'd'=>['tr'=>'Toprağa değer,','en'=>'Value for the soil,','ru'=>'Ценность для почвы,']],
-            'hero_title_2'      => ['label'=>'Başlık 2. satır (vurgulu)', 'type'=>'text', 'd'=>['tr'=>'bitkiye güç','en'=>'strength for the plant','ru'=>'сила для растения']],
-            'hero_desc'         => ['label'=>'Açıklama metni',            'type'=>'area', 'd'=>['tr'=>'Nymagro, EC Fertilizer standardında üretilen şelatlı mikro element ve sıvı bitki besin ürünlerini İspanya\'dan ithal ederek Türk üreticisinin hizmetine sunar.','en'=>'Nymagro imports chelated micronutrients and liquid plant nutrition products manufactured in Spain to EC Fertilizer standards and brings them to Turkish growers.','ru'=>'Nymagro импортирует из Испании хелатные микроэлементы и жидкие продукты питания растений стандарта EC Fertilizer и поставляет их турецким производителям.']],
-            'hero_btn_products' => ['label'=>'Ürün butonu yazısı',        'type'=>'text', 'd'=>['tr'=>'Ürünleri İncele','en'=>'Explore Products','ru'=>'Смотреть продукцию']],
-            'hero_btn_contact'  => ['label'=>'İletişim butonu yazısı',    'type'=>'text', 'd'=>['tr'=>'İletişime Geç','en'=>'Get in Touch','ru'=>'Связаться']],
-        ],
+        'note'  => 'Anasayfadaki büyük başlık, açıklama ve butonlar aşağıdaki slider kartlarından gelir. 1. Slider, sayfa ilk açıldığında görünen içeriktir.',
     ],
     [
         'id'    => 'about',
@@ -74,16 +67,14 @@ $sections = [
         'color' => '#f3911f',
         'fields' => [
             'markets_tag'   => ['label'=>'Bölüm etiketi', 'type'=>'text', 'd'=>['tr'=>'Ürün Gruplarımız','en'=>'Our Product Groups','ru'=>'Группы продукции']],
-            'markets_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'İhtiyacınıza göre beş ana grup','en'=>'Five core groups for every need','ru'=>'Пять основных групп под любую задачу']],
-            'markets_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>'Uygulama şekline ve bitkinin ihtiyacına göre ayrılmış ürün grupları.','en'=>'Product groups organised by application method and plant requirement.','ru'=>'Группы продукции по способу применения и потребности растения.']],
-            'market_eu'     => ['label'=>'Grup 1 adı',    'type'=>'text', 'd'=>['tr'=>'Şelatlı Mikro Elementler','en'=>'Chelated Micronutrients','ru'=>'Хелатные микроэлементы']],
-            'market_eu_d'   => ['label'=>'Grup 1 açık.',  'type'=>'text', 'd'=>['tr'=>'Fe · Zn · Mn · Cu · B','en'=>'Fe · Zn · Mn · Cu · B','ru'=>'Fe · Zn · Mn · Cu · B']],
-            'market_uae'    => ['label'=>'Grup 2 adı',    'type'=>'text', 'd'=>['tr'=>'Yaprak Gübreleri','en'=>'Foliar Fertilizers','ru'=>'Листовые удобрения']],
-            'market_uae_d'  => ['label'=>'Grup 2 açık.',  'type'=>'text', 'd'=>['tr'=>'Hızlı Etki','en'=>'Fast Acting','ru'=>'Быстрое действие']],
-            'market_sa'     => ['label'=>'Grup 3 adı',    'type'=>'text', 'd'=>['tr'=>'Damlama Gübreleri','en'=>'Fertigation Products','ru'=>'Продукты для фертигации']],
-            'market_sa_d'   => ['label'=>'Grup 3 açık.',  'type'=>'text', 'd'=>['tr'=>'Kök Bölgesi','en'=>'Root Zone','ru'=>'Корневая зона']],
-            'market_ru'     => ['label'=>'Grup 4 adı',    'type'=>'text', 'd'=>['tr'=>'Biyostimülantlar','en'=>'Biostimulants','ru'=>'Биостимуляторы']],
-            'market_ru_d'   => ['label'=>'Grup 4 açık.',  'type'=>'text', 'd'=>['tr'=>'Stres Yönetimi','en'=>'Stress Management','ru'=>'Управление стрессом']],
+            'markets_title' => ['label'=>'Ana başlık',    'type'=>'text', 'd'=>['tr'=>'İhtiyacınıza göre üç ana grup','en'=>'Three core groups for every need','ru'=>'Три основные группы под любую задачу']],
+            'markets_desc'  => ['label'=>'Açıklama',      'type'=>'area', 'd'=>['tr'=>'Şelatlı mikro element gübreleri, makro besin çözümleri ve yakında eklenecek biyostimülant ürün grubu.','en'=>'Chelated micronutrient fertilizers, macronutrient solutions and a biostimulant range coming soon.','ru'=>'Хелатные микроэлементные удобрения, макроэлементные решения и биостимуляторы — скоро в ассортименте.']],
+            'market_micro'   => ['label'=>'Mikro element grubu — adı',    'type'=>'text', 'd'=>['tr'=>'Şelatlı Mikro Element Gübreleri','en'=>'Chelated Micronutrient Fertilizers','ru'=>'Хелатные микроэлементные удобрения']],
+            'market_micro_d' => ['label'=>'Mikro element grubu — açık.',  'type'=>'area', 'd'=>['tr'=>'Çinko, bakır, mangan ve molibden içeren, EDTA ile şelatlı sıvı mikro besin ürünleri.','en'=>'Liquid micronutrient products containing zinc, copper, manganese and molybdenum, chelated with EDTA.','ru'=>'Жидкие микроэлементные продукты с цинком, медью, марганцем и молибденом, хелатированные ЭДТА.']],
+            'market_macro'   => ['label'=>'Makro besin grubu — adı',      'type'=>'text', 'd'=>['tr'=>'Makro Besin Ürünleri','en'=>'Macronutrient Products','ru'=>'Макроэлементные продукты']],
+            'market_macro_d' => ['label'=>'Makro besin grubu — açık.',    'type'=>'area', 'd'=>['tr'=>'Fosfor, potasyum, kalsiyum ve azot içeren, meyve tutumu ve kalibresini destekleyen sıvı ve toz formda makro besin çözümleri.','en'=>'Liquid and powder macronutrient solutions containing phosphorus, potassium, calcium and nitrogen.','ru'=>'Жидкие и порошковые макроэлементные решения с фосфором, калием, кальцием и азотом.']],
+            'market_biostimulant'   => ['label'=>'Biyostimülant grubu — adı',   'type'=>'text', 'd'=>['tr'=>'Biyostimülantlar','en'=>'Biostimulants','ru'=>'Биостимуляторы']],
+            'market_biostimulant_d' => ['label'=>'Biyostimülant grubu — açık.', 'type'=>'area', 'd'=>['tr'=>'Kök gelişimini hızlandıran ve bitkinin stres koşullarına dayanımını artıran biyostimülant ürün grubumuz yakında portföyümüze eklenecek.','en'=>'Our biostimulant range, aimed at accelerating root development and boosting tolerance to stress, is coming soon.','ru'=>'Линейка биостимуляторов для ускорения развития корней и повышения устойчивости к стрессу — скоро в ассортименте.']],
         ],
     ],
     [
@@ -102,6 +93,14 @@ $sections = [
             'quality_step3_d'=> ['label'=>'Adım 3 açık.',   'type'=>'text', 'd'=>['tr'=>'Tescil belgesi ile piyasaya arz.','en'=>'Placed on the market with a registration certificate.','ru'=>'Вывод на рынок со свидетельством.']],
             'quality_step4_t'=> ['label'=>'Adım 4 başlık',  'type'=>'text', 'd'=>['tr'=>'İzlenebilirlik','en'=>'Traceability','ru'=>'Прослеживаемость']],
             'quality_step4_d'=> ['label'=>'Adım 4 açık.',   'type'=>'text', 'd'=>['tr'=>'Parti no, üretim ve son kullanma tarihi.','en'=>'Batch number, production and expiry date.','ru'=>'Номер партии, даты производства и годности.']],
+            'quality_cert1_t'=> ['label'=>'Rozet 1 başlık',  'type'=>'text', 'd'=>['tr'=>'Bakanlık Tescili','en'=>'Ministry Registration','ru'=>'Регистрация в министерстве']],
+            'quality_cert1_d'=> ['label'=>'Rozet 1 açık.',   'type'=>'text', 'd'=>['tr'=>'T.C. Tarım ve Orman Bakanlığı tescil belgesi','en'=>'Registration certificate from the Turkish Ministry of Agriculture and Forestry','ru'=>'Свидетельство Министерства сельского и лесного хозяйства Турции']],
+            'quality_cert2_t'=> ['label'=>'Rozet 2 başlık',  'type'=>'text', 'd'=>['tr'=>'EC Fertilizer','en'=>'EC Fertilizer','ru'=>'EC Fertilizer']],
+            'quality_cert2_d'=> ['label'=>'Rozet 2 açık.',   'type'=>'text', 'd'=>['tr'=>'AB gübre mevzuatı kriterlerine uygun üretim','en'=>'Manufactured to EU fertilizer regulation criteria','ru'=>'Производство по критериям регламента ЕС об удобрениях']],
+            'quality_cert3_t'=> ['label'=>'Rozet 3 başlık',  'type'=>'text', 'd'=>['tr'=>'İthalat Lisansı','en'=>'Import Licence','ru'=>'Импортная лицензия']],
+            'quality_cert3_d'=> ['label'=>'Rozet 3 açık.',   'type'=>'text', 'd'=>['tr'=>'Lisanslı ithalatçı — Lisans No: 6002','en'=>'Licensed importer — licence no. 6002','ru'=>'Лицензированный импортёр — лицензия № 6002']],
+            'quality_cert4_t'=> ['label'=>'Rozet 4 başlık',  'type'=>'text', 'd'=>['tr'=>'EDTA Şelat','en'=>'EDTA Chelate','ru'=>'Хелат ЭДТА']],
+            'quality_cert4_d'=> ['label'=>'Rozet 4 açık.',   'type'=>'text', 'd'=>['tr'=>'2–10 pH aralığında kararlı, çökelme yapmaz','en'=>'Stable between pH 2–10, no precipitation','ru'=>'Стабилен в диапазоне pH 2–10, без осадка']],
         ],
     ],
     [
@@ -424,7 +423,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           </div>
           <div class="sm-field">
             <label>Slogan</label>
-            <input type="text" name="tagline" class="sm-inp" value="<?= $v('tagline', 'Trade · Fresh Export') ?>" placeholder="Trade · Fresh Export">
+            <input type="text" name="tagline" class="sm-inp" value="<?= $v('tagline', 'Bitki Besleme Ürünleri') ?>" placeholder="Bitki Besleme Ürünleri">
           </div>
         </div>
       </div>
@@ -540,6 +539,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
       </button>
       <div class="accord-body">
         <?php if ($sec['id'] === 'hero'): ?>
+          <?php if (!empty($sec['note'])): ?>
+            <p style="font-size:12px;color:var(--muted);background:#f5faf4;border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:14px;"><i class="fa-solid fa-circle-info"></i> <?= htmlspecialchars($sec['note']) ?></p>
+          <?php endif; ?>
           <input type="hidden" name="slide_count" id="siteSliderCount" value="<?= (int)$sliderCount ?>">
           <div class="sm-slider-list" id="siteSliderList">
             <?php for ($n = 1; $n <= $sliderCount; $n++):

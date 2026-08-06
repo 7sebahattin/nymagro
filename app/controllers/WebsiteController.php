@@ -100,13 +100,27 @@ class WebsiteController extends Controller
             $regions[] = [
                 'slug'  => $slug,
                 'key'   => $key,
-                'name'  => I18n::t("markets.list.{$key}.name"),
-                'desc'  => I18n::t("markets.list.{$key}.desc"),
+                'name'  => $this->siteTextValue("market_{$key}", I18n::t("markets.list.{$key}.name")),
+                'desc'  => $this->siteTextValue("market_{$key}_d", I18n::t("markets.list.{$key}.desc")),
                 'url'   => I18n::altUrl('export_region', $this->locale, $slug),
                 'count' => $count,
             ];
         }
         return $regions;
+    }
+
+    /**
+     * Panel "İçerik Yönetimi" override'ı: önce i18n_{locale}_{key} bakılır,
+     * sonra locale-siz {key}, bulunamazsa $fallback döner. renderPage()'in
+     * $siteText() closure'ı da bunu kullanır — tek doğruluk kaynağı.
+     */
+    private function siteTextValue(string $key, string $fallback = ''): string
+    {
+        $locKey = 'i18n_' . $this->locale . '_' . $key;
+        $val = trim((string)($this->ayarlar[$locKey] ?? ''));
+        if ($val !== '') return $val;
+        $val = trim((string)($this->ayarlar[$key] ?? ''));
+        return $val !== '' ? $val : $fallback;
     }
 
     public function about(): void
@@ -309,8 +323,8 @@ class WebsiteController extends Controller
             return;
         }
 
-        $regionName = I18n::t("markets.list.{$key}.name");
-        $regionDesc = I18n::t("markets.list.{$key}.desc");
+        $regionName = $this->siteTextValue("market_{$key}", I18n::t("markets.list.{$key}.name"));
+        $regionDesc = $this->siteTextValue("market_{$key}_d", I18n::t("markets.list.{$key}.desc"));
 
         // hreflang slug-aware
         $hreflang = [];
@@ -731,14 +745,8 @@ class WebsiteController extends Controller
          * Sonra locale-siz {key} bakılır.
          * Bulunamazsa verilen $fallback döner (genellikle I18n::t(...)).
          */
-        $locale  = $this->locale;
-        $ayarlar = $this->ayarlar;
-        $vars['siteText'] = static function(string $key, string $fallback = '') use ($locale, $ayarlar): string {
-            $locKey = 'i18n_' . $locale . '_' . $key;
-            $val = trim((string)($ayarlar[$locKey] ?? ''));
-            if ($val !== '') return $val;
-            $val = trim((string)($ayarlar[$key] ?? ''));
-            return $val !== '' ? $val : $fallback;
+        $vars['siteText'] = function(string $key, string $fallback = ''): string {
+            return $this->siteTextValue($key, $fallback);
         };
 
         extract($vars, EXTR_SKIP);

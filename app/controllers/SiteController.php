@@ -81,7 +81,6 @@ class SiteController extends Controller
             $alanlar = [
                 'company_name','tagline','whatsapp','whatsapp_link','email','phone','address',
                 'instagram','linkedin','facebook','twitter','website',
-                'hero_title_1','hero_title_2','hero_desc',
                 'slide_count','slide1_img','slide2_img','slide3_img','slide4_img','about_img','og_image',
                 'stat_countries_value','stat_products_value','stat_quality_value','about_stat_value',
             ];
