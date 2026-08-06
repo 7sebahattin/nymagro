@@ -683,6 +683,8 @@ class SiteIcerik
             }
         }
 
+        $this->resetLegacyContentOverridesIfNeeded();
+
         // Backfill: slug_tr/en eksikse otomatik üret
         $missing = $this->db->select("SELECT id, ad_tr, ad_en, ad_ru, slug_tr, slug_en, slug_ru FROM site_urunler WHERE silindi_mi = 0");
         foreach ($missing as $m) {
@@ -734,6 +736,56 @@ class SiteIcerik
 
         $this->db->query(
             "INSERT INTO site_settings (setting_key, setting_value) VALUES ('nymagro_urunler_seeded', '1')
+             ON DUPLICATE KEY UPDATE setting_value = '1'"
+        );
+    }
+
+    /**
+     * Panel "İçerik Yönetimi" alanları ($siteText override'ları) site_settings
+     * tablosunda saklanır. Bu site hiçbir zaman panelden elle içerik
+     * düzenlenmeden önce devralınan eski şablonun (yaş sebze-meyve dönemi
+     * öncesi) metinleriyle geldi — örn. "Kalite ve Paketleme" / "Hasat
+     * zamanı ve bölgeye göre seçim" gibi gübre işiyle ilgisiz kalıntı
+     * metinler. Doğru içerik zaten app/lang/*.php içinde tanımlı ve
+     * $siteText() sadece bir override BULURSA onu kullanıyor. Bu yüzden
+     * bu bilinen override anahtarlarını tek seferlik temizlemek, kod
+     * tarafındaki doğru varsayılanların görünmesini sağlıyor. Panelden
+     * bundan SONRA girilecek herhangi bir metin normal şekilde kalıcıdır —
+     * bu temizlik yalnızca bir kez, ilk bootstrap'ta çalışır.
+     */
+    private function resetLegacyContentOverridesIfNeeded(): void
+    {
+        $bayrak = $this->db->selectOne(
+            "SELECT setting_value FROM site_settings WHERE setting_key = 'nymagro_content_overrides_reset'"
+        );
+        if (!empty($bayrak['setting_value'])) {
+            return;
+        }
+
+        $keys = [
+            'about_tag', 'about_title', 'about_p1', 'about_p2',
+            'products_tag', 'products_title', 'products_desc',
+            'markets_tag', 'markets_title', 'markets_desc',
+            'quality_h1', 'quality_lead',
+            'gallery_tag', 'gallery_title', 'gallery_desc',
+        ];
+        for ($n = 1; $n <= 4; $n++) {
+            $keys[] = "quality_step{$n}_t";
+            $keys[] = "quality_step{$n}_d";
+            $keys[] = "quality_cert{$n}_t";
+            $keys[] = "quality_cert{$n}_d";
+        }
+        for ($i = 1; $i <= 4; $i++) {
+            foreach (['kicker', 'title', 'desc', 'cta1', 'cta2'] as $field) {
+                $keys[] = "slide{$i}_{$field}";
+            }
+        }
+
+        $placeholders = implode(',', array_fill(0, count($keys), '?'));
+        $this->db->query("DELETE FROM site_settings WHERE setting_key IN ({$placeholders})", $keys);
+
+        $this->db->query(
+            "INSERT INTO site_settings (setting_key, setting_value) VALUES ('nymagro_content_overrides_reset', '1')
              ON DUPLICATE KEY UPDATE setting_value = '1'"
         );
     }

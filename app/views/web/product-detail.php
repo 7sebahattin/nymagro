@@ -7,7 +7,7 @@
 .bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#a8cfb8;font-size:.9rem;margin-bottom:1rem;flex-wrap:wrap}
 .bcrumb a{color:#a8cfb8}
 .bcrumb a:hover{color:#fff}
-.pd-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:3rem;align-items:center}
+.pd-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:3rem;align-items:start}
 @media(max-width:992px){.pd-grid{grid-template-columns:1fr}}
 .pd-image{border-radius:24px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.5);max-height:520px}
 .pd-image img{width:100%;height:520px;object-fit:cover}
