@@ -642,7 +642,38 @@ class FinansalRapor
 
     public function getCreditReport(array $filters): array
     {
-        return $this->missing('Kredi raporu için kredi/ödeme veri yapısı bulunamadı.', 'Öneri: krediler(id, kredi_adi, banka, ana_para, faiz_orani, taksit_sayisi, durum) ve kredi_odemeleri(id, kredi_id, tarih, tutar) tabloları eklenmeli.');
+        if (!$this->tableExists('krediler') || !$this->tableExists('kredi_odeme_plani')) {
+            return $this->missing('Kredi raporu için kredi/ödeme veri yapısı bulunamadı.', 'Öneri: krediler(id, kredi_adi, banka, ana_para, faiz_orani, taksit_sayisi, durum) ve kredi_odemeleri(id, kredi_id, tarih, tutar) tabloları eklenmeli.');
+        }
+
+        $params = [
+            ':tenant_company_id' => TenantContext::activeCompanyId(),
+            ':tenant_period_id'  => TenantContext::activePeriodId(),
+        ];
+        $rows = $this->db->select(
+            "SELECT k.ad AS kredi_adi,
+                    COALESCE(hb.hesap_adi, '-') AS banka,
+                    COALESCE(SUM(p.tutar), k.kalan_borc) AS ana_para,
+                    '-' AS faiz_orani,
+                    COUNT(p.id) AS taksit_sayisi,
+                    COALESCE(SUM(CASE WHEN p.odendi = 1 THEN p.tutar ELSE 0 END), 0) AS odenen_tutar,
+                    k.kalan_borc,
+                    MAX(p.odeme_tarihi) AS son_odeme_tarihi,
+                    CASE WHEN k.kalan_borc <= 0 OR k.kalan_taksit_sayisi <= 0 THEN 'Kapandı' ELSE 'Aktif' END AS durum
+             FROM krediler k
+             LEFT JOIN kredi_odeme_plani p ON p.kredi_id = k.id AND p.silindi_mi = 0 AND p.company_id = k.company_id AND p.period_id = k.period_id
+             LEFT JOIN kasa_banka hb ON hb.id = k.hesap_id AND hb.company_id = k.company_id
+             WHERE k.silindi_mi = 0 AND k.company_id = :tenant_company_id AND k.period_id = :tenant_period_id
+             GROUP BY k.id
+             ORDER BY k.kalan_borc DESC",
+            $params
+        );
+
+        return $this->withSummary($rows, [
+            'Toplam kalan borç' => $this->money($this->sum($rows, 'kalan_borc')),
+            'Ödenen taksit toplamı' => $this->money($this->sum($rows, 'odenen_tutar')),
+            'Kredi sayısı' => count($rows),
+        ], 'Faiz oranı ve orijinal ana para krediler tablosunda ayrı saklanmadığından; ana para taksit planından hesaplanır, faiz oranı "-" olarak gösterilir.');
     }
 
     public function getDailyAccountMovements(array $filters): array
