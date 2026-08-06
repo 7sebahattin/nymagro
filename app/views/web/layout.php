@@ -73,6 +73,12 @@ $languageFlags = [
 <link rel="apple-touch-icon" sizes="180x180" href="<?= htmlspecialchars(BASE_URL) ?>/apple-touch-icon.png?v=20260501">
 <link rel="manifest" href="<?= htmlspecialchars(BASE_URL) ?>/site.webmanifest?v=20260501">
 
+<!-- iOS'ta "Ana Ekrana Ekle" ile tam ekran uygulama görünümü -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nymagro">
+<meta name="mobile-web-app-capable" content="yes">
+
 <!-- Bootstrap & Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -1128,6 +1134,14 @@ html[lang="ru"] .mob-bb-item.cta span{
   }, {threshold:.1});
   document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
 })();
+
+// "Ana ekrana ekle / Uygulamayı yükle" — tarayıcının bunu önerebilmesi
+// için kayıtlı bir service worker şart (bkz. /sw.js).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('<?= htmlspecialchars(BASE_URL) ?>/sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

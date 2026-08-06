@@ -25,7 +25,7 @@ $productCountLabel = static function (int $count, string $locale): string {
 .bcrumb{display:inline-flex;gap:.5rem;align-items:center;color:#a8cfb8;font-size:.9rem;margin-bottom:1rem}
 .bcrumb a{color:#a8cfb8}.bcrumb a:hover{color:#fff}
 .region-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.4rem}
-.region-card{position:relative;border-radius:22px;overflow:hidden;min-height:280px;color:#fff;padding:2rem;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(135deg,#073820,#0d623a);transition:.25s}
+.region-card{position:relative;border-radius:22px;overflow:hidden;min-height:280px;color:#fff;padding:3.6rem 2rem 2rem;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(135deg,#073820,#0d623a);transition:.25s}
 .region-card:hover{transform:translateY(-4px);color:#fff;box-shadow:0 30px 60px -25px rgba(13,98,58,.6)}
 .region-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 70%)}
 .region-card .icon{position:absolute;top:1.4rem;right:1.4rem;font-size:1.4rem;opacity:.5}

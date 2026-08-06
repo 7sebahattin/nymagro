@@ -61,7 +61,7 @@ for ($i = 1; $i <= $slideCount; $i++) {
 
 /* MARKETS */
 .markets-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem}
-.market-card{position:relative;border-radius:18px;overflow:hidden;height:200px;background:linear-gradient(135deg,#073820,#0d623a);color:#fff;padding:1.5rem;display:flex;flex-direction:column;justify-content:flex-end;transition:.25s}
+.market-card{position:relative;border-radius:18px;overflow:hidden;min-height:200px;background:linear-gradient(135deg,#073820,#0d623a);color:#fff;padding:3.1rem 1.5rem 1.5rem;display:flex;flex-direction:column;justify-content:flex-end;transition:.25s}
 .market-card:hover{transform:translateY(-4px);color:#fff}
 .market-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.25),transparent 70%)}
 .market-card h4{color:#fff;margin-bottom:.4rem}
