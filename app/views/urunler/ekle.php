@@ -320,7 +320,9 @@ if (!empty($hatalar)) {
                    placeholder="Kategori giriniz veya seçiniz"
                    value="<?= $val('kategori') ?>" list="katList" />
             <datalist id="katList">
-              <!-- Dinamik kategoriler PHP tarafında yok, JS ile doldurulacak -->
+              <?php foreach (($tanimKategoriler ?? []) as $k): ?>
+                <option value="<?= htmlspecialchars($k['ad']) ?>"></option>
+              <?php endforeach; ?>
             </datalist>
           </div>
 
@@ -333,7 +335,12 @@ if (!empty($hatalar)) {
             </div>
             <input type="text" name="marka" id="markaInput" class="finput no-icon"
                    placeholder="Marka giriniz veya seçiniz"
-                   value="<?= $val('marka') ?>" />
+                   value="<?= $val('marka') ?>" list="markaList" />
+            <datalist id="markaList">
+              <?php foreach (($tanimMarkalar ?? []) as $m): ?>
+                <option value="<?= htmlspecialchars($m['ad']) ?>"></option>
+              <?php endforeach; ?>
+            </datalist>
           </div>
 
           <div class="fg <?= !empty($hatalar['stok_kodu']) ? 'is-error' : '' ?>">
@@ -562,6 +569,35 @@ if (!empty($hatalar)) {
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  /* ── Yeni kategori / marka ekle ── */
+  function yeniTanimEkle(tur, inputEl, datalistId) {
+    const ad = prompt('Yeni değer:');
+    if (!ad || !ad.trim()) return;
+    const body = new URLSearchParams({ tur: tur, ad: ad.trim(), renk: 'green' });
+    fetch('<?= BASE_URL ?>/tanim/kaydetAjax', { method: 'POST', body: body })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) { alert(data.error || 'Kaydedilemedi.'); return; }
+        const dl = document.getElementById(datalistId);
+        if (dl && !dl.querySelector(`option[value="${CSS.escape(data.ad)}"]`)) {
+          const opt = document.createElement('option');
+          opt.value = data.ad;
+          dl.appendChild(opt);
+        }
+        inputEl.value = data.ad;
+      })
+      .catch(() => alert('Kaydedilemedi.'));
+  }
+
+  const btnNewKat = document.getElementById('btnNewKat');
+  if (btnNewKat) {
+    btnNewKat.addEventListener('click', () => yeniTanimEkle('urun_kategori', document.getElementById('kategoriInput'), 'katList'));
+  }
+  const btnNewMarka = document.getElementById('btnNewMarka');
+  if (btnNewMarka) {
+    btnNewMarka.addEventListener('click', () => yeniTanimEkle('urun_marka', document.getElementById('markaInput'), 'markaList'));
   }
 })();
 </script>

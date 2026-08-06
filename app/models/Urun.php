@@ -126,6 +126,17 @@ class Urun
         );
     }
 
+    /** "Ürün Kopyala" arama kutusu için hızlı arama (ad veya stok kodu). */
+    public function aramaKopya(string $q): array
+    {
+        return $this->db->select(
+            "SELECT id, ad, stok_kodu, marka FROM urunler_hizmetler
+             WHERE (ad LIKE :q OR stok_kodu LIKE :q) AND silindi_mi = 0 AND company_id = :cid
+             ORDER BY ad ASC LIMIT 10",
+            [':q' => "%{$q}%", ':cid' => TenantContext::activeCompanyId()]
+        );
+    }
+
     // ─── STOK VE GEÇMİŞ İŞLEMLERİ ───────────────────────────────────────
 
     /** Manuel stok hareketi ekle ve stok miktarını güncelle */

@@ -39,4 +39,18 @@ class TanimController extends Controller
 
         $this->redirect('tanim');
     }
+
+    /** Diğer formlardan ("yeni kategori/marka/sınıflandırma ekle" vb.) sayfa yenilenmeden tanım eklemek için. */
+    public function kaydetAjax(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $id = $this->model('Tanim')->kaydet($_POST);
+            echo json_encode(['success' => true, 'id' => $id, 'ad' => trim((string)($_POST['ad'] ?? ''))]);
+        } catch (Throwable $e) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
 }

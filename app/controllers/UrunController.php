@@ -11,6 +11,7 @@
 
 require_once MODELS_PATH . '/Urun.php';
 require_once MODELS_PATH . '/Varyant.php';
+require_once MODELS_PATH . '/Tanim.php';
 
 final class UrunController extends Controller
 {
@@ -84,10 +85,14 @@ final class UrunController extends Controller
             }
         }
 
+        $tanimGrouped = (new Tanim())->grouped();
+
         $this->view('urunler/ekle', [
-            'eski'        => $eski,
-            'hatalar'     => [],
-            'varyantlar'  => $vModel->tumunuGetir(),
+            'eski'            => $eski,
+            'hatalar'         => [],
+            'varyantlar'      => $vModel->tumunuGetir(),
+            'tanimKategoriler' => $tanimGrouped['urun_kategori'] ?? [],
+            'tanimMarkalar'    => $tanimGrouped['urun_marka'] ?? [],
             'topbarTitle' => 'Yeni Ürün / Hizmet Ekle',
             'topbarIcon'  => 'fa-box-open',
             'activeMenu'  => 'urunler',
@@ -143,10 +148,13 @@ final class UrunController extends Controller
         // ── Hata varsa formu tekrar göster ─────────────
         if (!empty($hatalar)) {
             $vModel = new Varyant();
+            $tanimGrouped = (new Tanim())->grouped();
             $this->view('urunler/ekle', [
                 'eski'        => $eski,
                 'hatalar'     => $hatalar,
                 'varyantlar'  => $vModel->tumunuGetir(),
+                'tanimKategoriler' => $tanimGrouped['urun_kategori'] ?? [],
+                'tanimMarkalar'    => $tanimGrouped['urun_marka'] ?? [],
                 'topbarTitle' => 'Yeni Ürün / Hizmet Ekle',
                 'topbarIcon'  => 'fa-box-open',
                 'activeMenu'  => 'urunler',
@@ -284,11 +292,14 @@ final class UrunController extends Controller
 
         $vModel = new Varyant();
         $kayit['varyant_degerleri'] = $vModel->urunVaryantlariniGetir($id);
+        $tanimGrouped = (new Tanim())->grouped();
 
         $this->view('urunler/duzenle', [
             'eski'        => $kayit,
             'hatalar'     => [],
             'varyantlar'  => $vModel->tumunuGetir(),
+            'tanimKategoriler' => $tanimGrouped['urun_kategori'] ?? [],
+            'tanimMarkalar'    => $tanimGrouped['urun_marka'] ?? [],
             'topbarTitle' => 'Ürün / Hizmet Düzenle',
             'topbarIcon'  => 'fa-pen',
             'activeMenu'  => 'urunler',
@@ -320,10 +331,13 @@ final class UrunController extends Controller
 
         if (!empty($hatalar)) {
             $vModel = new Varyant();
+            $tanimGrouped = (new Tanim())->grouped();
             $this->view('urunler/duzenle', [
                 'eski'        => $eski,
                 'hatalar'     => $hatalar,
                 'varyantlar'  => $vModel->tumunuGetir(),
+                'tanimKategoriler' => $tanimGrouped['urun_kategori'] ?? [],
+                'tanimMarkalar'    => $tanimGrouped['urun_marka'] ?? [],
                 'topbarTitle' => 'Ürün / Hizmet Düzenle',
                 'topbarIcon'  => 'fa-pen',
                 'activeMenu'  => 'urunler',
@@ -453,11 +467,8 @@ final class UrunController extends Controller
             exit;
         }
 
-        $sql = "SELECT id, ad, stok_kodu, marka FROM urunler_hizmetler 
-                WHERE (ad LIKE :q OR stok_kodu LIKE :q) AND silindi_mi = 0 
-                ORDER BY ad ASC LIMIT 10";
-        $results = $this->urun->db()->select($sql, [':q' => "%$q%"]);
-        
+        $results = $this->urun->aramaKopya($q);
+
         echo json_encode($results);
         exit;
     }
