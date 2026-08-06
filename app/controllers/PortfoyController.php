@@ -52,6 +52,20 @@ class PortfoyController extends Controller
         $this->redirect($tip);
     }
 
+    public function durum(int $id = 0): void
+    {
+        $tip = $this->currentTip();
+        try {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
+                $this->model->portfoyDurumGuncelle($id, (string)($_POST['durum'] ?? ''));
+                $this->setFlash('success', 'Durum güncellendi.');
+            }
+        } catch (Throwable $e) {
+            $this->setFlash('error', $e->getMessage());
+        }
+        $this->redirect($tip);
+    }
+
     private function currentTip(): string
     {
         $section = strtolower(trim((string)($_GET['url'] ?? ''), '/'));

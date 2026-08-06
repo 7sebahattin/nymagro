@@ -247,6 +247,14 @@ class NakitModul
         $this->softDelete('cek_senet_portfoyu', $id);
     }
 
+    public function portfoyDurumGuncelle(int $id, string $durum): void
+    {
+        if (!in_array($durum, ['bekliyor', 'tahsil', 'odendi', 'ciro', 'iade', 'kapandi'], true)) {
+            throw new InvalidArgumentException('Geçersiz durum.');
+        }
+        $this->db->update('cek_senet_portfoyu', ['durum' => $durum], ['id' => $id]);
+    }
+
     public function cariler(): array
     {
         if (!TenantContext::tableExists('cariler')) {

@@ -31,7 +31,13 @@ $durumlar = ['bekliyor' => 'Bekliyor', 'tahsil' => 'Tahsil', 'odendi' => 'Ödend
     <div class="pf-head"><h2><?= $h($label) ?></h2><p><?= count($kayitlar) ?> kayıt</p></div>
     <?php if (empty($kayitlar)): ?><div class="pf-empty"><i class="fa-solid fa-circle-info"></i> Henüz kayıt yok.</div>
     <?php else: ?><div class="pf-table-wrap"><table class="pf-table"><thead><tr><th>Belge</th><th>Cari</th><th>Vade</th><th>Tutar</th><th>Durum</th><th></th></tr></thead><tbody>
-      <?php foreach ($kayitlar as $row): ?><tr><td><b><?= $h($row['belge_no']) ?></b><br><?= $h($row['aciklama']) ?></td><td><?= $h($row['cari_unvan'] ?: '-') ?></td><td><?= $h($row['vade_tarihi']) ?></td><td><?= $money($row['tutar']) ?> TL</td><td><span class="pf-status"><?= $h($durumlar[$row['durum']] ?? $row['durum']) ?></span></td><td><a class="pf-btn danger" href="<?= BASE_URL ?>/<?= $base ?>/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Kayıt silinsin mi?')"><i class="fa-solid fa-trash"></i></a></td></tr><?php endforeach; ?>
+      <?php foreach ($kayitlar as $row): ?><tr><td><b><?= $h($row['belge_no']) ?></b><br><?= $h($row['aciklama']) ?></td><td><?= $h($row['cari_unvan'] ?: '-') ?></td><td><?= $h($row['vade_tarihi']) ?></td><td><?= $money($row['tutar']) ?> TL</td><td>
+        <form method="post" action="<?= BASE_URL ?>/<?= $base ?>/durum/<?= (int)$row['id'] ?>" onchange="this.submit()">
+          <select name="durum" class="pf-status" style="border:0;cursor:pointer">
+            <?php foreach ($durumlar as $key => $text): ?><option value="<?= $h($key) ?>" <?= $row['durum'] === $key ? 'selected' : '' ?>><?= $h($text) ?></option><?php endforeach; ?>
+          </select>
+        </form>
+      </td><td><a class="pf-btn danger" href="<?= BASE_URL ?>/<?= $base ?>/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Kayıt silinsin mi?')"><i class="fa-solid fa-trash"></i></a></td></tr><?php endforeach; ?>
     </tbody></table></div><?php endif; ?>
   </section>
 </div>
