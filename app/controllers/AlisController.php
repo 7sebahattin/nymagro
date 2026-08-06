@@ -160,15 +160,25 @@ final class AlisController extends Controller
 
     public function iptal(int $id): void
     {
-        $this->fatura->iptalEt($id);
-        $this->setFlash('success', 'Fatura iptal edildi.');
+        $f = $this->fatura->getir($id);
+        if ($f) {
+            $this->fatura->iptalEt($id);
+            $this->setFlash('success', "Fatura #{$f['fatura_no']} iptal edildi.");
+        } else {
+            $this->setFlash('error', 'Fatura bulunamadı.');
+        }
         $this->redirect('alis');
     }
 
     public function sil(int $id): void
     {
-        $this->fatura->sil($id);
-        $this->setFlash('success', "Fatura silindi.");
+        $f = $this->fatura->getir($id);
+        if ($f) {
+            $this->fatura->sil($id);
+            $this->setFlash('success', "Fatura #{$f['fatura_no']} silindi.");
+        } else {
+            $this->setFlash('error', 'Fatura bulunamadı.');
+        }
         $this->redirect('alis');
     }
 

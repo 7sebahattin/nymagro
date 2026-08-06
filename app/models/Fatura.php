@@ -11,11 +11,14 @@ class Fatura
 {
     private Database $db;
 
+    /** Stoğu etkileyen belge tipleri (fatura_kalemleri üzerinden stok_hareketleri yazan tipler). */
+    private const STOK_ETKILEYEN_TIPLER = ['satis', 'alis', 'iade_satis', 'iade_alis', 'perakende'];
+
     private array $fillable = [
         'belge_tipi', 'fatura_no', 'cari_id', 'fatura_tarihi', 'vade_tarihi',
         'ara_toplam', 'iskonto_tutari', 'kdv_tutari', 'genel_toplam',
         'odenen_tutar', 'kalan_tutar', 'para_birimi', 'kur',
-        'durum', 'odeme_sekli', 'aciklama', 'company_id', 'period_id',
+        'durum', 'odeme_sekli', 'aciklama', 'company_id', 'period_id', 'depo_id',
     ];
 
     private array $kalemFillable = [
@@ -27,6 +30,27 @@ class Fatura
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->ensureDepoIdColumn();
+    }
+
+    /**
+     * faturalar.depo_id yoksa ekler (iptal/silmede hangi depoya stok geri
+     * yazılacağını bilebilmek için — eskiden depo bilgisi hiç saklanmıyordu).
+     * Idempotent: INFORMATION_SCHEMA kontrolü ile yalnızca eksikse ALTER atar.
+     */
+    private function ensureDepoIdColumn(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = 'depo_id'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE faturalar ADD COLUMN depo_id INT NULL AFTER period_id");
+            }
+        } catch (\Throwable $e) {
+            // Sessizce geç — tablo henüz yoksa veya yetki yoksa uygulamayı kilitleme.
+        }
     }
 
     // ─── Listeleme ──────────────────────────────────────────────────────
@@ -134,6 +158,7 @@ class Fatura
             $temizFatura = array_intersect_key($fatura, array_flip($this->fillable));
             $temizFatura['company_id'] = TenantContext::activeCompanyId();
             $temizFatura['period_id'] = TenantContext::activePeriodId();
+            $temizFatura['depo_id'] = $depoId;
             $this->assertCariBelongsToCompany($temizFatura['cari_id'] ?? null);
             $faturaId    = $this->db->insert('faturalar', $temizFatura);
 
@@ -173,34 +198,16 @@ class Fatura
 
                 $this->db->insert('fatura_kalemleri', $kalemVeri);
 
-                // Stok güncelleme (Sadece resmi belgeler için)
-                if ($kalemVeri['urun_id'] && in_array($fatura['belge_tipi'], ['satis', 'alis', 'iade_satis', 'iade_alis'])) {
+                // Stok güncelleme (yalnızca stoğu etkileyen belge tipleri için)
+                if ($kalemVeri['urun_id'] && in_array($fatura['belge_tipi'], self::STOK_ETKILEYEN_TIPLER, true)) {
                     $moveDesc = ($fatura['belge_tipi'] === 'alis' ? 'Alış Faturası' : 'Satış Faturası') . ' #' . $fatura['fatura_no'];
                     $uModel->stokHareketiEkle($kalemVeri['urun_id'], $miktar, $islemTipi, $moveDesc, $depoId);
                 }
             }
 
             // Stok güncelleme bitti, şimdi CARİ BAKİYE güncelle
-            $cariId = (int)$fatura['cari_id'];
-            if ($cariId > 0) {
-                // Cari bakiyesini faturalar üzerinden hesapla ve güncelle
-                // Satış (+) , Alış (-) mantığıyla (veya tam tersi ticari yöne göre)
-                // Bu sistemde bakiye: (Alacak - Borç) veya (Borç - Alacak)
-                // Genelde: Borç = Satış Faturaları, Alacak = Alış Faturaları + Tahsilatlar
-                $this->db->query("UPDATE cariler SET bakiye = (
-                    SELECT COALESCE(SUM(CASE 
-                        WHEN belge_tipi IN ('satis', 'perakende') THEN genel_toplam 
-                        WHEN belge_tipi = 'alis' THEN -genel_toplam 
-                        ELSE 0 END), 0)
-                    FROM faturalar 
-                    WHERE cari_id = :cid AND silindi_mi = 0 AND durum <> 'iptal'
-                      AND company_id = :company_id
-                ) WHERE id = :cid2 AND company_id = :company_id2", [
-                    ':cid' => $cariId,
-                    ':cid2' => $cariId,
-                    ':company_id' => TenantContext::activeCompanyId(),
-                    ':company_id2' => TenantContext::activeCompanyId(),
-                ]);
+            if ((int)$fatura['cari_id'] > 0) {
+                $this->recomputeCariBalance((int)$fatura['cari_id']);
             }
 
             $this->db->commit();
@@ -213,11 +220,103 @@ class Fatura
         }
     }
 
+    /**
+     * Cari bakiyesini faturalar VE kasa hareketleri (tahsilat/ödeme) üzerinden
+     * yeniden hesaplar ve yazar. Tek doğruluk kaynağı — Nakit modeli de
+     * (tahsilat/ödeme kaydından sonra) bunu çağırır, kendi kopya sorgusunu
+     * tutmaz; aksi hâlde iki farklı yerde iki farklı bakiye formülü birbirini
+     * geçersiz kılabilir.
+     *
+     * Satış/perakende (+), alış (-), iadeler karşıt yöndeki faturanın
+     * işaretiyle (iade_satis -, iade_alis +) katkı yapar; tahsilat bakiyeyi
+     * azaltır (-), ödeme artırır (+).
+     */
+    public function recomputeCariBalance(int $cariId): void
+    {
+        $this->db->query("UPDATE cariler SET bakiye = (
+            SELECT COALESCE(SUM(CASE
+                WHEN belge_tipi IN ('satis', 'perakende') THEN genel_toplam
+                WHEN belge_tipi = 'alis' THEN -genel_toplam
+                WHEN belge_tipi = 'iade_satis' THEN -genel_toplam
+                WHEN belge_tipi = 'iade_alis' THEN genel_toplam
+                ELSE 0 END), 0)
+            FROM faturalar
+            WHERE cari_id = :cid AND silindi_mi = 0 AND durum <> 'iptal'
+              AND company_id = :company_id
+        ) - (
+            SELECT COALESCE(SUM(tutar), 0) FROM kasa_hareketleri
+            WHERE cari_id = :cid3 AND islem_tipi = 'giris' AND silindi_mi = 0 AND company_id = :company_id3
+        ) + (
+            SELECT COALESCE(SUM(tutar), 0) FROM kasa_hareketleri
+            WHERE cari_id = :cid4 AND islem_tipi = 'cikis' AND silindi_mi = 0 AND company_id = :company_id4
+        ) WHERE id = :cid2 AND company_id = :company_id2", [
+            ':cid' => $cariId,
+            ':cid2' => $cariId,
+            ':cid3' => $cariId,
+            ':cid4' => $cariId,
+            ':company_id' => TenantContext::activeCompanyId(),
+            ':company_id2' => TenantContext::activeCompanyId(),
+            ':company_id3' => TenantContext::activeCompanyId(),
+            ':company_id4' => TenantContext::activeCompanyId(),
+        ]);
+    }
+
+    /**
+     * Bir faturanın kalemlerindeki stok hareketlerini ters yönde uygular
+     * (iptal veya silme anında stoğu geri almak için) ve cari bakiyesini
+     * yeniden hesaplar.
+     */
+    private function reverseStockAndBalance(array $fatura): void
+    {
+        if (!in_array($fatura['belge_tipi'], self::STOK_ETKILEYEN_TIPLER, true)) {
+            return;
+        }
+        require_once MODELS_PATH . '/Urun.php';
+        $uModel = new Urun();
+        $depoId = !empty($fatura['depo_id']) ? (int)$fatura['depo_id'] : 1;
+        $tersIslemTipi = in_array($fatura['belge_tipi'], ['alis', 'iade_satis'], true) ? 'cikis' : 'giris';
+
+        $kalemler = $this->kalemleriGetir((int)$fatura['id']);
+        foreach ($kalemler as $kalem) {
+            if (empty($kalem['urun_id'])) {
+                continue;
+            }
+            $moveDesc = 'Fatura #' . $fatura['fatura_no'] . ' iptal/silme — stok geri alma';
+            $uModel->stokHareketiEkle((int)$kalem['urun_id'], (float)$kalem['miktar'], $tersIslemTipi, $moveDesc, $depoId);
+        }
+
+        if ((int)$fatura['cari_id'] > 0) {
+            $this->recomputeCariBalance((int)$fatura['cari_id']);
+        }
+    }
+
     // ─── Durum Değiştirme ────────────────────────────────────────────────
 
+    /** Faturayı iptal eder; daha önce yazılmış stok hareketini ve cari bakiyesini geri alır. */
     public function iptalEt(int $id): int
     {
-        return $this->db->update('faturalar', ['durum' => 'iptal'], ['id' => $id]);
+        $this->db->begin();
+        try {
+            $fatura = $this->getir($id);
+            if (!$fatura) {
+                $this->db->rollBack();
+                return 0;
+            }
+            if ($fatura['durum'] === 'iptal') {
+                // Zaten iptal — tekrar stok/bakiye geri alma (çift ters kayıt olmasın)
+                $this->db->commit();
+                return 0;
+            }
+            $sonuc = $this->db->update('faturalar', ['durum' => 'iptal'], ['id' => $id]);
+            $this->reverseStockAndBalance($fatura);
+            $this->db->commit();
+            return $sonuc;
+        } catch (\Throwable $e) {
+            if ($this->db->pdo()->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     public function onayla(int $id): int
@@ -225,9 +324,28 @@ class Fatura
         return $this->db->update('faturalar', ['durum' => 'onaylandi'], ['id' => $id]);
     }
 
+    /** Faturayı siler; hâlâ 'iptal' değilse (yani stoğa/bakiyeye hâlâ etkisi varsa) önce geri alır. */
     public function sil(int $id): int
     {
-        return $this->db->softDelete('faturalar', $id);
+        $this->db->begin();
+        try {
+            $fatura = $this->getir($id);
+            if (!$fatura) {
+                $this->db->rollBack();
+                return 0;
+            }
+            if ($fatura['durum'] !== 'iptal') {
+                $this->reverseStockAndBalance($fatura);
+            }
+            $sonuc = $this->db->softDelete('faturalar', $id);
+            $this->db->commit();
+            return $sonuc;
+        } catch (\Throwable $e) {
+            if ($this->db->pdo()->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     // ─── Fatura No Üretimi ───────────────────────────────────────────────

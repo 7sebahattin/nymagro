@@ -421,8 +421,9 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
           <div class="mb-3">
             <label class="form-label">Kasa / Hesap</label>
             <select name="kasa_id" class="form-select">
-              <option value="1">Merkez Kasa (TL)</option>
-              <option value="2">Banka Hesabı</option>
+              <?php foreach (($kasaHesaplar ?? []) as $kh): ?>
+                <option value="<?= (int)$kh['id'] ?>"><?= htmlspecialchars($kh['hesap_adi'] . ' (' . $kh['para_birimi'] . ')') ?></option>
+              <?php endforeach; ?>
             </select>
           </div>
           <div class="mb-3">
