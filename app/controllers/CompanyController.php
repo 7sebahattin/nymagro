@@ -18,7 +18,7 @@ final class CompanyController extends Controller
             'activeMenu' => 'companies',
             'topbarTitle' => 'Şirket Yönetimi',
             'topbarIcon' => 'fa-solid fa-building',
-            'companies' => $this->company->all(),
+            'companies' => $this->company->allForUser(TenantContext::userId()),
             'flash' => $this->getFlash(),
         ]);
     }

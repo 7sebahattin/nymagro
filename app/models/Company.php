@@ -52,6 +52,21 @@ class Company
         );
     }
 
+    /** Kullanıcının erişebildiği şirketler (dönem sayısıyla birlikte). */
+    public function allForUser(int $userId): array
+    {
+        return $this->db->select(
+            "SELECT c.*, COUNT(ap.id) AS period_count
+             FROM companies c
+             JOIN user_companies uc ON uc.company_id = c.id AND uc.user_id = :uid
+             LEFT JOIN accounting_periods ap ON ap.company_id = c.id
+             WHERE c.deleted_at IS NULL
+             GROUP BY c.id
+             ORDER BY c.company_name",
+            [':uid' => $userId]
+        );
+    }
+
     public function find(int $id): ?array
     {
         return $this->db->selectOne(
