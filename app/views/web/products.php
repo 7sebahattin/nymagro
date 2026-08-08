@@ -21,12 +21,6 @@
 .product-cta{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
 .product-cta a.detail{font-weight:700;font-size:.85rem;color:var(--p1)}
 .product-cta a.quote{font-weight:700;font-size:.78rem;background:var(--grad);color:#fff;padding:.4rem .9rem;border-radius:999px}
-.product-filters{display:flex;justify-content:center;gap:.55rem;flex-wrap:wrap;margin:0 auto 2rem}
-.product-filter{display:inline-flex;align-items:center;gap:.45rem;border:1px solid rgba(13,98,58,.16);background:#fff;color:var(--ink2);font-weight:800;border-radius:999px;padding:.68rem 1.15rem;box-shadow:0 12px 30px -22px rgba(6,40,26,.35);transition:.2s}
-.product-filter:hover{color:var(--p1);border-color:rgba(13,98,58,.35);background:#f6fbf5}
-.product-filter.is-active{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 18px 40px -22px rgba(13,98,58,.75)}
-.product-empty{display:none;text-align:center;color:var(--ink2);padding:2rem 1rem}
-@media(max-width:575.98px){.product-filter{flex:1 1 95px;justify-content:center;padding:.65rem .75rem}}
 </style>
 
 <section class="page-hero">
@@ -39,20 +33,6 @@
 
 <section class="block">
   <div class="container-xxl">
-    <?php
-      $filterLabels = [
-        'tr' => ['all' => 'Tümü', 'micro' => 'Mikro Element', 'macro' => 'Makro Besin', 'biostimulant' => 'Biyostimülant', 'empty' => 'Bu kategoride ürün bulunamadı.'],
-        'en' => ['all' => 'All', 'micro' => 'Micronutrient', 'macro' => 'Macronutrient', 'biostimulant' => 'Biostimulant', 'empty' => 'No products found in this category.'],
-        'ru' => ['all' => 'Все', 'micro' => 'Микроэлементы', 'macro' => 'Макроэлементы', 'biostimulant' => 'Биостимуляторы', 'empty' => 'В этой категории нет товаров.'],
-      ][$locale] ?? ['all' => 'Tümü', 'micro' => 'Mikro Element', 'macro' => 'Makro Besin', 'biostimulant' => 'Biyostimülant', 'empty' => 'Bu kategoride ürün bulunamadı.'];
-    ?>
-    <div class="product-filters" role="tablist" aria-label="Product filters">
-      <button type="button" class="product-filter is-active" data-filter="all"><i class="fas fa-border-all"></i> <?= htmlspecialchars($filterLabels['all']) ?></button>
-      <button type="button" class="product-filter" data-filter="micro"><i class="fas fa-flask"></i> <?= htmlspecialchars($filterLabels['micro']) ?></button>
-      <button type="button" class="product-filter" data-filter="macro"><i class="fas fa-seedling"></i> <?= htmlspecialchars($filterLabels['macro']) ?></button>
-      <button type="button" class="product-filter" data-filter="biostimulant"><i class="fas fa-bolt"></i> <?= htmlspecialchars($filterLabels['biostimulant']) ?></button>
-    </div>
-
     <div class="products-grid">
       <?php foreach ($urunler as $u):
         $ad   = $u['ad_'.$locale]   ?? $u['ad_tr']   ?? '';
@@ -61,9 +41,8 @@
         $img  = $u['gorsel'] ?? '';
         $sezon = $u['sezon_'.$locale] ?? '';
         $etiket = $u['etiket'] ?? 'YENİ';
-        $kategori = in_array(($u['kategori'] ?? 'micro'), ['micro', 'macro', 'biostimulant'], true) ? $u['kategori'] : 'micro';
       ?>
-        <article class="product-card fade-in" data-category="<?= htmlspecialchars($kategori) ?>">
+        <article class="product-card fade-in">
           <a href="<?= I18n::altUrl('products', $locale, $slug) ?>" class="product-img" aria-label="<?= htmlspecialchars($ad) ?>">
             <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($ad) ?> — Nymagro bitki besleme ürünü" loading="lazy" width="400" height="300">
             <span class="product-tag"><?= htmlspecialchars($etiket) ?></span>
@@ -80,27 +59,5 @@
         </article>
       <?php endforeach; ?>
     </div>
-    <div class="product-empty" id="productEmpty"><?= htmlspecialchars($filterLabels['empty']) ?></div>
   </div>
 </section>
-
-<script>
-(function(){
-  const buttons = document.querySelectorAll('.product-filter');
-  const cards = document.querySelectorAll('.product-card[data-category]');
-  const empty = document.getElementById('productEmpty');
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const filter = btn.dataset.filter || 'all';
-      let shown = 0;
-      buttons.forEach(b => b.classList.toggle('is-active', b === btn));
-      cards.forEach(card => {
-        const visible = filter === 'all' || card.dataset.category === filter;
-        card.style.display = visible ? '' : 'none';
-        if (visible) shown++;
-      });
-      if (empty) empty.style.display = shown ? 'none' : 'block';
-    });
-  });
-})();
-</script>
