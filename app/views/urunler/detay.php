@@ -56,12 +56,17 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   .btn-act-red { background: #d9534f; }
   
   .btn-dropdown-wrap { position: relative; display: inline-block; }
+  .dropdown-menu-custom { position: absolute; top: calc(100% + 2px); right: 0; background: var(--ink); border: 1px solid var(--border2); border-radius: 4px; box-shadow: 0 6px 12px rgba(0,0,0,.175); min-width: 190px; z-index: 300; display: none; overflow: hidden; }
+  .dropdown-menu-custom.open { display: block; }
+  .dd-item { display: flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 13px; color: var(--text); text-decoration: none; cursor: pointer; }
+  .dd-item:hover { background: var(--surface-2); color: var(--text); }
+  .dd-item-danger { color: var(--danger); }
+  .dd-item-danger:hover { background: rgba(231,76,60,.15); color: var(--danger); }
   
   /* Accordion Panels */
   .accordion-panel { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 10px; background: var(--card-bg); }
   .accordion-header { background: #3a4a5a; color: #fff; padding: 12px 15px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
   .accordion-header:hover { background: #2c3845; }
-  .accordion-header i.fa-arrows-rotate { font-size: 11px; margin-left: 8px; color: #5cb85c; }
   .accordion-body { padding: 15px; display: none; }
   .accordion-body.open { display: block; }
   .accordion-caret { transition: transform 0.2s; background: var(--card-bg); color: var(--text); width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 3px; }
@@ -158,21 +163,25 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   <div class="actions-row">
     <a href="<?= BASE_URL ?>/urun/duzenle/<?= $urun['id'] ?>" class="btn-act btn-act-orange"><i class="fa-solid fa-pen"></i> Güncelle</a>
     
-    <div class="btn-dropdown-wrap">
-      <button type="button" class="btn-act btn-act-green" onclick="openModal('stokModal')"><i class="fa-solid fa-arrow-down"></i> Stoklara Giriş Yap <i class="fa-solid fa-caret-down" style="margin-left:4px;"></i></button>
-    </div>
-    
+    <button type="button" class="btn-act btn-act-green" onclick="openModal('stokModal')"><i class="fa-solid fa-arrow-down"></i> Stoklara Giriş Yap</button>
+
     <button class="btn-act btn-act-dark"><i class="fa-solid fa-bars"></i> Stok Ekstresi</button>
-    
+
     <div class="btn-dropdown-wrap">
-      <button class="btn-act btn-act-red"><i class="fa-solid fa-bars"></i> Diğer İşlemler <i class="fa-solid fa-caret-down" style="margin-left:4px;"></i></button>
+      <button type="button" class="btn-act btn-act-red" id="btnDigerIslemler"><i class="fa-solid fa-bars"></i> Diğer İşlemler <i class="fa-solid fa-caret-down" style="margin-left:4px;"></i></button>
+      <div class="dropdown-menu-custom" id="digerIslemlerMenu">
+        <a href="<?= BASE_URL ?>/urun/ekle?copy_id=<?= $urun['id'] ?>" class="dd-item"><i class="fa-regular fa-copy"></i> Bu üründen kopyala</a>
+        <a href="<?= BASE_URL ?>/urun/varyantlar" class="dd-item"><i class="fa-solid fa-sliders"></i> Varyantlar</a>
+        <a href="<?= BASE_URL ?>/urun/sil/<?= $urun['id'] ?>" class="dd-item dd-item-danger"
+           onclick="return confirm('&quot;<?= htmlspecialchars(addslashes($urun['ad']), ENT_QUOTES) ?>&quot; silinecek. Emin misiniz?')"><i class="fa-solid fa-trash"></i> Ürünü sil</a>
+      </div>
     </div>
   </div>
 
   <!-- Accordions -->
   <div class="accordion-panel" id="accSatislar">
     <div class="accordion-header" onclick="toggleAccordion('accSatislar')">
-      <div>ÖNCEKİ SATIŞLAR <i class="fa-solid fa-arrows-rotate"></i></div>
+      <div>ÖNCEKİ SATIŞLAR</div>
       <div class="accordion-caret"><i class="fa-solid fa-chevron-down"></i></div>
     </div>
     <div class="accordion-body">
@@ -211,7 +220,7 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
 
   <div class="accordion-panel" id="accAlislar">
     <div class="accordion-header" onclick="toggleAccordion('accAlislar')">
-      <div>ÖNCEKİ ALIŞLAR <i class="fa-solid fa-arrows-rotate"></i></div>
+      <div>ÖNCEKİ ALIŞLAR</div>
       <div class="accordion-caret"><i class="fa-solid fa-chevron-down"></i></div>
     </div>
     <div class="accordion-body">
@@ -281,7 +290,7 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
 
   <div class="accordion-panel" id="accStok">
     <div class="accordion-header" onclick="toggleAccordion('accStok')">
-      <div>MANUEL STOK HAREKETLERİ <i class="fa-solid fa-arrows-rotate"></i></div>
+      <div>MANUEL STOK HAREKETLERİ</div>
       <div class="accordion-caret"><i class="fa-solid fa-chevron-down"></i></div>
     </div>
     <div class="accordion-body">
@@ -375,4 +384,20 @@ function openModal(id) {
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
+
+/* "Diğer İşlemler" açılır menüsü — dışarı tıklayınca kapanır */
+(function () {
+  const btn  = document.getElementById('btnDigerIslemler');
+  const menu = document.getElementById('digerIslemlerMenu');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  document.addEventListener('click', () => menu.classList.remove('open'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') menu.classList.remove('open');
+  });
+})();
 </script>

@@ -12,24 +12,20 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
 <style>
   /* ── Action Bar ── */
   .action-bar { display:flex; align-items:center; gap:8px; margin-bottom:15px; flex-wrap:wrap; }
-  .btn-action { display:inline-flex; align-items:center; gap:6px; border:none; padding:7px 12px; border-radius:4px; font-size:12.5px; font-weight:600; cursor:pointer; color:#fff; text-decoration:none; transition:filter .2s; }
-  .btn-action:hover { filter:brightness(1.1); color:#fff; }
-  
   .btn-add-wrap { position:relative; display:inline-flex; }
   .btn-add-main { background:#5cb85c; color:#fff; border:none; padding:7px 12px; border-radius:4px 0 0 4px; font-size:12.5px; font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
   .btn-add-caret { background:#4cae4c; color:#fff; border:none; padding:7px 8px; border-radius:0 4px 4px 0; cursor:pointer; font-size:11px; }
   .btn-add-main:hover, .btn-add-caret:hover { filter:brightness(1.1); }
-  
-  .btn-excel { background:#f0ad4e; }
-  .btn-update { background:#5bc0de; }
-  .btn-resim { background:#34495e; }
-  .btn-sil { background:#f0ad4e; }
 
   /* Dropdown */
   .dropdown-menu-custom { position:absolute; top:calc(100% + 2px); left:0; background:var(--ink); border:1px solid var(--border2); border-radius:4px; box-shadow:0 6px 12px rgba(0,0,0,.175); min-width:180px; z-index:300; display:none; }
   .dropdown-menu-custom.open { display:block; }
   .dd-item { display:block; padding:8px 16px; font-size:13px; color:var(--text); text-decoration:none; cursor:pointer; }
   .dd-item:hover { background:var(--surface-2); color:var(--text); }
+  /* "Mevcut üründen kopyala" arama sonucu satırları */
+  .copy-result-item { padding:10px 15px; border-bottom:1px solid var(--border); cursor:pointer; font-size:13px; color:var(--text); }
+  .copy-result-item:last-child { border-bottom:none; }
+  .copy-result-item:hover { background:var(--surface-2); }
 
   /* ── Filter Bar ── */
   .filter-bar { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
@@ -103,7 +99,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
 
   <!-- Mevcut Üründen Kopyala Modalı -->
   <div class="modal-overlay" id="copyProductModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:9999;">
-    <div class="modal-box" style="background:var(--card-bg); width:500px; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.3); overflow:hidden;">
+    <div class="modal-box" style="background:var(--ink); border:1px solid var(--border2); width:500px; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.3); overflow:hidden;">
       <div class="modal-header" style="padding:15px; background:var(--surface-2); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
         <span style="font-weight:700; font-size:15px; color:var(--text);">Mevcut Üründen Kopyala</span>
         <button type="button" onclick="closeCopyModal()" style="border:none; background:none; font-size:20px; color:var(--muted); cursor:pointer;">&times;</button>
@@ -150,13 +146,8 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
                     if (data.length > 0) {
                         data.forEach(item => {
                             const div = document.createElement('div');
-                            div.style.padding = '10px 15px';
-                            div.style.borderBottom = '1px solid #f5f5f5';
-                            div.style.cursor = 'pointer';
-                            div.style.fontSize = '13px';
+                            div.className = 'copy-result-item';
                             div.innerHTML = `<strong>${item.ad}</strong> <span style="color:var(--muted); font-size:11px;">(${item.stok_kodu || '-'})</span>`;
-                            div.onmouseover = () => div.style.background = '#f0f7ff';
-                            div.onmouseout = () => div.style.background = '#fff';
                             div.onclick = () => {
                                 window.location.href = '<?= BASE_URL ?>/urun/ekle?copy_id=' + item.id;
                             };
@@ -172,18 +163,6 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
     }
   </script>
 
-  <button class="btn-action btn-excel" onclick="alert('Excelden toplu yükleme özelliği yakında eklenecek.')">
-    <i class="fa-solid fa-bars"></i> Excelden Ürün Yükle
-  </button>
-  <button class="btn-action btn-update" onclick="alert('Toplu ürün güncelleme özelliği yakında eklenecek.')">
-    <i class="fa-solid fa-arrows-rotate"></i> Toplu Ürün Güncelleme
-  </button>
-  <button class="btn-action btn-resim" onclick="alert('Toplu resim yükleme özelliği yakında eklenecek.')">
-    <i class="fa-regular fa-image"></i> Toplu Resim Yükleme
-  </button>
-  <button class="btn-action btn-sil" onclick="alert('Toplu ürün silme özelliği yakında eklenecek.')">
-    <i class="fa-solid fa-trash-can"></i> Toplu Ürün Silme
-  </button>
 </div>
 
 <!-- Filter Bar -->
