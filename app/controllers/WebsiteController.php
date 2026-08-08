@@ -9,8 +9,6 @@
  *   /en/about                 → about()
  *   /tr/urunler/silatrix      → productDetail('silatrix')
  *   /en/products/silatrix     → productDetail('silatrix')
- *   /tr/urun-gruplari         → exportMarkets()
- *   /en/product-group/micronutrient-fertilizers → exportRegion('micronutrient-fertilizers')
  *   /tr/iletisim              → contact()
  *   /tr/iletisim/gonder (POST)→ contactSubmit()
  */
@@ -24,25 +22,6 @@ class WebsiteController extends Controller
     private string $locale;
     private ?SiteIcerik $site = null;
     private array $ayarlar;
-
-    /** Ürün grubu tanımları (slug → key). Katalog 3 gerçek gruba göre şekillenir. */
-    private const REGION_SLUGS = [
-        'tr' => [
-            'mikro-element-gubreleri' => 'micro',
-            'makro-besin-urunleri'    => 'macro',
-            'biyostimulantlar'        => 'biostimulant',
-        ],
-        'en' => [
-            'micronutrient-fertilizers' => 'micro',
-            'macronutrient-products'    => 'macro',
-            'biostimulants'             => 'biostimulant',
-        ],
-        'ru' => [
-            'micronutrient-fertilizers' => 'micro',
-            'macronutrient-products'    => 'macro',
-            'biostimulants'             => 'biostimulant',
-        ],
-    ];
 
     public function __construct(string $locale = 'tr')
     {
@@ -63,7 +42,6 @@ class WebsiteController extends Controller
     {
         $urunler = $this->safeProducts();
         $galeri  = $this->safeGallery();
-        $regions = $this->productGroupSummaries();
 
         $seo = $this->baseSeo('home');
         $seo->setTitle(I18n::t('meta.home_title'))
@@ -84,29 +62,8 @@ class WebsiteController extends Controller
             'ayarlar' => $this->ayarlar,
             'urunler' => $urunler,
             'galeri'  => $galeri,
-            'regions' => $regions,
             'currentPage' => 'home',
         ]);
-    }
-
-    /** Ürün grubu (kategori) özetleri — gerçek ürün sayısıyla. Ana sayfa ve /urun-gruplari ortak kullanır. */
-    private function productGroupSummaries(): array
-    {
-        $regions = [];
-        $localeMap = self::REGION_SLUGS[$this->locale] ?? self::REGION_SLUGS['en'];
-        foreach ($localeMap as $slug => $key) {
-            $count = 0;
-            try { $count = $this->site ? count($this->site->urunlerByKategori($key, true)) : 0; } catch (Throwable $e) {}
-            $regions[] = [
-                'slug'  => $slug,
-                'key'   => $key,
-                'name'  => $this->siteTextValue("market_{$key}", I18n::t("markets.list.{$key}.name")),
-                'desc'  => $this->siteTextValue("market_{$key}_d", I18n::t("markets.list.{$key}.desc")),
-                'url'   => I18n::altUrl('export_region', $this->locale, $slug),
-                'count' => $count,
-            ];
-        }
-        return $regions;
     }
 
     /**
@@ -274,99 +231,6 @@ class WebsiteController extends Controller
             'doz'     => $doz,
             'uygunBitkiler' => $uygunBitkiler,
             'currentPage' => 'products',
-        ]);
-    }
-
-    public function exportMarkets(): void
-    {
-        $seo = $this->baseSeo('export_markets');
-        $seo->setTitle(I18n::t('meta.export_markets_title'))
-            ->setDescription(I18n::t('meta.export_markets_description'))
-            ->setCanonical($this->canonical('export_markets'))
-            ->setHreflang($this->hreflangFor('export_markets'));
-
-        $this->addCommonSchemas($seo, 'markets');
-        $seo->addJsonLd(SeoMeta::breadcrumbSchema([
-            ['name' => I18n::t('breadcrumb.home'), 'url' => I18n::url('', $this->locale)],
-            ['name' => I18n::t('common.markets'),  'url' => $this->canonical('export_markets')],
-        ], BASE_URL));
-
-        // Ürün grubu listesi (locale slug ile), her grubun gerçek ürün sayısıyla
-        $regions = $this->productGroupSummaries();
-
-        $seo->addJsonLd(SeoMeta::itemListSchema(array_map(function($r) {
-            return ['name' => $r['name'], 'url' => $r['url']];
-        }, $regions)));
-
-        $this->renderPage('export-markets', [
-            'seo'     => $seo,
-            'ayarlar' => $this->ayarlar,
-            'regions' => $regions,
-            'currentPage' => 'markets',
-        ]);
-    }
-
-    public function exportRegion(string $slug): void
-    {
-        $slug      = self::sanitizeSlug($slug);
-        $localeMap = self::REGION_SLUGS[$this->locale] ?? self::REGION_SLUGS['en'];
-
-        // Slug → key, eğer mevcut dilde bulunamazsa diğer dilleri dene
-        $key = $localeMap[$slug] ?? null;
-        if (!$key) {
-            foreach (self::REGION_SLUGS as $loc => $map) {
-                if (isset($map[$slug])) { $key = $map[$slug]; break; }
-            }
-        }
-        if (!$key) {
-            $this->notFound();
-            return;
-        }
-
-        $regionName = $this->siteTextValue("market_{$key}", I18n::t("markets.list.{$key}.name"));
-        $regionDesc = $this->siteTextValue("market_{$key}_d", I18n::t("markets.list.{$key}.desc"));
-
-        // hreflang slug-aware
-        $hreflang = [];
-        foreach (['tr','en','ru'] as $loc) {
-            $localeSlug = array_search($key, self::REGION_SLUGS[$loc] ?? [], true);
-            if ($localeSlug !== false) {
-                $hreflang[$loc] = I18n::altUrl('export_region', $loc, $localeSlug);
-            }
-        }
-
-        $titleTpl = [
-            'tr' => "{$regionName} | Nymagro Bitki Besleme Ürünleri",
-            'en' => "{$regionName} | Nymagro Plant Nutrition Products",
-            'ru' => "{$regionName} | Продукты питания растений Nymagro",
-        ];
-
-        $seo = $this->baseSeo('export_region');
-        $seo->setTitle($titleTpl[$this->locale] ?? $titleTpl['en'])
-            ->setDescription(mb_substr($regionDesc, 0, 160))
-            ->setCanonical(I18n::altUrl('export_region', $this->locale, $slug))
-            ->setHreflang($hreflang);
-
-        $this->addCommonSchemas($seo, 'region');
-        $seo->addJsonLd(SeoMeta::breadcrumbSchema([
-            ['name' => I18n::t('breadcrumb.home'),    'url' => I18n::url('', $this->locale)],
-            ['name' => I18n::t('common.markets'),     'url' => $this->canonical('export_markets')],
-            ['name' => $regionName,                   'url' => I18n::altUrl('export_region', $this->locale, $slug)],
-        ], BASE_URL));
-
-        $urunler = [];
-        try {
-            $urunler = array_map([$this, 'normalizeProduct'], $this->site->urunlerByKategori($key, true));
-        } catch (Throwable $e) {}
-
-        $this->renderPage('export-region', [
-            'seo'        => $seo,
-            'ayarlar'    => $this->ayarlar,
-            'regionName' => $regionName,
-            'regionDesc' => $regionDesc,
-            'regionKey'  => $key,
-            'urunler'    => $urunler,
-            'currentPage' => 'markets',
         ]);
     }
 

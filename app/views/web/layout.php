@@ -44,7 +44,6 @@ $navItems = [
     ['key'=>'home',          'pageKey'=>'home',          'label'=>I18n::t('common.home')],
     ['key'=>'about',         'pageKey'=>'about',         'label'=>I18n::t('common.about')],
     ['key'=>'products',      'pageKey'=>'products',      'label'=>I18n::t('common.products')],
-    ['key'=>'markets',       'pageKey'=>'export_markets','label'=>I18n::t('common.markets')],
     ['key'=>'quality',       'pageKey'=>'quality',       'label'=>I18n::t('common.quality')],
     ['key'=>'services',      'pageKey'=>'services',      'label'=>I18n::t('common.services')],
     ['key'=>'gallery',       'pageKey'=>'gallery',       'label'=>I18n::t('common.gallery')],
@@ -247,7 +246,7 @@ img{max-width:100%;height:auto}
               // Aktif sayfayı I18n pageMap anahtarına çevir
               $pageKeyForAlt = [
                 'home'=>'home','about'=>'about','products'=>'products',
-                'markets'=>'export_markets','quality'=>'quality',
+                'quality'=>'quality',
                 'services'=>'services','gallery'=>'gallery','contact'=>'contact',
               ][$currentPage] ?? 'home';
             ?>
@@ -1093,7 +1092,6 @@ html[lang="ru"] .mob-bb-item.cta span{
 <nav class="mob-bottom-bar" aria-label="Mobile bottom navigation">
   <a href="<?= I18n::url('', $locale) ?>" class="mob-bb-item<?= $currentPage === 'home' ? ' active' : '' ?>"><i class="fas fa-house"></i><span><?= htmlspecialchars(I18n::t('mobile_nav.home')) ?></span></a>
   <a href="<?= I18n::altUrl('products', $locale) ?>" class="mob-bb-item<?= $currentPage === 'products' ? ' active' : '' ?>"><i class="fas fa-leaf"></i><span><?= htmlspecialchars(I18n::t('mobile_nav.products')) ?></span></a>
-  <a href="<?= I18n::altUrl('export_markets', $locale) ?>" class="mob-bb-item<?= $currentPage === 'markets' ? ' active' : '' ?>"><i class="fas fa-globe"></i><span><?= htmlspecialchars(I18n::t('mobile_nav.markets')) ?></span></a>
   <a href="<?= I18n::altUrl('contact', $locale) ?>" class="mob-bb-item<?= $currentPage === 'contact' ? ' active' : '' ?>"><i class="fas fa-paper-plane"></i><span><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></span></a>
 </nav>
 

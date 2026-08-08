@@ -90,13 +90,12 @@ class SitemapController extends Controller
         $urls = [];
         $today = date('Y-m-d');
 
-        $pageKeys = ['home','about','products','export_markets','quality','services','gallery','contact'];
+        $pageKeys = ['home','about','products','quality','services','gallery','contact'];
 
         $priorities = [
             'home' => '1.0',
             'about' => '0.8',
             'products' => '0.9',
-            'export_markets' => '0.85',
             'quality' => '0.7',
             'services' => '0.7',
             'gallery' => '0.5',
@@ -106,7 +105,6 @@ class SitemapController extends Controller
             'home' => 'weekly',
             'about' => 'monthly',
             'products' => 'weekly',
-            'export_markets' => 'monthly',
             'quality' => 'monthly',
             'services' => 'monthly',
             'gallery' => 'weekly',
@@ -151,31 +149,6 @@ class SitemapController extends Controller
                     'lastmod'    => isset($u['updated_at']) ? substr((string)$u['updated_at'], 0, 10) : $today,
                     'changefreq' => 'weekly',
                     'priority'   => '0.85',
-                    'alternates' => $alts,
-                ];
-            }
-        }
-
-        // İhracat bölgesi sayfaları (slug haritası ile)
-        $regionSlugs = [
-            'tr' => ['avrupa','dubai-bae','suudi-arabistan','misir','rusya'],
-            'en' => ['europe','dubai-uae','saudi-arabia','egypt','russia'],
-            'ru' => ['europe','dubai-uae','saudi-arabia','egypt','russia'],
-        ];
-        $regionKeys  = ['europe','dubai-uae','saudi-arabia','egypt','russia'];
-
-        foreach ($regionKeys as $idx => $key) {
-            $alts = [];
-            foreach (['tr','en','ru'] as $loc) {
-                $slug = $regionSlugs[$loc][$idx];
-                $alts[$loc] = I18n::altUrl('export_region', $loc, $slug);
-            }
-            foreach ($alts as $loc => $url) {
-                $urls[] = [
-                    'loc'        => $url,
-                    'lastmod'    => $today,
-                    'changefreq' => 'monthly',
-                    'priority'   => '0.8',
                     'alternates' => $alts,
                 ];
             }

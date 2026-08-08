@@ -106,9 +106,6 @@ for ($i = 1; $i <= $slideCount; $i++) {
 .about-img{border-radius:24px;overflow:hidden;height:480px;position:relative}
 .about-img img{width:100%;height:100%;object-fit:cover}
 .about-img::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(13,98,58,.25) 100%)}
-.about-badge{position:absolute;bottom:1.5rem;left:1.5rem;background:#fff;border-radius:18px;padding:1.2rem 1.5rem;box-shadow:0 22px 50px -16px rgba(6,40,26,.3);max-width:240px;z-index:2}
-.about-badge strong{font-family:'Manrope';font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;line-height:1}
-.about-badge span{color:var(--ink2);font-weight:600;font-size:.85rem}
 </style>
 
 <!-- HERO -->
@@ -130,11 +127,6 @@ for ($i = 1; $i <= $slideCount; $i++) {
       </div>
     <?php endforeach; ?>
 
-    <div class="hero-stats">
-      <div class="hero-stat"><strong><?= htmlspecialchars((string)($ayarlar['stat_countries_value'] ?? '5')) ?></strong><span><?= htmlspecialchars(I18n::t('common.markets')) ?></span></div>
-      <div class="hero-stat"><strong><?= htmlspecialchars((string)($ayarlar['stat_products_value'] ?? '8+')) ?></strong><span><?= htmlspecialchars(I18n::t('common.products')) ?></span></div>
-      <div class="hero-stat"><strong><?= htmlspecialchars((string)($ayarlar['stat_quality_value'] ?? '100%')) ?></strong><span><?= htmlspecialchars(I18n::t('common.quality')) ?></span></div>
-    </div>
   </div>
 
   <div class="hero-arrows" aria-hidden="true">
@@ -174,7 +166,6 @@ for ($i = 1; $i <= $slideCount; $i++) {
     <div class="about-flex fade-in">
       <div class="about-img">
         <img src="<?= htmlspecialchars((string)($ayarlar['about_img'] ?? '')) ?>" alt="Nymagro Antalya — bitki besleme ürünleri" loading="lazy" width="800" height="600">
-        <div class="about-badge"><strong><?= htmlspecialchars((string)($ayarlar['about_stat_value'] ?? '5')) ?></strong><span><?= htmlspecialchars(I18n::t('common.markets')) ?></span></div>
       </div>
       <div>
         <span class="kicker"><i class="fas fa-circle-info"></i> <?= htmlspecialchars($siteText('about_tag', I18n::t('home.about.kicker'))) ?></span>
@@ -225,35 +216,6 @@ for ($i = 1; $i <= $slideCount; $i++) {
 
     <div class="text-center mt-5">
       <a href="<?= I18n::altUrl('products', $locale) ?>" class="btn-outline-grad"><?= htmlspecialchars(I18n::t('common.all_products')) ?> <i class="fas fa-arrow-right"></i></a>
-    </div>
-  </div>
-</section>
-
-<!-- MARKETS -->
-<section class="block" style="background:linear-gradient(180deg,#f6fbf5 0%,#fff 100%)">
-  <div class="container-xxl">
-    <div class="section-head fade-in">
-      <span class="kicker"><i class="fas fa-globe"></i> <?= htmlspecialchars($siteText('markets_tag', I18n::t('home.markets.kicker'))) ?></span>
-      <h2><?= htmlspecialchars($siteText('markets_title', I18n::t('home.markets.title'))) ?></h2>
-      <p><?= htmlspecialchars($siteText('markets_desc', I18n::t('home.markets.desc'))) ?></p>
-    </div>
-    <div class="markets-grid">
-      <?php
-        $regionIcons = ['micro' => 'fa-flask', 'macro' => 'fa-seedling', 'biostimulant' => 'fa-bolt'];
-        $comingSoonLabel = ['tr' => 'Yakında', 'en' => 'Coming soon', 'ru' => 'Скоро'][$locale] ?? 'Yakında';
-        foreach (($regions ?? []) as $r):
-          $count = (int)($r['count'] ?? 0);
-      ?>
-        <a href="<?= htmlspecialchars($r['url']) ?>" class="market-card fade-in<?= $count === 0 ? ' is-empty' : '' ?>">
-          <i class="fas <?= htmlspecialchars($regionIcons[$r['key']] ?? 'fa-leaf') ?>" style="position:absolute;top:1rem;right:1rem;font-size:1.2rem;opacity:.5"></i>
-          <span class="count-pill"><?= $count > 0 ? (int)$count . ' ' . ($locale === 'en' ? ($count === 1 ? 'product' : 'products') : ($locale === 'ru' ? 'товар(ов)' : 'ürün')) : htmlspecialchars($comingSoonLabel) ?></span>
-          <h4><?= htmlspecialchars($r['name']) ?></h4>
-          <p><?= htmlspecialchars(mb_strimwidth($r['desc'], 0, 110, '…')) ?></p>
-        </a>
-      <?php endforeach; ?>
-    </div>
-    <div class="text-center mt-4">
-      <a href="<?= I18n::altUrl('export_markets', $locale) ?>" class="btn-outline-grad"><?= htmlspecialchars(I18n::t('common.all_markets')) ?> <i class="fas fa-arrow-right"></i></a>
     </div>
   </div>
 </section>

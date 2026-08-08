@@ -154,8 +154,6 @@ final class Router
             'home'           => 'home',
             'about'          => 'about',
             'products'       => 'products',
-            'export_markets' => 'exportMarkets',
-            'export_region'  => 'exportRegion',
             'quality'        => 'quality',
             'services'       => 'services',
             'gallery'        => 'gallery',
@@ -192,16 +190,6 @@ final class Router
             $controller->productDetail((string)$url[1]);
             return;
         }
-        if ($pageKey === 'export_region') {
-            $slug = (string)($url[1] ?? '');
-            if ($slug === '') {
-                $controller->exportMarkets();
-                return;
-            }
-            $controller->exportRegion($slug);
-            return;
-        }
-
         $controller->{$action}();
     }
 
