@@ -14,25 +14,6 @@ final class DashboardController extends Controller
         $companyId = TenantContext::activeCompanyId();
         $periodId = TenantContext::activePeriodId();
 
-        // ─── 1. Bugünkü satış & tahsilat ─────────────────────
-        $bugunkuSatis = (float)($db->selectOne(
-            "SELECT COALESCE(SUM(genel_toplam),0) AS t
-             FROM faturalar
-             WHERE belge_tipi = 'satis' AND durum <> 'iptal'
-               AND silindi_mi = 0 AND fatura_tarihi = CURDATE()"
-            . " AND company_id = :cid AND period_id = :pid",
-            [':cid' => $companyId, ':pid' => $periodId]
-        )['t'] ?? 0);
-
-        $bugunkuTahsilat = (float)($db->selectOne(
-            "SELECT COALESCE(SUM(tutar),0) AS t
-             FROM kasa_hareketleri
-             WHERE hareket_tipi = 'tahsilat' AND silindi_mi = 0
-               AND DATE(tarih) = CURDATE()
-               AND company_id = :cid AND period_id = :pid",
-            [':cid' => $companyId, ':pid' => $periodId]
-        )['t'] ?? 0);
-
         // ─── 3. Stok değeri ───────────────────────────────────
         $stokDegeri = (float)($db->selectOne(
             "SELECT COALESCE(SUM(stok_miktari * alis_fiyati),0) AS t
@@ -158,8 +139,6 @@ final class DashboardController extends Controller
             'activeMenu'       => 'dashboard',
             'bugun'            => $this->formatTrDate(date('Y-m-d')),
             // Kartlar
-            'bugunkuSatis'     => $bugunkuSatis,
-            'bugunkuTahsilat'  => $bugunkuTahsilat,
             'stokDegeri'       => $stokDegeri,
             // Varlıklar
             'kasaBakiye'       => $kasaBakiye,

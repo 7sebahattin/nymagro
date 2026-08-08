@@ -231,11 +231,33 @@ $sayfaIkonu   = $topbarIcon ?? '';
 
 <!-- ═══ MASAÜSTÜ KENAR ÇUBUĞU ═══ -->
 <aside class="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-icon"><i class="fa-solid fa-chart-pie"></i></div>
-    <div class="brand-text">
-      <div class="brand-name"><?= htmlspecialchars(APP_NAME) ?></div>
-      <div class="brand-sub">Ticaret Paneli</div>
+  <div class="tenant-box tenant-box-top">
+    <div class="tenant-mark"></div>
+    <div class="tenant-info">
+      <div class="tenant-company" title="<?= htmlspecialchars($activeCompany['company_name'] ?? 'Şirket seçilmedi') ?>">
+        <?= htmlspecialchars($activeCompany['company_name'] ?? 'Şirket seçilmedi') ?>
+      </div>
+      <div class="tenant-period">
+        <span><?= htmlspecialchars(($activePeriod['period_name'] ?? 'Dönem seçilmedi') . (!empty($activePeriod['period_name']) ? ' Dönemi' : '')) ?></span>
+        <?php if (!empty($activePeriod['status'])): ?>
+          <span class="badge <?= $periodStatusClass[$activePeriod['status']] ?? 'badge-muted' ?>">
+            <?= htmlspecialchars($periodStatusLabels[$activePeriod['status']] ?? $activePeriod['status']) ?>
+          </span>
+        <?php endif; ?>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="tenant-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Şirket işlemleri">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end">
+        <a href="<?= BASE_URL ?>/companies/switch" class="dropdown-item"><i class="fa-solid fa-right-left"></i> Değiştir</a>
+        <a href="<?= BASE_URL ?>/companies" class="dropdown-item"><i class="fa-solid fa-building"></i> Yönet</a>
+        <?php if (!empty($activeCompany['id'])): ?>
+          <a href="<?= BASE_URL ?>/companies/edit/<?= (int)$activeCompany['id'] ?>" class="dropdown-item"><i class="fa-solid fa-palette"></i> Ayarlar</a>
+          <a href="<?= BASE_URL ?>/companies/periods/<?= (int)$activeCompany['id'] ?>" class="dropdown-item"><i class="fa-solid fa-calendar-days"></i> Dönemler</a>
+        <?php endif; ?>
+      </div>
     </div>
   </div>
 
@@ -277,37 +299,6 @@ $sayfaIkonu   = $topbarIcon ?? '';
     </ul>
   </nav>
 
-  <div class="sidebar-footer">
-    <div class="tenant-box">
-      <div class="tenant-mark"></div>
-      <div class="tenant-info">
-        <div class="tenant-company" title="<?= htmlspecialchars($activeCompany['company_name'] ?? 'Şirket seçilmedi') ?>">
-          <?= htmlspecialchars($activeCompany['company_name'] ?? 'Şirket seçilmedi') ?>
-        </div>
-        <div class="tenant-period">
-          <span><?= htmlspecialchars(($activePeriod['period_name'] ?? 'Dönem seçilmedi') . (!empty($activePeriod['period_name']) ? ' Dönemi' : '')) ?></span>
-          <?php if (!empty($activePeriod['status'])): ?>
-            <span class="badge <?= $periodStatusClass[$activePeriod['status']] ?? 'badge-muted' ?>">
-              <?= htmlspecialchars($periodStatusLabels[$activePeriod['status']] ?? $activePeriod['status']) ?>
-            </span>
-          <?php endif; ?>
-        </div>
-      </div>
-      <div class="dropdown">
-        <button class="tenant-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Şirket işlemleri">
-          <i class="fa-solid fa-ellipsis-vertical"></i>
-        </button>
-        <div class="dropdown-menu dropdown-menu-end">
-          <a href="<?= BASE_URL ?>/companies/switch" class="dropdown-item"><i class="fa-solid fa-right-left"></i> Değiştir</a>
-          <a href="<?= BASE_URL ?>/companies" class="dropdown-item"><i class="fa-solid fa-building"></i> Yönet</a>
-          <?php if (!empty($activeCompany['id'])): ?>
-            <a href="<?= BASE_URL ?>/companies/edit/<?= (int)$activeCompany['id'] ?>" class="dropdown-item"><i class="fa-solid fa-palette"></i> Ayarlar</a>
-            <a href="<?= BASE_URL ?>/companies/periods/<?= (int)$activeCompany['id'] ?>" class="dropdown-item"><i class="fa-solid fa-calendar-days"></i> Dönemler</a>
-          <?php endif; ?>
-        </div>
-      </div>
-    </div>
-  </div>
 </aside>
 
 <!-- ═══ İÇERİK ═══ -->

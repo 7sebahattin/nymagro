@@ -24,17 +24,6 @@ $durumBadge = function(string $d): string {
 };
 ?>
 <style>
-  /* ── Hızlı erişim (üst araç çubuğu) ── */
-  .dash-quick { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
-  .dash-quick a {
-    display:flex; align-items:center; gap:9px; padding:11px 16px;
-    border-radius:var(--rsm); background:var(--card-bg); border:1px solid var(--border);
-    color:var(--text2); font-size:12.5px; font-weight:700; text-decoration:none;
-    transition:all .18s ease;
-  }
-  .dash-quick a i { font-size:14px; color:var(--accent); flex-shrink:0; }
-  .dash-quick a:hover { border-color:var(--accent); color:var(--text); background:var(--accent-soft); transform:translateY(-1px); }
-
   /* ── Panel başlıkları ── */
   .phead { color:#fff; font-size:12px; font-weight:700; padding:10px 15px; border-radius:6px 6px 0 0; }
   .phead-dark   { background:#4a5a6a; }
@@ -73,7 +62,7 @@ $durumBadge = function(string $d): string {
   .dash-action-wrap:hover .dash-action-btn i.chev,
   .dash-action-wrap:focus-within .dash-action-btn i.chev { transform:rotate(180deg); }
   .dash-action-menu {
-    position:absolute; top:calc(100% + 8px); right:0; min-width:190px;
+    position:absolute; top:calc(100% + 8px); right:0; min-width:210px;
     background:var(--ink); border:1px solid var(--border2); border-radius:var(--radius);
     box-shadow:0 20px 44px rgba(0,0,0,.45); padding:6px; z-index:60;
     opacity:0; visibility:hidden; transform:translateY(-6px);
@@ -122,28 +111,7 @@ $durumBadge = function(string $d): string {
 <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
   <div>
     <h4 style="color:var(--text); font-size:20px; font-weight:600; margin-bottom:4px;"><?= htmlspecialchars($bugun) ?></h4>
-    <p style="font-size:12px; color:var(--muted); margin:0;"><?= htmlspecialchars(APP_NAME) ?> — Özet Dashboard</p>
   </div>
-  <div class="d-flex gap-2 flex-wrap">
-    <div style="min-width:130px; padding:10px 15px; border-radius:var(--rsm); background:var(--card-bg); border:1px solid var(--border); text-align:center;">
-      <div style="font-size:10px; color:var(--muted); font-weight:700; margin-bottom:4px;">BUGÜNKÜ SATIŞ</div>
-      <div style="font-size:14px; color:var(--text); font-weight:700;"><?= $tl($bugunkuSatis) ?></div>
-    </div>
-    <div style="min-width:130px; padding:10px 15px; border-radius:var(--rsm); background:var(--card-bg); border:1px solid var(--border); text-align:center;">
-      <div style="font-size:10px; color:var(--muted); font-weight:700; margin-bottom:4px;">BUGÜNKÜ TAHSİLAT</div>
-      <div style="font-size:14px; color:var(--text); font-weight:700;"><?= $tl($bugunkuTahsilat) ?></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ HIZLI ERİŞİM (ÜSTTE) ══════════ -->
-<div class="dash-quick">
-  <a href="<?= BASE_URL ?>/musteri/ekle"><i class="fa-solid fa-user-plus"></i> Müşteri Ekle</a>
-  <a href="<?= BASE_URL ?>/tedarikci/ekle"><i class="fa-solid fa-industry"></i> Tedarikçi Ekle</a>
-  <a href="<?= BASE_URL ?>/satis/ekle"><i class="fa-solid fa-file-invoice"></i> Satış Faturası</a>
-  <a href="<?= BASE_URL ?>/alis/ekle"><i class="fa-solid fa-truck"></i> Alış Faturası</a>
-  <a href="<?= BASE_URL ?>/urun/ekle"><i class="fa-solid fa-box"></i> Ürün Ekle</a>
-  <a href="<?= BASE_URL ?>/musteri"><i class="fa-solid fa-list"></i> Müşteri Listesi</a>
 </div>
 
 <!-- ══════════ ÜRÜN STOK LİSTESİ ══════════ -->
@@ -158,10 +126,12 @@ $durumBadge = function(string $d): string {
       <i class="fa-solid fa-bolt"></i> İşlem Yap <i class="fa-solid fa-chevron-down chev"></i>
     </button>
     <div class="dash-action-menu">
-      <a href="<?= BASE_URL ?>/urun/ekle"><i class="fa-solid fa-box"></i> Ürün</a>
-      <a href="<?= BASE_URL ?>/satis/ekle"><i class="fa-solid fa-file-invoice"></i> Satış</a>
-      <a href="<?= BASE_URL ?>/urun"><i class="fa-solid fa-dolly"></i> Stok Giriş</a>
-      <a href="<?= BASE_URL ?>/satis/ekle"><i class="fa-solid fa-truck-ramp-box"></i> Sevk</a>
+      <a href="<?= BASE_URL ?>/musteri/ekle"><i class="fa-solid fa-user-plus"></i> Müşteri Ekle</a>
+      <a href="<?= BASE_URL ?>/tedarikci/ekle"><i class="fa-solid fa-industry"></i> Tedarikçi Ekle</a>
+      <a href="<?= BASE_URL ?>/satis/ekle"><i class="fa-solid fa-file-invoice"></i> Satış Faturası</a>
+      <a href="<?= BASE_URL ?>/alis/ekle"><i class="fa-solid fa-truck"></i> Alış Faturası</a>
+      <a href="<?= BASE_URL ?>/urun/ekle"><i class="fa-solid fa-box"></i> Ürün Ekle</a>
+      <a href="<?= BASE_URL ?>/musteri"><i class="fa-solid fa-list"></i> Müşteri Listesi</a>
     </div>
   </div>
 </div>
