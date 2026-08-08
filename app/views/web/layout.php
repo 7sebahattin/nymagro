@@ -834,11 +834,15 @@ html[lang="ru"] .mob-bb-item.cta span{
     letter-spacing:.12em;
   }
   .hero-cta{
-    gap:.55rem;
+    gap:.6rem;
+    flex-direction:column;
+    align-items:stretch;
   }
   .hero-cta .btn-primary-grad,
   .hero-cta .btn-outline-grad{
-    flex:1 1 150px;
+    width:100%;
+    justify-content:center;
+    white-space:nowrap;
   }
   .hero-stats{
     gap:.55rem;
