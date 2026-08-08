@@ -6,8 +6,8 @@ $statusText = ['odenmedi'=>'Ödenmedi','kismi_odendi'=>'Kısmi Ödendi','odendi'
 .gef-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}.gef-card{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:12px}.gef-card b{display:block;font-size:18px}
 .gef-btn{border:0;border-radius:4px;padding:8px 12px;font-size:12.5px;font-weight:700;color:#fff;text-decoration:none;background:#337ab7;display:inline-flex;gap:6px;align-items:center;cursor:pointer}.gef-btn.green{background:#5cb85c}.gef-btn.gray{background:#64748b}
 .gef-table{width:100%;border-collapse:collapse;min-width:1320px}.gef-table th{background:#2c3e6b;color:#fff;font-size:11.5px;text-align:left;padding:8px}.gef-table td{border-bottom:1px solid var(--border);padding:7px;font-size:12px;vertical-align:top}.txt-r{text-align:right}
-.badge{display:inline-block;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:700}.b-red{background:rgba(231,76,60,.15);color:var(--danger)}.b-green{background:rgba(46,204,113,.15);color:var(--success)}.b-orange{background:rgba(243,156,18,.17);color:#9a3412}.b-gray{background:var(--surface-2);color:var(--text2)}
-.mini{width:120px;border:1px solid var(--border2);border-radius:4px;padding:5px;font-size:12px}.wide{width:180px}.warn{color:#b45309;font-size:11px;margin-top:4px}.lines{background:var(--surface-2);padding:8px;border-radius:5px;margin-top:6px}
+.badge{display:inline-block;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:700}.b-red{background:rgba(231,76,60,.15);color:var(--danger)}.b-green{background:rgba(46,204,113,.15);color:var(--success)}.b-orange{background:rgba(243,156,18,.17);color:var(--warning)}.b-gray{background:var(--surface-2);color:var(--text2)}
+.mini{width:120px;border:1px solid var(--border2);border-radius:4px;padding:5px;font-size:12px}.wide{width:180px}.warn{color:var(--warning);font-size:11px;margin-top:4px}.lines{background:var(--surface-2);padding:8px;border-radius:5px;margin-top:6px}
 @media(max-width:900px){.gef-summary{grid-template-columns:1fr 1fr}}
 </style>
 

@@ -54,7 +54,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   .ozet-kart .ok-value { font-size:20px; font-weight:800; color:var(--text); margin-top:4px; }
   .ozet-kart .ok-value.green { color:#16a34a; }
   .ozet-kart .ok-value.amber { color:#d97706; }
-  .ozet-kart .ok-value.red   { color:#dc2626; }
+  .ozet-kart .ok-value.red   { color:var(--danger); }
 
   /* ── Filter Panel ── */
   .filter-panel { background:var(--card-bg); border:1px solid var(--border); border-radius:8px 8px 0 0; border-bottom:none; }
@@ -111,7 +111,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   .row-toggle.plus:hover  { background:rgba(34,197,94,.08); }
   .row-toggle.minus:hover { background:rgba(239,68,68,.08); }
 
-  .cust-link { color:#2563eb; text-decoration:none; font-weight:500; font-size:13px; }
+  .cust-link { color:var(--info); text-decoration:none; font-weight:500; font-size:13px; }
   .cust-link:hover { text-decoration:underline; }
   .td-amount { text-align:right; font-weight:600; font-size:13px; color:var(--text); }
   .status-badge { display:inline-block; padding:3px 10px; border-radius:4px; font-size:12px; font-weight:600; white-space:nowrap; }

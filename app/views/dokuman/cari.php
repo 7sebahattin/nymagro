@@ -44,11 +44,11 @@ $formatDate = static function ($value): string {
 .doc-card h3{margin:0 0 16px;color:var(--text);font-size:16px;font-weight:900}
 .doc-form{display:flex;flex-direction:column;gap:13px}
 .doc-form label{font-size:12px;font-weight:900;color:var(--text2);margin-bottom:6px}
-.doc-form .form-control{border-color:#bfe0cd;border-radius:6px}
+.doc-form .form-control{border-color:var(--border);border-radius:6px}
 .doc-help{font-size:12px;color:var(--muted);line-height:1.45}
-.doc-info{background:rgba(243,156,18,.15);color:#9a741d;border-radius:4px;padding:18px;font-size:14px;line-height:1.5;box-shadow:0 10px 22px rgba(15,23,42,.12)}
+.doc-info{background:rgba(243,156,18,.15);color:var(--warning);border-radius:4px;padding:18px;font-size:14px;line-height:1.5;box-shadow:0 10px 22px rgba(15,23,42,.12)}
 .doc-table{width:100%;border-collapse:collapse;font-size:13px}
-.doc-table th{color:var(--muted);font-weight:900;border-bottom:1px solid #1f2937;padding:10px}
+.doc-table th{color:var(--muted);font-weight:900;border-bottom:1px solid var(--border);padding:10px}
 .doc-table td{border-bottom:1px solid var(--border);padding:12px 10px;color:var(--text2);vertical-align:middle}
 .doc-name{font-weight:800;color:var(--text)}
 .doc-desc{display:block;color:var(--muted);font-size:12px;margin-top:3px}

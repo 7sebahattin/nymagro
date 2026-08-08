@@ -69,7 +69,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
   .h-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,.12); border-color: var(--text2); }
   .h-item-title { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
   .h-item-val { font-size: 13px; font-weight: 700; color: var(--text); }
-  .h-item-val.negatif { color: #dc2626; }
+  .h-item-val.negatif { color: var(--danger); }
   .h-item-val.pozitif { color: #16a34a; }
 
   .h-empty { font-size: 12px; color: var(--muted); font-style: italic; padding: 4px; }

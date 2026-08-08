@@ -45,7 +45,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
 .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
 .summary-card span { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
 .summary-card strong { display: block; color: var(--text); font-size: 18px; margin-top: 5px; }
-.report-note { background: rgba(243,156,18,.15); border: 1px solid rgba(243,156,18,.30); color: #9a3412; border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.45; }
+.report-note { background: rgba(243,156,18,.15); border: 1px solid rgba(243,156,18,.30); color: var(--warning); border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.45; }
 .table-wrap { overflow-x: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; }
 .report-table { width: 100%; border-collapse: collapse; min-width: 920px; }
 .report-table th { background: #1e293b; color: var(--text2); text-align: left; padding: 10px; font-size: 12px; white-space: nowrap; }

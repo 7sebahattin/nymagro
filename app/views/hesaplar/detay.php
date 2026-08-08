@@ -98,7 +98,7 @@ $tipLabel = [
   .hrk-table tbody td { padding: 9px 12px; font-size: 13px; color: var(--text2); vertical-align: middle; }
   .txt-right { text-align: right !important; }
   .txt-green { color: #16a34a; font-weight: 600; }
-  .txt-red   { color: #dc2626; font-weight: 600; }
+  .txt-red   { color: var(--danger); font-weight: 600; }
   .txt-gray  { color: var(--muted); }
 
   .badge-tip {
@@ -106,7 +106,7 @@ $tipLabel = [
     font-size: 11.5px; font-weight: 600; white-space: nowrap;
   }
   .badge-giris   { background: rgba(46,204,113,.15); color: #16a34a; }
-  .badge-cikis   { background: rgba(231,76,60,.15); color: #dc2626; }
+  .badge-cikis   { background: rgba(231,76,60,.15); color: var(--danger); }
   .badge-transfer { background: rgba(243,156,18,.15); color: var(--warning); }
 
   .btn-islem {

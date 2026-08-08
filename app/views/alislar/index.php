@@ -190,7 +190,7 @@
               <span class="row-toggle plus" id="toggle-btn-<?= $f['id'] ?>">+</span>
             </td>
             <td><?= date('d.m.Y', strtotime($f['fatura_tarihi'])) ?></td>
-            <td><a href="#" style="color:#2563eb; text-decoration:none; font-weight:500;"><?= htmlspecialchars($f['cari_unvan'] ?? 'Belirtilmedi') ?></a></td>
+            <td><a href="#" style="color:var(--info); text-decoration:none; font-weight:500;"><?= htmlspecialchars($f['cari_unvan'] ?? 'Belirtilmedi') ?></a></td>
             <td><?= htmlspecialchars($f['fatura_no']) ?></td>
             <td style="text-align:right; font-weight:600;"><?= number_format($f['genel_toplam'], 2, ',', '.') ?> TL</td>
             <td><span class="status-badge status-<?= $f['durum'] ?>"><?= $f['durum'] === 'onaylandi' ? 'Onaylandı' : 'Taslak' ?></span></td>
@@ -221,7 +221,7 @@
       <span>Tedarikçi Arama</span>
       <span onclick="closeModals()" style="cursor:pointer; font-size: 24px;">X</span>
     </div>
-    <div style="background: rgba(243,156,18,.13); padding: 12px 20px; font-size: 13px; color: #856404;">
+    <div style="background: rgba(243,156,18,.13); padding: 12px 20px; font-size: 13px; color: var(--warning);">
       Alış yaptığınız tedarikçiyi bulun
     </div>
     <div style="background: var(--card-bg); padding: 20px;">
@@ -242,7 +242,7 @@
       <span onclick="closeModals()" style="cursor:pointer; font-size: 24px;">X</span>
     </div>
     <div class="modal-body" style="background: var(--card-bg); padding: 20px;">
-      <div style="background: rgba(243,156,18,.13); padding: 10px; border-radius: 4px; font-size: 13px; color: #856404; margin-bottom: 15px;">
+      <div style="background: rgba(243,156,18,.13); padding: 10px; border-radius: 4px; font-size: 13px; color: var(--warning); margin-bottom: 15px;">
         Önceden tedarikçi kaydı olmayan carilerinizi hızlıca buradan ekleyebilirsiniz. Bu ekranda yer almayan diğer detaylı bilgileri daha sonra tedarikçiler sayfasından güncelleyebilirsiniz.
       </div>
 

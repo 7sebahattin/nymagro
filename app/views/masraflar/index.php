@@ -94,11 +94,11 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
     text-decoration:none; transition:background .1s;
   }
   .ctx-menu a:hover { background:var(--surface-2); }
-  .ctx-menu a.danger  { color:#dc2626; }
+  .ctx-menu a.danger  { color:var(--danger); }
   .ctx-menu a.danger:hover  { background:rgba(231,76,60,.15); }
-  .ctx-menu a.success { color:#16a34a; }
+  .ctx-menu a.success { color:var(--success); }
   .ctx-menu a.success:hover { background:rgba(46,204,113,.15); }
-  .ctx-menu a.belge   { color:#2563eb; }
+  .ctx-menu a.belge   { color:var(--info); }
   .ctx-menu a.belge:hover   { background:rgba(59,130,246,.15); }
   .ctx-menu hr { margin:2px 0; border-color:var(--text); }
   .ms-table thead tr { background:#2c3e6b; }

@@ -111,9 +111,9 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 .cd-more .dropdown-item{display:flex;align-items:center;gap:12px;padding:13px 18px;font-size:14px;color:var(--text);border-bottom:1px solid var(--border)}
 .cd-more .dropdown-item:last-child{border-bottom:0}
 .cd-more .dropdown-item:hover{background:var(--surface-2);color:var(--accent)}
-.cd-more .dropdown-item i{width:22px;text-align:center;font-size:20px;color:#2f83c7}
-.cd-more .dropdown-item.is-green i{color:#248c41}
-.cd-more .dropdown-item.is-gold i{color:#9a6b25}
+.cd-more .dropdown-item i{width:22px;text-align:center;font-size:20px;color:var(--info)}
+.cd-more .dropdown-item.is-green i{color:var(--success)}
+.cd-more .dropdown-item.is-gold i{color:var(--warning)}
 .cd-more .dropdown-item.is-red i{color:var(--danger)}
 .cd-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .cd-form-grid .full{grid-column:1 / -1}
@@ -126,12 +126,12 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 .cd-collapse{width:34px;height:34px;border:0;border-radius:4px;background:var(--surface-2);color:var(--muted);font-weight:900}
 .cd-panel-body{padding:22px 18px 16px}
 .cd-table{width:100%;border-collapse:collapse;font-size:13px}
-.cd-table th{color:#707070;font-weight:800;padding:8px 10px;border-bottom:1px solid #222}
-.cd-table td{padding:11px 10px;border-bottom:1px solid #d9d9d9;color:var(--muted);vertical-align:middle}
+.cd-table th{color:var(--muted);font-weight:800;padding:8px 10px;border-bottom:1px solid var(--border)}
+.cd-table td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:middle}
 .cd-table .money{text-align:right;white-space:nowrap}
 .cd-plus{width:20px;height:20px;border-radius:50%;background:#5ec99e;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
-.cd-status{color:#cf3f3f}
-.cd-empty{background:rgba(243,156,18,.15);color:#9a741d;padding:16px;border-radius:4px;font-size:13px}
+.cd-status{color:var(--danger)}
+.cd-empty{background:rgba(243,156,18,.15);color:var(--warning);padding:16px;border-radius:4px;font-size:13px}
 .cd-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin-top:12px;font-size:12.5px;color:var(--text2)}
 .cd-info-grid strong{color:var(--text)}
 .cd-mobile-info{display:none}

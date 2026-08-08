@@ -338,7 +338,7 @@ $sayfaIkonu   = $topbarIcon ?? '';
             <?php endif; ?>
           </div>
           <div class="profile-meta">
-            <div class="profile-name"><?= htmlspecialchars($currentUserName) ?></div>
+            <div class="profile-name" title="<?= htmlspecialchars($currentUserName) ?>"><?= htmlspecialchars($currentUserName) ?></div>
             <div class="profile-role"><?= htmlspecialchars($currentUserRoleLabel) ?></div>
           </div>
           <i class="fa-solid fa-chevron-down profile-caret"></i>
@@ -353,8 +353,8 @@ $sayfaIkonu   = $topbarIcon ?? '';
                 <i class="fa-solid fa-user"></i>
               <?php endif; ?>
             </div>
-            <div>
-              <div class="pm-head-name"><?= htmlspecialchars($currentUserName) ?></div>
+            <div class="pm-head-meta">
+              <div class="pm-head-name" title="<?= htmlspecialchars($currentUserName) ?>"><?= htmlspecialchars($currentUserName) ?></div>
               <div class="pm-head-role"><?= htmlspecialchars($currentUserRoleLabel) ?></div>
             </div>
           </div>

@@ -42,7 +42,7 @@ $dateTr = static function($value): string {
 .ext-tool:hover{color:#fff;filter:brightness(1.04)}.ext-tool.green{background:#41ad46}.ext-tool.orange{background:#f0a33a}.ext-tool.dark{background:#334155}
 .ext-table-wrap{padding:0 16px 22px;overflow:auto}
 .ext-table{width:100%;border-collapse:collapse;min-width:980px;font-size:11px}
-.ext-table th{background:rgba(59,130,246,.15);color:#126083;border:1px solid #c3d7e2;font-weight:900;text-align:left;padding:11px 10px}
+.ext-table th{background:rgba(59,130,246,.15);color:var(--info);border:1px solid var(--border);font-weight:900;text-align:left;padding:11px 10px}
 .ext-table td{border:1px solid #d6dde4;color:var(--text2);padding:10px;vertical-align:top}
 .ext-table .num{text-align:right;white-space:nowrap}
 .ext-empty{text-align:center;color:var(--muted);padding:22px}

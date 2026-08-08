@@ -32,7 +32,7 @@ $buildUrl = function(array $extra = []) use ($filters) {
 .gef-table-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;overflow:hidden}.gef-table{width:100%;border-collapse:collapse;min-width:1280px}
 .gef-table th{background:#2c3e6b;color:var(--text);font-size:11.5px;text-align:left;padding:9px;white-space:nowrap}.gef-table td{font-size:12.5px;padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:middle}
 .txt-r{text-align:right}.badge{display:inline-block;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:700;white-space:nowrap}
-.b-red{background:rgba(231,76,60,.15);color:var(--danger)}.b-orange{background:rgba(243,156,18,.17);color:#9a3412}.b-green{background:rgba(46,204,113,.15);color:var(--success)}.b-gray{background:var(--surface-2);color:var(--text2)}.b-yellow{background:rgba(243,156,18,.15);color:var(--warning)}
+.b-red{background:rgba(231,76,60,.15);color:var(--danger)}.b-orange{background:rgba(243,156,18,.17);color:var(--warning)}.b-green{background:rgba(46,204,113,.15);color:var(--success)}.b-gray{background:var(--surface-2);color:var(--text2)}.b-yellow{background:rgba(243,156,18,.15);color:var(--warning)}
 .empty{padding:42px;text-align:center;color:var(--muted)}.pag{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-2);border-top:1px solid var(--border)}.pag a{padding:5px 9px;border:1px solid var(--border2);border-radius:4px;text-decoration:none;color:var(--text2)}
 @media(max-width:1100px){.gef-cards{grid-template-columns:repeat(2,1fr)}.gef-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.gef-cards,.gef-grid{grid-template-columns:1fr}}
 
@@ -59,7 +59,7 @@ $buildUrl = function(array $extra = []) use ($filters) {
 .top-panel-body tbody tr:hover{background:var(--surface-2)}
 .top-panel-body tbody td{padding:9px 10px;font-size:12.5px;color:var(--text2);vertical-align:middle}
 .tp-tutar-inp{width:110px;padding:6px 8px;border:1px solid var(--border2);border-radius:4px;font-size:13px;text-align:right;font-weight:600;color:var(--text)}
-.tp-tutar-inp:focus{border-color:#2563eb;outline:none}
+.tp-tutar-inp:focus{border-color:var(--info);outline:none}
 .tp-tutar-inp.tam{border-color:#16a34a;background:rgba(46,204,113,.10)}
 .tp-tutar-inp.kismi{border-color:#f0ad4e;background:rgba(243,156,18,.15)}
 .top-panel-ftr{padding:14px 22px;border-top:1px solid var(--border);background:var(--surface-2);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;flex-wrap:wrap;gap:10px}
@@ -225,7 +225,7 @@ $buildUrl = function(array $extra = []) use ($filters) {
           <th>Tedarikçi</th>
           <th class="txt-r">Genel TL</th>
           <th class="txt-r">Kalan TL</th>
-          <th class="txt-r" style="color:#2563eb;">Ödenecek TL</th>
+          <th class="txt-r" style="color:var(--info);">Ödenecek TL</th>
           <th style="width:34px;"></th>
         </tr>
       </thead>
@@ -234,7 +234,7 @@ $buildUrl = function(array $extra = []) use ($filters) {
         <tr style="background:var(--surface-2);font-weight:700;">
           <td colspan="4" style="padding:10px;font-size:12px;color:var(--text2);">TOPLAM</td>
           <td class="txt-r" id="tpTotKalan" style="padding:10px;"></td>
-          <td class="txt-r" id="tpTotOdeme" style="padding:10px;color:#2563eb;font-size:14px;"></td>
+          <td class="txt-r" id="tpTotOdeme" style="padding:10px;color:var(--info);font-size:14px;"></td>
           <td></td>
         </tr>
       </tfoot>

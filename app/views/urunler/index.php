@@ -81,7 +81,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
   .pagination { display:flex; list-style:none; padding:0; margin:0; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
   .page-item { border-right:1px solid var(--border); }
   .page-item:last-child { border-right:none; }
-  .page-link { display:block; padding:6px 12px; text-decoration:none; color:#337ab7; background:var(--card-bg); }
+  .page-link { display:block; padding:6px 12px; text-decoration:none; color:var(--info); background:var(--card-bg); }
   .page-item.active .page-link { background:#337ab7; color:#fff; }
   .page-link:hover:not(.active) { background:var(--surface-2); }
 </style>

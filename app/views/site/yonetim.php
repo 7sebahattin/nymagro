@@ -143,9 +143,13 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 
 <style>
 /* ── Değişkenler ──────────────────────────────────────── */
+/* NOT: --ink/--muted/--border tanımlanmıyor — bunlar panel-ui.css'in
+   genel tema tokenları; burada yeniden tanımlamak (:root üzerinden)
+   TÜM sayfayı (sidebar, topbar, profil menüsü dahil) etkileyip koyu
+   temada okunmaz metinlere yol açıyordu. Yalnızca bu sayfaya özgü,
+   çakışmayan değişkenler burada kalır. */
 :root {
   --p: var(--accent); --ps: rgba(13,98,58,.1);
-  --ink: #1e1b4b; --muted: #6b7280; --border: rgba(46,204,113,.24);
   --rad: 12px; --card-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(13,98,58,.06);
 }
 
@@ -154,7 +158,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 
 /* ── Header row ───────────────────────────────────────── */
 .sm-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
-.sm-header h2 { font-size:19px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:8px; }
+.sm-header h2 { font-size:19px; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px; }
 .sm-header p  { font-size:12.5px; color:var(--muted); margin-top:3px; }
 .sm-preview-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; background:var(--card-bg); border:1.5px solid var(--border); border-radius:var(--rad); font-size:12.5px; font-weight:700; color:var(--p); text-decoration:none; transition:.15s; }
 .sm-preview-btn:hover { background:var(--ps); border-color:var(--p); }
@@ -177,7 +181,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .sm-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--rad); margin-bottom:14px; box-shadow:var(--card-shadow); overflow:hidden; }
 .sm-card-head { padding:16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); background:rgba(46,204,113,.10); }
 .sm-card-head .ico { width:32px; height:32px; border-radius:8px; background:var(--ps); color:var(--p); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
-.sm-card-head h3 { font-size:14px; font-weight:800; color:var(--ink); margin:0; }
+.sm-card-head h3 { font-size:14px; font-weight:800; color:var(--text); margin:0; }
 .sm-card-head p  { font-size:11.5px; color:var(--muted); margin:2px 0 0; }
 .sm-card-body { padding:20px; }
 
@@ -191,7 +195,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .sm-field .hint  { font-size:11px; color:var(--muted); }
 .sm-inp, .sm-area, .sm-sel {
   width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:9px;
-  font-size:13px; color:var(--ink); background:var(--card-bg); outline:none; transition:.15s; font-family:inherit;
+  font-size:13px; color:var(--text); background:var(--card-bg); outline:none; transition:.15s; font-family:inherit;
 }
 .sm-inp:focus, .sm-area:focus { border-color:var(--p); box-shadow:0 0 0 3px rgba(13,98,58,.1); }
 .sm-area { min-height:78px; resize:vertical; }
@@ -219,7 +223,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .sm-img-tile { border:1px solid var(--border); border-radius:10px; overflow:hidden; background:rgba(46,204,113,.10); }
 .sm-img-prev { height:130px; background:rgba(46,204,113,.12) center/cover no-repeat; }
 .sm-img-tile-body { padding:10px 12px; }
-.sm-img-tile-body label { font-size:11.5px; font-weight:700; color:var(--ink); display:block; margin-bottom:6px; }
+.sm-img-tile-body label { font-size:11.5px; font-weight:700; color:var(--text); display:block; margin-bottom:6px; }
 .sm-img-tile-body .sm-inp { font-size:12px; padding:7px 10px; }
 .sm-img-tile-body input[type=file] { font-size:11.5px; width:100%; }
 .sm-section-media { margin-bottom:16px; }
@@ -227,7 +231,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .sm-slider-list { display:flex; flex-direction:column; gap:14px; margin-bottom:16px; }
 .sm-slider-card { border:1px solid var(--border); border-radius:12px; background:rgba(46,204,113,.10); overflow:hidden; }
 .sm-slider-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-bottom:1px solid var(--border); background:var(--card-bg); }
-.sm-slider-head h4 { margin:0; font-size:13px; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:7px; }
+.sm-slider-head h4 { margin:0; font-size:13px; font-weight:800; color:var(--text); display:flex; align-items:center; gap:7px; }
 .sm-slider-body { padding:14px; }
 .sm-slider-media { margin-bottom:14px; }
 
@@ -238,7 +242,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .accord-head:hover { background:rgba(46,204,113,.10); }
 .accord-item.open .accord-head { background:rgba(46,204,113,.10); border-bottom:1px solid var(--border); }
 .accord-ico { width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
-.accord-title { flex:1; font-size:13.5px; font-weight:800; color:var(--ink); }
+.accord-title { flex:1; font-size:13.5px; font-weight:800; color:var(--text); }
 .accord-arrow { color:var(--muted); font-size:11px; transition:transform .2s; }
 .accord-item.open .accord-arrow { transform:rotate(180deg); }
 .accord-body { display:none; padding:18px 20px 20px; }
@@ -267,7 +271,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .pr-card-tag { position:absolute; top:8px; left:8px; padding:3px 8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-size:10px; font-weight:800; border-radius:4px; letter-spacing:.5px; }
 .pr-card-passive { position:absolute; top:8px; right:8px; padding:3px 8px; background:#71717a; color:#fff; font-size:10px; border-radius:4px; }
 .pr-card-body { padding:12px 14px 8px; }
-.pr-card-body h4 { font-size:13.5px; font-weight:800; color:var(--ink); margin-bottom:3px; }
+.pr-card-body h4 { font-size:13.5px; font-weight:800; color:var(--text); margin-bottom:3px; }
 .pr-card-body p  { font-size:11.5px; color:var(--muted); line-height:1.45; height:30px; overflow:hidden; }
 .pr-card-foot { padding:8px 12px 12px; display:flex; gap:6px; }
 .pr-card-foot button { flex:1; padding:7px; font-size:11.5px; font-weight:700; border:none; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:4px; }
@@ -291,7 +295,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 /* ── Messages table ───────────────────────────────────── */
 .msg-wrap { border:1px solid var(--border); border-radius:var(--rad); overflow-x:auto; background:var(--card-bg); }
 .msg-table { width:100%; border-collapse:collapse; font-size:12.5px; }
-.msg-table th { background:rgba(46,204,113,.10); color:var(--ink); font-weight:800; font-size:11.5px; padding:10px 12px; text-align:left; border-bottom:2px solid var(--border); white-space:nowrap; }
+.msg-table th { background:rgba(46,204,113,.10); color:var(--text); font-weight:800; font-size:11.5px; padding:10px 12px; text-align:left; border-bottom:2px solid var(--border); white-space:nowrap; }
 .msg-table td { padding:10px 12px; border-bottom:1px solid rgba(46,204,113,.18); vertical-align:top; }
 .msg-table tr:last-child td { border-bottom:none; }
 .msg-table tr:hover td { background:rgba(46,204,113,.10); }
@@ -502,7 +506,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
             <div class="sm-img-tile-body">
               <label>OG / Sosyal Medya Görseli</label>
               <input type="file" name="og_image_file" accept="image/*" onchange="smPrevImg(this,'ogImgPrev')">
-              <input type="url" name="og_image" class="sm-inp" value="<?= $v('og_image') ?>" placeholder="1200×630 px önerilir" style="margin-top:6px;">
+              <input type="hidden" name="og_image" value="<?= $v('og_image') ?>">
             </div>
           </div>
         </div>
@@ -562,7 +566,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
                     <div class="sm-img-tile-body">
                       <label>Slider Görseli</label>
                       <input type="file" name="<?= $fileKey ?>" accept="image/*" onchange="smPrevImg(this,'slide<?= $n ?>Prev')">
-                      <input type="url" name="<?= $imgKey ?>" class="sm-inp" value="<?= $v($imgKey) ?>" placeholder="veya görsel URL'si" style="margin-top:6px;">
+                      <input type="hidden" name="<?= $imgKey ?>" value="<?= $v($imgKey) ?>">
                     </div>
                   </div>
                 </div>
@@ -605,7 +609,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
                 <div class="sm-img-tile-body">
                   <label>Hakkımızda Görseli</label>
                   <input type="file" name="about_img_file" accept="image/*" onchange="smPrevImg(this,'aboutImgPrev')">
-                  <input type="url" name="about_img" class="sm-inp" value="<?= $v('about_img') ?>" placeholder="veya URL" style="margin-top:6px;">
+                  <input type="hidden" name="about_img" value="<?= $v('about_img') ?>">
                 </div>
               </div>
             </div>
@@ -654,7 +658,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 <div class="sm-pane" id="tab-urunler">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
     <div>
-      <h3 style="font-size:14px;font-weight:800;color:var(--ink);">Ürün Listesi</h3>
+      <h3 style="font-size:14px;font-weight:800;color:var(--text);">Ürün Listesi</h3>
       <p style="font-size:12px;color:var(--muted);">Siteye eklenen ürünler — sıra numarası küçükten büyüğe gösterilir.</p>
     </div>
     <button class="sm-btn sm-btn-primary" onclick="smModalAc('modalUrun');smFormSifirla()"><i class="fa-solid fa-plus"></i> Yeni Ürün</button>
@@ -692,7 +696,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 <div class="sm-pane" id="tab-galeri">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
     <div>
-      <h3 style="font-size:14px;font-weight:800;color:var(--ink);">Galeri Görselleri</h3>
+      <h3 style="font-size:14px;font-weight:800;color:var(--text);">Galeri Görselleri</h3>
       <p style="font-size:12px;color:var(--muted);">Üretim, paketleme ve sevkiyat fotoğrafları.</p>
     </div>
     <button class="sm-btn sm-btn-primary" onclick="smModalAc('modalGaleri')"><i class="fa-solid fa-plus"></i> Görsel Ekle</button>
@@ -803,7 +807,6 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
             <label>Görsel</label>
             <div id="urunGorselPrev" style="height:130px;background:rgba(46,204,113,.12) center/cover no-repeat;border-radius:8px;margin-bottom:8px;display:none;border:1px solid var(--border)"></div>
             <input type="file" name="gorsel" accept="image/*" class="sm-inp" onchange="smPrevImg(this,'urunGorselPrev',true)">
-            <input type="url" name="gorsel_url" class="sm-inp" placeholder="veya görsel URL'si yapıştır" style="margin-top:6px;">
             <span style="font-size:11px;color:var(--muted)">Düzenleme yapıyorsanız boş bırakırsanız mevcut görsel korunur.</span>
           </div>
 
@@ -896,7 +899,6 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           <label>Görsel</label>
           <div id="galPrev" style="height:150px;background:rgba(46,204,113,.12) center/cover no-repeat;border-radius:8px;margin-bottom:8px;display:none;border:1px solid var(--border)"></div>
           <input type="file" name="gorsel" accept="image/*" class="sm-inp" onchange="smPrevImg(this,'galPrev',true)">
-          <input type="url" name="gorsel_url" class="sm-inp" placeholder="veya görsel URL'si" style="margin-top:6px;">
         </div>
         <div class="sm-grid">
           <div class="sm-field">
@@ -1015,7 +1017,7 @@ function smAddSlider() {
             <div class="sm-img-tile-body">
               <label>Slider Görseli</label>
               <input type="file" name="slide${next}_img_file" accept="image/*" onchange="smPrevImg(this,'slide${next}Prev')">
-              <input type="url" name="slide${next}_img" class="sm-inp" placeholder="veya görsel URL'si" style="margin-top:6px;">
+              <input type="hidden" name="slide${next}_img" value="">
             </div>
           </div>
         </div>

@@ -338,13 +338,13 @@ $durumBadge = function(string $d): string {
           <a href="<?= BASE_URL ?>/satis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(59,130,246,.15); color:var(--info); font-size:12px; font-weight:600;">
             <i class="fa-solid fa-file-invoice"></i> Satış Faturası
           </a>
-          <a href="<?= BASE_URL ?>/alis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(243,156,18,.13); color:#a16207; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/alis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(243,156,18,.13); color:var(--warning); font-size:12px; font-weight:600;">
             <i class="fa-solid fa-truck"></i> Alış Faturası
           </a>
-          <a href="<?= BASE_URL ?>/urun/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(243,156,18,.11); color:#0c5c36; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/urun/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(243,156,18,.11); color:var(--warning); font-size:12px; font-weight:600;">
             <i class="fa-solid fa-box"></i> Ürün Ekle
           </a>
-          <a href="<?= BASE_URL ?>/musteri" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(59,130,246,.10); color:#0369a1; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/musteri" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(59,130,246,.10); color:var(--info); font-size:12px; font-weight:600;">
             <i class="fa-solid fa-list"></i> Müşteri Listesi
           </a>
         </div>

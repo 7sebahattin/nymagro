@@ -84,8 +84,8 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
 .cari-amount{font-size:13px;font-weight:700;color:var(--text)}.cari-amount.zero{color:var(--muted);font-weight:400}.cari-amount.pos{color:var(--success)}.cari-amount.neg{color:var(--danger)}.cari-amount.purple{color:var(--accent)}
 .td-right{text-align:right}.td-center{text-align:center}
 .cari-action-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;border-radius:5px;font-size:12px;text-decoration:none;margin-right:4px;transition:background .15s}
-.cari-action-view{background:rgba(59,130,246,.13);color:#0369a1}.cari-action-view:hover{background:rgba(59,130,246,.22);color:#0369a1}
-.cari-action-delete{border:1px solid #fca5a5;color:#ef4444;background:var(--card-bg)}.cari-action-delete:hover{background:rgba(231,76,60,.15);color:#dc2626}
+.cari-action-view{background:rgba(59,130,246,.13);color:var(--info)}.cari-action-view:hover{background:rgba(59,130,246,.22);color:var(--info)}
+.cari-action-delete{border:1px solid rgba(231,76,60,.4);color:var(--danger);background:var(--card-bg)}.cari-action-delete:hover{background:rgba(231,76,60,.15);color:var(--danger)}
 .cari-table-empty{padding:52px;text-align:center;color:var(--muted);font-size:14px}
 .cari-table-footer{padding:13px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted)}
 .cari-pagination{display:flex;gap:4px}.cari-pg-btn{padding:5px 11px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text2);font-size:12px;cursor:pointer;text-decoration:none;transition:all .15s}

@@ -148,7 +148,7 @@
     .row-toggle.minus:hover { background: rgba(239,68,68,.08); }
 
     /* Customer link */
-    .cust-link { color: #2563eb; text-decoration: none; font-weight: 500; font-size: 13px; }
+    .cust-link { color: var(--info); text-decoration: none; font-weight: 500; font-size: 13px; }
     .cust-link:hover { text-decoration: underline; }
 
     /* Amount */
@@ -403,7 +403,7 @@
     .row-toggle.minus:hover { background: rgba(239,68,68,.08); }
 
     /* Customer link */
-    .cust-link { color: #2563eb; text-decoration: none; font-weight: 500; font-size: 13px; }
+    .cust-link { color: var(--info); text-decoration: none; font-weight: 500; font-size: 13px; }
     .cust-link:hover { text-decoration: underline; }
 
     /* Amount */

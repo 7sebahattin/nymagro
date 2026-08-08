@@ -13,7 +13,7 @@
   .sayim-table th { background: var(--surface-2); padding: 12px 15px; border-bottom: 2px solid var(--border); text-align: left; font-size: 12px; font-weight: 600; color: var(--text2); }
   .sayim-table td { padding: 10px 15px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
   
-  .input-sayim { width: 100px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; outline: none; font-weight: 700; text-align: center; color: #337ab7; }
+  .input-sayim { width: 100px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; outline: none; font-weight: 700; text-align: center; color: var(--info); }
   .input-sayim:focus { border-color: #337ab7; box-shadow: 0 0 0 3px rgba(51,122,183,0.1); }
   
   .btn-save { background: #5cb85c; color: #fff; border: none; padding: 10px 25px; border-radius: 4px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
