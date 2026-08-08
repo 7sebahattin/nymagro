@@ -104,6 +104,13 @@ $durumBadge = function(string $d): string {
   @media (max-width:700px)  {
     .dash-grid6 { grid-template-columns:1fr; }
     .dash-urun-grid { grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); }
+    /* "İşlem Yap" butonu uzun başlık yüzünden kendi satırına düşüp sola
+       yaslanıyor; açılır menü dar kutunun sağına göre konumlanınca (right:0)
+       ekranın solundan taşıyordu. Buton + menü artık aynı tam genişliğe
+       sabit — menü hiçbir zaman ekran dışına çıkamaz. */
+    .dash-action-wrap { width:100%; }
+    .dash-action-btn { width:100%; justify-content:center; }
+    .dash-action-menu { left:0; right:0; width:auto; min-width:0; }
   }
 </style>
 
