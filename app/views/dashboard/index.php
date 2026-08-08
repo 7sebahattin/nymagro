@@ -35,22 +35,6 @@ $durumBadge = function(string $d): string {
   .dash-quick a i { font-size:14px; color:var(--accent); flex-shrink:0; }
   .dash-quick a:hover { border-color:var(--accent); color:var(--text); background:var(--accent-soft); transform:translateY(-1px); }
 
-  /* ── Stat kutuları ── */
-  .stat-box { color:#fff; padding:20px 24px; border-radius:var(--rsm); display:flex; align-items:center; gap:16px; box-shadow:0 2px 8px rgba(0,0,0,.18); margin-bottom:16px; }
-  .stat-box i { font-size:38px; opacity:.8; flex-shrink:0; }
-  .stat-box .value { font-size:22px; font-weight:700; letter-spacing:.5px; }
-  .stat-box .label { font-size:12px; opacity:.9; }
-  .bg-blue      { background: linear-gradient(135deg,#3b7dd8,#5b82b9); }
-  .bg-salmon    { background: linear-gradient(135deg,#e05f50,#f47463); }
-  .bg-lightblue { background: linear-gradient(135deg,#2fa4ca,#49b4d8); }
-
-  /* ── Sayaç kutuları ── */
-  .counter-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
-  .counter-box { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--rsm); padding:16px 20px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.12); }
-  .counter-box .cval { font-size:28px; font-weight:800; color:var(--text); line-height:1; }
-  .counter-box .clabel { font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; margin-top:4px; }
-  .counter-box .cicon { font-size:20px; margin-bottom:8px; }
-
   /* ── Panel başlıkları ── */
   .phead { color:#fff; font-size:12px; font-weight:700; padding:10px 15px; border-radius:6px 6px 0 0; }
   .phead-dark   { background:#4a5a6a; }
@@ -131,7 +115,6 @@ $durumBadge = function(string $d): string {
   @media (max-width:700px)  {
     .dash-grid6 { grid-template-columns:1fr; }
     .dash-urun-grid { grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); }
-    .stat-box { padding:14px; } .counter-row { grid-template-columns:repeat(2,1fr); }
   }
 </style>
 
@@ -161,61 +144,6 @@ $durumBadge = function(string $d): string {
   <a href="<?= BASE_URL ?>/alis/ekle"><i class="fa-solid fa-truck"></i> Alış Faturası</a>
   <a href="<?= BASE_URL ?>/urun/ekle"><i class="fa-solid fa-box"></i> Ürün Ekle</a>
   <a href="<?= BASE_URL ?>/musteri"><i class="fa-solid fa-list"></i> Müşteri Listesi</a>
-</div>
-
-<!-- ══════════ SAYAÇLAR ══════════ -->
-<div class="counter-row">
-  <div class="counter-box">
-    <div class="cicon" style="color:var(--info);"><i class="fa-solid fa-users"></i></div>
-    <div class="cval"><?= number_format($musteriSay) ?></div>
-    <div class="clabel">Müşteri</div>
-  </div>
-  <div class="counter-box">
-    <div class="cicon" style="color:var(--warning);"><i class="fa-solid fa-industry"></i></div>
-    <div class="cval"><?= number_format($tedarikciSay) ?></div>
-    <div class="clabel">Tedarikçi</div>
-  </div>
-  <div class="counter-box">
-    <div class="cicon" style="color:var(--success);"><i class="fa-solid fa-tags"></i></div>
-    <div class="cval"><?= number_format($urunSay) ?></div>
-    <div class="clabel">Ürün / Hizmet</div>
-  </div>
-  <div class="counter-box">
-    <div class="cicon" style="color:<?= $bekleyenFatur > 0 ? 'var(--danger)' : 'var(--muted)' ?>;"><i class="fa-solid fa-file-invoice"></i></div>
-    <div class="cval" style="color:<?= $bekleyenFatur > 0 ? 'var(--danger)' : 'var(--text)' ?>;"><?= number_format($bekleyenFatur) ?></div>
-    <div class="clabel">Bekleyen Fatura</div>
-  </div>
-</div>
-
-<!-- ══════════ 3 STAT KUTU ══════════ -->
-<div class="row">
-  <div class="col-md-4">
-    <div class="stat-box bg-blue">
-      <i class="fa-solid fa-chart-line"></i>
-      <div>
-        <div class="value"><?= $tl($buAyCiro) ?></div>
-        <div class="label"><?= htmlspecialchars($buAy) ?> Cirosu (Satış)</div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="stat-box bg-salmon">
-      <i class="fa-solid fa-truck"></i>
-      <div>
-        <div class="value"><?= $tl($buAyAlis) ?></div>
-        <div class="label"><?= htmlspecialchars($buAy) ?> Alış Toplamı</div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="stat-box bg-lightblue">
-      <i class="fa-solid fa-warehouse"></i>
-      <div>
-        <div class="value"><?= $tl($stokDegeri) ?></div>
-        <div class="label">Toplam Stok Değeri</div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ══════════ ÜRÜN STOK LİSTESİ ══════════ -->
@@ -441,28 +369,3 @@ $durumBadge = function(string $d): string {
   </div>
 
 </div><!-- /dash-grid6 -->
-
-<!-- ══════════ SİSTEM DURUMU ══════════ -->
-<div class="card border-0 shadow-sm mt-3">
-  <div class="card-body p-3">
-    <p class="card-title-muted mb-3">SİSTEM DURUMU</p>
-    <div style="font-size:12px; color:var(--text2); line-height:2;">
-      <div class="d-flex justify-content-between">
-        <span>PHP Versiyonu</span>
-        <span style="font-weight:600; color:var(--text);"><?= PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION ?></span>
-      </div>
-      <div class="d-flex justify-content-between">
-        <span>Veritabanı</span>
-        <span style="font-weight:600; color:var(--success);"><i class="fa-solid fa-circle" style="font-size:8px;"></i> Bağlı</span>
-      </div>
-      <div class="d-flex justify-content-between">
-        <span>Sunucu Saati</span>
-        <span style="font-weight:600; color:var(--text);"><?= date('H:i') ?></span>
-      </div>
-      <div class="d-flex justify-content-between">
-        <span>Uygulama</span>
-        <span style="font-weight:600; color:var(--text);"><?= htmlspecialchars(APP_NAME) ?></span>
-      </div>
-    </div>
-  </div>
-</div>

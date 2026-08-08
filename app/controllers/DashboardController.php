@@ -33,29 +33,6 @@ final class DashboardController extends Controller
             [':cid' => $companyId, ':pid' => $periodId]
         )['t'] ?? 0);
 
-        // ─── 2. Bu ay ciro & alış masrafı ─────────────────────
-        $buAyCiro = (float)($db->selectOne(
-            "SELECT COALESCE(SUM(genel_toplam),0) AS t
-             FROM faturalar
-             WHERE belge_tipi = 'satis' AND durum <> 'iptal'
-               AND silindi_mi = 0
-               AND MONTH(fatura_tarihi) = MONTH(CURDATE())
-               AND YEAR(fatura_tarihi)  = YEAR(CURDATE())
-               AND company_id = :cid AND period_id = :pid",
-            [':cid' => $companyId, ':pid' => $periodId]
-        )['t'] ?? 0);
-
-        $buAyAlis = (float)($db->selectOne(
-            "SELECT COALESCE(SUM(genel_toplam),0) AS t
-             FROM faturalar
-             WHERE belge_tipi = 'alis' AND durum <> 'iptal'
-               AND silindi_mi = 0
-               AND MONTH(fatura_tarihi) = MONTH(CURDATE())
-               AND YEAR(fatura_tarihi)  = YEAR(CURDATE())
-               AND company_id = :cid AND period_id = :pid",
-            [':cid' => $companyId, ':pid' => $periodId]
-        )['t'] ?? 0);
-
         // ─── 3. Stok değeri ───────────────────────────────────
         $stokDegeri = (float)($db->selectOne(
             "SELECT COALESCE(SUM(stok_miktari * alis_fiyati),0) AS t
@@ -144,17 +121,11 @@ final class DashboardController extends Controller
             [':cid' => $companyId, ':pid' => $periodId]
         );
 
-        // ─── 10. Sayaçlar ────────────────────────────────────
-        $musteriSay    = (int)($db->selectOne("SELECT COUNT(*) AS n FROM cariler WHERE silindi_mi=0 AND company_id=:cid AND tip IN ('musteri','her_ikisi')", [':cid' => $companyId])['n'] ?? 0);
-        $tedarikciSay  = (int)($db->selectOne("SELECT COUNT(*) AS n FROM cariler WHERE silindi_mi=0 AND company_id=:cid AND tip IN ('tedarikci','her_ikisi')", [':cid' => $companyId])['n'] ?? 0);
-        $urunSay       = (int)($db->selectOne("SELECT COUNT(*) AS n FROM urunler_hizmetler WHERE silindi_mi=0 AND company_id=:cid", [':cid' => $companyId])['n'] ?? 0);
-        $bekleyenFatur = (int)($db->selectOne("SELECT COUNT(*) AS n FROM faturalar WHERE silindi_mi=0 AND durum='taslak' AND company_id=:cid AND period_id=:pid", [':cid' => $companyId, ':pid' => $periodId])['n'] ?? 0);
-
-        // ─── 11. Varlıklar & Borçlar toplamları ──────────────
+        // ─── 10. Varlıklar & Borçlar toplamları ──────────────
         $varliklarToplam = $kasaBakiye + $stokDegeri + $musteriAlacak;
         $borclarToplam   = $tedarikciBorc;
 
-        // ─── 12. Ürün stok listesi (dashboard vitrin) ────────
+        // ─── 11. Ürün stok listesi (dashboard vitrin) ────────
         $urunStokListesi = $db->select(
             "SELECT id, ad, stok_kodu, birim, satis_fiyati, stok_miktari, kritik_stok, kategori
              FROM urunler_hizmetler
@@ -186,12 +157,9 @@ final class DashboardController extends Controller
             'pageTitle'        => 'Ana Sayfa',
             'activeMenu'       => 'dashboard',
             'bugun'            => $this->formatTrDate(date('Y-m-d')),
-            'buAy'             => $this->ayAdi((int)date('n')),
             // Kartlar
             'bugunkuSatis'     => $bugunkuSatis,
             'bugunkuTahsilat'  => $bugunkuTahsilat,
-            'buAyCiro'         => $buAyCiro,
-            'buAyAlis'         => $buAyAlis,
             'stokDegeri'       => $stokDegeri,
             // Varlıklar
             'kasaBakiye'       => $kasaBakiye,
@@ -208,11 +176,6 @@ final class DashboardController extends Controller
             'sonAlislar'       => $sonAlislar,
             'urunStokListesi'  => $urunStokListesi,
             'urunStokToplam'   => $urunStokToplam,
-            // Sayaçlar
-            'musteriSay'       => $musteriSay,
-            'tedarikciSay'     => $tedarikciSay,
-            'urunSay'          => $urunSay,
-            'bekleyenFatur'    => $bekleyenFatur,
             // Grafik verisi
             'aylikTrend'       => $aylikTrend,
         ]);
@@ -238,12 +201,4 @@ final class DashboardController extends Controller
         );
     }
 
-    private function ayAdi(int $ay): string
-    {
-        $aylar = [
-            1=>'Ocak',2=>'Şubat',3=>'Mart',4=>'Nisan',5=>'Mayıs',6=>'Haziran',
-            7=>'Temmuz',8=>'Ağustos',9=>'Eylül',10=>'Ekim',11=>'Kasım',12=>'Aralık'
-        ];
-        return $aylar[$ay] ?? '';
-    }
 }

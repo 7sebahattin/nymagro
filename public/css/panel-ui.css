@@ -33,7 +33,7 @@
 
   --text: #e8e8f0;
   --text2: #b0b0c8;
-  --muted: #7a7a9a;
+  --muted: #9797bd;   /* eskisi #7a7a9a; kart yüzeylerinde ~4.2:1 kontrastla WCAG AA'yı geçmiyordu, okunmuyordu */
 
   --sidebar-w: 230px;
   --topbar-h: 60px;
