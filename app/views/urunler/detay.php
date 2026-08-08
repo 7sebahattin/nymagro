@@ -165,7 +165,7 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
     
     <button type="button" class="btn-act btn-act-green" onclick="openModal('stokModal')"><i class="fa-solid fa-arrow-down"></i> Stoklara Giriş Yap</button>
 
-    <button class="btn-act btn-act-dark"><i class="fa-solid fa-bars"></i> Stok Ekstresi</button>
+    <a href="<?= BASE_URL ?>/urun/stokEkstresi/<?= $urun['id'] ?>" class="btn-act btn-act-dark"><i class="fa-solid fa-list"></i> Stok Ekstresi</a>
 
     <div class="btn-dropdown-wrap">
       <button type="button" class="btn-act btn-act-red" id="btnDigerIslemler"><i class="fa-solid fa-bars"></i> Diğer İşlemler <i class="fa-solid fa-caret-down" style="margin-left:4px;"></i></button>

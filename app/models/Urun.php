@@ -313,6 +313,69 @@ class Urun
         return $this->db->select($sql, [':urun_id' => $urunId, ':company_id' => TenantContext::activeCompanyId(), ':period_id' => TenantContext::activePeriodId()]);
     }
 
+    /**
+     * Stok ekstresi — ürünün TÜM stok hareketleri, tarihe göre artan.
+     *
+     * NOT: Burada faturalar tablosu ayrıca birleştirilmez. Fatura::ekle() ve
+     * iptal/silme akışları da stokHareketiEkle() çağırdığı için fatura
+     * kaynaklı giriş/çıkışlar zaten stok_hareketleri içinde duruyor
+     * (aciklama = "Alış Faturası #..." / "Satış Faturası #..."). Faturaları
+     * ayrıca UNION etmek her faturayı iki kez sayardı; bu tablo tek
+     * doğruluk kaynağıdır.
+     */
+    public function ekstreHareketleri(int $urunId, string $bas = '', string $bit = ''): array
+    {
+        $sql = "SELECT sh.id, sh.olusturulma_tarihi, sh.islem_tipi, sh.miktar,
+                       sh.aciklama, d.ad AS depo_adi
+                FROM stok_hareketleri sh
+                LEFT JOIN depolar d ON sh.depo_id = d.id
+                WHERE sh.urun_id = :urun_id
+                  AND sh.company_id = :company_id AND sh.period_id = :period_id";
+        $params = [
+            ':urun_id'    => $urunId,
+            ':company_id' => TenantContext::activeCompanyId(),
+            ':period_id'  => TenantContext::activePeriodId(),
+        ];
+        if ($bas !== '') {
+            $sql .= " AND sh.olusturulma_tarihi >= :bas";
+            $params[':bas'] = $bas . ' 00:00:00';
+        }
+        if ($bit !== '') {
+            $sql .= " AND sh.olusturulma_tarihi <= :bit";
+            $params[':bit'] = $bit . ' 23:59:59';
+        }
+        $sql .= " ORDER BY sh.olusturulma_tarihi ASC, sh.id ASC";
+
+        return $this->db->select($sql, $params);
+    }
+
+    /**
+     * Ekstrede tarih filtresi varsa, başlangıç tarihinden önceki net stok
+     * (devir bakiyesi). Filtre yoksa 0 döner.
+     */
+    public function ekstreDevirBakiyesi(int $urunId, string $bas = ''): float
+    {
+        if ($bas === '') {
+            return 0.0;
+        }
+
+        $sql = "SELECT COALESCE(SUM(CASE WHEN islem_tipi = 'giris' THEN miktar ELSE 0 END), 0)
+                     - COALESCE(SUM(CASE WHEN islem_tipi <> 'giris' THEN miktar ELSE 0 END), 0) AS devir
+                FROM stok_hareketleri
+                WHERE urun_id = :urun_id
+                  AND company_id = :company_id AND period_id = :period_id
+                  AND olusturulma_tarihi < :bas";
+
+        $rows = $this->db->select($sql, [
+            ':urun_id'    => $urunId,
+            ':company_id' => TenantContext::activeCompanyId(),
+            ':period_id'  => TenantContext::activePeriodId(),
+            ':bas'        => $bas . ' 00:00:00',
+        ]);
+
+        return (float)($rows[0]['devir'] ?? 0);
+    }
+
     /** Ürünün depolara göre stok dağılımını getirir */
     public function depoStoklariniGetir(int $urunId): array
     {

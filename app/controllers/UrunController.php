@@ -512,6 +512,55 @@ final class UrunController extends Controller
         $this->redirect("urun/detay/{$id}");
     }
 
+    // ─── stokEkstresi ────────────────────────────────────────────────────
+    public function stokEkstresi(int $id): void
+    {
+        $kayit = $this->urun->getir($id);
+        if (!$kayit) {
+            $this->setFlash('error', 'Kayıt bulunamadı.');
+            $this->redirect('urun');
+        }
+
+        $bas = trim($_GET['bas'] ?? '');
+        $bit = trim($_GET['bit'] ?? '');
+
+        $hareketler = $this->urun->ekstreHareketleri($id, $bas, $bit);
+        $devir      = $this->urun->ekstreDevirBakiyesi($id, $bas);
+
+        // Yürüyen bakiye + toplamlar
+        $bakiye = $devir;
+        $toplamGiris = 0.0;
+        $toplamCikis = 0.0;
+        foreach ($hareketler as &$h) {
+            $giris = $h['islem_tipi'] === 'giris' ? (float)$h['miktar'] : 0.0;
+            $cikis = $h['islem_tipi'] !== 'giris' ? (float)$h['miktar'] : 0.0;
+
+            $bakiye      += $giris - $cikis;
+            $toplamGiris += $giris;
+            $toplamCikis += $cikis;
+
+            $h['giris']  = $giris;
+            $h['cikis']  = $cikis;
+            $h['bakiye'] = $bakiye;
+        }
+        unset($h);
+
+        $this->view('urunler/ekstre', [
+            'urun'        => $kayit,
+            'hareketler'  => $hareketler,
+            'devir'       => $devir,
+            'bas'         => $bas,
+            'bit'         => $bit,
+            'toplamGiris' => $toplamGiris,
+            'toplamCikis' => $toplamCikis,
+            'sonBakiye'   => $bakiye,
+            'topbarTitle' => 'Stok Ekstresi: ' . $kayit['ad'],
+            'topbarIcon'  => 'fa-list',
+            'activeMenu'  => 'urunler',
+            'flash'       => $this->getFlash(),
+        ]);
+    }
+
     // ─── VARYANTLAR ──────────────────────────────────────────────────────
 
     public function varyantlar(): void
