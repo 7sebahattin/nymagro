@@ -154,7 +154,22 @@ final class DashboardController extends Controller
         $varliklarToplam = $kasaBakiye + $stokDegeri + $musteriAlacak;
         $borclarToplam   = $tedarikciBorc;
 
-        // ─── 12. Aylık trend (son 6 ay satış) ─────────────────
+        // ─── 12. Ürün stok listesi (dashboard vitrin) ────────
+        $urunStokListesi = $db->select(
+            "SELECT id, ad, stok_kodu, birim, satis_fiyati, stok_miktari, kritik_stok, kategori
+             FROM urunler_hizmetler
+             WHERE silindi_mi = 0 AND tip = 'urun' AND company_id = :cid
+             ORDER BY ad ASC
+             LIMIT 16",
+            [':cid' => $companyId]
+        );
+        $urunStokToplam = (int)($db->selectOne(
+            "SELECT COUNT(*) AS n FROM urunler_hizmetler
+             WHERE silindi_mi = 0 AND tip = 'urun' AND company_id = :cid",
+            [':cid' => $companyId]
+        )['n'] ?? 0);
+
+        // ─── 13. Aylık trend (son 6 ay satış) ─────────────────
         $aylikTrend = $db->select(
             "SELECT DATE_FORMAT(fatura_tarihi,'%Y-%m') AS ay,
                     COALESCE(SUM(genel_toplam),0)       AS toplam
@@ -191,6 +206,8 @@ final class DashboardController extends Controller
             'vadesiGecenler'   => $vadesiGecenler,
             'sonSatislar'      => $sonSatislar,
             'sonAlislar'       => $sonAlislar,
+            'urunStokListesi'  => $urunStokListesi,
+            'urunStokToplam'   => $urunStokToplam,
             // Sayaçlar
             'musteriSay'       => $musteriSay,
             'tedarikciSay'     => $tedarikciSay,
