@@ -23,47 +23,47 @@
 
     .two-col { display: grid; grid-template-columns: 420px 1fr; gap: 20px; align-items: start; }
 
-    .panel { background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; }
+    .panel { background: var(--card-bg); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; }
     .p-header { padding: 12px 16px; font-size: 13.5px; font-weight: 700; color: #fff; text-transform: uppercase; }
     .p-header-blue { background: #2f73b6; }
     .p-header-green { background: #27ae60; }
     .p-body { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 
     .fg { display: flex; flex-direction: column; gap: 6px; }
-    .fg label { font-size: 12.5px; font-weight: 600; color: #475569; }
-    .fi { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 13px; color: #1e293b; outline: none; transition: border-color 0.2s; }
+    .fg label { font-size: 12.5px; font-weight: 600; color: var(--text2); }
+    .fi { padding: 8px 12px; border: 1px solid var(--border2); border-radius: 5px; font-size: 13px; color: var(--text); outline: none; transition: border-color 0.2s; }
     .fi:focus { border-color: #2f73b6; }
 
     /* Ürün Arama */
     .search-wrap { position: relative; }
     .search-drop { 
-        position: absolute; top: 100%; left: 0; right: 0; background: #fff; 
-        border: 1px solid #cbd5e1; border-top: none; border-radius: 0 0 6px 6px; 
+        position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); 
+        border: 1px solid var(--border2); border-top: none; border-radius: 0 0 6px 6px; 
         box-shadow: 0 6px 16px rgba(0,0,0,.12); z-index: 1000; max-height: 250px; 
         overflow-y: auto; display: none; 
     }
     .search-drop.open { display: block; }
-    .search-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 13px; }
-    .search-item:hover { background: #f0fdf4; }
+    .search-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 13px; }
+    .search-item:hover { background: rgba(46,204,113,.10); }
     .search-item:last-child { border-bottom: none; }
 
     /* Tablo */
     .k-tablo { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .k-tablo th { text-align: left; padding: 10px; font-size: 12px; color: #64748b; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
-    .k-tablo td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: middle; }
-    .k-fi { width: 100%; padding: 5px 8px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; }
+    .k-tablo th { text-align: left; padding: 10px; font-size: 12px; color: var(--muted); background: var(--surface-2); border-bottom: 2px solid var(--border); }
+    .k-tablo td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    .k-fi { width: 100%; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
     
     /* Özet */
-    .summary { margin-top: 20px; border-top: 2px solid #e2e8f0; padding-top: 15px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
-    .s-row { display: flex; gap: 20px; font-size: 14px; color: #475569; }
-    .s-row b { min-width: 100px; text-align: right; color: #1e293b; }
+    .summary { margin-top: 20px; border-top: 2px solid var(--border); padding-top: 15px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+    .s-row { display: flex; gap: 20px; font-size: 14px; color: var(--text2); }
+    .s-row b { min-width: 100px; text-align: right; color: var(--text); }
     .s-grand { font-size: 18px; font-weight: 800; color: #27ae60; }
 
     @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
 </style>
 
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;font-size:12.5px;color:#94a3b8;">
-  <a href="<?= BASE_URL ?>/satis" style="color:#64748b;text-decoration:none;">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;font-size:12.5px;color:var(--muted);">
+  <a href="<?= BASE_URL ?>/satis" style="color:var(--muted);text-decoration:none;">
     <i class="fa-solid fa-shopping-cart"></i> Satışlar
   </a>
   <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
@@ -137,7 +137,7 @@
                     </thead>
                     <tbody id="kalemler">
                         <tr id="emptyRow">
-                            <td colspan="6" style="text-align:center; padding:40px; color:#94a3b8;">
+                            <td colspan="6" style="text-align:center; padding:40px; color:var(--muted);">
                                 <i class="fa-solid fa-basket-shopping" style="font-size:24px; display:block; margin-bottom:10px;"></i>
                                 Henüz ürün eklenmedi.
                             </td>
@@ -181,7 +181,7 @@
                 .then(data => {
                     drop.innerHTML = '';
                     if(!data.length) {
-                        drop.innerHTML = '<div style="padding:10px; color:#999; font-size:12px;">Ürün bulunamadı</div>';
+                        drop.innerHTML = '<div style="padding:10px; color:var(--muted); font-size:12px;">Ürün bulunamadı</div>';
                     } else {
                         data.forEach(u => {
                             const d = document.createElement('div');

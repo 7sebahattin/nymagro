@@ -16,6 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . '/app/config/config.php';
 
 // 2) Core sınıfları
+require_once CORE_PATH . '/Varlik.php';
 require_once CORE_PATH . '/Database.php';
 require_once CORE_PATH . '/TenantContext.php';
 require_once CORE_PATH . '/AuthGuard.php';

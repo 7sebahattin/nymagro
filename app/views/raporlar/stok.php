@@ -184,7 +184,7 @@
     overflow-wrap: anywhere;
     word-break: normal;
   }
-  .nav-link.active:focus { color:#a9d4be; outline:none; }
+  .nav-link.active:focus { color:var(--text2); outline:none; }
   @media (max-width: 768px) {
     .report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .col-span-2,

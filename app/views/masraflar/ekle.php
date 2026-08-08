@@ -38,7 +38,7 @@ foreach ($kategoriler as $k) {
   /* Panels */
   .me-panels { display:flex; gap:20px; align-items:flex-start; }
   @media(max-width:900px) { .me-panels { flex-direction:column; } }
-  .me-panel { background:#fff; border-radius:6px; box-shadow:0 1px 4px rgba(0,0,0,.08); flex:1; overflow:hidden; }
+  .me-panel { background:var(--card-bg); border-radius:6px; box-shadow:0 1px 4px rgba(0,0,0,.08); flex:1; overflow:hidden; }
   .me-panel.p-left  { flex:55; }
   .me-panel.p-right { flex:45; }
 
@@ -47,33 +47,33 @@ foreach ($kategoriler as $k) {
 
   .mb-body { padding:22px 24px; display:flex; flex-direction:column; gap:16px; }
   .mf-row { display:flex; align-items:flex-start; gap:14px; }
-  .mf-row label { font-size:13px; font-weight:600; color:#555; text-align:right; width:130px; flex-shrink:0; padding-top:8px; }
+  .mf-row label { font-size:13px; font-weight:600; color:var(--text2); text-align:right; width:130px; flex-shrink:0; padding-top:8px; }
   .mf-ctrl { flex:1; min-width:0; }
   .mf-inp, .mf-sel, .mf-textarea {
-    width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:4px;
-    font-size:13px; color:#1e293b; outline:none; box-sizing:border-box;
+    width:100%; padding:8px 10px; border:1px solid var(--border2); border-radius:4px;
+    font-size:13px; color:var(--text); outline:none; box-sizing:border-box;
   }
   .mf-inp:focus, .mf-sel:focus, .mf-textarea:focus { border-color:var(--blue); box-shadow:0 0 0 2px rgba(51,122,183,.12); }
   .mf-textarea { resize:vertical; min-height:80px; }
-  .mf-hint  { font-size:11px; color:#94a3b8; margin-top:3px; }
+  .mf-hint  { font-size:11px; color:var(--muted); margin-top:3px; }
   .mf-hint a { color:#5cb85c; text-decoration:none; cursor:pointer; }
 
   /* Tutar preview */
-  .tutar-preview { background:#f8fafc; border:1px solid #e2e8f0; border-radius:5px; padding:10px 14px; display:flex; flex-direction:column; gap:4px; margin-top:4px; }
-  .tutar-row { display:flex; justify-content:space-between; font-size:12.5px; color:#374151; }
-  .tutar-row.total { font-weight:700; font-size:14px; border-top:1px solid #e2e8f0; padding-top:6px; margin-top:2px; }
+  .tutar-preview { background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:10px 14px; display:flex; flex-direction:column; gap:4px; margin-top:4px; }
+  .tutar-row { display:flex; justify-content:space-between; font-size:12.5px; color:var(--text2); }
+  .tutar-row.total { font-weight:700; font-size:14px; border-top:1px solid var(--border); padding-top:6px; margin-top:2px; }
 
   /* Tekrarlayan panel */
-  .tekrar-panel { background:#fefce8; border:1px solid #fde68a; border-radius:5px; padding:12px 14px; display:none; gap:10px; flex-direction:column; }
+  .tekrar-panel { background:rgba(243,156,18,.13); border:1px solid rgba(243,156,18,.30); border-radius:5px; padding:12px 14px; display:none; gap:10px; flex-direction:column; }
   .tekrar-panel.show { display:flex; }
 
   /* Toast */
   .toast-container { position:fixed; bottom:22px; right:22px; z-index:9999; display:flex; flex-direction:column; gap:7px; pointer-events:none; }
-  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:#fff; pointer-events:auto; }
+  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--card-bg); pointer-events:auto; }
   .toast-msg.success { border-left:4px solid #22c55e; }
   .toast-msg.error   { border-left:4px solid #ef4444; }
 
-  .nav-link:focus { color:#94a3b8; outline:none; }
+  .nav-link:focus { color:var(--muted); outline:none; }
   .nav-link.active:focus { color:#4ade80; outline:none; }
 </style>
 
@@ -260,12 +260,12 @@ foreach ($kategoriler as $k) {
       </div>
 
       <!-- Tekrarlayan masraf -->
-      <div style="border-top:1px solid #f1f5f9; padding-top:14px; display:flex; gap:10px; align-items:center;">
+      <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; gap:10px; align-items:center;">
         <input type="checkbox" id="fTekrarlayan" style="transform:scale(1.2);"
                <?= $val('tekrarlayan') ? 'checked' : '' ?>
                onchange="toggleTekrar()">
-        <label for="fTekrarlayan" style="font-size:13px; color:#374151; font-weight:600; cursor:pointer;">Tekrarlayan masraf kaydı oluştur</label>
-        <span title="Kira ödemesi gibi düzenli ödemeleriniz için" style="color:#94a3b8; cursor:help;">
+        <label for="fTekrarlayan" style="font-size:13px; color:var(--text2); font-weight:600; cursor:pointer;">Tekrarlayan masraf kaydı oluştur</label>
+        <span title="Kira ödemesi gibi düzenli ödemeleriniz için" style="color:var(--muted); cursor:help;">
           <i class="fa-solid fa-circle-question"></i>
         </span>
       </div>

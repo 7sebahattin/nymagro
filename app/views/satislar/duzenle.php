@@ -28,7 +28,7 @@ $err = function(string $k) use ($hatalar): string {
 
   /* ── Panels ── */
   .panels-container { display:flex; gap:20px; align-items:flex-start; }
-  .panel { background:#fff; border-radius:6px; box-shadow:0 4px 15px rgba(0,0,0,.08); overflow:hidden; flex:1; }
+  .panel { background:var(--card-bg); border-radius:6px; box-shadow:0 4px 15px rgba(0,0,0,.08); overflow:hidden; flex:1; }
   .panel-left  { max-width:420px; }
   .p-header { padding:13px 18px; font-size:13.5px; font-weight:700; color:#fff; text-transform:uppercase; }
   .p-header-blue  { background:#2f73b6; }
@@ -37,9 +37,9 @@ $err = function(string $k) use ($hatalar): string {
 
   /* Form groups */
   .fg { display:flex; align-items:flex-start; gap:14px; }
-  .fg label { width:90px; text-align:right; font-size:12.5px; font-weight:600; color:#475569; padding-top:8px; flex-shrink:0; }
+  .fg label { width:90px; text-align:right; font-size:12.5px; font-weight:600; color:var(--text2); padding-top:8px; flex-shrink:0; }
   .fg-inp-wrap { flex:1; display:flex; gap:8px; align-items:center; }
-  .fi { flex:1; padding:7px 10px; border:1px solid #cbd5e1; border-radius:3px; font-size:13px; color:#1e293b; outline:none; box-shadow:inset 0 1px 3px rgba(0,0,0,.04); transition:border-color .2s; width:100%; }
+  .fi { flex:1; padding:7px 10px; border:1px solid var(--border2); border-radius:3px; font-size:13px; color:var(--text); outline:none; box-shadow:inset 0 1px 3px rgba(0,0,0,.04); transition:border-color .2s; width:100%; }
   .fi:focus { border-color:#2f73b6; }
   textarea.fi { resize:vertical; min-height:70px; }
   .is-err .fi { border-color:#ef4444; }
@@ -49,31 +49,31 @@ $err = function(string $k) use ($hatalar): string {
   .musteri-input { width:100%; }
   .musteri-ac-btn { padding:7px 12px; border:1px solid #2f73b6; border-radius:3px; background:#2f73b6; color:#fff; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; flex-shrink:0; }
   .musteri-ac-btn:hover { background:#245d9a; }
-  .ms-dropdown { position:absolute; top:100%; left:0; right:0; background:#fff; border:1.5px solid #cbd5e1; border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
+  .ms-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1.5px solid var(--border2); border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
   .ms-dropdown.open { display:block; }
-  .ms-item { padding:8px 12px; font-size:13px; color:#334155; cursor:pointer; border-bottom:1px solid #f1f5f9; }
-  .ms-item:hover { background:#f0fdf4; }
+  .ms-item { padding:8px 12px; font-size:13px; color:var(--text2); cursor:pointer; border-bottom:1px solid var(--border); }
+  .ms-item:hover { background:rgba(46,204,113,.10); }
   .ms-item:last-child { border-bottom:none; }
-  .ms-hint { padding:8px 12px; font-size:12.5px; color:#94a3b8; font-style:italic; }
+  .ms-hint { padding:8px 12px; font-size:12.5px; color:var(--muted); font-style:italic; }
 
   /* ── Ürün paneli ── */
   .urun-search-wrap { margin-bottom:12px; position:relative; }
-  .urun-input { width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:3px; font-size:13px; color:#1e293b; outline:none; }
+  .urun-input { width:100%; padding:8px 12px; border:1px solid var(--border2); border-radius:3px; font-size:13px; color:var(--text); outline:none; }
   .urun-input:focus { border-color:#5dbf68; }
-  .urun-dropdown { position:absolute; top:100%; left:0; right:0; background:#fff; border:1.5px solid #cbd5e1; border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
+  .urun-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1.5px solid var(--border2); border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
   .urun-dropdown.open { display:block; }
-  .urun-item { padding:8px 12px; font-size:13px; color:#334155; cursor:pointer; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; }
-  .urun-item:hover { background:#f0fdf4; }
-  .urun-item-price { font-size:12px; color:#64748b; }
+  .urun-item { padding:8px 12px; font-size:13px; color:var(--text2); cursor:pointer; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .urun-item:hover { background:rgba(46,204,113,.10); }
+  .urun-item-price { font-size:12px; color:var(--muted); }
 
   /* Kalemler tablosu */
   .kalemler-tablo { width:100%; border-collapse:collapse; font-size:13px; }
-  .kalemler-tablo thead tr { background:#f1f5f9; }
-  .kalemler-tablo thead th { padding:7px 8px; font-size:11.5px; font-weight:700; color:#64748b; text-align:left; border-bottom:2px solid #e2e8f0; }
-  .kalemler-tablo tbody tr { border-bottom:1px solid #f1f5f9; }
+  .kalemler-tablo thead tr { background:var(--surface-2); }
+  .kalemler-tablo thead th { padding:7px 8px; font-size:11.5px; font-weight:700; color:var(--muted); text-align:left; border-bottom:2px solid var(--border); }
+  .kalemler-tablo tbody tr { border-bottom:1px solid var(--border); }
   .kalemler-tablo tbody tr:last-child { border-bottom:none; }
   .kalemler-tablo tbody td { padding:6px 5px; vertical-align:middle; }
-  .kalem-input { width:100%; padding:5px 7px; border:1px solid #e2e8f0; border-radius:3px; font-size:12.5px; outline:none; color:#1e293b; }
+  .kalem-input { width:100%; padding:5px 7px; border:1px solid var(--border); border-radius:3px; font-size:12.5px; outline:none; color:var(--text); }
   .kalem-input:focus { border-color:#5dbf68; }
   .td-r { text-align:right; }
   .td-sil { width:34px; text-align:center; }
@@ -81,23 +81,23 @@ $err = function(string $k) use ($hatalar): string {
   .btn-kalem-sil:hover { background:rgba(239,68,68,.08); border-radius:3px; }
 
   /* Toplam Özet */
-  .totals-box { margin-top:16px; border-top:2px solid #e2e8f0; padding-top:12px; }
-  .totals-row { display:flex; justify-content:flex-end; gap:10px; font-size:13px; color:#475569; margin-bottom:6px; }
+  .totals-box { margin-top:16px; border-top:2px solid var(--border); padding-top:12px; }
+  .totals-row { display:flex; justify-content:flex-end; gap:10px; font-size:13px; color:var(--text2); margin-bottom:6px; }
   .totals-row span:first-child { font-weight:600; }
-  .totals-row span:last-child  { min-width:110px; text-align:right; font-weight:700; color:#1e293b; }
+  .totals-row span:last-child  { min-width:110px; text-align:right; font-weight:700; color:var(--text); }
   .totals-row.genel span:last-child { font-size:16px; color:#16a34a; }
 
   /* Ödeme sekli */
-  .odeme-sekli-sel { padding:7px 10px; border:1px solid #cbd5e1; border-radius:3px; font-size:13px; color:#1e293b; outline:none; }
+  .odeme-sekli-sel { padding:7px 10px; border:1px solid var(--border2); border-radius:3px; font-size:13px; color:var(--text); outline:none; }
 
-  .alert-error { background:#fee2e2; border:1px solid #fecaca; color:#991b1b; padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; }
+  .alert-error { background:rgba(231,76,60,.15); border:1px solid rgba(231,76,60,.28); color:var(--danger); padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; }
 
   @media (max-width:900px) { .panels-container { flex-direction:column; } .panel-left { max-width:100%; } }
 </style>
 
 <!-- Breadcrumb -->
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;font-size:12.5px;color:#94a3b8;">
-  <a href="<?= BASE_URL ?>/satis" style="color:#64748b;text-decoration:none;">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;font-size:12.5px;color:var(--muted);">
+  <a href="<?= BASE_URL ?>/satis" style="color:var(--muted);text-decoration:none;">
     <i class="fa-solid fa-shopping-cart"></i> Satışlar
   </a>
   <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
@@ -247,8 +247,8 @@ $err = function(string $k) use ($hatalar): string {
           <tbody id="kalemlerBody">
             <!-- Dinamik satırlar JS ile eklenir -->
             <tr id="emptyRow">
-              <td colspan="8" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">
-                <i class="fa-solid fa-box-open" style="font-size:24px;margin-bottom:8px;display:block;color:#cbd5e1;"></i>
+              <td colspan="8" style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">
+                <i class="fa-solid fa-box-open" style="font-size:24px;margin-bottom:8px;display:block;color:var(--text2);"></i>
                 Henüz ürün eklenmedi. Yukarıdan ürün arayın veya tıklayın.
               </td>
             </tr>
@@ -364,7 +364,7 @@ $err = function(string $k) use ($hatalar): string {
           data.forEach(u => {
             const d = document.createElement('div');
             d.className = 'urun-item';
-            d.innerHTML = `<span>${u.ad} <small style="color:#94a3b8;">(${u.birim})</small></span>
+            d.innerHTML = `<span>${u.ad} <small style="color:var(--muted);">(${u.birim})</small></span>
                            <span class="urun-item-price">${formatPara(u.satis_fiyati)} ₺</span>`;
             d.addEventListener('mousedown', () => {
               kalemEkle(u);
@@ -528,18 +528,18 @@ $err = function(string $k) use ($hatalar): string {
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body" style="padding:20px;">
-        <div style="background:#fcf8e3; color:#8a6d3b; padding:10px; border:1px solid #faebcc; border-radius:4px; font-size:13px; margin-bottom:16px;">
+        <div style="background:rgba(243,156,18,.15); color:var(--warning); padding:10px; border:1px solid rgba(243,156,18,.28); border-radius:4px; font-size:13px; margin-bottom:16px;">
           Ürün listenizde tanımlı olmayan bir ürünü buradan ekleyebilirsiniz.
           Kaydettiğiniz ürünün marka, kategori, alış fiyatı vb gibi detay bilgilerini daha sonra "Ürün Tanımları" sayfasından güncelleyebilirsiniz.
         </div>
         <form id="formHizliUrun">
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Ürün Adı</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Ürün Adı</label>
                     <input type="text" class="form-control" name="ad" required style="font-size:13px;">
                 </div>
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Ürün Tipi</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Ürün Tipi</label>
                     <select class="form-select" name="tip" style="font-size:13px;">
                         <option value="stoklu">Stoklu ürün</option>
                         <option value="hizmet">Hizmet</option>
@@ -548,34 +548,34 @@ $err = function(string $k) use ($hatalar): string {
             </div>
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Marka</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Marka</label>
                     <input type="text" class="form-control" name="marka" style="font-size:13px;">
                 </div>
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Kategori</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Kategori</label>
                     <input type="text" class="form-control" name="kategori" style="font-size:13px;">
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Ürün Kodu</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Ürün Kodu</label>
                     <input type="text" class="form-control" name="urun_kodu" placeholder="varsa ürün kodu girin" style="font-size:13px;">
                 </div>
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Barkodu</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Barkodu</label>
                     <input type="text" class="form-control" name="barkod" placeholder="varsa barkod girin" style="font-size:13px;">
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Birim Fiyatı</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Birim Fiyatı</label>
                     <div class="input-group">
                         <input type="text" class="form-control" name="satis_fiyati" required style="font-size:13px;">
                         <span class="input-group-text" style="font-size:13px;">TL</span>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">KDV Dahil mi?</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">KDV Dahil mi?</label>
                     <select class="form-select" name="kdv_dahil_mi" style="font-size:13px;">
                         <option value="0">KDV hariç</option>
                         <option value="1">KDV dahil</option>
@@ -584,7 +584,7 @@ $err = function(string $k) use ($hatalar): string {
             </div>
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">KDV Oranı (%)</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">KDV Oranı (%)</label>
                     <select class="form-select" name="kdv_orani" style="font-size:13px;">
                         <option value="20">20</option>
                         <option value="10">10</option>
@@ -593,7 +593,7 @@ $err = function(string $k) use ($hatalar): string {
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Birimi</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Birimi</label>
                     <select class="form-select" name="birim" style="font-size:13px;">
                         <option value="Adet">Adet</option>
                         <option value="Kg">Kg</option>

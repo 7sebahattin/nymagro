@@ -29,30 +29,30 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
 
     /* ── Panels Container ── */
     .panels-container { display: flex; gap: 20px; align-items: flex-start; }
-    .panel { background: #fff; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.08); flex: 1; display: flex; flex-direction: column; overflow:hidden; }
+    .panel { background: var(--card-bg); border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.08); flex: 1; display: flex; flex-direction: column; overflow:hidden; }
     
     /* ── Left Panel ── */
     .panel-left { max-width: 440px; }
     .panel-left .p-header { background: #337ab7; color: #fff; padding: 12px 20px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
     
-    .ro-group { display: flex; align-items: baseline; gap: 16px; padding: 7px 24px; font-size: 13px; border-bottom: 1px solid #f9f9f9; }
-    .ro-group label { width: 90px; text-align: right; color: #333; font-weight: 700; flex-shrink: 0; }
-    .ro-group .val { color: #555; flex: 1; }
+    .ro-group { display: flex; align-items: baseline; gap: 16px; padding: 7px 24px; font-size: 13px; border-bottom: 1px solid var(--border); }
+    .ro-group label { width: 90px; text-align: right; color: var(--text); font-weight: 700; flex-shrink: 0; }
+    .ro-group .val { color: var(--text2); flex: 1; }
     .badge-fatura { background: #5cb85c; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 700; }
 
     /* ── Right Panel ── */
     .panel-right .p-header { background: #5cb85c; color: #fff; padding: 12px 20px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
     
     .ro-table { width: 100%; border-collapse: collapse; }
-    .ro-table thead { background: #f9f9f9; border-bottom: 1px solid #ddd; }
-    .ro-table th { font-size: 11px; color: #999; font-weight: 600; padding: 8px 12px; text-align: right; }
+    .ro-table thead { background: var(--surface-2); border-bottom: 1px solid var(--border); }
+    .ro-table th { font-size: 11px; color: var(--muted); font-weight: 600; padding: 8px 12px; text-align: right; }
     .ro-table th:first-child, .ro-table th:nth-child(2) { text-align: left; }
-    .ro-table td { padding: 12px 12px; font-size: 12px; color: #555; text-align: right; border-bottom: 1px solid #eee; }
+    .ro-table td { padding: 12px 12px; font-size: 12px; color: var(--text2); text-align: right; border-bottom: 1px solid var(--border); }
     .ro-table td:first-child, .ro-table td:nth-child(2) { text-align: left; }
     
-    .totals-area { padding: 20px 24px; text-align: right; font-size: 12px; color: #777; line-height: 2; }
-    .totals-area .val { color: #555; display: inline-block; width: 120px; text-align: right; }
-    .grand-total { font-size: 14px; font-weight: 700; color: #333; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; }
+    .totals-area { padding: 20px 24px; text-align: right; font-size: 12px; color: var(--muted); line-height: 2; }
+    .totals-area .val { color: var(--text2); display: inline-block; width: 120px; text-align: right; }
+    .grand-total { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
     .grand-total .val { color: #16a34a; font-size: 18px; }
 
     .purchase-print-area { display: block; }
@@ -60,7 +60,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
 
     @page { size: A4 landscape; margin: 8mm; }
     @media print {
-      html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { background: var(--card-bg) !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       body * { visibility: hidden; }
       .purchase-print-area, .purchase-print-area * { visibility: visible; }
       .sidebar, .topbar, .mobile-bottom-bar, .top-action-row, .no-print { display: none !important; }
@@ -68,12 +68,12 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
       .main-content, .content, .container-fluid { margin: 0 !important; padding: 0 !important; max-width: none !important; }
       .purchase-print-area { position: absolute; left: 0; top: 0; width: 100%; }
       .purchase-print-title { display: flex; align-items: center; gap: 7px; border-bottom: 1px solid #1e293b; padding-bottom: 6px; margin-bottom: 6px; break-inside: avoid; page-break-inside: avoid; }
-      .purchase-print-logo { width: 26px; height: 26px; object-fit: contain; border: 1px solid #dbe3ef; border-radius: 5px; padding: 2px; background: #fff; }
+      .purchase-print-logo { width: 26px; height: 26px; object-fit: contain; border: 1px solid var(--border); border-radius: 5px; padding: 2px; background: var(--card-bg); }
       .purchase-print-logo-fallback { width: 26px; height: 26px; border-radius: 5px; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
-      .purchase-print-title h1 { margin: 0; font-size: 15px; color: #0f172a; line-height: 1.1; }
-      .purchase-print-title p { margin: 2px 0 0; color: #64748b; font-size: 9px; }
+      .purchase-print-title h1 { margin: 0; font-size: 15px; color: var(--text); line-height: 1.1; }
+      .purchase-print-title p { margin: 2px 0 0; color: var(--muted); font-size: 9px; }
       .panels-container { display: grid !important; grid-template-columns: 0.8fr 1.4fr; gap: 6mm; align-items: start; }
-      .panel { box-shadow: none !important; border: 1px solid #dbe3ef; border-radius: 0 !important; overflow: visible !important; break-inside: avoid; page-break-inside: avoid; }
+      .panel { box-shadow: none !important; border: 1px solid var(--border); border-radius: 0 !important; overflow: visible !important; break-inside: avoid; page-break-inside: avoid; }
       .panel-left { max-width: none !important; }
       .panel-left .p-header, .panel-right .p-header { background: #1e293b !important; color: #fff !important; padding: 5px 8px; font-size: 9px; }
       .ro-group { padding: 4px 8px; gap: 8px; font-size: 8px; }
@@ -81,7 +81,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
       .ro-table { width: 100% !important; table-layout: auto; }
       .ro-table thead { display: table-header-group; }
       .ro-table tr { break-inside: avoid; page-break-inside: avoid; }
-      .ro-table th { background: #f8fafc !important; padding: 4px 5px; font-size: 7.5px; white-space: normal; }
+      .ro-table th { background: var(--surface-2) !important; padding: 4px 5px; font-size: 7.5px; white-space: normal; }
       .ro-table td { padding: 4px 5px; font-size: 7.5px; }
       .totals-area { padding: 6px 8px; font-size: 8px; line-height: 1.55; break-inside: avoid; page-break-inside: avoid; }
       .totals-area .val { width: 75px; }

@@ -49,59 +49,59 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
   /* ── Özet Kartlar ── */
   .ozet-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-bottom:16px; }
-  .ozet-kart { background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.07); padding:14px 18px; }
-  .ozet-kart .ok-label { font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; }
-  .ozet-kart .ok-value { font-size:20px; font-weight:800; color:#1e293b; margin-top:4px; }
+  .ozet-kart { background:var(--card-bg); border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.07); padding:14px 18px; }
+  .ozet-kart .ok-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .ozet-kart .ok-value { font-size:20px; font-weight:800; color:var(--text); margin-top:4px; }
   .ozet-kart .ok-value.green { color:#16a34a; }
   .ozet-kart .ok-value.amber { color:#d97706; }
   .ozet-kart .ok-value.red   { color:#dc2626; }
 
   /* ── Filter Panel ── */
-  .filter-panel { background:#fff; border:1px solid #e2e8f0; border-radius:8px 8px 0 0; border-bottom:none; }
+  .filter-panel { background:var(--card-bg); border:1px solid var(--border); border-radius:8px 8px 0 0; border-bottom:none; }
   .filter-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; }
-  .filter-row + .filter-row { border-top:1px solid #f1f5f9; }
+  .filter-row + .filter-row { border-top:1px solid var(--border); }
 
   /* Dönem dropdown */
   .donem-wrap { position:relative; }
-  .btn-donem { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:#334155; color:#e2e8f0; border:none; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; transition:background .15s; }
+  .btn-donem { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:#334155; color:var(--text); border:none; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; transition:background .15s; }
   .btn-donem:hover { background:#1e293b; }
-  .donem-dropdown { position:absolute; top:calc(100% + 3px); left:0; z-index:300; background:#fff; border:1px solid #cbd5e1; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,.1); min-width:150px; display:none; padding:4px 0; }
+  .donem-dropdown { position:absolute; top:calc(100% + 3px); left:0; z-index:300; background:var(--card-bg); border:1px solid var(--border2); border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,.1); min-width:150px; display:none; padding:4px 0; }
   .donem-dropdown.open { display:block; }
-  .donem-item { padding:7px 16px; font-size:13px; color:#374151; cursor:pointer; display:block; text-decoration:none; }
-  .donem-item:hover { background:#f8fafc; }
-  .donem-item.active { font-weight:700; color:#1e293b; background:#f1f5f9; }
+  .donem-item { padding:7px 16px; font-size:13px; color:var(--text2); cursor:pointer; display:block; text-decoration:none; }
+  .donem-item:hover { background:var(--surface-2); }
+  .donem-item.active { font-weight:700; color:var(--text); background:var(--surface-2); }
 
   /* Durum select */
-  .filter-select { padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; color:#374151; background:#fff; cursor:pointer; outline:none; }
+  .filter-select { padding:6px 10px; border:1px solid var(--border2); border-radius:6px; font-size:13px; color:var(--text2); background:var(--card-bg); cursor:pointer; outline:none; }
   .filter-select:focus { border-color:#4ade80; }
 
   /* İptalleri toggle */
-  .iptalli-wrap { display:flex; align-items:center; gap:7px; margin-left:auto; font-size:13px; color:#475569; font-weight:500; white-space:nowrap; }
+  .iptalli-wrap { display:flex; align-items:center; gap:7px; margin-left:auto; font-size:13px; color:var(--text2); font-weight:500; white-space:nowrap; }
   .toggle-switch { position:relative; width:38px; height:21px; flex-shrink:0; }
   .toggle-switch input { opacity:0; width:0; height:0; }
   .toggle-slider { position:absolute; inset:0; background:#cbd5e1; border-radius:21px; cursor:pointer; transition:background .2s; }
-  .toggle-slider::before { content:''; position:absolute; width:15px; height:15px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+  .toggle-slider::before { content:''; position:absolute; width:15px; height:15px; left:3px; top:3px; background:var(--card-bg); border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
   .toggle-switch input:checked + .toggle-slider { background:#22c55e; }
   .toggle-switch input:checked + .toggle-slider::before { transform:translateX(17px); }
 
   /* Arama */
-  .search-label { font-size:13px; color:#475569; font-weight:600; white-space:nowrap; margin-left:auto; }
+  .search-label { font-size:13px; color:var(--text2); font-weight:600; white-space:nowrap; margin-left:auto; }
   .search-input-wrap { position:relative; }
-  .search-input-wrap i { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:12px; pointer-events:none; }
-  .search-txt { padding:6px 12px 6px 30px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; color:#374151; background:#fff; outline:none; width:260px; transition:border-color .2s,box-shadow .2s; }
+  .search-input-wrap i { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:12px; pointer-events:none; }
+  .search-txt { padding:6px 12px 6px 30px; border:1px solid var(--border2); border-radius:6px; font-size:13px; color:var(--text2); background:var(--card-bg); outline:none; width:260px; transition:border-color .2s,box-shadow .2s; }
   .search-txt:focus { border-color:#4ade80; box-shadow:0 0 0 3px rgba(74,222,128,.12); }
-  .search-txt::placeholder { color:#94a3b8; font-style:italic; }
+  .search-txt::placeholder { color:var(--muted); font-style:italic; }
 
   /* ── Table ── */
-  .table-card { background:#fff; border:1px solid #e2e8f0; border-radius:0 0 8px 8px; overflow:hidden; }
+  .table-card { background:var(--card-bg); border:1px solid var(--border); border-radius:0 0 8px 8px; overflow:hidden; }
   .sales-table { width:100%; border-collapse:collapse; }
   .sales-table thead tr { background:#1e293b; }
-  .sales-table thead th { padding:11px 14px; font-size:12.5px; font-weight:600; color:#94a3b8; white-space:nowrap; border-right:1px solid rgba(255,255,255,.06); }
+  .sales-table thead th { padding:11px 14px; font-size:12.5px; font-weight:600; color:var(--muted); white-space:nowrap; border-right:1px solid rgba(255,255,255,.06); }
   .sales-table thead th:last-child { border-right:none; }
-  .sales-table tbody tr.data-row { border-bottom:1px solid #f1f5f9; transition:background .12s; }
-  .sales-table tbody tr.data-row:hover { background:#f8fafc; }
-  .sales-table tbody tr.data-row.expanded { background:#eff6ff; }
-  .sales-table tbody td { padding:9px 14px; font-size:13px; color:#374151; vertical-align:middle; }
+  .sales-table tbody tr.data-row { border-bottom:1px solid var(--border); transition:background .12s; }
+  .sales-table tbody tr.data-row:hover { background:var(--surface-2); }
+  .sales-table tbody tr.data-row.expanded { background:rgba(59,130,246,.15); }
+  .sales-table tbody td { padding:9px 14px; font-size:13px; color:var(--text2); vertical-align:middle; }
 
   /* toggle btn */
   .td-toggle { width:40px; text-align:center; }
@@ -113,13 +113,13 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
   .cust-link { color:#2563eb; text-decoration:none; font-weight:500; font-size:13px; }
   .cust-link:hover { text-decoration:underline; }
-  .td-amount { text-align:right; font-weight:600; font-size:13px; color:#1e293b; }
+  .td-amount { text-align:right; font-weight:600; font-size:13px; color:var(--text); }
   .status-badge { display:inline-block; padding:3px 10px; border-radius:4px; font-size:12px; font-weight:600; white-space:nowrap; }
 
   /* Detail row */
   .detail-row { display:none; }
   .detail-row.open { display:table-row; }
-  .detail-row > td { padding:0; border-bottom:2px solid #e2e8f0; background:#f8fafc; }
+  .detail-row > td { padding:0; border-bottom:2px solid var(--border); background:var(--surface-2); }
   .detail-inner { padding:10px 14px 14px 54px; }
   .detail-btns { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
   .btn-det { display:inline-flex; align-items:center; gap:5px; padding:5px 13px; border:none; border-radius:5px; font-size:12.5px; font-weight:600; cursor:pointer; transition:filter .15s; text-decoration:none; color:#fff; }
@@ -129,25 +129,25 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   .btn-det.slate { background:#64748b; }
 
   .detail-prod-table { border-collapse:collapse; min-width:500px; max-width:700px; }
-  .detail-prod-table thead th { padding:5px 10px; font-size:12px; font-weight:700; color:#64748b; border-bottom:2px solid #e2e8f0; text-align:left; }
-  .detail-prod-table tbody td { padding:6px 10px; font-size:13px; color:#374151; border-bottom:1px solid #f1f5f9; }
+  .detail-prod-table thead th { padding:5px 10px; font-size:12px; font-weight:700; color:var(--muted); border-bottom:2px solid var(--border); text-align:left; }
+  .detail-prod-table tbody td { padding:6px 10px; font-size:13px; color:var(--text2); border-bottom:1px solid var(--border); }
   .detail-prod-table tbody tr:last-child td { border-bottom:none; }
   .td-num { text-align:right; }
 
   /* Pagination */
-  .pag-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid #f1f5f9; background:#fafafa; }
-  .pag-info { font-size:12.5px; color:#64748b; }
+  .pag-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--border); background:var(--surface-2); }
+  .pag-info { font-size:12.5px; color:var(--muted); }
   .pag-btns { display:flex; gap:3px; }
-  .pag-btn { width:30px; height:30px; border:1px solid #e2e8f0; border-radius:6px; background:#fff; font-size:12px; color:#475569; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background .12s,border-color .12s; text-decoration:none; }
-  .pag-btn:hover { background:#f1f5f9; }
-  .pag-btn.active { background:#1e293b; border-color:#1e293b; color:#4ade80; font-weight:700; }
+  .pag-btn { width:30px; height:30px; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); font-size:12px; color:var(--text2); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background .12s,border-color .12s; text-decoration:none; }
+  .pag-btn:hover { background:var(--surface-2); }
+  .pag-btn.active { background:#1e293b; border-color:var(--text); color:#4ade80; font-weight:700; }
 
   /* Empty state */
-  .empty-state { text-align:center; padding:48px 16px; color:#94a3b8; font-size:14px; }
+  .empty-state { text-align:center; padding:48px 16px; color:var(--muted); font-size:14px; }
   .empty-state i { font-size:32px; display:block; margin-bottom:10px; }
 
-  .alert-success { background:#dcfce7; border:1px solid #bbf7d0; color:#166534; padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; display:flex; align-items:center; gap:8px; }
-  .alert-error   { background:#fee2e2; border:1px solid #fecaca; color:#991b1b; padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; display:flex; align-items:center; gap:8px; }
+  .alert-success { background:rgba(46,204,113,.15); border:1px solid rgba(46,204,113,.28); color:var(--success); padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; display:flex; align-items:center; gap:8px; }
+  .alert-error   { background:rgba(231,76,60,.15); border:1px solid rgba(231,76,60,.28); color:var(--danger); padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; display:flex; align-items:center; gap:8px; }
 </style>
 
 <?php if (!empty($flash)): ?>
@@ -290,7 +290,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                 <a href="<?= BASE_URL ?>/musteri/detay/<?= $f['cari_id'] ?>"
                    class="cust-link"><?= htmlspecialchars($f['cari_unvan']) ?></a>
               <?php else: ?>
-                <span style="color:#94a3b8;">—</span>
+                <span style="color:var(--muted);">—</span>
               <?php endif; ?>
             </td>
             <td><strong><?= htmlspecialchars($f['fatura_no']) ?></strong></td>
@@ -327,7 +327,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                     <i class="fa-solid fa-trash-can"></i> Sil
                   </a>
                 </div>
-                <div style="font-size:12px; color:#64748b;">
+                <div style="font-size:12px; color:var(--muted);">
                   Vade: <?= $fmtTar($f['vade_tarihi']) ?> &nbsp;|&nbsp;
                   KDV: <?= $fmt($f['kdv_tutari']) ?> &nbsp;|&nbsp;
                   Kalan: <strong style="color:#d97706;"><?= $fmt($f['kalan_tutar']) ?></strong>
@@ -397,22 +397,22 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body" style="padding:20px;">
-        <div style="background:#fcf8e3; color:#8a6d3b; padding:10px; border:1px solid #faebcc; border-radius:4px; font-size:13px; margin-bottom:16px;">
+        <div style="background:rgba(243,156,18,.15); color:var(--warning); padding:10px; border:1px solid rgba(243,156,18,.28); border-radius:4px; font-size:13px; margin-bottom:16px;">
           Önceden müşteri kaydı olmayan carilerinizi hızlıca buradan ekleyebilirsiniz. Bu ekranda yer almayan diğer detaylı bilgileri daha sonra müşteriler sayfasından güncelleyebilirsiniz.
         </div>
         <form id="formHizliMusteri">
             <input type="hidden" name="tip" value="musteri">
             <div class="mb-3">
-                <label style="font-weight:600; font-size:13px; color:#555;">İsim / Unvan</label>
+                <label style="font-weight:600; font-size:13px; color:var(--text2);">İsim / Unvan</label>
                 <input type="text" class="form-control" name="unvan" required style="font-size:13px;">
             </div>
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Telefon</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Telefon</label>
                     <input type="text" class="form-control" name="telefon" style="font-size:13px;" placeholder="(___) ___ __ __">
                 </div>
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Para Birimi</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Para Birimi</label>
                     <select class="form-select" name="para_birimi" style="font-size:13px;">
                         <option value="TRY">TL</option>
                         <option value="USD">USD</option>
@@ -422,21 +422,21 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
             </div>
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Vergi Dairesi</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Vergi Dairesi</label>
                     <input type="text" class="form-control" name="vergi_dairesi" style="font-size:13px;">
                 </div>
                 <div class="col-md-6">
-                    <label style="font-weight:600; font-size:13px; color:#555;">Vergi / TC Kimlik No</label>
+                    <label style="font-weight:600; font-size:13px; color:var(--text2);">Vergi / TC Kimlik No</label>
                     <input type="text" class="form-control" name="vergi_no" style="font-size:13px;">
                 </div>
             </div>
             <div class="mb-3">
-                <label style="font-weight:600; font-size:13px; color:#555;">E-Posta</label>
+                <label style="font-weight:600; font-size:13px; color:var(--text2);">E-Posta</label>
                 <input type="email" class="form-control" name="eposta" style="font-size:13px;">
-                <div style="font-size:11px; color:#999;">virgül ile ayırarak birden fazla adres girebilirsiniz.</div>
+                <div style="font-size:11px; color:var(--muted);">virgül ile ayırarak birden fazla adres girebilirsiniz.</div>
             </div>
             <div class="mb-3">
-                <label style="font-weight:600; font-size:13px; color:#555;">Adres</label>
+                <label style="font-weight:600; font-size:13px; color:var(--text2);">Adres</label>
                 <textarea class="form-control" name="adres" rows="3" style="font-size:13px;"></textarea>
             </div>
         </form>
@@ -457,13 +457,13 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
         <h5 class="modal-title" style="font-size:16px; font-weight:400;">Müşteri Arama</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div style="background:#fff8dc; padding:10px 20px; font-size:13px; color:#8a6d3b; border-bottom:1px solid #f5e79e;">
+      <div style="background:rgba(243,156,18,.13); padding:10px 20px; font-size:13px; color:var(--warning); border-bottom:1px solid rgba(243,156,18,.30);">
         Satış yapacağınız müşteri ya da tedarikçiyi bulun
       </div>
-      <div class="modal-body" style="padding:20px; background:#f4f5f7;">
+      <div class="modal-body" style="padding:20px; background:var(--surface-2);">
          <input type="text" class="form-control" id="musteriSearchInput" placeholder="Arama yapın..." autocomplete="off" style="margin-bottom:10px; font-size:13px;">
-         <div id="musteriListesi" style="background:#fff; border:1px solid #ccc; max-height:300px; overflow-y:auto; font-size:13px; color:#333;">
-            <div style="padding:10px; text-align:center; color:#999;"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...</div>
+         <div id="musteriListesi" style="background:var(--card-bg); border:1px solid var(--border); max-height:300px; overflow-y:auto; font-size:13px; color:var(--text);">
+            <div style="padding:10px; text-align:center; color:var(--muted);"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...</div>
          </div>
       </div>
     </div>
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (modalEl) {
         modalEl.addEventListener('show.bs.modal', async function() {
             mSearch.value = '';
-            mList.innerHTML = '<div style="padding:10px; text-align:center; color:#999;"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...</div>';
+            mList.innerHTML = '<div style="padding:10px; text-align:center; color:var(--muted);"><i class="fa-solid fa-spinner fa-spin"></i> Yükleniyor...</div>';
             try {
                 // To list all customers, we can query with an empty string or 'all' if supported.
                 // Assuming musteriBul returns top 50 if q is empty or at least a list.
@@ -542,12 +542,12 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderList(list) {
             mList.innerHTML = '';
             if(list.length === 0) {
-                mList.innerHTML = '<div style="padding:10px; color:#999;">Sonuç bulunamadı.</div>';
+                mList.innerHTML = '<div style="padding:10px; color:var(--muted);">Sonuç bulunamadı.</div>';
                 return;
             }
             list.forEach(item => {
                 const div = document.createElement('div');
-                div.style.cssText = "padding:10px; border-bottom:1px solid #eee; cursor:pointer;";
+                div.style.cssText = "padding:10px; border-bottom:1px solid var(--border); cursor:pointer;";
                 div.innerHTML = item.unvan;
                 div.addEventListener('mouseenter', () => {
                     div.style.background = '#2980b9';

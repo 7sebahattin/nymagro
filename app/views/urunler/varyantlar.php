@@ -13,8 +13,8 @@
   
   /* Flash Messages */
   .alert { padding: 12px 18px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-  .alert-success { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
-  .alert-error { background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; }
+  .alert-success { background: rgba(46,204,113,.15); border: 1px solid rgba(46,204,113,.28); color: var(--success); }
+  .alert-error { background: rgba(231,76,60,.15); border: 1px solid rgba(231,76,60,.28); color: var(--danger); }
 
   /* Top Actions */
   .top-actions { margin-bottom: 30px; }
@@ -77,9 +77,9 @@
   .btn-add-val:hover { background: #ec971f; }
   
   .v-card-body {
-    background: #e8eaec; /* Light grey from screenshot */
+    background: var(--surface-2); /* Light grey from screenshot */
     padding: 20px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-top: none;
     border-radius: 0 0 4px 4px;
     display: flex;
@@ -90,9 +90,9 @@
   
   /* Variant Value Pill */
   .v-val-pill {
-    background: #f8f9fa;
-    border: 1px solid #ccc;
-    color: #555;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text2);
     padding: 8px 16px;
     border-radius: 4px;
     font-size: 13px;
@@ -112,7 +112,7 @@
   }
   .modal-overlay.open { display: flex; }
   .modal-box { 
-    background: #fff; 
+    background: var(--card-bg); 
     border-radius: 4px; 
     width: 500px; 
     max-width: 90%; 
@@ -140,16 +140,16 @@
   .modal-body { padding: 30px 20px; }
   .modal-footer { 
     padding: 15px 20px; 
-    border-top: 1px solid #eee; 
+    border-top: 1px solid var(--border); 
     text-align: right; 
   }
   
   .form-group { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 5px; }
-  .form-group label { width: 100px; font-size: 14px; color: #555; margin-top: 8px; }
+  .form-group label { width: 100px; font-size: 14px; color: var(--text2); margin-top: 8px; }
   .form-input-wrap { flex: 1; }
-  .form-control { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; outline: none; }
+  .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 3px; font-size: 14px; outline: none; }
   .form-control:focus { border-color: #62d6a5; }
-  .form-hint { font-size: 11px; color: #999; margin-top: 5px; display: block; }
+  .form-hint { font-size: 11px; color: var(--muted); margin-top: 5px; display: block; }
   
   .btn-submit { 
     background: #5cb85c; 
@@ -185,7 +185,7 @@
 
   <div class="variants-grid">
     <?php if (empty($varyantlar)): ?>
-      <div style="color: #999; font-size: 14px;">Henüz hiç varyant eklenmemiş.</div>
+      <div style="color: var(--muted); font-size: 14px;">Henüz hiç varyant eklenmemiş.</div>
     <?php endif; ?>
     
     <?php foreach ($varyantlar as $v): ?>

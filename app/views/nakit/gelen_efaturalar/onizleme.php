@@ -3,11 +3,11 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
 $statusText = ['odenmedi'=>'Ödenmedi','kismi_odendi'=>'Kısmi Ödendi','odendi'=>'Ödendi'];
 ?>
 <style>
-.gef-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}.gef-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:12px}.gef-card b{display:block;font-size:18px}
+.gef-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}.gef-card{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:12px}.gef-card b{display:block;font-size:18px}
 .gef-btn{border:0;border-radius:4px;padding:8px 12px;font-size:12.5px;font-weight:700;color:#fff;text-decoration:none;background:#337ab7;display:inline-flex;gap:6px;align-items:center;cursor:pointer}.gef-btn.green{background:#5cb85c}.gef-btn.gray{background:#64748b}
-.gef-table{width:100%;border-collapse:collapse;min-width:1320px}.gef-table th{background:#2c3e6b;color:#fff;font-size:11.5px;text-align:left;padding:8px}.gef-table td{border-bottom:1px solid #e2e8f0;padding:7px;font-size:12px;vertical-align:top}.txt-r{text-align:right}
-.badge{display:inline-block;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:700}.b-red{background:#fee2e2;color:#991b1b}.b-green{background:#dcfce7;color:#166534}.b-orange{background:#ffedd5;color:#9a3412}.b-gray{background:#e5e7eb;color:#374151}
-.mini{width:120px;border:1px solid #cbd5e1;border-radius:4px;padding:5px;font-size:12px}.wide{width:180px}.warn{color:#b45309;font-size:11px;margin-top:4px}.lines{background:#f8fafc;padding:8px;border-radius:5px;margin-top:6px}
+.gef-table{width:100%;border-collapse:collapse;min-width:1320px}.gef-table th{background:#2c3e6b;color:#fff;font-size:11.5px;text-align:left;padding:8px}.gef-table td{border-bottom:1px solid var(--border);padding:7px;font-size:12px;vertical-align:top}.txt-r{text-align:right}
+.badge{display:inline-block;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:700}.b-red{background:rgba(231,76,60,.15);color:var(--danger)}.b-green{background:rgba(46,204,113,.15);color:var(--success)}.b-orange{background:rgba(243,156,18,.17);color:#9a3412}.b-gray{background:var(--surface-2);color:var(--text2)}
+.mini{width:120px;border:1px solid var(--border2);border-radius:4px;padding:5px;font-size:12px}.wide{width:180px}.warn{color:#b45309;font-size:11px;margin-top:4px}.lines{background:var(--surface-2);padding:8px;border-radius:5px;margin-top:6px}
 @media(max-width:900px){.gef-summary{grid-template-columns:1fr 1fr}}
 </style>
 
@@ -28,7 +28,7 @@ $statusText = ['odenmedi'=>'Ödenmedi','kismi_odendi'=>'Kısmi Ödendi','odendi'
     <button class="gef-btn green" type="submit"><i class="fa-solid fa-check"></i> Seçili İşlemleri Kaydet</button>
     <a class="gef-btn gray" href="<?= BASE_URL ?>/nakit/gelen-e-faturalar/toplu-yukle"><i class="fa-solid fa-rotate-left"></i> Geri Dön</a>
   </div>
-  <div style="overflow-x:auto;background:#fff;border:1px solid #e2e8f0;border-radius:6px">
+  <div style="overflow-x:auto;background:var(--card-bg);border:1px solid var(--border);border-radius:6px">
     <table class="gef-table">
       <thead><tr>
         <th>İşlem</th><th>Durum</th><th>Belge Türü</th><th>Düzenleme</th><th>Vade</th><th>Tedarikçi / Çalışan</th><th>Tedarikçi Eşleştir</th><th>Fatura İsmi</th><th>Kategori</th><th>Döviz</th><th class="txt-r">Genel</th><th class="txt-r">Genel TL</th><th class="txt-r">Ödenen TL</th><th class="txt-r">Kalan TL</th><th>Fatura No</th><th class="txt-r">KDV</th><th>Kalem</th><th>Ödeme</th><th>Not / Uyarı</th>

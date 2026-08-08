@@ -39,112 +39,112 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
   /* ── ÖZET KARTLAR ── */
   .ms-ozet { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
   @media(max-width:900px) { .ms-ozet { grid-template-columns:1fr 1fr; } }
-  .ozet-kart { background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:14px 18px; border-left:4px solid #cbd5e1; }
-  .ozet-kart.all     { border-left-color:#2c3e6b; }
+  .ozet-kart { background:var(--card-bg); border:1px solid var(--border); border-radius:7px; padding:14px 18px; border-left:4px solid var(--border2); }
+  .ozet-kart.all     { border-left-color:var(--text); }
   .ozet-kart.paid    { border-left-color:#5cb85c; }
   .ozet-kart.pending { border-left-color:#f0ad4e; }
   .ozet-kart.late    { border-left-color:#d9534f; }
-  .ozet-label { font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:.4px; margin-bottom:5px; }
-  .ozet-val   { font-size:17px; font-weight:700; color:#1e293b; }
-  .ozet-sub   { font-size:11px; color:#94a3b8; margin-top:2px; }
+  .ozet-label { font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.4px; margin-bottom:5px; }
+  .ozet-val   { font-size:17px; font-weight:700; color:var(--text); }
+  .ozet-sub   { font-size:11px; color:var(--muted); margin-top:2px; }
 
   /* ── FİLTRE ── */
   .ms-filters { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
   .durum-btns { display:flex; gap:0; }
   .durum-btn {
-    padding:6px 14px; border:1px solid #d1d5db; background:#fff;
-    font-size:12.5px; font-weight:600; color:#374151; cursor:pointer;
+    padding:6px 14px; border:1px solid var(--border); background:var(--card-bg);
+    font-size:12.5px; font-weight:600; color:var(--text2); cursor:pointer;
     transition:background .12s, color .12s;
   }
   .durum-btn:first-child { border-radius:4px 0 0 4px; }
   .durum-btn:last-child  { border-radius:0 4px 4px 0; }
   .durum-btn + .durum-btn { border-left:none; }
-  .durum-btn.active      { background:#2c3e6b; color:#fff; border-color:#2c3e6b; }
+  .durum-btn.active      { background:#2c3e6b; color:#fff; border-color:var(--text); }
   .durum-btn.active.paid { background:#5cb85c; border-color:#5cb85c; }
   .durum-btn.active.pend { background:#f0ad4e; border-color:#f0ad4e; }
   .durum-btn.active.late { background:#d9534f; border-color:#d9534f; }
 
   .filter-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .period-btn {
-    padding:6px 14px; background:#34495e; color:#e2e8f0;
+    padding:6px 14px; background:#34495e; color:var(--text);
     border:none; border-radius:4px; font-size:12.5px; font-weight:500; cursor:pointer;
   }
   .search-wrap { position:relative; }
-  .search-wrap i { position:absolute; left:9px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:12px; pointer-events:none; }
-  .ms-search { padding:6px 10px 6px 28px; border:1px solid #cbd5e1; border-radius:4px; font-size:13px; width:220px; outline:none; }
-  .ms-search:focus { border-color:#2c3e6b; }
+  .search-wrap i { position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:12px; pointer-events:none; }
+  .ms-search { padding:6px 10px 6px 28px; border:1px solid var(--border2); border-radius:4px; font-size:13px; width:220px; outline:none; }
+  .ms-search:focus { border-color:var(--text); }
 
   /* ── TABLO ── */
-  .ms-table-wrap { background:#fff; border:1px solid #e2e8f0; border-radius:6px; overflow:hidden; }
+  .ms-table-wrap { background:var(--card-bg); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
   .ms-table { width:100%; border-collapse:collapse; }
   .ms-table thead tr { background:#2c3e6b; }
-  .ms-table thead th { padding:10px 12px; font-size:12px; font-weight:600; color:#94a3b8; white-space:nowrap; text-align:left; }
+  .ms-table thead th { padding:10px 12px; font-size:12px; font-weight:600; color:var(--muted); white-space:nowrap; text-align:left; }
 
   /* ── CUSTOM FIXED DROPDOWN ── */
   .ctx-menu {
     position:fixed; z-index:9999;
-    background:#fff; border:1px solid #e2e8f0; border-radius:6px;
+    background:var(--card-bg); border:1px solid var(--border); border-radius:6px;
     box-shadow:0 6px 20px rgba(0,0,0,.13); min-width:160px;
     display:none; flex-direction:column; overflow:hidden;
   }
   .ctx-menu.open { display:flex; }
   .ctx-menu a {
     display:flex; align-items:center; gap:8px;
-    padding:9px 14px; font-size:13px; color:#374151;
+    padding:9px 14px; font-size:13px; color:var(--text2);
     text-decoration:none; transition:background .1s;
   }
-  .ctx-menu a:hover { background:#f1f5f9; }
+  .ctx-menu a:hover { background:var(--surface-2); }
   .ctx-menu a.danger  { color:#dc2626; }
-  .ctx-menu a.danger:hover  { background:#fee2e2; }
+  .ctx-menu a.danger:hover  { background:rgba(231,76,60,.15); }
   .ctx-menu a.success { color:#16a34a; }
-  .ctx-menu a.success:hover { background:#dcfce7; }
+  .ctx-menu a.success:hover { background:rgba(46,204,113,.15); }
   .ctx-menu a.belge   { color:#2563eb; }
-  .ctx-menu a.belge:hover   { background:#dbeafe; }
-  .ctx-menu hr { margin:2px 0; border-color:#f1f5f9; }
+  .ctx-menu a.belge:hover   { background:rgba(59,130,246,.15); }
+  .ctx-menu hr { margin:2px 0; border-color:var(--text); }
   .ms-table thead tr { background:#2c3e6b; }
-  .ms-table thead th { padding:10px 12px; font-size:12px; font-weight:600; color:#94a3b8; white-space:nowrap; text-align:left; }
-  .ms-table tbody tr { border-bottom:1px solid #f1f5f9; transition:background .1s; }
-  .ms-table tbody tr:hover { background:#f8fafc; }
+  .ms-table thead th { padding:10px 12px; font-size:12px; font-weight:600; color:var(--muted); white-space:nowrap; text-align:left; }
+  .ms-table tbody tr { border-bottom:1px solid var(--border); transition:background .1s; }
+  .ms-table tbody tr:hover { background:var(--surface-2); }
   .ms-table tbody tr:last-child { border-bottom:none; }
-  .ms-table tbody td { padding:9px 12px; font-size:13px; color:#374151; vertical-align:middle; }
+  .ms-table tbody td { padding:9px 12px; font-size:13px; color:var(--text2); vertical-align:middle; }
   .txt-right { text-align:right; }
 
   .kat-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:3px; font-size:11.5px; font-weight:600; color:#fff; white-space:nowrap; }
   .durum-badge { display:inline-block; padding:3px 9px; border-radius:4px; font-size:12px; font-weight:600; white-space:nowrap; }
-  .d-bekliyor { background:#fef3c7; color:#92400e; }
-  .d-odendi   { background:#dcfce7; color:#166534; }
-  .d-gecikti  { background:#fee2e2; color:#991b1b; }
+  .d-bekliyor { background:rgba(243,156,18,.15); color:var(--warning); }
+  .d-odendi   { background:rgba(46,204,113,.15); color:var(--success); }
+  .d-gecikti  { background:rgba(231,76,60,.15); color:var(--danger); }
 
-  .btn-islem { font-size:11.5px; padding:3px 9px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; cursor:pointer; white-space:nowrap; }
-  .btn-islem:hover { background:#e2e8f0; }
+  .btn-islem { font-size:11.5px; padding:3px 9px; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; cursor:pointer; white-space:nowrap; }
+  .btn-islem:hover { background:var(--surface-2); }
 
   /* ── EMPTY STATE ── */
-  .empty-state { text-align:center; padding:48px 16px; color:#94a3b8; font-size:14px; }
+  .empty-state { text-align:center; padding:48px 16px; color:var(--muted); font-size:14px; }
   .empty-state i { font-size:36px; display:block; margin-bottom:10px; }
 
   /* ── PAGİNATİON ── */
-  .pag-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid #f1f5f9; background:#fafafa; }
-  .pag-info { font-size:12px; color:#64748b; }
+  .pag-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--border); background:var(--surface-2); }
+  .pag-info { font-size:12px; color:var(--muted); }
   .pag-btns { display:flex; gap:3px; }
-  .pag-btn { width:30px; height:30px; border:1px solid #e2e8f0; border-radius:5px; background:#fff; font-size:12px; color:#475569; cursor:pointer; display:flex; align-items:center; justify-content:center; text-decoration:none; }
-  .pag-btn:hover { background:#f1f5f9; }
-  .pag-btn.active { background:#2c3e6b; border-color:#2c3e6b; color:#4ade80; font-weight:700; }
+  .pag-btn { width:30px; height:30px; border:1px solid var(--border); border-radius:5px; background:var(--card-bg); font-size:12px; color:var(--text2); cursor:pointer; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+  .pag-btn:hover { background:var(--surface-2); }
+  .pag-btn.active { background:#2c3e6b; border-color:var(--text); color:#4ade80; font-weight:700; }
   .pag-btn.disabled { opacity:.35; pointer-events:none; }
 
   /* ── MODAL ── */
   .ms-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:900; display:none; align-items:center; justify-content:center; }
   .ms-overlay.open { display:flex; }
-  .ms-modal { background:#fff; border-radius:7px; width:480px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
+  .ms-modal { background:var(--card-bg); border-radius:7px; width:480px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
   .ms-mhdr { background:var(--navy); color:#fff; padding:13px 18px; font-size:14px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
   .ms-mhdr.green { background:var(--green); }
   .ms-mclose { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; opacity:.8; }
   .ms-mclose:hover { opacity:1; }
   .ms-mbody { padding:18px 22px; display:flex; flex-direction:column; gap:12px; max-height:70vh; overflow-y:auto; }
   .ms-mrow { display:grid; grid-template-columns:120px 1fr; align-items:center; gap:10px; }
-  .ms-mrow label { font-size:12.5px; font-weight:600; color:#374151; }
-  .ms-minp, .ms-msel { padding:7px 10px; border:1px solid #cbd5e1; border-radius:5px; font-size:13px; color:#1e293b; outline:none; width:100%; box-sizing:border-box; }
+  .ms-mrow label { font-size:12.5px; font-weight:600; color:var(--text2); }
+  .ms-minp, .ms-msel { padding:7px 10px; border:1px solid var(--border2); border-radius:5px; font-size:13px; color:var(--text); outline:none; width:100%; box-sizing:border-box; }
   .ms-minp:focus, .ms-msel:focus { border-color:var(--navy); }
-  .ms-mftr { padding:12px 22px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:8px; }
+  .ms-mftr { padding:12px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
   .ms-mbtn { display:inline-flex; align-items:center; gap:5px; padding:7px 16px; border:none; border-radius:5px; font-size:13px; font-weight:600; cursor:pointer; }
   .ms-mbtn:hover { filter:brightness(1.1); }
   .ms-mbtn.gray   { background:#64748b; color:#fff; }
@@ -153,12 +153,12 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
 
   /* ── TOAST ── */
   .toast-container { position:fixed; bottom:22px; right:22px; z-index:9999; display:flex; flex-direction:column; gap:7px; pointer-events:none; }
-  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:#fff; pointer-events:auto; }
+  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--card-bg); pointer-events:auto; }
   .toast-msg.success { border-left:4px solid #22c55e; }
   .toast-msg.error   { border-left:4px solid #ef4444; }
   .toast-msg.info    { border-left:4px solid #3b82f6; }
 
-  .nav-link:focus { color:#94a3b8; outline:none; }
+  .nav-link:focus { color:var(--muted); outline:none; }
   .nav-link.active:focus { color:#4ade80; outline:none; }
 </style>
 
@@ -293,7 +293,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
         ?>
         <tr data-id="<?= $m['id'] ?>">
           <td><?= date('d.m.Y', strtotime($m['islem_tarihi'])) ?></td>
-          <td style="color:#94a3b8; font-size:12px;"><?= htmlspecialchars($m['belge_no'] ?? '') ?></td>
+          <td style="color:var(--muted); font-size:12px;"><?= htmlspecialchars($m['belge_no'] ?? '') ?></td>
           <td style="color:<?= !empty($m['vade_tarihi']) && $m['vade_tarihi'] < date('Y-m-d') && $dur !== 'odendi' ? '#dc2626' : '#374151' ?>; font-size:12px;">
             <?= !empty($m['vade_tarihi']) ? date('d.m.Y', strtotime($m['vade_tarihi'])) : '' ?>
           </td>
@@ -306,7 +306,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
           <td class="txt-right" style="font-weight:700;">
             <?= $fmt($brutTutar) ?> <?= $m['para_birimi'] ?>
             <?php if ((float)$m['kdv_orani'] > 0): ?>
-            <div style="font-size:11px; color:#94a3b8; font-weight:400;">KDV %<?= (int)$m['kdv_orani'] ?> = <?= $fmt((float)$m['kdv_tutari']) ?></div>
+            <div style="font-size:11px; color:var(--muted); font-weight:400;">KDV %<?= (int)$m['kdv_orani'] ?> = <?= $fmt((float)$m['kdv_tutari']) ?></div>
             <?php endif; ?>
           </td>
           <td><span class="durum-badge <?= $durumCls ?>"><?= $durumStr ?></span></td>
@@ -369,7 +369,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
       <button class="ms-mclose" onclick="closeModal('mOdeme')">&times;</button>
     </div>
     <div class="ms-mbody">
-      <div style="font-size:13px; color:#374151; background:#f0fdf4; padding:10px 14px; border-radius:5px; border:1px solid #bbf7d0;">
+      <div style="font-size:13px; color:var(--text2); background:rgba(46,204,113,.10); padding:10px 14px; border-radius:5px; border:1px solid rgba(46,204,113,.28);">
         <strong id="odemeKatLabel"></strong> masrafını ödenmiş olarak işaretlemek üzeresiniz.
       </div>
       <input type="hidden" id="odemeId" value="">
@@ -421,7 +421,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
       <button class="ms-mclose" onclick="closeModal('mBelge')">&times;</button>
     </div>
     <div class="ms-mbody">
-      <div style="background:#fefce8; border:1px solid #fde68a; border-radius:5px; padding:10px 14px; font-size:12.5px; color:#854d0e; line-height:1.6;">
+      <div style="background:rgba(243,156,18,.13); border:1px solid rgba(243,156,18,.30); border-radius:5px; padding:10px 14px; font-size:12.5px; color:var(--warning); line-height:1.6;">
         Uzantısı <strong>doc, docx, xls, xlsx, pdf, jpg, gif, png, txt</strong> olan dosyaları yükleyebilirsiniz.
         Dosya boyu <strong>5MB</strong> geçmemelidir.
       </div>
@@ -575,14 +575,14 @@ function masrafYazdir(m) {
   const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">
   <title>Tediye Makbuzu — #${m.id}</title>
   <style>
-    body { font-family:'Segoe UI',sans-serif; padding:30px 50px; color:#111; font-size:14px; }
+    body { font-family:'Segoe UI',sans-serif; padding:30px 50px; color:var(--text); font-size:14px; }
     h1 { text-align:center; font-size:20px; letter-spacing:2px; margin-bottom:30px; font-weight:700; }
     table { width:100%; border-collapse:collapse; margin-bottom:30px; }
     td { padding:10px 8px; vertical-align:top; }
     td:first-child { font-weight:700; text-transform:uppercase; width:160px; white-space:nowrap; }
-    .imza-row td { padding-top:50px; border-top:1px solid #ccc; font-weight:700; font-size:13px; }
+    .imza-row td { padding-top:50px; border-top:1px solid var(--border); font-weight:700; font-size:13px; }
     .imza-row td:last-child { text-align:right; }
-    .tutar-yazi { font-size:12px; color:#555; margin-top:4px; }
+    .tutar-yazi { font-size:12px; color:var(--text2); margin-top:4px; }
     @media print {
       body { padding:10px 20px; }
       button { display:none !important; }

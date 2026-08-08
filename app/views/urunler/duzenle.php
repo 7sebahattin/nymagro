@@ -33,8 +33,8 @@ if (!empty($hatalar)) {
 }
 ?>
 <style>
-  .breadcrumb-bar { display:flex; align-items:center; gap:6px; margin-bottom:16px; font-size:12.5px; color:#94a3b8; }
-  .breadcrumb-bar a { color:#64748b; text-decoration:none; }
+  .breadcrumb-bar { display:flex; align-items:center; gap:6px; margin-bottom:16px; font-size:12.5px; color:var(--muted); }
+  .breadcrumb-bar a { color:var(--muted); text-decoration:none; }
   .breadcrumb-bar a:hover { color:#4ade80; }
 
   .action-bar { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
@@ -43,13 +43,13 @@ if (!empty($hatalar)) {
   .btn-back { display:inline-flex; align-items:center; gap:7px; background:#0ea5e9; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; transition:background .2s; }
   .btn-back:hover { background:#0284c7; color:#fff; }
 
-  .form-card { background:#fff; border-radius:14px; box-shadow:0 2px 16px rgba(0,0,0,.08); overflow:hidden; }
+  .form-card { background:var(--card-bg); border-radius:14px; box-shadow:0 2px 16px rgba(0,0,0,.08); overflow:hidden; }
 
   /* Tabs */
-  .form-tabs { display:flex; border-bottom:2px solid #e2e8f0; background:#fff; overflow-x:auto; scrollbar-width:none; }
+  .form-tabs { display:flex; border-bottom:2px solid var(--border); background:var(--card-bg); overflow-x:auto; scrollbar-width:none; }
   .form-tabs::-webkit-scrollbar { display:none; }
-  .tab-btn { display:inline-flex; align-items:center; gap:7px; padding:14px 18px; font-size:12px; font-weight:700; color:#64748b; background:none; border:none; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; text-transform:uppercase; letter-spacing:.6px; transition:color .2s,border-color .2s; }
-  .tab-btn:hover { color:#1e293b; }
+  .tab-btn { display:inline-flex; align-items:center; gap:7px; padding:14px 18px; font-size:12px; font-weight:700; color:var(--muted); background:none; border:none; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; text-transform:uppercase; letter-spacing:.6px; transition:color .2s,border-color .2s; }
+  .tab-btn:hover { color:var(--text); }
   .tab-btn.active { color:#22c55e; border-bottom-color:#22c55e; }
   .tab-btn i { font-size:12px; }
   .tab-btn .tab-err { display:inline-block; width:7px; height:7px; border-radius:50%; background:#ef4444; margin-left:4px; }
@@ -63,41 +63,41 @@ if (!empty($hatalar)) {
   .form-col { display:flex; flex-direction:column; }
   .fg { display:flex; flex-direction:column; gap:5px; margin-bottom:18px; }
   .fg:last-child { margin-bottom:0; }
-  .flabel { font-size:12px; font-weight:600; color:#475569; text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:6px; margin-bottom:2px; }
-  .flabel .hi { color:#94a3b8; font-size:12px; cursor:help; }
+  .flabel { font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:6px; margin-bottom:2px; }
+  .flabel .hi { color:var(--muted); font-size:12px; cursor:help; }
   .flabel-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
   .flabel-row .flabel { margin-bottom:0; }
   .btn-inline-add { display:inline-flex; align-items:center; gap:4px; background:#22c55e; color:#fff; border:none; padding:3px 10px; border-radius:5px; font-size:11px; font-weight:700; cursor:pointer; transition:background .2s; }
   .btn-inline-add:hover { background:#16a34a; }
 
   /* Inputs */
-  .finput, .fselect { padding:9px 12px 9px 36px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13.5px; color:#1e293b; background:#fff; outline:none; transition:border-color .2s,box-shadow .2s; width:100%; }
+  .finput, .fselect { padding:9px 12px 9px 36px; border:1.5px solid var(--border); border-radius:8px; font-size:13.5px; color:var(--text); background:var(--card-bg); outline:none; transition:border-color .2s,box-shadow .2s; width:100%; }
   .finput:focus, .fselect:focus { border-color:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.12); }
   .finput.no-icon { padding-left:12px; }
   .fselect { padding-left:12px; appearance:auto; cursor:pointer; }
-  .ftextarea { padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13.5px; color:#1e293b; background:#fff; outline:none; transition:border-color .2s,box-shadow .2s; width:100%; resize:vertical; min-height:90px; }
+  .ftextarea { padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13.5px; color:var(--text); background:var(--card-bg); outline:none; transition:border-color .2s,box-shadow .2s; width:100%; resize:vertical; min-height:90px; }
   .ftextarea:focus { border-color:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.12); }
   .fwrap { position:relative; }
-  .fwrap i.fi { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:#cbd5e1; font-size:13px; pointer-events:none; }
-  .fhint { font-size:11.5px; color:#94a3b8; margin-top:3px; line-height:1.5; }
+  .fwrap i.fi { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:13px; pointer-events:none; }
+  .fhint { font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.5; }
   .is-error .finput, .is-error .fselect, .is-error .ftextarea { border-color:#ef4444 !important; }
 
   /* Price group */
   .price-group { display:flex; gap:0; }
   .price-group .finput { border-radius:8px 0 0 8px; border-right:none; flex:1; }
-  .price-group .fselect { border-radius:0 8px 8px 0; width:80px; padding-left:8px; font-weight:700; color:#475569; }
+  .price-group .fselect { border-radius:0 8px 8px 0; width:80px; padding-left:8px; font-weight:700; color:var(--text2); }
 
   /* Checkbox */
   .check-row { display:flex; align-items:center; gap:8px; }
   .custom-cb { width:16px; height:16px; accent-color:#22c55e; cursor:pointer; }
-  .check-label { font-size:13px; color:#475569; cursor:pointer; }
+  .check-label { font-size:13px; color:var(--text2); cursor:pointer; }
 
   /* Info box */
-  .info-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px 16px; font-size:13px; color:#166534; margin-bottom:20px; line-height:1.6; }
+  .info-box { background:rgba(46,204,113,.10); border:1px solid rgba(46,204,113,.28); border-radius:8px; padding:12px 16px; font-size:13px; color:var(--success); margin-bottom:20px; line-height:1.6; }
 
   /* Images */
   .images-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
-  .img-slot { width:100%; aspect-ratio:1; border:2px dashed #cbd5e1; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:border-color .2s,background .2s; color:#94a3b8; background:#f8fafc; position:relative; overflow:hidden; }
+  .img-slot { width:100%; aspect-ratio:1; border:2px dashed var(--border2); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:border-color .2s,background .2s; color:var(--muted); background:var(--surface-2); position:relative; overflow:hidden; }
   .img-slot:hover { border-color:#22c55e; background:rgba(34,197,94,.04); color:#22c55e; }
   .img-slot i { font-size:24px; }
   .img-slot span { font-size:11px; font-weight:600; }
@@ -105,8 +105,8 @@ if (!empty($hatalar)) {
   .img-main-badge { position:absolute; bottom:4px; left:4px; background:#22c55e; color:#fff; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; }
 
   /* Placeholder tab panels */
-  .tab-placeholder { padding:60px; text-align:center; color:#94a3b8; }
-  .tab-placeholder i { font-size:36px; margin-bottom:12px; display:block; color:#cbd5e1; }
+  .tab-placeholder { padding:60px; text-align:center; color:var(--muted); }
+  .tab-placeholder i { font-size:36px; margin-bottom:12px; display:block; color:var(--text2); }
   .tab-placeholder p { font-size:14px; }
 
   @media (max-width:900px) { .form-row-2 { grid-template-columns:1fr; } }
@@ -476,18 +476,18 @@ if (!empty($hatalar)) {
         <div style="display: flex; flex-direction: column; gap: 25px;">
           <?php foreach ($varyantlar as $v): ?>
             <div class="variant-group">
-              <h4 style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+              <h4 style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
                 <?= htmlspecialchars($v['ad']) ?>
               </h4>
               <div style="display: flex; flex-wrap: wrap; gap: 12px;">
                 <?php if (empty($v['degerler'])): ?>
-                   <span style="font-size: 12px; color: #94a3b8; font-style: italic;">Bu varyant için henüz değer tanımlanmamış.</span>
+                   <span style="font-size: 12px; color: var(--muted); font-style: italic;">Bu varyant için henüz değer tanımlanmamış.</span>
                 <?php else: ?>
                   <?php foreach ($v['degerler'] as $d): ?>
-                    <label style="display: flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: background .2s;">
+                    <label style="display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: background .2s;">
                       <input type="checkbox" name="varyant_degerleri[]" value="<?= $d['id'] ?>" 
                              class="custom-cb" <?= in_array($d['id'], $eski['varyant_degerleri'] ?? []) ? 'checked' : '' ?> />
-                      <span style="font-size: 13px; font-weight: 600; color: #475569;"><?= htmlspecialchars($d['deger']) ?></span>
+                      <span style="font-size: 13px; font-weight: 600; color: var(--text2);"><?= htmlspecialchars($d['deger']) ?></span>
                     </label>
                   <?php endforeach; ?>
                 <?php endif; ?>

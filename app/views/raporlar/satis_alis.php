@@ -58,16 +58,16 @@
     .col-span-2 { grid-column: span 2; }
 
     /* Custom Colors */
-    .bg-blue     { background-color: #2e3cb4; }
-    .bg-brown    { background-color: #8a3636; }
+    .bg-blue     { background-color: var(--info); }
+    .bg-brown    { background-color: var(--danger); }
     .bg-green1   { background-color: #00ba00; }
     .bg-red      { background-color: #e62e5c; }
     .bg-orange1  { background-color: #c96200; }
-    .bg-gray     { background-color: #3f444c; }
+    .bg-gray     { background-color: var(--text); }
     .bg-green2   { background-color: #688f4b; }
     .bg-orange2  { background-color: #ff8c1a; }
     .bg-green3   { background-color: #558c46; }
-    .bg-brown2   { background-color: #8c2a2a; }
+    .bg-brown2   { background-color: var(--danger); }
 
     /* Specific Font Sizes for some blocks if needed */
     .text-lg { font-size: 18px !important; }
@@ -137,16 +137,16 @@
     .col-span-2 { grid-column: span 2; }
 
     /* Custom Colors */
-    .bg-blue     { background-color: #2e3cb4; }
-    .bg-brown    { background-color: #8a3636; }
+    .bg-blue     { background-color: var(--info); }
+    .bg-brown    { background-color: var(--danger); }
     .bg-green1   { background-color: #00ba00; }
     .bg-red      { background-color: #e62e5c; }
     .bg-orange1  { background-color: #c96200; }
-    .bg-gray     { background-color: #3f444c; }
+    .bg-gray     { background-color: var(--text); }
     .bg-green2   { background-color: #688f4b; }
     .bg-orange2  { background-color: #ff8c1a; }
     .bg-green3   { background-color: #558c46; }
-    .bg-brown2   { background-color: #8c2a2a; }
+    .bg-brown2   { background-color: var(--danger); }
 
     /* Specific Font Sizes for some blocks if needed */
     .text-lg { font-size: 18px !important; }
@@ -198,7 +198,7 @@
     overflow-wrap: anywhere;
     word-break: normal;
   }
-  .nav-link.active:focus { color:#a9d4be; outline:none; }
+  .nav-link.active:focus { color:var(--text2); outline:none; }
   @media (max-width: 992px) {
     .report-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
     .col-span-4 { grid-column: span 6; }

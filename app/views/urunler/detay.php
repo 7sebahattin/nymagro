@@ -16,12 +16,12 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   
   /* Flash Messages */
   .alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-  .alert-success { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
-  .alert-error { background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; }
+  .alert-success { background: rgba(46,204,113,.15); border: 1px solid rgba(46,204,113,.28); color: var(--success); }
+  .alert-error { background: rgba(231,76,60,.15); border: 1px solid rgba(231,76,60,.28); color: var(--danger); }
 
   /* Breadcrumb & Header */
   .detail-header { background: #337ab7; color: #fff; padding: 15px 20px; border-radius: 4px 4px 0 0; font-size: 16px; font-weight: 600; }
-  .detail-tags { background: #fff; padding: 10px 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 4px 4px; display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .detail-tags { background: var(--card-bg); padding: 10px 20px; border: 1px solid var(--border); border-top: none; border-radius: 0 0 4px 4px; display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
   
   .d-badge { font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 3px; text-transform: uppercase; color: #fff; }
   .bg-red { background: #d9534f; }
@@ -58,34 +58,34 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   .btn-dropdown-wrap { position: relative; display: inline-block; }
   
   /* Accordion Panels */
-  .accordion-panel { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; background: #fff; }
+  .accordion-panel { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 10px; background: var(--card-bg); }
   .accordion-header { background: #3a4a5a; color: #fff; padding: 12px 15px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
   .accordion-header:hover { background: #2c3845; }
   .accordion-header i.fa-arrows-rotate { font-size: 11px; margin-left: 8px; color: #5cb85c; }
   .accordion-body { padding: 15px; display: none; }
   .accordion-body.open { display: block; }
-  .accordion-caret { transition: transform 0.2s; background: #fff; color: #3a4a5a; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 3px; }
+  .accordion-caret { transition: transform 0.2s; background: var(--card-bg); color: var(--text); width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 3px; }
   .accordion-panel.open .accordion-caret { transform: rotate(180deg); }
   
-  .empty-data { padding: 20px; text-align: center; color: #999; font-size: 13px; }
+  .empty-data { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
 
   /* History Tables */
-  .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #333; }
-  .hist-table th { background: #f5f5f5; padding: 8px 12px; border-bottom: 2px solid #ddd; text-align: left; }
-  .hist-table td { padding: 8px 12px; border-bottom: 1px solid #eee; }
-  .hist-table tr:hover { background: #fafafa; }
+  .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text); }
+  .hist-table th { background: var(--surface-2); padding: 8px 12px; border-bottom: 2px solid var(--border); text-align: left; }
+  .hist-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .hist-table tr:hover { background: var(--surface-2); }
   
   /* Modal Overlay */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal-box { background: #fff; border-radius: 6px; width: 400px; max-width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; }
-  .modal-header { background: #f5f5f5; padding: 15px; border-bottom: 1px solid #ddd; font-weight: 600; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
-  .modal-close { cursor: pointer; border: none; background: none; font-size: 16px; color: #999; }
+  .modal-box { background: var(--card-bg); border-radius: 6px; width: 400px; max-width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; }
+  .modal-header { background: var(--surface-2); padding: 15px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+  .modal-close { cursor: pointer; border: none; background: none; font-size: 16px; color: var(--muted); }
   .modal-body { padding: 20px; }
-  .modal-footer { padding: 15px; border-top: 1px solid #ddd; background: #fafafa; text-align: right; }
+  .modal-footer { padding: 15px; border-top: 1px solid var(--border); background: var(--surface-2); text-align: right; }
   .form-group { margin-bottom: 15px; }
-  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #333; }
-  .form-control { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text); }
+  .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
   .btn-modal { padding: 8px 16px; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; color: #fff; }
   .btn-cancel { background: #999; margin-right: 10px; }
   .btn-save { background: #5cb85c; }
@@ -268,7 +268,7 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
           <tbody>
             <?php foreach ($depoStoklari as $ds): ?>
               <tr>
-                <td style="font-weight:600; color:#1e293b;"><?= htmlspecialchars($ds['depo_adi']) ?></td>
+                <td style="font-weight:600; color:var(--text);"><?= htmlspecialchars($ds['depo_adi']) ?></td>
                 <td style="font-weight:700; color:#3b82f6;"><?= number_format((float)$ds['miktar'], 2, ',', '.') ?></td>
                 <td><?= htmlspecialchars($urun['birim']) ?></td>
               </tr>
@@ -307,7 +307,7 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
                      <?= htmlspecialchars($mh['islem_tipi']) ?>
                    </span>
                 </td>
-                <td><i class="fa-solid fa-warehouse" style="font-size:11px; color:#94a3b8; margin-right:4px;"></i> <?= htmlspecialchars($mh['depo_adi'] ?: 'Belirtilmemiş') ?></td>
+                <td><i class="fa-solid fa-warehouse" style="font-size:11px; color:var(--muted); margin-right:4px;"></i> <?= htmlspecialchars($mh['depo_adi'] ?: 'Belirtilmemiş') ?></td>
                 <td style="font-weight:700;"><?= number_format((float)$mh['miktar'], 2, ',', '.') ?></td>
                 <td><?= htmlspecialchars($mh['aciklama']) ?></td>
               </tr>

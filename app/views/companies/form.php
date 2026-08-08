@@ -6,7 +6,7 @@ $v = fn(string $key, string $default = '') => htmlspecialchars((string)($company
 $themeColors = [
   'emerald' => ['label' => 'Yeşil', 'hex' => '#22c55e'],
   'blue' => ['label' => 'Mavi', 'hex' => '#3b82f6'],
-  'violet' => ['label' => 'Mor', 'hex' => '#1e8c55'],
+  'violet' => ['label' => 'Mor', 'hex' => '#8b5cf6'],
   'amber' => ['label' => 'Sarı', 'hex' => '#f59e0b'],
   'rose' => ['label' => 'Kırmızı', 'hex' => '#f43f5e'],
   'cyan' => ['label' => 'Camgöbeği', 'hex' => '#06b6d4'],
@@ -21,7 +21,7 @@ $selectedTheme = $settings['theme_color'] ?? 'emerald';
 <style>
   .company-palette { display:flex; flex-wrap:wrap; gap:8px; }
   .company-palette input { position:absolute; opacity:0; pointer-events:none; }
-  .company-palette label { width:32px; height:32px; border-radius:8px; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center; cursor:pointer; background:#fff; transition:border-color .15s, box-shadow .15s, transform .15s; }
+  .company-palette label { width:32px; height:32px; border-radius:8px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; background:var(--card-bg); transition:border-color .15s, box-shadow .15s, transform .15s; }
   .company-palette label span { width:20px; height:20px; border-radius:6px; background:var(--swatch); box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); }
   .company-palette input:checked + label { border-color:var(--swatch); box-shadow:0 0 0 3px color-mix(in srgb, var(--swatch) 22%, transparent); transform:translateY(-1px); }
 </style>
@@ -99,7 +99,7 @@ $selectedTheme = $settings['theme_color'] ?? 'emerald';
           <div class="form-text">PNG, JPG, WEBP veya GIF. Yazdırma şablonlarında şirket adının yanında kullanılır.</div>
           <?php if (!empty($company['logo_path'])): ?>
             <div class="mt-2 d-flex align-items-center gap-2">
-              <img src="<?= BASE_URL ?>/companies/logo/<?= (int)$company['id'] ?>" alt="" style="width:64px;height:64px;object-fit:contain;border:1px solid #e2e8f0;border-radius:8px;padding:6px;background:#fff;">
+              <img src="<?= BASE_URL ?>/companies/logo/<?= (int)$company['id'] ?>" alt="" style="width:64px;height:64px;object-fit:contain;border:1px solid var(--border);border-radius:8px;padding:6px;background:var(--card-bg);">
               <span class="text-muted small"><?= htmlspecialchars((string)$company['logo_path']) ?></span>
             </div>
           <?php endif; ?>

@@ -21,7 +21,7 @@ $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22
   .mk-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
   @media(max-width:800px) { .mk-grid { grid-template-columns:1fr; } }
 
-  .mk-card { background:#fff; border:1px solid #e2e8f0; border-radius:6px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.06); margin-bottom:16px; }
+  .mk-card { background:var(--card-bg); border:1px solid var(--border); border-radius:6px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.06); margin-bottom:16px; }
   .mk-header {
     background:var(--navy); color:#fff;
     padding:10px 16px; font-size:13px; font-weight:700; text-transform:uppercase;
@@ -51,12 +51,12 @@ $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22
   }
   .mk-badge:hover .badge-del { display:flex; }
 
-  .mk-empty { font-size:12px; color:#94a3b8; font-style:italic; }
+  .mk-empty { font-size:12px; color:var(--muted); font-style:italic; }
 
   /* ── MODALLER ── */
   .mk-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:900; display:none; align-items:center; justify-content:center; }
   .mk-overlay.open { display:flex; }
-  .mk-modal { background:#fff; border-radius:7px; width:440px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
+  .mk-modal { background:var(--card-bg); border-radius:7px; width:440px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
   .mk-mhdr { background:var(--navy); color:#fff; padding:13px 18px; font-size:14px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
   .mk-mhdr.green { background:var(--green); }
   .mk-mhdr.blue  { background:#337ab7; }
@@ -64,10 +64,10 @@ $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22
   .mk-mclose:hover { opacity:1; }
   .mk-mbody { padding:20px 22px; display:flex; flex-direction:column; gap:14px; }
   .mk-mrow { display:grid; grid-template-columns:100px 1fr; align-items:center; gap:10px; }
-  .mk-mrow label { font-size:12.5px; font-weight:600; color:#374151; }
-  .mk-minp, .mk-msel { padding:7px 10px; border:1px solid #cbd5e1; border-radius:5px; font-size:13px; color:#1e293b; outline:none; width:100%; box-sizing:border-box; }
+  .mk-mrow label { font-size:12.5px; font-weight:600; color:var(--text2); }
+  .mk-minp, .mk-msel { padding:7px 10px; border:1px solid var(--border2); border-radius:5px; font-size:13px; color:var(--text); outline:none; width:100%; box-sizing:border-box; }
   .mk-minp:focus, .mk-msel:focus { border-color:var(--navy); }
-  .mk-mftr { padding:12px 22px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:8px; }
+  .mk-mftr { padding:12px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
   .mk-mbtn { display:inline-flex; align-items:center; gap:5px; padding:7px 16px; border:none; border-radius:5px; font-size:13px; font-weight:600; cursor:pointer; }
   .mk-mbtn:hover { filter:brightness(1.1); }
   .mk-mbtn.gray  { background:#64748b; color:#fff; }
@@ -78,15 +78,15 @@ $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22
   .renk-paleti { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
   .renk-sec { width:24px; height:24px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:transform .1s; }
   .renk-sec:hover  { transform:scale(1.2); }
-  .renk-sec.active { border-color:#1e293b; }
+  .renk-sec.active { border-color:var(--text); }
 
   /* Toast */
   .toast-container { position:fixed; bottom:22px; right:22px; z-index:9999; display:flex; flex-direction:column; gap:7px; pointer-events:none; }
-  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:#fff; pointer-events:auto; }
+  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--card-bg); pointer-events:auto; }
   .toast-msg.success { border-left:4px solid #22c55e; }
   .toast-msg.error   { border-left:4px solid #ef4444; }
 
-  .nav-link:focus { color:#94a3b8; outline:none; }
+  .nav-link:focus { color:var(--muted); outline:none; }
   .nav-link.active:focus { color:#4ade80; outline:none; }
 </style>
 
@@ -192,10 +192,10 @@ function renderKat(array $kat): string {
                  onclick="secRenk(this,'mAnaRenk','mAnaPaleti')"></div>
           </div>
           <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
-            <span style="font-size:12px; color:#64748b;">Özel:</span>
+            <span style="font-size:12px; color:var(--muted);">Özel:</span>
             <input type="color" id="mAnaRenkPicker" value="#2c3e6b"
                    oninput="document.getElementById('mAnaRenk').value=this.value; highlightNone('mAnaPaleti')"
-                   style="width:32px; height:28px; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer;">
+                   style="width:32px; height:28px; border:1px solid var(--border2); border-radius:4px; cursor:pointer;">
           </div>
         </div>
       </div>
@@ -233,10 +233,10 @@ function renderKat(array $kat): string {
             <?php endforeach; ?>
           </div>
           <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
-            <span style="font-size:12px; color:#64748b;">Özel:</span>
+            <span style="font-size:12px; color:var(--muted);">Özel:</span>
             <input type="color" id="mAltRenkPicker" value="#5cb85c"
                    oninput="document.getElementById('mAltRenk').value=this.value; highlightNone('mAltPaleti')"
-                   style="width:32px; height:28px; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer;">
+                   style="width:32px; height:28px; border:1px solid var(--border2); border-radius:4px; cursor:pointer;">
           </div>
         </div>
       </div>
@@ -276,10 +276,10 @@ function renderKat(array $kat): string {
                  onclick="secRenk(this,'mDuzRenk','mDuzPaleti')"></div>
           </div>
           <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
-            <span style="font-size:12px; color:#64748b;">Özel:</span>
+            <span style="font-size:12px; color:var(--muted);">Özel:</span>
             <input type="color" id="mDuzRenkPicker" value="#5bc0de"
                    oninput="document.getElementById('mDuzRenk').value=this.value; highlightNone('mDuzPaleti')"
-                   style="width:32px; height:28px; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer;">
+                   style="width:32px; height:28px; border:1px solid var(--border2); border-radius:4px; cursor:pointer;">
           </div>
         </div>
       </div>

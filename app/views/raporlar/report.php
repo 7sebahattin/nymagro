@@ -36,35 +36,35 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
 .report-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .report-btn-sm { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
 .report-primary { background: #1e293b; color: #fff; }
-.report-muted { background: #e5e7eb; color: #111827; }
-.filter-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
+.report-muted { background: var(--surface-2); color: var(--text); }
+.filter-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
 .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; align-items: end; }
-.filter-field label { display: block; font-size: 12px; color: #475569; font-weight: 700; margin-bottom: 4px; }
-.filter-field input, .filter-field select { width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 9px; font-size: 13px; background: #fff; }
+.filter-field label { display: block; font-size: 12px; color: var(--text2); font-weight: 700; margin-bottom: 4px; }
+.filter-field input, .filter-field select { width: 100%; height: 36px; border: 1px solid var(--border2); border-radius: 6px; padding: 6px 9px; font-size: 13px; background: var(--card-bg); }
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
-.summary-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
-.summary-card span { display: block; color: #64748b; font-size: 12px; font-weight: 700; }
-.summary-card strong { display: block; color: #111827; font-size: 18px; margin-top: 5px; }
-.report-note { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.45; }
-.table-wrap { overflow-x: auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
+.summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.summary-card span { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
+.summary-card strong { display: block; color: var(--text); font-size: 18px; margin-top: 5px; }
+.report-note { background: rgba(243,156,18,.15); border: 1px solid rgba(243,156,18,.30); color: #9a3412; border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.45; }
+.table-wrap { overflow-x: auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; }
 .report-table { width: 100%; border-collapse: collapse; min-width: 920px; }
-.report-table th { background: #1e293b; color: #cbd5e1; text-align: left; padding: 10px; font-size: 12px; white-space: nowrap; }
-.report-table td { border-top: 1px solid #eef2f7; padding: 9px 10px; font-size: 13px; color: #1f2937; vertical-align: top; }
-.report-table tfoot td { background: #f8fafc; font-weight: 800; }
-.empty-state { text-align: center; padding: 36px 12px; color: #64748b; font-size: 14px; }
-.chart-bars { display: flex; gap: 8px; align-items: end; min-height: 170px; padding: 14px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; overflow-x: auto; }
-.chart-bar { min-width: 80px; display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 6px; color: #475569; font-size: 11px; }
+.report-table th { background: #1e293b; color: var(--text2); text-align: left; padding: 10px; font-size: 12px; white-space: nowrap; }
+.report-table td { border-top: 1px solid var(--border); padding: 9px 10px; font-size: 13px; color: var(--text); vertical-align: top; }
+.report-table tfoot td { background: var(--surface-2); font-weight: 800; }
+.empty-state { text-align: center; padding: 36px 12px; color: var(--muted); font-size: 14px; }
+.chart-bars { display: flex; gap: 8px; align-items: end; min-height: 170px; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg); overflow-x: auto; }
+.chart-bar { min-width: 80px; display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 6px; color: var(--text2); font-size: 11px; }
 .chart-bar i { display: block; width: 38px; background: #2563eb; border-radius: 4px 4px 0 0; }
 .report-print-area { display: flex; flex-direction: column; gap: 14px; }
-.report-print-title { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; }
+.report-print-title { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
 .report-print-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.report-print-logo { width: 38px; height: 38px; object-fit: contain; border: 1px solid #e5e7eb; border-radius: 6px; padding: 3px; background: #fff; flex: 0 0 auto; }
+.report-print-logo { width: 38px; height: 38px; object-fit: contain; border: 1px solid var(--border); border-radius: 6px; padding: 3px; background: var(--card-bg); flex: 0 0 auto; }
 .report-print-logo-fallback { width: 38px; height: 38px; border-radius: 6px; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex: 0 0 auto; }
-.report-print-title h1 { margin: 0; color: #0f172a; font-size: 20px; line-height: 1.2; font-weight: 800; }
-.report-print-title p { margin: 5px 0 0; color: #64748b; font-size: 12px; font-weight: 600; }
+.report-print-title h1 { margin: 0; color: var(--text); font-size: 20px; line-height: 1.2; font-weight: 800; }
+.report-print-title p { margin: 5px 0 0; color: var(--muted); font-size: 12px; font-weight: 600; }
 @media print {
   @page { size: A4 landscape; margin: 8mm; }
-  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { background: var(--card-bg) !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body * { visibility: hidden; }
   .report-print-area, .report-print-area * { visibility: visible; }
   .sidebar, .topbar, .mobile-bottom-bar, .report-actions, .filter-box, .no-print { display: none !important; }
@@ -92,8 +92,8 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
   .report-table tfoot { display: table-row-group; }
   .report-table tr, .report-table td, .report-table th { break-inside: avoid; page-break-inside: avoid; }
   .report-table th { background: #1e293b !important; color: #fff !important; padding: 3px 4px; font-size: 7.5px; white-space: normal; }
-  .report-table td { color: #111827 !important; padding: 3px 4px; font-size: 7.5px; border-color: #dbe3ef !important; }
-  .report-table tfoot td { background: #eef2f7 !important; font-weight: 800; }
+  .report-table td { color: var(--text) !important; padding: 3px 4px; font-size: 7.5px; border-color: var(--border) !important; }
+  .report-table tfoot td { background: var(--surface-2) !important; font-weight: 800; }
   .empty-state { padding: 10px 4px; font-size: 9px; }
   .report-print-area .summary-grid,
   .report-print-area .report-note,
@@ -206,7 +206,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
         </div>
 
     <?php if (!empty($description)): ?>
-        <div class="report-note" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af;"><?= $e($description) ?></div>
+        <div class="report-note" style="background:rgba(59,130,246,.15);border-color:#bfdbfe;color:var(--info);"><?= $e($description) ?></div>
     <?php endif; ?>
 
     <?php if (!empty($summary)): ?>

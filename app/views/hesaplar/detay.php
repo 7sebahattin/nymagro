@@ -73,49 +73,49 @@ $tipLabel = [
   .h-action-row button:hover { filter: brightness(1.1); }
 
   /* ── TABLE CARD ── */
-  .table-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+  .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .table-header {
     background: var(--navy); color: #fff; padding: 11px 16px;
     font-size: 12.5px; font-weight: 700; letter-spacing: .4px;
     display: flex; align-items: center; justify-content: space-between;
   }
-  .table-controls { padding: 8px 14px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px; }
-  .table-controls label { font-size: 12.5px; color: #64748b; margin: 0; }
+  .table-controls { padding: 8px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .table-controls label { font-size: 12.5px; color: var(--muted); margin: 0; }
   .table-controls input {
-    padding: 5px 10px; border: 1px solid #cbd5e1; border-radius: 5px;
+    padding: 5px 10px; border: 1px solid var(--border2); border-radius: 5px;
     font-size: 13px; outline: none; width: 220px;
   }
   .table-controls input:focus { border-color: var(--teal); }
 
   .hrk-table { width: 100%; border-collapse: collapse; }
-  .hrk-table thead tr { background: #f1f5f9; }
+  .hrk-table thead tr { background: var(--surface-2); }
   .hrk-table thead th {
-    padding: 9px 12px; font-size: 12px; font-weight: 700; color: #475569;
-    border-bottom: 2px solid #e2e8f0; white-space: nowrap; text-align: left;
+    padding: 9px 12px; font-size: 12px; font-weight: 700; color: var(--text2);
+    border-bottom: 2px solid var(--border); white-space: nowrap; text-align: left;
   }
-  .hrk-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background .1s; }
-  .hrk-table tbody tr:hover { background: #f8fafc; }
-  .hrk-table tbody td { padding: 9px 12px; font-size: 13px; color: #374151; vertical-align: middle; }
+  .hrk-table tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  .hrk-table tbody tr:hover { background: var(--surface-2); }
+  .hrk-table tbody td { padding: 9px 12px; font-size: 13px; color: var(--text2); vertical-align: middle; }
   .txt-right { text-align: right !important; }
   .txt-green { color: #16a34a; font-weight: 600; }
   .txt-red   { color: #dc2626; font-weight: 600; }
-  .txt-gray  { color: #94a3b8; }
+  .txt-gray  { color: var(--muted); }
 
   .badge-tip {
     display: inline-block; padding: 2px 8px; border-radius: 4px;
     font-size: 11.5px; font-weight: 600; white-space: nowrap;
   }
-  .badge-giris   { background: #dcfce7; color: #16a34a; }
-  .badge-cikis   { background: #fee2e2; color: #dc2626; }
-  .badge-transfer { background: #fef9c3; color: #92400e; }
+  .badge-giris   { background: rgba(46,204,113,.15); color: #16a34a; }
+  .badge-cikis   { background: rgba(231,76,60,.15); color: #dc2626; }
+  .badge-transfer { background: rgba(243,156,18,.15); color: var(--warning); }
 
   .btn-islem {
-    font-size: 12px; padding: 4px 10px; background: #f1f5f9;
-    border: 1px solid #e2e8f0; border-radius: 4px; cursor: pointer;
+    font-size: 12px; padding: 4px 10px; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
   }
-  .btn-islem:hover { background: #e2e8f0; }
+  .btn-islem:hover { background: var(--surface-2); }
 
-  .empty-state { text-align: center; padding: 48px 16px; color: #94a3b8; font-size: 14px; }
+  .empty-state { text-align: center; padding: 48px 16px; color: var(--muted); font-size: 14px; }
   .empty-state i { font-size: 32px; display: block; margin-bottom: 10px; }
 
   /* ── MODALLER ── */
@@ -125,7 +125,7 @@ $tipLabel = [
   }
   .hmodal-overlay.open { display: flex; }
   .hmodal {
-    background: #fff; border-radius: 8px; width: 500px; max-width: 96vw;
+    background: var(--card-bg); border-radius: 8px; width: 500px; max-width: 96vw;
     box-shadow: 0 8px 40px rgba(0,0,0,.25); overflow: hidden;
     display: flex; flex-direction: column;
   }
@@ -138,14 +138,14 @@ $tipLabel = [
   .hmodal-close:hover { opacity: 1; }
   .hmodal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
   .hupd-row { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 10px; }
-  .hupd-row label { font-size: 12.5px; font-weight: 600; color: #374151; }
+  .hupd-row label { font-size: 12.5px; font-weight: 600; color: var(--text2); }
   .hupd-inp, .hupd-select {
-    padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 5px;
-    font-size: 13px; color: #1e293b; outline: none; width: 100%; box-sizing: border-box;
+    padding: 7px 10px; border: 1px solid var(--border2); border-radius: 5px;
+    font-size: 13px; color: var(--text); outline: none; width: 100%; box-sizing: border-box;
   }
   .hupd-inp:focus, .hupd-select:focus { border-color: var(--teal); }
   .hmodal-footer {
-    padding: 12px 20px; border-top: 1px solid #f1f5f9;
+    padding: 12px 20px; border-top: 1px solid var(--border);
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
   }
   .hmodal-footer-r { display: flex; gap: 8px; }
@@ -167,14 +167,14 @@ $tipLabel = [
 
   /* Toast */
   .toast-container { position: fixed; bottom: 22px; right: 22px; z-index: 9999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
-  .toast-msg { display: flex; align-items: center; gap: 9px; padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 3px 14px rgba(0,0,0,.15); background: #fff; pointer-events: auto; }
+  .toast-msg { display: flex; align-items: center; gap: 9px; padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 3px 14px rgba(0,0,0,.15); background: var(--card-bg); pointer-events: auto; }
   .toast-msg.success { border-left: 4px solid #22c55e; }
   .toast-msg.error   { border-left: 4px solid #ef4444; }
   .toast-msg.info    { border-left: 4px solid #3b82f6; }
 
   /* sidebar */
   .profile-dropdown.show { display: flex !important; }
-  .nav-link:focus { color: #94a3b8; outline: none; }
+  .nav-link:focus { color: var(--muted); outline: none; }
   .nav-link.active:focus { color: #4ade80; outline: none; }
 </style>
 
@@ -279,7 +279,7 @@ $tipLabel = [
         <tr data-id="<?= $h['id'] ?>">
           <td>
             <div><?= $tarih ?></div>
-            <div style="font-size:11px; color:#94a3b8;"><?= $saat ?></div>
+            <div style="font-size:11px; color:var(--muted);"><?= $saat ?></div>
           </td>
           <td><span class="badge-tip <?= $badgeCls ?>"><?= $htipLabel ?></span></td>
           <td>
@@ -287,7 +287,7 @@ $tipLabel = [
               <div style="font-weight:500;"><?= htmlspecialchars($h['cari_adi']) ?></div>
             <?php endif; ?>
             <?php if (!empty($h['aciklama'])): ?>
-              <div style="font-size:12px; color:#64748b;"><?= htmlspecialchars($h['aciklama']) ?></div>
+              <div style="font-size:12px; color:var(--muted);"><?= htmlspecialchars($h['aciklama']) ?></div>
             <?php endif; ?>
           </td>
           <td class="txt-right txt-green">
@@ -443,7 +443,7 @@ $tipLabel = [
     <div class="hmodal-body">
       <div class="hupd-row">
         <label>Kaynak Hesap</label>
-        <div style="padding:6px 10px; background:#f1f5f9; border-radius:5px; font-size:13px; font-weight:600;">
+        <div style="padding:6px 10px; background:var(--surface-2); border-radius:5px; font-size:13px; font-weight:600;">
           <?= htmlspecialchars($hesap['hesap_adi']) ?> (mevcut)
         </div>
       </div>

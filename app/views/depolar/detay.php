@@ -5,7 +5,7 @@
 $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
 ?>
 <style>
-  .page-container { padding: 20px; font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f7f6; min-height: 100vh; }
+  .page-container { padding: 20px; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--surface-2); min-height: 100vh; }
   
   /* Header */
   .depo-name-header { background: #337ab7; color: #fff; padding: 10px 15px; border-radius: 4px; font-size: 14px; font-weight: 600; margin-bottom: 20px; text-transform: uppercase; }
@@ -25,40 +25,40 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   .btn-cyan:hover, .btn-green:hover { filter: brightness(0.9); }
 
   /* Table Section */
-  .stok-section { background: #fff; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  .stok-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
   .section-header { background: #3a4a5a; color: #fff; padding: 12px 15px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
   
-  .filter-row { padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
-  .filter-row label { font-size: 12px; color: #777; }
-  .filter-input { border: 1px solid #ccc; border-radius: 3px; padding: 4px 8px; font-size: 13px; outline: none; }
+  .filter-row { padding: 10px 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+  .filter-row label { font-size: 12px; color: var(--muted); }
+  .filter-input { border: 1px solid var(--border); border-radius: 3px; padding: 4px 8px; font-size: 13px; outline: none; }
 
   .stok-table { width: 100%; border-collapse: collapse; }
-  .stok-table th { border-bottom: 2px solid #eee; padding: 10px 15px; text-align: left; font-size: 12px; font-weight: 600; color: #555; }
-  .stok-table td { padding: 12px 15px; border-bottom: 1px solid #f5f5f5; font-size: 13px; color: #333; }
-  .stok-table tr:hover { background: #fcfcfc; }
+  .stok-table th { border-bottom: 2px solid var(--border); padding: 10px 15px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text2); }
+  .stok-table td { padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); }
+  .stok-table tr:hover { background: var(--surface-2); }
   .urun-link { color: #5bc0de; text-decoration: none; font-weight: 600; }
   .urun-link:hover { text-decoration: underline; }
 
   /* Modal Overlay */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal-box { background: #fff; border-radius: 6px; width: 450px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-  .modal-header { background: #f8fafc; padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; border-radius: 6px 6px 0 0; }
-  .modal-title { font-weight: 700; font-size: 15px; color: #333; }
-  .modal-close { cursor: pointer; border: none; background: none; font-size: 20px; color: #999; }
+  .modal-box { background: var(--card-bg); border-radius: 6px; width: 450px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  .modal-header { background: var(--surface-2); padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; border-radius: 6px 6px 0 0; }
+  .modal-title { font-weight: 700; font-size: 15px; color: var(--text); }
+  .modal-close { cursor: pointer; border: none; background: none; font-size: 20px; color: var(--muted); }
   .modal-body { padding: 20px; }
-  .modal-footer { padding: 15px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+  .modal-footer { padding: 15px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   
   .fg { margin-bottom: 15px; }
-  .flabel { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
-  .finput { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; outline: none; }
+  .flabel { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+  .finput { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none; }
   .btn-submit { background: #337ab7; color: #fff; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; }
   .btn-delete { background: #d9534f; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; text-decoration: none; }
 </style>
 
 <div class="page-container">
   <?php if (!empty($flash)): ?>
-    <div style="padding:10px; background:#dff0d8; border:1px solid #d6e9c6; color:#3c763d; border-radius:4px; margin-bottom:20px; font-size:13px;">
+    <div style="padding:10px; background:rgba(46,204,113,.15); border:1px solid rgba(46,204,113,.28); color:var(--success); border-radius:4px; margin-bottom:20px; font-size:13px;">
       <?= htmlspecialchars($flash['mesaj']) ?>
     </div>
   <?php endif; ?>
@@ -107,19 +107,19 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
       </thead>
       <tbody>
         <?php if (empty($stoklar)): ?>
-          <tr><td colspan="5" style="text-align:center; padding:30px; color:#999;">Bu depoda ürün bulunmamaktadır.</td></tr>
+          <tr><td colspan="5" style="text-align:center; padding:30px; color:var(--muted);">Bu depoda ürün bulunmamaktadır.</td></tr>
         <?php else: ?>
           <?php foreach ($stoklar as $s): ?>
             <tr>
-              <td style="color:#777; font-size:11px;"><?= htmlspecialchars($s['stok_kodu'] ?: '-') ?></td>
-              <td style="color:#777; font-size:12px;"><?= htmlspecialchars($s['marka'] ?: '-') ?></td>
+              <td style="color:var(--muted); font-size:11px;"><?= htmlspecialchars($s['stok_kodu'] ?: '-') ?></td>
+              <td style="color:var(--muted); font-size:12px;"><?= htmlspecialchars($s['marka'] ?: '-') ?></td>
               <td>
                 <a href="<?= BASE_URL ?>/urun/detay/<?= $s['urun_id'] ?>" class="urun-link">
                   <?= htmlspecialchars($s['urun_adi']) ?>
                 </a>
               </td>
               <td><?= number_format($s['miktar'], 0) ?> <?= htmlspecialchars($s['birim']) ?></td>
-              <td style="text-align:right; font-weight:600; color:#444;">
+              <td style="text-align:right; font-weight:600; color:var(--text);">
                 <?= $fmt((float)$s['miktar'] * (float)$s['alis_fiyati']) ?>
               </td>
             </tr>
@@ -160,7 +160,7 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
         <?php if ($depo['id'] != 1 && $toplamDeger <= 0): ?>
           <a href="<?= BASE_URL ?>/depo/sil/<?= $depo['id'] ?>" class="btn-delete" onclick="return confirm('Bu depoyu silmek istediğinize emin misiniz?')">Depoyu Sil</a>
         <?php else: ?>
-           <span style="font-size:11px; color:#999;">
+           <span style="font-size:11px; color:var(--muted);">
              <?php if ($depo['id'] == 1): ?>Ana depo silinemez.<?php else: ?>İçinde stok olan depo silinemez.<?php endif; ?>
            </span>
         <?php endif; ?>

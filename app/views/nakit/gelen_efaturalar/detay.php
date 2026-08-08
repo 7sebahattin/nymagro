@@ -5,10 +5,10 @@ $dueText = ['vade_yok'=>'Vade Yok','vadesi_gecti'=>'Vadesi Geçti','vadesi_yakla
 ?>
 <style>
 .gef-btn{border:0;border-radius:4px;padding:8px 12px;font-size:12.5px;font-weight:700;color:#fff;text-decoration:none;background:#337ab7;display:inline-flex;gap:6px;align-items:center;cursor:pointer}.gef-btn.green{background:#5cb85c}.gef-btn.gray{background:#64748b}.gef-btn.red{background:#d9534f}
-.gef-layout{display:grid;grid-template-columns:2fr 1fr;gap:14px}.panel{background:#fff;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden}.panel h5{margin:0;background:#2c3e6b;color:#fff;padding:11px 14px;font-size:14px}.body{padding:14px}
-.info{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.info div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:9px}.info small{display:block;color:#64748b;font-weight:700}.info b{font-size:14px}
-table{width:100%;border-collapse:collapse}th{background:#f8fafc;text-align:left;color:#475569;font-size:12px;padding:8px}td{border-bottom:1px solid #e2e8f0;padding:8px;font-size:12.5px}.txt-r{text-align:right}
-input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:4px;padding:7px;font-size:13px;margin-bottom:8px}
+.gef-layout{display:grid;grid-template-columns:2fr 1fr;gap:14px}.panel{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;overflow:hidden}.panel h5{margin:0;background:#2c3e6b;color:#fff;padding:11px 14px;font-size:14px}.body{padding:14px}
+.info{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.info div{background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:9px}.info small{display:block;color:var(--muted);font-weight:700}.info b{font-size:14px}
+table{width:100%;border-collapse:collapse}th{background:var(--surface-2);text-align:left;color:var(--text2);font-size:12px;padding:8px}td{border-bottom:1px solid var(--border);padding:8px;font-size:12.5px}.txt-r{text-align:right}
+input,select,textarea{width:100%;border:1px solid var(--border2);border-radius:4px;padding:7px;font-size:13px;margin-bottom:8px}
 @media(max-width:950px){.gef-layout,.info{grid-template-columns:1fr}}
 </style>
 
@@ -93,7 +93,7 @@ input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:4px;padd
           <textarea name="not_metni" placeholder="Not ekle"></textarea>
           <button class="gef-btn gray" type="submit">Not Ekle</button>
         </form>
-        <?php foreach ($notlar as $n): ?><div style="border-top:1px solid #e2e8f0;padding-top:8px;margin-top:8px;font-size:12px"><?= htmlspecialchars($n['not_metni']) ?><br><small><?= htmlspecialchars($n['created_at']) ?></small></div><?php endforeach; ?>
+        <?php foreach ($notlar as $n): ?><div style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px;font-size:12px"><?= htmlspecialchars($n['not_metni']) ?><br><small><?= htmlspecialchars($n['created_at']) ?></small></div><?php endforeach; ?>
       </div>
     </div>
   </div>

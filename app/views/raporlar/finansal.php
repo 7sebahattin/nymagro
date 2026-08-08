@@ -59,20 +59,20 @@
     /* Custom Colors */
     .bg-r1c1 { background-color: #2a7ab9; }
     .bg-r1c2 { background-color: #094a2b; }
-    .bg-r1c3 { background-color: #000000; }
+    .bg-r1c3 { background-color: var(--text); }
     .bg-r1c4 { background-color: #f65511; }
 
     .bg-r2c1 { background-color: #009000; }
     .bg-r2c2 { background-color: #ffc400; color: #fff; } /* Text is white on yellow? Wait, let's keep it white, looks fine. Or #fff */
     .bg-r2c3 { background-color: #e64a00; }
     .bg-r2c4 { background-color: #0000a6; }
-    .bg-r2c5 { background-color: #693512; }
+    .bg-r2c5 { background-color: var(--warning); }
 
     .bg-r3c1 { background-color: #a60015; }
     .bg-r3c2 { background-color: #000096; }
     .bg-r3c3 { background-color: #0095d3; }
     .bg-r3c4 { background-color: #11d943; }
-    .bg-r3c5 { background-color: #6a514d; }
+    .bg-r3c5 { background-color: var(--text2); }
 
     /* For specific items that need different layout */
     .no-icon { justify-content: center; }
@@ -144,20 +144,20 @@
     /* Custom Colors */
     .bg-r1c1 { background-color: #2a7ab9; }
     .bg-r1c2 { background-color: #094a2b; }
-    .bg-r1c3 { background-color: #000000; }
+    .bg-r1c3 { background-color: var(--text); }
     .bg-r1c4 { background-color: #f65511; }
 
     .bg-r2c1 { background-color: #009000; }
     .bg-r2c2 { background-color: #ffc400; color: #fff; } /* Text is white on yellow? Wait, let's keep it white, looks fine. Or #fff */
     .bg-r2c3 { background-color: #e64a00; }
     .bg-r2c4 { background-color: #0000a6; }
-    .bg-r2c5 { background-color: #693512; }
+    .bg-r2c5 { background-color: var(--warning); }
 
     .bg-r3c1 { background-color: #a60015; }
     .bg-r3c2 { background-color: #000096; }
     .bg-r3c3 { background-color: #0095d3; }
     .bg-r3c4 { background-color: #11d943; }
-    .bg-r3c5 { background-color: #6a514d; }
+    .bg-r3c5 { background-color: var(--text2); }
 
     /* For specific items that need different layout */
     .no-icon { justify-content: center; }
@@ -214,7 +214,7 @@
     overflow-wrap: anywhere;
     word-break: normal;
   }
-  .nav-link.active:focus { color:#a9d4be; outline:none; }
+  .nav-link.active:focus { color:var(--text2); outline:none; }
   @media (max-width: 992px) {
     .report-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
     .col-span-3 { grid-column: span 3; }

@@ -23,51 +23,51 @@ $buildUrl = function(array $extra = []) use ($filters) {
 .gef-btn{border:0;border-radius:4px;padding:8px 12px;font-size:12.5px;font-weight:700;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 .gef-btn.green{background:#5cb85c}.gef-btn.blue{background:#337ab7}.gef-btn.gray{background:#64748b}.gef-btn.orange{background:#f0ad4e}.gef-btn.red{background:#d9534f}
 .gef-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.gef-card{background:#fff;border:1px solid #e2e8f0;border-left:4px solid #337ab7;border-radius:6px;padding:12px 14px}
-.gef-card .l{font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700}.gef-card .v{font-size:17px;font-weight:800;color:#1e293b;margin-top:4px}
-.gef-filters{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:14px}
+.gef-card{background:var(--card-bg);border:1px solid var(--border);border-left:4px solid #337ab7;border-radius:6px;padding:12px 14px}
+.gef-card .l{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700}.gef-card .v{font-size:17px;font-weight:800;color:var(--text);margin-top:4px}
+.gef-filters{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px}
 .gef-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.gef-grid label{font-size:11px;font-weight:700;color:#475569}.gef-grid input,.gef-grid select{width:100%;padding:7px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px}
-.gef-quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.gef-quick a{font-size:12px;padding:5px 9px;border-radius:4px;border:1px solid #cbd5e1;text-decoration:none;color:#334155;background:#f8fafc}
-.gef-table-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden}.gef-table{width:100%;border-collapse:collapse;min-width:1280px}
-.gef-table th{background:#2c3e6b;color:#e2e8f0;font-size:11.5px;text-align:left;padding:9px;white-space:nowrap}.gef-table td{font-size:12.5px;padding:8px 9px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.gef-grid label{font-size:11px;font-weight:700;color:var(--text2)}.gef-grid input,.gef-grid select{width:100%;padding:7px;border:1px solid var(--border2);border-radius:4px;font-size:12px}
+.gef-quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.gef-quick a{font-size:12px;padding:5px 9px;border-radius:4px;border:1px solid var(--border2);text-decoration:none;color:var(--text2);background:var(--surface-2)}
+.gef-table-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;overflow:hidden}.gef-table{width:100%;border-collapse:collapse;min-width:1280px}
+.gef-table th{background:#2c3e6b;color:var(--text);font-size:11.5px;text-align:left;padding:9px;white-space:nowrap}.gef-table td{font-size:12.5px;padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:middle}
 .txt-r{text-align:right}.badge{display:inline-block;border-radius:4px;padding:3px 7px;font-size:11px;font-weight:700;white-space:nowrap}
-.b-red{background:#fee2e2;color:#991b1b}.b-orange{background:#ffedd5;color:#9a3412}.b-green{background:#dcfce7;color:#166534}.b-gray{background:#e5e7eb;color:#374151}.b-yellow{background:#fef9c3;color:#854d0e}
-.empty{padding:42px;text-align:center;color:#64748b}.pag{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fafafa;border-top:1px solid #e2e8f0}.pag a{padding:5px 9px;border:1px solid #cbd5e1;border-radius:4px;text-decoration:none;color:#334155}
+.b-red{background:rgba(231,76,60,.15);color:var(--danger)}.b-orange{background:rgba(243,156,18,.17);color:#9a3412}.b-green{background:rgba(46,204,113,.15);color:var(--success)}.b-gray{background:var(--surface-2);color:var(--text2)}.b-yellow{background:rgba(243,156,18,.15);color:var(--warning)}
+.empty{padding:42px;text-align:center;color:var(--muted)}.pag{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-2);border-top:1px solid var(--border)}.pag a{padding:5px 9px;border:1px solid var(--border2);border-radius:4px;text-decoration:none;color:var(--text2)}
 @media(max-width:1100px){.gef-cards{grid-template-columns:repeat(2,1fr)}.gef-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.gef-cards,.gef-grid{grid-template-columns:1fr}}
 
 /* ── TOPLU ÖDEME PANELİ ── */
 .top-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none}
 .top-panel-overlay.open{display:block}
-.top-panel{position:fixed;top:0;right:-100%;height:100%;width:min(820px,98vw);background:#fff;z-index:1001;display:flex;flex-direction:column;box-shadow:-6px 0 32px rgba(0,0,0,.18);transition:right .28s cubic-bezier(.4,0,.2,1)}
+.top-panel{position:fixed;top:0;right:-100%;height:100%;width:min(820px,98vw);background:var(--card-bg);z-index:1001;display:flex;flex-direction:column;box-shadow:-6px 0 32px rgba(0,0,0,.18);transition:right .28s cubic-bezier(.4,0,.2,1)}
 .top-panel.open{right:0}
 .top-panel-hdr{background:linear-gradient(135deg,#2c3e6b,#1e293b);color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .top-panel-hdr h5{margin:0;font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px}
 .top-panel-close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;opacity:.8;line-height:1;padding:0}
 .top-panel-close:hover{opacity:1}
-.top-panel-settings{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:14px 22px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;flex-shrink:0}
-.top-panel-settings label{font-size:11px;font-weight:700;color:#475569;display:block;margin-bottom:4px}
-.top-panel-settings input,.top-panel-settings select,.top-panel-settings textarea{padding:7px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12.5px;color:#1e293b;outline:none}
-.top-panel-settings input:focus,.top-panel-settings select:focus{border-color:#2c3e6b}
+.top-panel-settings{background:var(--surface-2);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;flex-shrink:0}
+.top-panel-settings label{font-size:11px;font-weight:700;color:var(--text2);display:block;margin-bottom:4px}
+.top-panel-settings input,.top-panel-settings select,.top-panel-settings textarea{padding:7px 9px;border:1px solid var(--border2);border-radius:5px;font-size:12.5px;color:var(--text);outline:none}
+.top-panel-settings input:focus,.top-panel-settings select:focus{border-color:var(--text)}
 .tp-settings-col{display:flex;flex-direction:column}
 .tp-apply-all{background:#f0ad4e;color:#fff;border:none;border-radius:5px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;align-self:flex-end}
 .tp-apply-all:hover{filter:brightness(1.08)}
 .top-panel-body{flex:1;overflow-y:auto;padding:16px 22px}
 .top-panel-body table{width:100%;border-collapse:collapse}
-.top-panel-body thead th{background:#f1f5f9;font-size:11.5px;font-weight:700;color:#475569;padding:8px 10px;text-align:left;position:sticky;top:0;z-index:2}
-.top-panel-body tbody tr{border-bottom:1px solid #f1f5f9}
-.top-panel-body tbody tr:hover{background:#fafafa}
-.top-panel-body tbody td{padding:9px 10px;font-size:12.5px;color:#374151;vertical-align:middle}
-.tp-tutar-inp{width:110px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:13px;text-align:right;font-weight:600;color:#1e293b}
+.top-panel-body thead th{background:var(--surface-2);font-size:11.5px;font-weight:700;color:var(--text2);padding:8px 10px;text-align:left;position:sticky;top:0;z-index:2}
+.top-panel-body tbody tr{border-bottom:1px solid var(--border)}
+.top-panel-body tbody tr:hover{background:var(--surface-2)}
+.top-panel-body tbody td{padding:9px 10px;font-size:12.5px;color:var(--text2);vertical-align:middle}
+.tp-tutar-inp{width:110px;padding:6px 8px;border:1px solid var(--border2);border-radius:4px;font-size:13px;text-align:right;font-weight:600;color:var(--text)}
 .tp-tutar-inp:focus{border-color:#2563eb;outline:none}
-.tp-tutar-inp.tam{border-color:#16a34a;background:#f0fdf4}
-.tp-tutar-inp.kismi{border-color:#f0ad4e;background:#fffbeb}
-.top-panel-ftr{padding:14px 22px;border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;flex-wrap:wrap;gap:10px}
-.tp-toplam{font-size:13px;color:#374151}.tp-toplam strong{font-size:17px;color:#1e293b}
+.tp-tutar-inp.tam{border-color:#16a34a;background:rgba(46,204,113,.10)}
+.tp-tutar-inp.kismi{border-color:#f0ad4e;background:rgba(243,156,18,.15)}
+.top-panel-ftr{padding:14px 22px;border-top:1px solid var(--border);background:var(--surface-2);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;flex-wrap:wrap;gap:10px}
+.tp-toplam{font-size:13px;color:var(--text2)}.tp-toplam strong{font-size:17px;color:var(--text)}
 .tp-kaydet-btn{background:#5cb85c;color:#fff;border:none;border-radius:5px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
 .tp-kaydet-btn:hover{filter:brightness(1.08)}
 .tp-kaydet-btn:disabled{opacity:.55;cursor:not-allowed}
-.tp-empty-warn{text-align:center;padding:32px;color:#94a3b8;font-size:13px}
+.tp-empty-warn{text-align:center;padding:32px;color:var(--muted);font-size:13px}
 </style>
 
 <?php if (!empty($flash)): ?>
@@ -231,8 +231,8 @@ $buildUrl = function(array $extra = []) use ($filters) {
       </thead>
       <tbody id="tpTbody"></tbody>
       <tfoot>
-        <tr style="background:#f1f5f9;font-weight:700;">
-          <td colspan="4" style="padding:10px;font-size:12px;color:#475569;">TOPLAM</td>
+        <tr style="background:var(--surface-2);font-weight:700;">
+          <td colspan="4" style="padding:10px;font-size:12px;color:var(--text2);">TOPLAM</td>
           <td class="txt-r" id="tpTotKalan" style="padding:10px;"></td>
           <td class="txt-r" id="tpTotOdeme" style="padding:10px;color:#2563eb;font-size:14px;"></td>
           <td></td>
@@ -244,7 +244,7 @@ $buildUrl = function(array $extra = []) use ($filters) {
   <!-- Footer -->
   <div class="top-panel-ftr">
     <div class="tp-toplam">
-      <span id="tpFatSay" style="color:#64748b;font-size:12px;"></span><br>
+      <span id="tpFatSay" style="color:var(--muted);font-size:12px;"></span><br>
       Ödenecek Toplam: <strong id="tpToplamGoster">0,00 TL</strong>
     </div>
     <div style="display:flex;gap:8px;">
@@ -299,10 +299,10 @@ function tpRenderTable() {
 
   tbody.innerHTML = _tpRows.map((r, i) => `
     <tr id="tpRow_${r.id}">
-      <td style="font-size:12px;color:#94a3b8;">${i+1}</td>
+      <td style="font-size:12px;color:var(--muted);">${i+1}</td>
       <td style="font-weight:600;">${escHtml(r.fatura)}</td>
-      <td style="font-size:12px;color:#475569;">${escHtml(r.tedarikci)}</td>
-      <td class="txt-r" style="color:#94a3b8;">${fmtTR(r.genel)}</td>
+      <td style="font-size:12px;color:var(--text2);">${escHtml(r.tedarikci)}</td>
+      <td class="txt-r" style="color:var(--muted);">${fmtTR(r.genel)}</td>
       <td class="txt-r" style="font-weight:600;">${fmtTR(r.kalan)}</td>
       <td class="txt-r">
         <input type="number" class="tp-tutar-inp tam" id="tpInp_${r.id}"
@@ -311,7 +311,7 @@ function tpRenderTable() {
       </td>
       <td>
         <button onclick="tpSilSatir('${r.id}')" title="Çıkar"
-                style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;">
+                style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </td>

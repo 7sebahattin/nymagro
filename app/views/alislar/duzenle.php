@@ -22,30 +22,30 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
 
     /* ── Panels ── */
     .panels-container { display: flex; gap: 20px; align-items: flex-start; }
-    .panel { background: #fff; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,.08); overflow: hidden; flex: 1; }
+    .panel { background: var(--card-bg); border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,.08); overflow: hidden; flex: 1; }
     .panel-left { max-width: 440px; }
     .panel-left .p-header { background: #2f73b6; color: #fff; padding: 14px 20px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
     .panel-right .p-header { background: #5dbf68; color: #fff; padding: 14px 20px; font-size: 13.5px; font-weight: 700; text-transform: uppercase; }
     .p-body { padding: 24px 20px; display: flex; flex-direction: column; gap: 14px; }
     
     .fg { display: flex; align-items: flex-start; gap: 16px; }
-    .fg label { width: 90px; text-align: right; font-size: 12.5px; font-weight: 600; color: #475569; padding-top: 8px; flex-shrink: 0; }
-    .fi { flex: 1; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 3px; font-size: 13px; color: #1e293b; outline: none; width: 100%; }
+    .fg label { width: 90px; text-align: right; font-size: 12.5px; font-weight: 600; color: var(--text2); padding-top: 8px; flex-shrink: 0; }
+    .fi { flex: 1; padding: 7px 10px; border: 1px solid var(--border2); border-radius: 3px; font-size: 13px; color: var(--text); outline: none; width: 100%; }
     .fi:focus { border-color: #2f73b6; }
 
-    .ms-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #cbd5e1; z-index: 200; max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 4px 4px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+    .ms-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border2); z-index: 200; max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 4px 4px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
     .ms-dropdown.open { display: block; }
-    .ms-item { padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #eee; }
-    .ms-item:hover { background: #f0fdf4; }
+    .ms-item { padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid var(--border); }
+    .ms-item:hover { background: rgba(46,204,113,.10); }
 
     .kalemler-tablo { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .kalemler-tablo thead th { padding: 7px 8px; background: #f8fafc; font-size: 11px; text-align: left; color: #94a3b8; border-bottom: 2px solid #e2e8f0; }
+    .kalemler-tablo thead th { padding: 7px 8px; background: var(--surface-2); font-size: 11px; text-align: left; color: var(--muted); border-bottom: 2px solid var(--border); }
     .td-r { text-align: right; }
     .btn-sil { background: none; border: none; color: #ef4444; cursor: pointer; }
 
-    .totals-box { margin-top: 16px; border-top: 2px solid #e2e8f0; padding-top: 12px; }
+    .totals-box { margin-top: 16px; border-top: 2px solid var(--border); padding-top: 12px; }
     .totals-row { display: flex; justify-content: flex-end; gap: 10px; font-size: 13px; margin-bottom: 6px; }
-    .totals-row.genel { font-size: 16px; font-weight: 800; color: #16a34a; border-top: 1px solid #eee; padding-top: 8px; }
+    .totals-row.genel { font-size: 16px; font-weight: 800; color: #16a34a; border-top: 1px solid var(--border); padding-top: 8px; }
 
     @media (max-width: 900px) { .panels-container { flex-direction: column; } .panel-left { max-width: 100%; } }
 </style>
@@ -122,7 +122,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
             </tr>
           </thead>
           <tbody id="kalemlerBody">
-            <tr id="emptyRow"><td colspan="6" style="text-align:center; padding:30px; color:#999;">Ürün eklemek için yukarıdan arama yapın.</td></tr>
+            <tr id="emptyRow"><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">Ürün eklemek için yukarıdan arama yapın.</td></tr>
           </tbody>
         </table>
       </div>

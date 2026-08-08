@@ -26,31 +26,31 @@ $badgeClass = fn($renk) => [
 
 <style>
 .tn-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
-.tn-card { background:#fff; border:1px solid #ddd; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,.1); overflow:hidden; margin-bottom:20px; }
+.tn-card { background:var(--card-bg); border:1px solid var(--border); border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,.1); overflow:hidden; margin-bottom:20px; }
 .tn-header { background:#337ab7; color:#fff; padding:10px 16px; font-size:13px; font-weight:700; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; gap:10px; }
 .tn-add { border:0; background:rgba(255,255,255,.18); color:#fff; width:24px; height:24px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; }
 .tn-add:hover { background:rgba(255,255,255,.28); }
 .tn-body { padding:16px; display:flex; flex-wrap:wrap; gap:8px; min-height:52px; }
-.tn-body.bg-creamy { background:#fdfae8; border-top:1px solid #faebcc; }
-.tn-body.bg-mint { background:#e8f5e9; border-top:1px solid #c8e6c9; }
-.tn-empty { color:#94a3b8; font-size:13px; font-style:italic; padding:4px 0; }
+.tn-body.bg-creamy { background:rgba(243,156,18,.11); border-top:1px solid rgba(243,156,18,.28); }
+.tn-body.bg-mint { background:rgba(46,204,113,.13); border-top:1px solid rgba(46,204,113,.28); }
+.tn-empty { color:var(--muted); font-size:13px; font-style:italic; padding:4px 0; }
 .tn-badge { padding:5px 12px; font-size:11.5px; font-weight:600; border-radius:3px; cursor:pointer; border:1px solid transparent; display:inline-flex; gap:8px; align-items:center; }
 .tn-badge:hover { filter:brightness(1.06); box-shadow:0 2px 8px rgba(0,0,0,.12); }
-.tn-badge-outline-red { background:#fff; color:#d9534f; border-color:#d9534f; }
+.tn-badge-outline-red { background:var(--card-bg); color:#d9534f; border-color:#d9534f; }
 .tn-badge-green { background:#5cb85c; color:#fff; }
 .tn-badge-cyan { background:#5bc0de; color:#fff; }
-.tn-badge-outline-grey { background:#fff; color:#555; border-color:#ccc; }
+.tn-badge-outline-grey { background:var(--card-bg); color:var(--text2); border-color:var(--border); }
 .tn-alert { border-radius:6px; padding:10px 12px; margin-bottom:14px; font-size:13px; font-weight:700; }
-.tn-alert.success { background:#dcfce7; border:1px solid #86efac; color:#166534; }
-.tn-alert.error { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
+.tn-alert.success { background:rgba(46,204,113,.15); border:1px solid #86efac; color:var(--success); }
+.tn-alert.error { background:rgba(231,76,60,.15); border:1px solid #fca5a5; color:var(--danger); }
 .tn-modal-backdrop { position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:900; display:none; align-items:center; justify-content:center; padding:16px; }
 .tn-modal-backdrop.open { display:flex; }
-.tn-modal { width:420px; max-width:100%; background:#fff; border-radius:6px; box-shadow:0 16px 48px rgba(0,0,0,.28); overflow:hidden; }
+.tn-modal { width:420px; max-width:100%; background:var(--card-bg); border-radius:6px; box-shadow:0 16px 48px rgba(0,0,0,.28); overflow:hidden; }
 .tn-modal-header { background:#337ab7; color:#fff; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; font-weight:800; }
 .tn-modal-body { padding:16px; display:grid; gap:12px; }
-.tn-field label { display:block; font-size:12px; font-weight:800; color:#475569; margin-bottom:4px; }
-.tn-field input, .tn-field select { width:100%; height:36px; border:1px solid #cbd5e1; border-radius:5px; padding:7px 9px; font-size:13px; }
-.tn-modal-footer { padding:12px 16px; border-top:1px solid #eef2f7; display:flex; justify-content:space-between; gap:8px; }
+.tn-field label { display:block; font-size:12px; font-weight:800; color:var(--text2); margin-bottom:4px; }
+.tn-field input, .tn-field select { width:100%; height:36px; border:1px solid var(--border2); border-radius:5px; padding:7px 9px; font-size:13px; }
+.tn-modal-footer { padding:12px 16px; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:8px; }
 .tn-btn { border:0; border-radius:5px; padding:8px 13px; font-size:13px; font-weight:700; display:inline-flex; align-items:center; gap:6px; text-decoration:none; cursor:pointer; }
 .tn-btn.green { background:#5cb85c; color:#fff; }
 .tn-btn.red { background:#d9534f; color:#fff; }

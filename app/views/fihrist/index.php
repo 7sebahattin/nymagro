@@ -14,9 +14,9 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
     .btn-orange:hover { background-color: #ec971f; border-color: #d58512; color: #fff; }
 
     .info-alert {
-      background-color: #fcf8e3;
-      border: 1px solid #faebcc;
-      color: #8a6d3b;
+      background-color: rgba(243,156,18,.15);
+      border: 1px solid rgba(243,156,18,.28);
+      color: var(--warning);
       font-size: 13px;
       border-radius: 4px;
       padding: 16px;
@@ -46,7 +46,7 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
       color: #fff;
     }
     .fihrist-tabs .nav-link.active {
-      background-color: #fff !important;
+      background-color: var(--card-bg) !important;
       color: #5cb85c !important;
       border-radius: 4px 4px 0 0;
     }
@@ -55,15 +55,15 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
     .form-label-right {
       text-align: right;
       font-size: 13px;
-      color: #777;
+      color: var(--muted);
       font-weight: 500;
       padding-top: 6px;
     }
     .form-control-custom, .form-select-custom {
       font-size: 13px;
       border-radius: 4px;
-      border: 1px solid #ccc;
-      color: #555;
+      border: 1px solid var(--border);
+      color: var(--text2);
     }
     .form-control-custom:focus, .form-select-custom:focus {
       border-color: #66afe9;
@@ -81,17 +81,17 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
 
     /* Input group with icon */
     .input-group-custom .input-group-text {
-      background: #fff;
-      border: 1px solid #ccc;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       border-right: none;
-      color: #999;
+      color: var(--muted);
       font-size: 13px;
     }
     .input-group-custom .form-control {
       border-left: none;
     }
 
-    .fihrist-list-table th { font-size: 12px; color: #777; }
+    .fihrist-list-table th { font-size: 12px; color: var(--muted); }
     .fihrist-list-table td { font-size: 13px; vertical-align: middle; }
 
     @media (max-width: 992px) {
@@ -188,7 +188,7 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
         </ul>
       </div>
 
-      <div class="card-body p-4" style="background-color: #fff;">
+      <div class="card-body p-4" style="background-color: var(--card-bg);">
         <div class="tab-content" id="fihristTabContent">
 
           <!-- KART BİLGİLERİ -->

@@ -34,9 +34,9 @@ $durumBadge = function(string $d): string {
 
   /* ── Sayaç kutuları ── */
   .counter-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
-  .counter-box { background:#fff; border-radius:8px; padding:16px 20px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.07); }
-  .counter-box .cval { font-size:28px; font-weight:800; color:#1e293b; line-height:1; }
-  .counter-box .clabel { font-size:11px; color:#64748b; font-weight:600; text-transform:uppercase; margin-top:4px; }
+  .counter-box { background:var(--card-bg); border-radius:8px; padding:16px 20px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.07); }
+  .counter-box .cval { font-size:28px; font-weight:800; color:var(--text); line-height:1; }
+  .counter-box .clabel { font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; margin-top:4px; }
   .counter-box .cicon { font-size:20px; margin-bottom:8px; }
 
   /* ── Panel başlıkları ── */
@@ -48,16 +48,16 @@ $durumBadge = function(string $d): string {
 
   /* ── Tablolar ── */
   .mini-table { width:100%; border-collapse:collapse; font-size:12px; }
-  .mini-table th { padding:8px 12px; background:#f8fafc; color:#64748b; font-weight:600; text-align:left; border-bottom:1px solid #e2e8f0; }
-  .mini-table td { padding:9px 12px; border-bottom:1px solid #f1f5f9; color:#374151; vertical-align:middle; }
+  .mini-table th { padding:8px 12px; background:var(--surface-2); color:var(--muted); font-weight:600; text-align:left; border-bottom:1px solid var(--border); }
+  .mini-table td { padding:9px 12px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:middle; }
   .mini-table tr:last-child td { border-bottom:none; }
-  .mini-table tr:hover td { background:#f8fafc; }
-  .no-data { padding:28px; text-align:center; color:#94a3b8; font-size:13px; }
+  .mini-table tr:hover td { background:var(--surface-2); }
+  .no-data { padding:28px; text-align:center; color:var(--muted); font-size:13px; }
 
   /* ── Varlık / Borç kartları ── */
-  .card-title-muted { font-size:12px; font-weight:700; color:#777; text-transform:uppercase; }
-  .card-title-val   { font-size:13px; font-weight:700; color:#555; }
-  .progress-custom  { height:12px; border-radius:4px; background:#f1f5f9; margin-bottom:0; overflow:hidden; }
+  .card-title-muted { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; }
+  .card-title-val   { font-size:13px; font-weight:700; color:var(--text2); }
+  .progress-custom  { height:12px; border-radius:4px; background:var(--surface-2); margin-bottom:0; overflow:hidden; }
   .progress-custom .bar { height:100%; border-radius:4px; transition:width .4s ease; }
 
   @media (max-width:768px) {
@@ -68,17 +68,17 @@ $durumBadge = function(string $d): string {
 <!-- ══════════ HEADER ══════════ -->
 <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
   <div>
-    <h4 style="color:#1e293b; font-size:20px; font-weight:600; margin-bottom:4px;"><?= htmlspecialchars($bugun) ?></h4>
-    <p style="font-size:12px; color:#64748b; margin:0;"><?= htmlspecialchars(APP_NAME) ?> — Özet Dashboard</p>
+    <h4 style="color:var(--text); font-size:20px; font-weight:600; margin-bottom:4px;"><?= htmlspecialchars($bugun) ?></h4>
+    <p style="font-size:12px; color:var(--muted); margin:0;"><?= htmlspecialchars(APP_NAME) ?> — Özet Dashboard</p>
   </div>
   <div class="d-flex gap-2 flex-wrap">
     <div class="bg-white border text-center" style="min-width:130px; padding:10px 15px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.06);">
-      <div style="font-size:10px; color:#94a3b8; font-weight:700; margin-bottom:4px;">BUGÜNKÜ SATIŞ</div>
-      <div style="font-size:14px; color:#1e293b; font-weight:700;"><?= $tl($bugunkuSatis) ?></div>
+      <div style="font-size:10px; color:var(--muted); font-weight:700; margin-bottom:4px;">BUGÜNKÜ SATIŞ</div>
+      <div style="font-size:14px; color:var(--text); font-weight:700;"><?= $tl($bugunkuSatis) ?></div>
     </div>
     <div class="bg-white border text-center" style="min-width:130px; padding:10px 15px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.06);">
-      <div style="font-size:10px; color:#94a3b8; font-weight:700; margin-bottom:4px;">BUGÜNKÜ TAHSİLAT</div>
-      <div style="font-size:14px; color:#1e293b; font-weight:700;"><?= $tl($bugunkuTahsilat) ?></div>
+      <div style="font-size:10px; color:var(--muted); font-weight:700; margin-bottom:4px;">BUGÜNKÜ TAHSİLAT</div>
+      <div style="font-size:14px; color:var(--text); font-weight:700;"><?= $tl($bugunkuTahsilat) ?></div>
     </div>
   </div>
 </div>
@@ -236,14 +236,14 @@ $durumBadge = function(string $d): string {
                 <td style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="<?= htmlspecialchars($f['cari_unvan'] ?? '') ?>">
                   <?= htmlspecialchars(mb_strimwidth($f['cari_unvan'] ?? '—', 0, 22, '…')) ?>
                 </td>
-                <td style="color:#64748b; white-space:nowrap;"><?= date('d.m.Y', strtotime($f['fatura_tarihi'])) ?></td>
+                <td style="color:var(--muted); white-space:nowrap;"><?= date('d.m.Y', strtotime($f['fatura_tarihi'])) ?></td>
                 <td style="text-align:right; font-weight:700; white-space:nowrap;"><?= $fmt($f['genel_toplam']) ?></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
       <?php endif; ?>
-      <div style="padding:8px 12px; border-top:1px solid #f1f5f9; text-align:right;">
+      <div style="padding:8px 12px; border-top:1px solid var(--border); text-align:right;">
         <a href="<?= BASE_URL ?>/satis/ekle" style="font-size:12px; font-weight:600; color:#22c55e; text-decoration:none;">
           <i class="fa-solid fa-plus"></i> Yeni Satış Ekle
         </a>
@@ -267,14 +267,14 @@ $durumBadge = function(string $d): string {
                 <td style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="<?= htmlspecialchars($f['cari_unvan'] ?? '') ?>">
                   <?= htmlspecialchars(mb_strimwidth($f['cari_unvan'] ?? '—', 0, 22, '…')) ?>
                 </td>
-                <td style="color:#64748b; white-space:nowrap;"><?= date('d.m.Y', strtotime($f['fatura_tarihi'])) ?></td>
+                <td style="color:var(--muted); white-space:nowrap;"><?= date('d.m.Y', strtotime($f['fatura_tarihi'])) ?></td>
                 <td style="text-align:right; font-weight:700; white-space:nowrap;"><?= $fmt($f['genel_toplam']) ?></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
       <?php endif; ?>
-      <div style="padding:8px 12px; border-top:1px solid #f1f5f9; text-align:right;">
+      <div style="padding:8px 12px; border-top:1px solid var(--border); text-align:right;">
         <a href="<?= BASE_URL ?>/alis/ekle" style="font-size:12px; font-weight:600; color:#f59e0b; text-decoration:none;">
           <i class="fa-solid fa-plus"></i> Yeni Alış Ekle
         </a>
@@ -312,9 +312,9 @@ $durumBadge = function(string $d): string {
                 $ayLabel  = $ayAdlari[$ayKod] ?? $ayKod;
               ?>
               <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;">
-                <div style="font-size:9px; color:#64748b; font-weight:600;"><?= $fmt($ayToplam) ?></div>
+                <div style="font-size:9px; color:var(--muted); font-weight:600;"><?= $fmt($ayToplam) ?></div>
                 <div style="width:100%; background:linear-gradient(180deg,#3b82f6,#60a5fa); border-radius:3px 3px 0 0; height:<?= $oran ?>%;" title="<?= htmlspecialchars((string)($ay['ay'] ?? '')) ?>: <?= $fmt($ayToplam) ?> TL"></div>
-                <div style="font-size:10px; color:#94a3b8; font-weight:600;"><?= $ayLabel ?></div>
+                <div style="font-size:10px; color:var(--muted); font-weight:600;"><?= $ayLabel ?></div>
               </div>
             <?php endforeach; ?>
           </div>
@@ -329,22 +329,22 @@ $durumBadge = function(string $d): string {
       </div>
       <div class="card-body p-2">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-          <a href="<?= BASE_URL ?>/musteri/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#f0fdf4; color:#15803d; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/musteri/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(46,204,113,.10); color:var(--success); font-size:12px; font-weight:600;">
             <i class="fa-solid fa-user-plus"></i> Müşteri Ekle
           </a>
-          <a href="<?= BASE_URL ?>/tedarikci/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#fff7ed; color:#c2410c; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/tedarikci/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(243,156,18,.15); color:var(--warning); font-size:12px; font-weight:600;">
             <i class="fa-solid fa-industry"></i> Tedarikçi Ekle
           </a>
-          <a href="<?= BASE_URL ?>/satis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/satis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(59,130,246,.15); color:var(--info); font-size:12px; font-weight:600;">
             <i class="fa-solid fa-file-invoice"></i> Satış Faturası
           </a>
-          <a href="<?= BASE_URL ?>/alis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#fefce8; color:#a16207; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/alis/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(243,156,18,.13); color:#a16207; font-size:12px; font-weight:600;">
             <i class="fa-solid fa-truck"></i> Alış Faturası
           </a>
-          <a href="<?= BASE_URL ?>/urun/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#fff8ef; color:#0c5c36; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/urun/ekle" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(243,156,18,.11); color:#0c5c36; font-size:12px; font-weight:600;">
             <i class="fa-solid fa-box"></i> Ürün Ekle
           </a>
-          <a href="<?= BASE_URL ?>/musteri" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:#f0f9ff; color:#0369a1; font-size:12px; font-weight:600;">
+          <a href="<?= BASE_URL ?>/musteri" class="d-flex align-items-center gap-2 p-2 rounded text-decoration-none" style="background:rgba(59,130,246,.10); color:#0369a1; font-size:12px; font-weight:600;">
             <i class="fa-solid fa-list"></i> Müşteri Listesi
           </a>
         </div>
@@ -355,10 +355,10 @@ $durumBadge = function(string $d): string {
     <div class="card border-0 shadow-sm">
       <div class="card-body p-3">
         <p class="card-title-muted mb-3">SİSTEM DURUMU</p>
-        <div style="font-size:12px; color:#475569; line-height:2;">
+        <div style="font-size:12px; color:var(--text2); line-height:2;">
           <div class="d-flex justify-content-between">
             <span>PHP Versiyonu</span>
-            <span style="font-weight:600; color:#1e293b;"><?= PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION ?></span>
+            <span style="font-weight:600; color:var(--text);"><?= PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION ?></span>
           </div>
           <div class="d-flex justify-content-between">
             <span>Veritabanı</span>
@@ -366,11 +366,11 @@ $durumBadge = function(string $d): string {
           </div>
           <div class="d-flex justify-content-between">
             <span>Sunucu Saati</span>
-            <span style="font-weight:600; color:#1e293b;"><?= date('H:i') ?></span>
+            <span style="font-weight:600; color:var(--text);"><?= date('H:i') ?></span>
           </div>
           <div class="d-flex justify-content-between">
             <span>Uygulama</span>
-            <span style="font-weight:600; color:#1e293b;"><?= htmlspecialchars(APP_NAME) ?></span>
+            <span style="font-weight:600; color:var(--text);"><?= htmlspecialchars(APP_NAME) ?></span>
           </div>
         </div>
       </div>

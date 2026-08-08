@@ -6,10 +6,10 @@ $kredi = $kredi ?? [];
 $taksitler = $taksitler ?? [];
 ?>
 <style>
-  .nm-page{display:grid;gap:18px}.nm-alert{padding:12px 14px;border-radius:10px;font-weight:700}.nm-alert.success{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}.nm-alert.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
-  .nm-panel{background:#fff;border:1px solid #cfe1cd;border-radius:14px;box-shadow:0 12px 28px rgba(8,69,38,.06);overflow:hidden}.nm-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;background:linear-gradient(135deg,#084526,#1e8c55);color:#fff}.nm-head h2{font-size:18px;margin:0;font-weight:900}.nm-head p{margin:3px 0 0;color:#cfe1cd;font-size:12px}
-  .nm-btn{border:0;border-radius:9px;padding:10px 14px;font-size:13px;font-weight:900;text-decoration:none;display:inline-flex;gap:7px;align-items:center;justify-content:center}.nm-btn.primary{background:linear-gradient(135deg,#0d623a,#d97a0c);color:#fff}.nm-btn.muted{background:#f1f5f9;color:#64748b;cursor:default}
-  .nm-table-wrap{overflow-x:auto}.nm-table{width:100%;border-collapse:collapse;min-width:640px}.nm-table th{background:#f8fafc;color:#64748b;font-size:12px;text-align:left;padding:11px 14px;border-bottom:1px solid #e2e8f0}.nm-table td{padding:12px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155}.nm-badge{padding:3px 9px;border-radius:99px;font-size:12px;font-weight:800}.nm-badge.odendi{background:#ecfdf5;color:#047857}.nm-badge.bekliyor{background:#fff7ed;color:#c2410c}
+  .nm-page{display:grid;gap:18px}.nm-alert{padding:12px 14px;border-radius:10px;font-weight:700}.nm-alert.success{background:rgba(46,204,113,.15);color:var(--success);border:1px solid rgba(46,204,113,.28)}.nm-alert.error{background:rgba(231,76,60,.15);color:var(--danger);border:1px solid rgba(231,76,60,.28)}
+  .nm-panel{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 28px rgba(8,69,38,.06);overflow:hidden}.nm-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff}.nm-head h2{font-size:18px;margin:0;font-weight:900}.nm-head p{margin:3px 0 0;color:rgba(255,255,255,.78);font-size:12px}
+  .nm-btn{border:0;border-radius:9px;padding:10px 14px;font-size:13px;font-weight:900;text-decoration:none;display:inline-flex;gap:7px;align-items:center;justify-content:center}.nm-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}.nm-btn.muted{background:var(--surface-2);color:var(--muted);cursor:default}
+  .nm-table-wrap{overflow-x:auto}.nm-table{width:100%;border-collapse:collapse;min-width:640px}.nm-table th{background:var(--surface-2);color:var(--muted);font-size:12px;text-align:left;padding:11px 14px;border-bottom:1px solid var(--border)}.nm-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2)}.nm-badge{padding:3px 9px;border-radius:99px;font-size:12px;font-weight:800}.nm-badge.odendi{background:rgba(46,204,113,.15);color:var(--success)}.nm-badge.bekliyor{background:rgba(243,156,18,.15);color:var(--warning)}
 </style>
 
 <div class="nm-page">
@@ -24,7 +24,7 @@ $taksitler = $taksitler ?? [];
       </div>
     </div>
     <?php if (empty($taksitler)): ?>
-      <div style="padding:34px;text-align:center;color:#64748b">Ödeme planı bulunamadı.</div>
+      <div style="padding:34px;text-align:center;color:var(--muted)">Ödeme planı bulunamadı.</div>
     <?php else: ?>
       <div class="nm-table-wrap"><table class="nm-table">
         <thead><tr><th>Taksit No</th><th>Vade Tarihi</th><th>Tutar</th><th>Durum</th><th></th></tr></thead>

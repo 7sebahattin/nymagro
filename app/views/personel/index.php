@@ -8,22 +8,22 @@ $money = fn($v) => number_format((float)$v, 2, ',', '.') . ' TL';
 .personel-actions { display:flex; gap:8px; flex-wrap:wrap; }
 .p-btn { display:inline-flex; align-items:center; gap:6px; border:0; border-radius:6px; padding:8px 12px; background:#1e293b; color:#fff; text-decoration:none; font-size:13px; font-weight:700; }
 .p-btn.red { background:#dc2626; }
-.p-btn.green { background:#15803d; }
-.p-note { background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; padding:12px; border-radius:8px; font-size:13px; }
+.p-btn.green { background:var(--success); }
+.p-note { background:rgba(59,130,246,.15); border:1px solid #bfdbfe; color:var(--info); padding:12px; border-radius:8px; font-size:13px; }
 .p-alert { border-radius:8px; padding:10px 12px; font-size:13px; font-weight:700; }
-.p-alert.success { background:#dcfce7; border:1px solid #86efac; color:#166534; }
-.p-alert.error { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
-.p-form { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:12px; display:grid; gap:10px; }
+.p-alert.success { background:rgba(46,204,113,.15); border:1px solid #86efac; color:var(--success); }
+.p-alert.error { background:rgba(231,76,60,.15); border:1px solid #fca5a5; color:var(--danger); }
+.p-form { background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:12px; display:grid; gap:10px; }
 .p-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; align-items:end; }
-.p-field label { display:block; font-size:12px; color:#475569; font-weight:800; margin-bottom:4px; }
-.p-field input, .p-field select, .p-field textarea { width:100%; min-height:36px; border:1px solid #cbd5e1; border-radius:6px; padding:7px 9px; font-size:13px; background:#fff; }
+.p-field label { display:block; font-size:12px; color:var(--text2); font-weight:800; margin-bottom:4px; }
+.p-field input, .p-field select, .p-field textarea { width:100%; min-height:36px; border:1px solid var(--border2); border-radius:6px; padding:7px 9px; font-size:13px; background:var(--card-bg); }
 .p-field textarea { min-height:72px; resize:vertical; }
-.p-table-wrap { overflow-x:auto; background:#fff; border:1px solid #e5e7eb; border-radius:8px; }
+.p-table-wrap { overflow-x:auto; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; }
 .p-table { width:100%; border-collapse:collapse; min-width:860px; }
-.p-table th { background:#1e293b; color:#cbd5e1; text-align:left; padding:10px; font-size:12px; white-space:nowrap; }
-.p-table td { border-top:1px solid #eef2f7; padding:9px 10px; font-size:13px; color:#1f2937; }
-.p-empty { text-align:center; padding:28px 12px; color:#64748b; }
-.p-heading { font-size:16px; font-weight:800; color:#111827; margin:6px 0 0; }
+.p-table th { background:#1e293b; color:var(--text2); text-align:left; padding:10px; font-size:12px; white-space:nowrap; }
+.p-table td { border-top:1px solid var(--border); padding:9px 10px; font-size:13px; color:var(--text); }
+.p-empty { text-align:center; padding:28px 12px; color:var(--muted); }
+.p-heading { font-size:16px; font-weight:800; color:var(--text); margin:6px 0 0; }
 </style>
 
 <div class="personel-page">

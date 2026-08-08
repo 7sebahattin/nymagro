@@ -30,42 +30,42 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
 ?>
 
 <style>
-.customer-report-card{border:1px solid #e2e8f0;border-radius:4px;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.06);margin-bottom:18px}
+.customer-report-card{border:1px solid var(--border);border-radius:4px;background:var(--card-bg);box-shadow:0 1px 3px rgba(15,23,42,.06);margin-bottom:18px}
 .customer-report-header{background:#337ab7;color:#fff;padding:10px 15px;border-radius:3px 3px 0 0;display:flex;align-items:center;justify-content:space-between}
 .customer-report-header h6{margin:0;font-size:13px;font-weight:700;letter-spacing:.2px;text-transform:uppercase}
 .customer-report-body{padding:22px 26px}
-.form-label-right{text-align:right;font-size:13px;color:#64748b;font-weight:600;padding-top:7px}
-.form-control-custom,.form-select-custom{height:34px;border:1px solid #cbd5e1;border-radius:4px;font-size:13px;color:#334155}
-.help-text{font-size:11px;color:#94a3b8;margin-top:4px}
+.form-label-right{text-align:right;font-size:13px;color:var(--muted);font-weight:600;padding-top:7px}
+.form-control-custom,.form-select-custom{height:34px;border:1px solid var(--border2);border-radius:4px;font-size:13px;color:var(--text2)}
+.help-text{font-size:11px;color:var(--muted);margin-top:4px}
 .btn-rapor{background:#d9534f;border-color:#d43f3a;color:#fff;font-size:13px;font-weight:600;padding:7px 18px;border-radius:4px}
 .btn-rapor:hover{background:#c9302c;color:#fff}
-.columns-box{border:1px solid #cbd5e1;border-radius:4px;max-height:220px;overflow:auto;padding:8px;background:#fff}
-.columns-box label{display:flex;gap:8px;align-items:center;font-size:12px;margin:0;padding:4px 2px;color:#334155}
+.columns-box{border:1px solid var(--border2);border-radius:4px;max-height:220px;overflow:auto;padding:8px;background:var(--card-bg)}
+.columns-box label{display:flex;gap:8px;align-items:center;font-size:12px;margin:0;padding:4px 2px;color:var(--text2)}
 .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:16px}
-.summary-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:12px}
-.summary-card .label{font-size:12px;color:#64748b}
-.summary-card .value{font-size:17px;font-weight:700;color:#0f172a;margin-top:3px}
-.report-note{border-left:4px solid #f59e0b;background:#fffbeb;color:#92400e;padding:10px 12px;border-radius:4px;font-size:13px;margin-bottom:14px}
-.filter-pill{background:#f1f5f9;color:#334155;border-radius:999px;padding:5px 10px;font-size:12px;display:inline-block;margin:0 6px 6px 0}
-.table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
+.summary-card{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:12px}
+.summary-card .label{font-size:12px;color:var(--muted)}
+.summary-card .value{font-size:17px;font-weight:700;color:var(--text);margin-top:3px}
+.report-note{border-left:4px solid #f59e0b;background:rgba(243,156,18,.15);color:var(--warning);padding:10px 12px;border-radius:4px;font-size:13px;margin-bottom:14px}
+.filter-pill{background:var(--surface-2);color:var(--text2);border-radius:999px;padding:5px 10px;font-size:12px;display:inline-block;margin:0 6px 6px 0}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:6px;background:var(--card-bg)}
 .customer-report-table{width:100%;border-collapse:collapse;font-size:12px;min-width:980px}
-.customer-report-table th{background:#f8fafc;color:#334155;font-weight:700;border-bottom:1px solid #e2e8f0;padding:9px;white-space:nowrap;cursor:pointer}
-.customer-report-table td{border-bottom:1px solid #edf2f7;padding:8px;vertical-align:top}
+.customer-report-table th{background:var(--surface-2);color:var(--text2);font-weight:700;border-bottom:1px solid var(--border);padding:9px;white-space:nowrap;cursor:pointer}
+.customer-report-table td{border-bottom:1px solid var(--border);padding:8px;vertical-align:top}
 .text-money{text-align:right;font-variant-numeric:tabular-nums}
 .badge-soft{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}
-.badge-debt{background:#fee2e2;color:#991b1b}.badge-credit{background:#dcfce7;color:#166534}.badge-zero{background:#e2e8f0;color:#334155}
+.badge-debt{background:rgba(231,76,60,.15);color:var(--danger)}.badge-credit{background:rgba(46,204,113,.15);color:var(--success)}.badge-zero{background:var(--surface-2);color:var(--text2)}
 .actions a{display:inline-block;margin-right:6px;font-size:12px;text-decoration:none}
 .customer-report-print-area{display:flex;flex-direction:column;gap:14px}
-.customer-report-print-title{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;margin-bottom:2px}
+.customer-report-print-title{background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:2px}
 .customer-report-print-brand{display:flex;align-items:center;gap:10px;min-width:0}
-.customer-report-print-logo{width:38px;height:38px;object-fit:contain;border:1px solid #e2e8f0;border-radius:6px;padding:3px;background:#fff;flex:0 0 auto}
+.customer-report-print-logo{width:38px;height:38px;object-fit:contain;border:1px solid var(--border);border-radius:6px;padding:3px;background:var(--card-bg);flex:0 0 auto}
 .customer-report-print-logo-fallback{width:38px;height:38px;border-radius:6px;background:#1e293b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex:0 0 auto}
-.customer-report-print-title h1{margin:0;color:#0f172a;font-size:20px;line-height:1.2;font-weight:800}
-.customer-report-print-title p{margin:5px 0 0;color:#64748b;font-size:12px;font-weight:600}
+.customer-report-print-title h1{margin:0;color:var(--text);font-size:20px;line-height:1.2;font-weight:800}
+.customer-report-print-title p{margin:5px 0 0;color:var(--muted);font-size:12px;font-weight:600}
 .customer-report-tools{display:flex;align-items:center;margin-bottom:1rem}
 @media print{
   @page{size:A4 landscape;margin:8mm}
-  html,body{background:#fff!important;margin:0!important;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:var(--card-bg)!important;margin:0!important;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body *{visibility:hidden}
   .customer-report-print-area,.customer-report-print-area *{visibility:visible}
   .sidebar,.topbar,.mobile-bottom-bar,.no-print{display:none!important}
@@ -89,13 +89,13 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
   .customer-report-header{background:#1e293b!important;color:#fff!important;padding:5px 0;border-radius:0!important;border-bottom:1px solid #1e293b}
   .customer-report-header h6{font-size:10px}
   .customer-report-body{padding:5px 0 0}
-  .filter-pill{font-size:7.5px;padding:2px 5px;margin:0 3px 3px 0;border:1px solid #dbe3ef}
+  .filter-pill{font-size:7.5px;padding:2px 5px;margin:0 3px 3px 0;border:1px solid var(--border)}
   .table-wrap{overflow:visible!important;border:0!important;background:transparent!important}
   .customer-report-table{width:100%!important;min-width:0!important;border-collapse:collapse!important;table-layout:auto;font-size:7.5px}
   .customer-report-table thead{display:table-header-group}
   .customer-report-table tr,.customer-report-table td,.customer-report-table th{break-inside:avoid;page-break-inside:avoid}
   .customer-report-table th{background:#1e293b!important;color:#fff!important;padding:3px 4px;font-size:7.2px;white-space:normal}
-  .customer-report-table td{color:#111827!important;padding:3px 4px;font-size:7.2px;border-color:#dbe3ef!important}
+  .customer-report-table td{color:var(--text)!important;padding:3px 4px;font-size:7.2px;border-color:var(--border)!important}
   .badge-soft{border:1px solid currentColor;padding:1px 4px;font-size:7px}
 }
 @media(max-width:768px){.form-label-right{text-align:left;padding-top:0;margin-bottom:4px}.customer-report-body{padding:16px}}

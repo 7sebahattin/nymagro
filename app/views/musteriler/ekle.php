@@ -24,42 +24,42 @@ $err = fn(string $key) =>
   .btn-save:hover { background:#16a34a; box-shadow:0 4px 12px rgba(34,197,94,.3); }
   .btn-back { display:inline-flex; align-items:center; gap:7px; background:#0ea5e9; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none; transition:background .2s; }
   .btn-back:hover { background:#0284c7; color:#fff; }
-  .breadcrumb-bar { display:flex; align-items:center; gap:6px; margin-bottom:16px; font-size:12.5px; color:#94a3b8; }
-  .breadcrumb-bar a { color:#64748b; text-decoration:none; }
+  .breadcrumb-bar { display:flex; align-items:center; gap:6px; margin-bottom:16px; font-size:12.5px; color:var(--muted); }
+  .breadcrumb-bar a { color:var(--muted); text-decoration:none; }
   .breadcrumb-bar a:hover { color:#4ade80; }
-  .form-card { background:#fff; border-radius:14px; box-shadow:0 2px 16px rgba(0,0,0,.08); overflow:hidden; }
-  .form-tabs { display:flex; border-bottom:2px solid #e2e8f0; background:#fff; overflow-x:auto; scrollbar-width:none; }
+  .form-card { background:var(--card-bg); border-radius:14px; box-shadow:0 2px 16px rgba(0,0,0,.08); overflow:hidden; }
+  .form-tabs { display:flex; border-bottom:2px solid var(--border); background:var(--card-bg); overflow-x:auto; scrollbar-width:none; }
   .form-tabs::-webkit-scrollbar { display:none; }
-  .tab-btn { display:inline-flex; align-items:center; gap:7px; padding:14px 20px; font-size:12.5px; font-weight:600; color:#64748b; background:none; border:none; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; text-transform:uppercase; letter-spacing:.5px; transition:color .2s,border-color .2s; }
-  .tab-btn:hover { color:#1e293b; }
+  .tab-btn { display:inline-flex; align-items:center; gap:7px; padding:14px 20px; font-size:12.5px; font-weight:600; color:var(--muted); background:none; border:none; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; text-transform:uppercase; letter-spacing:.5px; transition:color .2s,border-color .2s; }
+  .tab-btn:hover { color:var(--text); }
   .tab-btn.active { color:#0ea5e9; border-bottom-color:#0ea5e9; }
   .tab-panel { display:none; padding:28px; }
   .tab-panel.active { display:block; }
   .form-row { display:grid; grid-template-columns:1fr 1fr; gap:20px 28px; }
   .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:18px; }
   .form-group:last-child { margin-bottom:0; }
-  .form-label { font-size:12px; font-weight:600; color:#475569; text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:6px; }
-  .form-input { padding:9px 12px 9px 36px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13.5px; color:#1e293b; background:#fff; outline:none; transition:border-color .2s,box-shadow .2s; width:100%; }
+  .form-label { font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:6px; }
+  .form-input { padding:9px 12px 9px 36px; border:1.5px solid var(--border); border-radius:8px; font-size:13.5px; color:var(--text); background:var(--card-bg); outline:none; transition:border-color .2s,box-shadow .2s; width:100%; }
   .form-input:focus { border-color:#0ea5e9; box-shadow:0 0 0 3px rgba(14,165,233,.12); }
   .form-input.no-icon { padding-left:12px; }
   .form-input.is-error { border-color:#ef4444; }
-  .form-textarea { padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13.5px; color:#1e293b; background:#fff; outline:none; transition:border-color .2s,box-shadow .2s; width:100%; resize:vertical; min-height:90px; }
+  .form-textarea { padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13.5px; color:var(--text); background:var(--card-bg); outline:none; transition:border-color .2s,box-shadow .2s; width:100%; resize:vertical; min-height:90px; }
   .form-textarea:focus { border-color:#0ea5e9; box-shadow:0 0 0 3px rgba(14,165,233,.12); }
-  .form-select { padding:9px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13.5px; color:#1e293b; background:#fff; outline:none; width:100%; cursor:pointer; }
+  .form-select { padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13.5px; color:var(--text); background:var(--card-bg); outline:none; width:100%; cursor:pointer; }
   .form-select:focus { border-color:#0ea5e9; box-shadow:0 0 0 3px rgba(14,165,233,.12); }
   .input-wrap { position:relative; }
-  .input-wrap i.icon { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:#cbd5e1; font-size:13px; pointer-events:none; }
-  .form-hint { font-size:11.5px; color:#94a3b8; }
+  .input-wrap i.icon { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:13px; pointer-events:none; }
+  .form-hint { font-size:11.5px; color:var(--muted); }
   .field-error { font-size:11.5px; color:#ef4444; display:flex; align-items:center; gap:4px; }
   .kimlik-layout { display:flex; gap:28px; align-items:flex-start; }
   .kimlik-fields { flex:1; }
-  .img-upload-area { width:130px; height:130px; border:2px dashed #cbd5e1; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:border-color .2s,background .2s; color:#0ea5e9; background:#f8fafc; }
+  .img-upload-area { width:130px; height:130px; border:2px dashed var(--border2); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:border-color .2s,background .2s; color:#0ea5e9; background:var(--surface-2); }
   .img-upload-area:hover { border-color:#0ea5e9; background:rgba(14,165,233,.05); }
   .img-upload-area i { font-size:28px; }
   .img-upload-area span { font-size:12px; font-weight:600; }
-  .empty-state { text-align:center; padding:48px 0; color:#94a3b8; }
+  .empty-state { text-align:center; padding:48px 0; color:var(--muted); }
   .empty-state i { font-size:40px; margin-bottom:12px; display:block; }
-  .alert-error { background:#fee2e2; border:1px solid #fecaca; color:#991b1b; padding:12px 18px; border-radius:8px; margin-bottom:16px; font-size:13px; }
+  .alert-error { background:rgba(231,76,60,.15); border:1px solid rgba(231,76,60,.28); color:var(--danger); padding:12px 18px; border-radius:8px; margin-bottom:16px; font-size:13px; }
   @media (max-width:768px) { .form-row { grid-template-columns:1fr; } .kimlik-layout { flex-direction:column; } }
 </style>
 
@@ -265,7 +265,7 @@ $err = fn(string $key) =>
     <!-- ════ TAB: ŞUBELER ════ -->
     <div class="tab-panel" id="panel-subeler">
       <div class="empty-state">
-        <i class="fa-solid fa-code-branch" style="color:#cbd5e1;"></i>
+        <i class="fa-solid fa-code-branch" style="color:var(--text2);"></i>
         <p>Henüz şube eklenmemiş. Müşteriyi kaydettikten sonra şube ekleyebilirsiniz.</p>
       </div>
     </div>

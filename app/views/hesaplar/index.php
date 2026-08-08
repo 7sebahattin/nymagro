@@ -42,14 +42,14 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
   .btn-tgreen:hover { background: #4cae4c; color: #fff; }
   .btn-teal { background: #5bc0de; color: #fff; padding: 7px 14px; border: none; border-radius: 4px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
   .btn-teal:hover { background: #46b8da; color: #fff; }
-  .yeni-badge { background: #fff; color: #5bc0de; font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+  .yeni-badge { background: var(--card-bg); color: #5bc0de; font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
 
   /* ── GRID ── */
   .hesap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
   @media(max-width:992px) { .hesap-grid { grid-template-columns: 1fr; } }
 
   /* ── KART ── */
-  .h-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .h-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
   .h-card-header {
     background: var(--navy); color: #fff; padding: 11px 16px;
     font-size: 12.5px; font-weight: 700; letter-spacing: .4px;
@@ -62,17 +62,17 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
   /* ── HESAP ÖĞESI ── */
   .h-item {
     cursor: pointer; display: inline-flex; flex-direction: column; align-items: center;
-    justify-content: center; background: #f8fafc; border: 1px solid #e2e8f0;
+    justify-content: center; background: var(--surface-2); border: 1px solid var(--border);
     border-radius: 5px; padding: 10px 16px; min-width: 120px;
     text-decoration: none; transition: box-shadow .15s, border-color .15s;
   }
-  .h-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,.12); border-color: #cbd5e1; }
-  .h-item-title { font-size: 11px; color: #64748b; text-align: center; margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
-  .h-item-val { font-size: 13px; font-weight: 700; color: #1e293b; }
+  .h-item:hover { box-shadow: 0 2px 10px rgba(0,0,0,.12); border-color: var(--text2); }
+  .h-item-title { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
+  .h-item-val { font-size: 13px; font-weight: 700; color: var(--text); }
   .h-item-val.negatif { color: #dc2626; }
   .h-item-val.pozitif { color: #16a34a; }
 
-  .h-empty { font-size: 12px; color: #94a3b8; font-style: italic; padding: 4px; }
+  .h-empty { font-size: 12px; color: var(--muted); font-style: italic; padding: 4px; }
 
   /* ── MODAL OVERLAY ── */
   .ym-overlay {
@@ -81,7 +81,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
   }
   .ym-overlay.open { display: flex; }
   .ym-modal {
-    background: #fff; border-radius: 8px; width: 540px; max-width: 96vw;
+    background: var(--card-bg); border-radius: 8px; width: 540px; max-width: 96vw;
     box-shadow: 0 8px 40px rgba(0,0,0,.25); overflow: hidden;
     display: flex; flex-direction: column; max-height: 94vh;
   }
@@ -94,17 +94,17 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
   .ym-close:hover { opacity: 1; }
   .ym-body { padding: 18px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 13px; }
   .ym-group { display: flex; flex-direction: column; gap: 4px; }
-  .ym-group label { font-size: 12.5px; font-weight: 600; color: #374151; }
+  .ym-group label { font-size: 12.5px; font-weight: 600; color: var(--text2); }
   .ym-input, .ym-select, .ym-textarea {
-    padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 5px;
-    font-size: 13px; color: #1e293b; outline: none; background: #fff;
+    padding: 7px 10px; border: 1px solid var(--border2); border-radius: 5px;
+    font-size: 13px; color: var(--text); outline: none; background: var(--card-bg);
     transition: border-color .2s; width: 100%; box-sizing: border-box;
   }
   .ym-input:focus, .ym-select:focus, .ym-textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(23,162,184,.12); }
   .ym-textarea { resize: vertical; min-height: 70px; }
   .ym-select { cursor: pointer; }
   .ym-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .ym-footer { padding: 12px 22px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+  .ym-footer { padding: 12px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
   .ym-btn-iptal { display: inline-flex; align-items: center; gap: 5px; padding: 8px 18px; background: #64748b; color: #fff; border: none; border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer; }
   .ym-btn-iptal:hover { background: #475569; }
   .ym-btn-kaydet { display: inline-flex; align-items: center; gap: 5px; padding: 8px 18px; background: #5cb85c; color: #fff; border: none; border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer; }
@@ -112,7 +112,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
 
   /* ── TOAST ── */
   .toast-container { position: fixed; bottom: 22px; right: 22px; z-index: 9999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
-  .toast-msg { display: flex; align-items: center; gap: 9px; padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 3px 14px rgba(0,0,0,.15); background: #fff; pointer-events: auto; }
+  .toast-msg { display: flex; align-items: center; gap: 9px; padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 3px 14px rgba(0,0,0,.15); background: var(--card-bg); pointer-events: auto; }
   .toast-msg.success { border-left: 4px solid #22c55e; }
   .toast-msg.error   { border-left: 4px solid #ef4444; }
   .toast-msg.info    { border-left: 4px solid #3b82f6; }
@@ -120,7 +120,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
   /* ── sidebar ── */
   .profile-dropdown.show { display: flex !important; }
   .profile-dropdown a:hover { background: rgba(0,0,0,.05) !important; }
-  .nav-link:focus { color: #94a3b8; outline: none; }
+  .nav-link:focus { color: var(--muted); outline: none; }
   .nav-link.active:focus { color: #4ade80; outline: none; }
 </style>
 

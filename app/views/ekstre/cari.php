@@ -20,15 +20,15 @@ $dateTr = static function($value): string {
 ?>
 
 <style>
-.ext-page{background:#fff;min-height:calc(100vh - 104px);padding-bottom:24px}
+.ext-page{background:var(--card-bg);min-height:calc(100vh - 104px);padding-bottom:24px}
 .ext-back{display:inline-flex;align-items:center;gap:8px;background:#52b9d7;color:#fff;text-decoration:none;border-radius:4px;padding:10px 14px;font-weight:800;font-size:13px;box-shadow:0 5px 12px rgba(15,23,42,.16);margin-bottom:20px}
 .ext-back:hover{color:#fff;filter:brightness(1.04)}
-.ext-panel{border-radius:2px;overflow:hidden;border:1px solid #dbe4ec;background:#fff}
+.ext-panel{border-radius:2px;overflow:hidden;border:1px solid var(--border);background:var(--card-bg)}
 .ext-head{background:#357db7;color:#fff;padding:16px;font-size:14px;font-weight:900;text-transform:uppercase}
 .ext-filter{display:flex;align-items:center;justify-content:center;gap:10px;padding:15px 16px;flex-wrap:wrap}
-.ext-filter label{font-size:13px;color:#64748b;margin-right:12px}
-.ext-filter input{height:34px;border:1px solid #cbd5e1;border-radius:4px;padding:6px 12px;min-width:170px;color:#334155}
-.ext-filter span{height:34px;display:inline-flex;align-items:center;border:1px solid #cbd5e1;border-radius:3px;padding:0 12px;color:#64748b;background:#f8fafc}
+.ext-filter label{font-size:13px;color:var(--muted);margin-right:12px}
+.ext-filter input{height:34px;border:1px solid var(--border2);border-radius:4px;padding:6px 12px;min-width:170px;color:var(--text2)}
+.ext-filter span{height:34px;display:inline-flex;align-items:center;border:1px solid var(--border2);border-radius:3px;padding:0 12px;color:var(--muted);background:var(--surface-2)}
 .ext-filter button{height:34px;border:0;border-radius:4px;background:#d84a43;color:#fff;font-weight:800;padding:0 14px;font-size:13px}
 .ext-summary{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:30px;padding:0 16px 20px}
 .ext-card{height:60px;border-radius:4px;color:#fff;display:grid;grid-template-columns:76px 1fr;align-items:center;overflow:hidden}
@@ -42,10 +42,10 @@ $dateTr = static function($value): string {
 .ext-tool:hover{color:#fff;filter:brightness(1.04)}.ext-tool.green{background:#41ad46}.ext-tool.orange{background:#f0a33a}.ext-tool.dark{background:#334155}
 .ext-table-wrap{padding:0 16px 22px;overflow:auto}
 .ext-table{width:100%;border-collapse:collapse;min-width:980px;font-size:11px}
-.ext-table th{background:#d7edf8;color:#126083;border:1px solid #c3d7e2;font-weight:900;text-align:left;padding:11px 10px}
-.ext-table td{border:1px solid #d6dde4;color:#334155;padding:10px;vertical-align:top}
+.ext-table th{background:rgba(59,130,246,.15);color:#126083;border:1px solid #c3d7e2;font-weight:900;text-align:left;padding:11px 10px}
+.ext-table td{border:1px solid #d6dde4;color:var(--text2);padding:10px;vertical-align:top}
 .ext-table .num{text-align:right;white-space:nowrap}
-.ext-empty{text-align:center;color:#64748b;padding:22px}
+.ext-empty{text-align:center;color:var(--muted);padding:22px}
 .ext-print-head{display:none}
 @media(max-width:760px){
   .ext-filter{justify-content:flex-start}.ext-filter input{min-width:0;width:calc(50% - 24px)}
@@ -53,19 +53,19 @@ $dateTr = static function($value): string {
 }
 @media print{
   @page{size:landscape;margin:8mm}
-  body{display:block!important;background:#fff!important}
+  body{display:block!important;background:var(--card-bg)!important}
   .sidebar,.topbar,.mobile-bottom-bar,.ext-back,.ext-head,.ext-filter,.ext-summary,.ext-tools{display:none!important}
   .page-wrapper{margin-left:0!important;display:block!important;min-height:auto!important}
   .main-content{padding:0!important}
-  .ext-page{background:#fff!important;min-height:auto!important;padding:0!important}
-  .ext-panel{border:0!important;background:#fff!important;box-shadow:none!important}
-  .ext-print-head{display:block!important;margin:0 0 12px!important;color:#000!important}
+  .ext-page{background:var(--card-bg)!important;min-height:auto!important;padding:0!important}
+  .ext-panel{border:0!important;background:var(--card-bg)!important;box-shadow:none!important}
+  .ext-print-head{display:block!important;margin:0 0 12px!important;color:var(--text)!important}
   .ext-print-head h1{font-size:15px!important;font-weight:700!important;text-align:center!important;margin:0 0 6px!important;text-transform:uppercase!important}
   .ext-print-head div{font-size:11px!important;text-align:center!important;margin:0!important}
   .ext-table-wrap{padding:0!important;overflow:visible!important}
   .ext-table{width:100%!important;min-width:0!important;font-size:9px!important;border-collapse:collapse!important}
-  .ext-table th{background:#fff!important;color:#000!important;border:1px solid #999!important;padding:5px!important}
-  .ext-table td{color:#000!important;border:1px solid #aaa!important;padding:5px!important}
+  .ext-table th{background:var(--card-bg)!important;color:var(--text)!important;border:1px solid #999!important;padding:5px!important}
+  .ext-table td{color:var(--text)!important;border:1px solid var(--border2)!important;padding:5px!important}
   .ext-table .num{text-align:right!important;white-space:nowrap!important}
   a[href]::after{content:""!important}
 }

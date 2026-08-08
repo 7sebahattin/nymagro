@@ -26,34 +26,34 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
   .btn-sil { background:#f0ad4e; }
 
   /* Dropdown */
-  .dropdown-menu-custom { position:absolute; top:calc(100% + 2px); left:0; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 6px 12px rgba(0,0,0,.175); min-width:180px; z-index:300; display:none; }
+  .dropdown-menu-custom { position:absolute; top:calc(100% + 2px); left:0; background:var(--card-bg); border:1px solid var(--border); border-radius:4px; box-shadow:0 6px 12px rgba(0,0,0,.175); min-width:180px; z-index:300; display:none; }
   .dropdown-menu-custom.open { display:block; }
-  .dd-item { display:block; padding:8px 16px; font-size:13px; color:#333; text-decoration:none; cursor:pointer; }
-  .dd-item:hover { background:#f5f5f5; color:#262626; }
+  .dd-item { display:block; padding:8px 16px; font-size:13px; color:var(--text); text-decoration:none; cursor:pointer; }
+  .dd-item:hover { background:var(--surface-2); color:var(--text); }
 
   /* ── Filter Bar ── */
-  .filter-bar { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-  .filter-tabs { display:flex; border:1px solid #ccc; border-radius:4px; overflow:hidden; }
-  .filter-tab-btn { padding:6px 12px; font-size:13px; color:#555; background:#fff; border:none; cursor:pointer; text-decoration:none; display:inline-block; }
-  .filter-tab-btn:not(:last-child) { border-right:1px solid #ccc; }
-  .filter-tab-btn.active { background:#e6e6e6; box-shadow:inset 0 3px 5px rgba(0,0,0,.125); }
+  .filter-bar { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+  .filter-tabs { display:flex; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+  .filter-tab-btn { padding:6px 12px; font-size:13px; color:var(--text2); background:var(--card-bg); border:none; cursor:pointer; text-decoration:none; display:inline-block; }
+  .filter-tab-btn:not(:last-child) { border-right:1px solid var(--border); }
+  .filter-tab-btn.active { background:var(--surface-2); box-shadow:inset 0 3px 5px rgba(0,0,0,.125); }
   
-  .filter-select { padding:6px 10px; border:1px solid #ccc; border-radius:4px; font-size:13px; color:#555; background:#fff; outline:none; min-width:140px; }
+  .filter-select { padding:6px 10px; border:1px solid var(--border); border-radius:4px; font-size:13px; color:var(--text2); background:var(--card-bg); outline:none; min-width:140px; }
   
   .search-wrap { margin-left:auto; display:flex; align-items:center; gap:6px; }
-  .search-label { font-size:13px; font-weight:600; color:#333; }
-  .search-input { padding:5px 10px; border:1px solid #ccc; border-radius:3px; font-size:13px; width:200px; outline:none; }
+  .search-label { font-size:13px; font-weight:600; color:var(--text); }
+  .search-input { padding:5px 10px; border:1px solid var(--border); border-radius:3px; font-size:13px; width:200px; outline:none; }
   .search-input:focus { border-color:#66afe9; box-shadow:inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6); }
 
   /* ── Table ── */
-  .table-card { background:#fff; border:1px solid #ddd; border-radius:4px; overflow-x:auto; }
+  .table-card { background:var(--card-bg); border:1px solid var(--border); border-radius:4px; overflow-x:auto; }
   .products-table { width:100%; border-collapse:collapse; min-width:700px; }
   .products-table thead tr { background:#3a4a5a; color:#fff; font-size:12px; font-weight:600; }
   .products-table thead th { padding:10px 12px; border-right:1px solid #4bc0a5; text-align:left; }
   .products-table thead th:last-child { border-right:none; }
   
-  .products-table tbody tr { border-bottom:2px solid #fff; }
-  .products-table tbody td { padding:0; vertical-align:middle; font-size:13px; color:#555; border-right:1px solid #eee; }
+  .products-table tbody tr { border-bottom:2px solid var(--border2); }
+  .products-table tbody td { padding:0; vertical-align:middle; font-size:13px; color:var(--text2); border-right:1px solid var(--border); }
   
   /* İlk hücre: Cyan arka plan */
   .td-name-cell { background:#5bc0de; color:#fff; padding:8px 12px; display:flex; align-items:center; gap:8px; min-height:36px; position:relative; }
@@ -64,26 +64,26 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
   .badge-brand { background:#f0ad4e; color:#fff; font-size:9px; padding:2px 6px; border-radius:2px; font-weight:700; text-transform:uppercase; }
   .badge-tag { background:#d9534f; color:#fff; font-size:9px; padding:2px 6px; border-radius:2px; font-weight:700; text-transform:uppercase; position:absolute; right:10px; }
   
-  .td-price-cell { padding:8px 12px; text-align:right; font-weight:600; background:#fff; color:#555; }
-  .td-stock-cell { padding:8px 12px; text-align:right; background:#fff; color:#555; }
+  .td-price-cell { padding:8px 12px; text-align:right; font-weight:600; background:var(--card-bg); color:var(--text2); }
+  .td-stock-cell { padding:8px 12px; text-align:right; background:var(--card-bg); color:var(--text2); }
   
   .row-actions { display:none; gap:5px; position:absolute; right:50px; }
   .products-table tbody tr:hover .row-actions { display:flex; }
-  .btn-edit-row { background:#fff; color:#5bc0de; border:none; padding:3px 6px; border-radius:3px; cursor:pointer; font-size:12px; text-decoration:none; }
-  .btn-edit-row:hover { background:#eee; }
+  .btn-edit-row { background:var(--card-bg); color:#5bc0de; border:none; padding:3px 6px; border-radius:3px; cursor:pointer; font-size:12px; text-decoration:none; }
+  .btn-edit-row:hover { background:var(--surface-2); }
   .btn-del-row { background:#d9534f; color:#fff; border:none; padding:3px 6px; border-radius:3px; cursor:pointer; font-size:12px; text-decoration:none; }
   .btn-del-row:hover { filter:brightness(1.1); }
 
-  .table-empty { padding:30px; text-align:center; color:#999; background:#fff; }
+  .table-empty { padding:30px; text-align:center; color:var(--muted); background:var(--card-bg); }
   
   /* Pagination */
-  .pag-bar { margin-top:15px; display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#555; }
-  .pagination { display:flex; list-style:none; padding:0; margin:0; border:1px solid #ddd; border-radius:4px; overflow:hidden; }
-  .page-item { border-right:1px solid #ddd; }
+  .pag-bar { margin-top:15px; display:flex; align-items:center; justify-content:space-between; font-size:13px; color:var(--text2); }
+  .pagination { display:flex; list-style:none; padding:0; margin:0; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+  .page-item { border-right:1px solid var(--border); }
   .page-item:last-child { border-right:none; }
-  .page-link { display:block; padding:6px 12px; text-decoration:none; color:#337ab7; background:#fff; }
+  .page-link { display:block; padding:6px 12px; text-decoration:none; color:#337ab7; background:var(--card-bg); }
   .page-item.active .page-link { background:#337ab7; color:#fff; }
-  .page-link:hover:not(.active) { background:#eee; }
+  .page-link:hover:not(.active) { background:var(--surface-2); }
 </style>
 
 <!-- Action Bar -->
@@ -103,17 +103,17 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
 
   <!-- Mevcut Üründen Kopyala Modalı -->
   <div class="modal-overlay" id="copyProductModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:9999;">
-    <div class="modal-box" style="background:#fff; width:500px; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.3); overflow:hidden;">
-      <div class="modal-header" style="padding:15px; background:#f5f5f5; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-weight:700; font-size:15px; color:#333;">Mevcut Üründen Kopyala</span>
-        <button type="button" onclick="closeCopyModal()" style="border:none; background:none; font-size:20px; color:#999; cursor:pointer;">&times;</button>
+    <div class="modal-box" style="background:var(--card-bg); width:500px; border-radius:8px; box-shadow:0 5px 15px rgba(0,0,0,0.3); overflow:hidden;">
+      <div class="modal-header" style="padding:15px; background:var(--surface-2); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:700; font-size:15px; color:var(--text);">Mevcut Üründen Kopyala</span>
+        <button type="button" onclick="closeCopyModal()" style="border:none; background:none; font-size:20px; color:var(--muted); cursor:pointer;">&times;</button>
       </div>
       <div class="modal-body" style="padding:20px;">
         <div style="margin-bottom:15px;">
-          <label style="display:block; font-size:13px; font-weight:600; color:#555; margin-bottom:8px;">Kopyalanacak Ürünü Arayın (Min. 3 karakter)</label>
-          <input type="text" id="copySearchInput" class="finput" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;" placeholder="Ürün adı veya stok kodu..." onkeyup="searchForCopy(this.value)">
+          <label style="display:block; font-size:13px; font-weight:600; color:var(--text2); margin-bottom:8px;">Kopyalanacak Ürünü Arayın (Min. 3 karakter)</label>
+          <input type="text" id="copySearchInput" class="finput" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:4px;" placeholder="Ürün adı veya stok kodu..." onkeyup="searchForCopy(this.value)">
         </div>
-        <div id="copySearchResults" style="max-height:300px; overflow-y:auto; border:1px solid #eee; border-radius:4px; display:none;">
+        <div id="copySearchResults" style="max-height:300px; overflow-y:auto; border:1px solid var(--border); border-radius:4px; display:none;">
           <!-- Arama sonuçları buraya gelecek -->
         </div>
       </div>
@@ -154,7 +154,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
                             div.style.borderBottom = '1px solid #f5f5f5';
                             div.style.cursor = 'pointer';
                             div.style.fontSize = '13px';
-                            div.innerHTML = `<strong>${item.ad}</strong> <span style="color:#888; font-size:11px;">(${item.stok_kodu || '-'})</span>`;
+                            div.innerHTML = `<strong>${item.ad}</strong> <span style="color:var(--muted); font-size:11px;">(${item.stok_kodu || '-'})</span>`;
                             div.onmouseover = () => div.style.background = '#f0f7ff';
                             div.onmouseout = () => div.style.background = '#fff';
                             div.onclick = () => {
@@ -164,7 +164,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
                         });
                         resDiv.style.display = 'block';
                     } else {
-                        resDiv.innerHTML = '<div style="padding:15px; color:#999; font-size:13px; text-align:center;">Sonuç bulunamadı.</div>';
+                        resDiv.innerHTML = '<div style="padding:15px; color:var(--muted); font-size:13px; text-align:center;">Sonuç bulunamadı.</div>';
                         resDiv.style.display = 'block';
                     }
                 });

@@ -40,27 +40,27 @@ $formatDate = static function ($value): string {
 .doc-profile h2{margin:0;color:#6f6f78;font-size:24px;font-weight:900;text-transform:uppercase;line-height:1.2}
 .doc-profile small{display:block;margin-top:7px;color:#7d7d86;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
 .doc-shell{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:22px;align-items:start}
-.doc-card{background:#fff;border-radius:5px;box-shadow:0 14px 30px rgba(15,23,42,.16);padding:20px}
-.doc-card h3{margin:0 0 16px;color:#253044;font-size:16px;font-weight:900}
+.doc-card{background:var(--card-bg);border-radius:5px;box-shadow:0 14px 30px rgba(15,23,42,.16);padding:20px}
+.doc-card h3{margin:0 0 16px;color:var(--text);font-size:16px;font-weight:900}
 .doc-form{display:flex;flex-direction:column;gap:13px}
-.doc-form label{font-size:12px;font-weight:900;color:#475569;margin-bottom:6px}
+.doc-form label{font-size:12px;font-weight:900;color:var(--text2);margin-bottom:6px}
 .doc-form .form-control{border-color:#bfe0cd;border-radius:6px}
-.doc-help{font-size:12px;color:#64748b;line-height:1.45}
-.doc-info{background:#fff9df;color:#9a741d;border-radius:4px;padding:18px;font-size:14px;line-height:1.5;box-shadow:0 10px 22px rgba(15,23,42,.12)}
+.doc-help{font-size:12px;color:var(--muted);line-height:1.45}
+.doc-info{background:rgba(243,156,18,.15);color:#9a741d;border-radius:4px;padding:18px;font-size:14px;line-height:1.5;box-shadow:0 10px 22px rgba(15,23,42,.12)}
 .doc-table{width:100%;border-collapse:collapse;font-size:13px}
-.doc-table th{color:#64748b;font-weight:900;border-bottom:1px solid #1f2937;padding:10px}
-.doc-table td{border-bottom:1px solid #e5e7eb;padding:12px 10px;color:#475569;vertical-align:middle}
-.doc-name{font-weight:800;color:#1f2937}
-.doc-desc{display:block;color:#64748b;font-size:12px;margin-top:3px}
+.doc-table th{color:var(--muted);font-weight:900;border-bottom:1px solid #1f2937;padding:10px}
+.doc-table td{border-bottom:1px solid var(--border);padding:12px 10px;color:var(--text2);vertical-align:middle}
+.doc-name{font-weight:800;color:var(--text)}
+.doc-desc{display:block;color:var(--muted);font-size:12px;margin-top:3px}
 .doc-row-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .doc-alert{border-radius:6px;padding:12px 14px;font-size:13px;font-weight:700}
-.doc-alert.success{background:#dcfce7;color:#166534}.doc-alert.error{background:#fee2e2;color:#991b1b}
+.doc-alert.success{background:rgba(46,204,113,.15);color:var(--success)}.doc-alert.error{background:rgba(231,76,60,.15);color:var(--danger)}
 @media(max-width:980px){.doc-shell{grid-template-columns:1fr}.doc-profile{max-width:none}}
 @media(max-width:680px){
   .doc-actions{display:grid;grid-template-columns:1fr 1fr}.doc-btn{justify-content:center}
   .doc-profile{padding:18px;gap:14px}.doc-avatar{width:58px;height:58px;font-size:22px}.doc-profile h2{font-size:18px}
   .doc-table,.doc-table tbody,.doc-table tr,.doc-table td{display:block;width:100%}
-  .doc-table thead{display:none}.doc-table tr{border-bottom:1px solid #e5e7eb;padding:10px 0}.doc-table td{border-bottom:0;padding:6px 0}
+  .doc-table thead{display:none}.doc-table tr{border-bottom:1px solid var(--border);padding:10px 0}.doc-table td{border-bottom:0;padding:6px 0}
   .doc-row-actions{justify-content:flex-start}
 }
 </style>

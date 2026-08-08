@@ -57,41 +57,41 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
 .cari-btn-excel{background:var(--orange)}.cari-btn-excel:hover{background:var(--orange-dark);color:#fff}
 .cari-badge-total{margin-left:auto;display:inline-flex;align-items:center;gap:7px;background:var(--green-dark);color:#fff;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:700}
 .cari-filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.cari-filter-select{padding:8px 32px 8px 12px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px;color:#374151;background:#fff;cursor:pointer;outline:none;transition:border-color .2s}
+.cari-filter-select{padding:8px 32px 8px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;color:var(--text2);background:var(--card-bg);cursor:pointer;outline:none;transition:border-color .2s}
 .cari-filter-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
 .cari-search-wrap{margin-left:auto;display:flex;align-items:center;gap:8px}
-.cari-search-label{font-size:13px;color:#64748b;font-weight:500;white-space:nowrap}
-.cari-search-inner{position:relative}.cari-search-inner i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px}
-.cari-search-input{padding:8px 14px 8px 36px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px;color:#1e293b;background:#fff;outline:none;width:230px;transition:border-color .2s,box-shadow .2s}
+.cari-search-label{font-size:13px;color:var(--muted);font-weight:500;white-space:nowrap}
+.cari-search-inner{position:relative}.cari-search-inner i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
+.cari-search-input{padding:8px 14px 8px 36px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;color:var(--text);background:var(--card-bg);outline:none;width:230px;transition:border-color .2s,box-shadow .2s}
 .cari-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
 .cari-summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
-.cari-sum-card{background:#fff;border-radius:9px;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.cari-sum-card{background:var(--card-bg);border-radius:9px;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
 .cari-sum-icon{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.cari-sum-val{font-size:22px;font-weight:800;color:#1e293b;line-height:1}
-.cari-sum-label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;margin-top:3px}
-.cari-table-card{background:#fff;border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.07);overflow:hidden}
+.cari-sum-val{font-size:22px;font-weight:800;color:var(--text);line-height:1}
+.cari-sum-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-top:3px}
+.cari-table-card{background:var(--card-bg);border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.07);overflow:hidden}
 .cari-table-wrap{overflow-x:auto}.cari-table{width:100%;border-collapse:collapse;min-width:820px}
 .cari-table thead tr{background:var(--navy)}.cari-table thead th{padding:13px 16px;color:rgba(255,255,255,.75);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
 .cari-table thead th a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:4px}.cari-table thead th a:hover{color:#fff}
 .cari-sort-icon{font-size:10px;margin-left:4px;color:rgba(255,255,255,.4)}
-.cari-table tbody tr{border-bottom:1px solid #f1f5f9;transition:background .12s}.cari-table tbody tr:hover{background:#f8fafc}.cari-page.theme-customer .cari-table tbody tr:hover{background:#f0fdf8}
-.cari-table tbody td{padding:10px 16px;font-size:13.5px;color:#475569;vertical-align:middle}
+.cari-table tbody tr{border-bottom:1px solid var(--border);transition:background .12s}.cari-table tbody tr:hover{background:var(--surface-2)}.cari-page.theme-customer .cari-table tbody tr:hover{background:rgba(46,204,113,.10)}
+.cari-table tbody td{padding:10px 16px;font-size:13.5px;color:var(--text2);vertical-align:middle}
 .cari-name-btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;font-size:12.5px;font-weight:600;padding:6px 14px;border-radius:5px;text-decoration:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .15s,box-shadow .15s}
 .cari-name-btn:hover{background:var(--accent-dark);color:#fff;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 32%,transparent)}
 .cari-name-btn i{font-size:11px;opacity:.85}
 .cari-badge-active,.cari-badge-passive,.cari-badge-extra{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
-.cari-badge-active{background:#dcfce7;color:#15803d}.cari-badge-passive{background:#fee2e2;color:#b91c1c}.cari-badge-extra{background:#eff6ff;color:#1d4ed8;margin-left:4px}
-.cari-amount{font-size:13px;font-weight:700;color:#1e293b}.cari-amount.zero{color:#94a3b8;font-weight:400}.cari-amount.pos{color:#15803d}.cari-amount.neg{color:#b91c1c}.cari-amount.purple{color:#0d623a}
+.cari-badge-active{background:rgba(46,204,113,.15);color:var(--success)}.cari-badge-passive{background:rgba(231,76,60,.15);color:var(--danger)}.cari-badge-extra{background:rgba(59,130,246,.15);color:var(--info);margin-left:4px}
+.cari-amount{font-size:13px;font-weight:700;color:var(--text)}.cari-amount.zero{color:var(--muted);font-weight:400}.cari-amount.pos{color:var(--success)}.cari-amount.neg{color:var(--danger)}.cari-amount.purple{color:var(--accent)}
 .td-right{text-align:right}.td-center{text-align:center}
 .cari-action-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;border-radius:5px;font-size:12px;text-decoration:none;margin-right:4px;transition:background .15s}
-.cari-action-view{background:#e0f2fe;color:#0369a1}.cari-action-view:hover{background:#bae6fd;color:#0369a1}
-.cari-action-delete{border:1px solid #fca5a5;color:#ef4444;background:#fff}.cari-action-delete:hover{background:#fee2e2;color:#dc2626}
-.cari-table-empty{padding:52px;text-align:center;color:#94a3b8;font-size:14px}
-.cari-table-footer{padding:13px 18px;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:#64748b}
-.cari-pagination{display:flex;gap:4px}.cari-pg-btn{padding:5px 11px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#475569;font-size:12px;cursor:pointer;text-decoration:none;transition:all .15s}
+.cari-action-view{background:rgba(59,130,246,.13);color:#0369a1}.cari-action-view:hover{background:rgba(59,130,246,.22);color:#0369a1}
+.cari-action-delete{border:1px solid #fca5a5;color:#ef4444;background:var(--card-bg)}.cari-action-delete:hover{background:rgba(231,76,60,.15);color:#dc2626}
+.cari-table-empty{padding:52px;text-align:center;color:var(--muted);font-size:14px}
+.cari-table-footer{padding:13px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.cari-pagination{display:flex;gap:4px}.cari-pg-btn{padding:5px 11px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg);color:var(--text2);font-size:12px;cursor:pointer;text-decoration:none;transition:all .15s}
 .cari-pg-btn:hover,.cari-pg-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 .cari-alert-success,.cari-alert-error{padding:12px 18px;border-radius:8px;margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:8px}
-.cari-alert-success{background:#dcfce7;border:1px solid #bbf7d0;color:#166534}.cari-alert-error{background:#fee2e2;border:1px solid #fecaca;color:#991b1b}
+.cari-alert-success{background:rgba(46,204,113,.15);border:1px solid rgba(46,204,113,.28);color:var(--success)}.cari-alert-error{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.28);color:var(--danger)}
 @media(max-width:768px){.cari-summary-cards{grid-template-columns:1fr 1fr}.cari-filter-bar{flex-direction:column;align-items:flex-start}.cari-search-wrap{margin-left:0;width:100%}.cari-search-inner,.cari-search-input{width:100%}.cari-badge-total{margin-left:0}}
 @media(max-width:560px){.cari-summary-cards{grid-template-columns:1fr}}
 </style>
@@ -106,15 +106,15 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
 
   <div class="cari-summary-cards">
     <div class="cari-sum-card">
-      <div class="cari-sum-icon" style="background:#eff6ff;color:#1d4ed8"><i class="fa-solid <?= $h($cfg['icon']) ?>"></i></div>
+      <div class="cari-sum-icon" style="background:rgba(59,130,246,.15);color:var(--info)"><i class="fa-solid <?= $h($cfg['icon']) ?>"></i></div>
       <div><div class="cari-sum-val"><?= number_format((int)($ozetler['toplam_kayit'] ?? 0)) ?></div><div class="cari-sum-label"><?= $h($cfg['totalLabel']) ?></div></div>
     </div>
     <div class="cari-sum-card">
-      <div class="cari-sum-icon" style="background:#dcfce7;color:#15803d"><i class="fa-solid fa-user-check"></i></div>
+      <div class="cari-sum-icon" style="background:rgba(46,204,113,.15);color:var(--success)"><i class="fa-solid fa-user-check"></i></div>
       <div><div class="cari-sum-val"><?= number_format((int)($ozetler['aktif_sayisi'] ?? 0)) ?></div><div class="cari-sum-label"><?= $h($cfg['activeLabel']) ?></div></div>
     </div>
     <div class="cari-sum-card">
-      <div class="cari-sum-icon" style="background:#fff7ed;color:#d97706"><i class="fa-solid <?= $h($cfg['thirdIcon']) ?>"></i></div>
+      <div class="cari-sum-icon" style="background:rgba(243,156,18,.15);color:#d97706"><i class="fa-solid <?= $h($cfg['thirdIcon']) ?>"></i></div>
       <div><div class="cari-sum-val"><?= number_format((int)($ozetler[$cfg['thirdValueKey']] ?? 0)) ?></div><div class="cari-sum-label"><?= $h($cfg['thirdLabel']) ?></div></div>
     </div>
   </div>
@@ -211,7 +211,7 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
                   <span class="<?= $isAktif ? 'cari-badge-active' : 'cari-badge-passive' ?>"><?= $isAktif ? 'Aktif' : 'Pasif' ?></span>
                   <?php if ($isEticaret): ?><span class="cari-badge-extra">Entegre</span><?php endif; ?>
                 </td>
-                <td class="td-right" style="color:#64748b;font-size:13px"><?= $h($telefon ?: '—') ?></td>
+                <td class="td-right" style="color:var(--muted);font-size:13px"><?= $h($telefon ?: '—') ?></td>
                 <td class="td-right">
                   <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/detay/<?= (int)$item['id'] ?>" class="cari-action-btn cari-action-view" title="Görüntüle"><i class="fa-solid fa-eye"></i></a>
                   <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/sil/<?= (int)$item['id'] ?>" class="cari-action-btn cari-action-delete" title="Sil" onclick="return confirm('<?= $h(addslashes($item['unvan'] ?? 'Kayıt')) ?> silinsin mi?\n\nBu işlem geri alınamaz.')"><i class="fa-solid fa-trash-can"></i></a>

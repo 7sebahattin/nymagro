@@ -1,8 +1,8 @@
 <style>
 /* YENI EKLENEN HEAD STYLLERI */
 /* ── Breadcrumb ── */
-    .breadcrumb-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; font-size: 12.5px; color: #94a3b8; }
-    .breadcrumb-bar a { color: #64748b; text-decoration: none; }
+    .breadcrumb-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; font-size: 12.5px; color: var(--muted); }
+    .breadcrumb-bar a { color: var(--muted); text-decoration: none; }
     .breadcrumb-bar a:hover { color: #4ade80; }
     .breadcrumb-bar i { font-size: 10px; }
 
@@ -14,20 +14,20 @@
     .btn-back:hover { background: #d97706; color: #fff; }
 
     /* ── Form Card ── */
-    .form-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,.08); overflow: hidden; }
+    .form-card { background: var(--card-bg); border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,.08); overflow: hidden; }
 
     /* ── Tabs ── */
-    .form-tabs { display: flex; border-bottom: 2px solid #e2e8f0; background: #fff; overflow-x: auto; scrollbar-width: none; }
+    .form-tabs { display: flex; border-bottom: 2px solid var(--border); background: var(--card-bg); overflow-x: auto; scrollbar-width: none; }
     .form-tabs::-webkit-scrollbar { display: none; }
     .tab-btn {
       display: inline-flex; align-items: center; gap: 7px;
       padding: 14px 22px; font-size: 12.5px; font-weight: 600;
-      color: #64748b; background: none; border: none; cursor: pointer;
+      color: var(--muted); background: none; border: none; cursor: pointer;
       border-bottom: 3px solid transparent; margin-bottom: -2px;
       white-space: nowrap; text-transform: uppercase; letter-spacing: .5px;
       transition: color .2s, border-color .2s;
     }
-    .tab-btn:hover { color: #1e293b; }
+    .tab-btn:hover { color: var(--text); }
     .tab-btn.active { color: #f59e0b; border-bottom-color: #f59e0b; }
     .tab-btn i { font-size: 13px; }
 
@@ -39,25 +39,25 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
     .form-group:last-child { margin-bottom: 0; }
-    .form-label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; gap: 6px; }
-    .form-label .help-icon { color: #94a3b8; font-size: 12px; cursor: help; }
-    .form-input { padding: 9px 12px 9px 36px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13.5px; color: #1e293b; background: #fff; outline: none; transition: border-color .2s, box-shadow .2s; width: 100%; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; gap: 6px; }
+    .form-label .help-icon { color: var(--muted); font-size: 12px; cursor: help; }
+    .form-input { padding: 9px 12px 9px 36px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13.5px; color: var(--text); background: var(--card-bg); outline: none; transition: border-color .2s, box-shadow .2s; width: 100%; }
     .form-input:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.12); }
     .form-input.no-icon { padding-left: 12px; }
-    .form-textarea { padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13.5px; color: #1e293b; background: #fff; outline: none; transition: border-color .2s, box-shadow .2s; width: 100%; resize: vertical; min-height: 90px; }
+    .form-textarea { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13.5px; color: var(--text); background: var(--card-bg); outline: none; transition: border-color .2s, box-shadow .2s; width: 100%; resize: vertical; min-height: 90px; }
     .form-textarea:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.12); }
-    .form-select { padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13.5px; color: #1e293b; background: #fff; outline: none; transition: border-color .2s; width: 100%; cursor: pointer; }
+    .form-select { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13.5px; color: var(--text); background: var(--card-bg); outline: none; transition: border-color .2s; width: 100%; cursor: pointer; }
     .form-select:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.12); }
     .input-wrap { position: relative; }
-    .input-wrap i.field-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #cbd5e1; font-size: 13px; pointer-events: none; }
-    .form-hint { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
+    .input-wrap i.field-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text2); font-size: 13px; pointer-events: none; }
+    .form-hint { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
 
     /* ── Kimlik Layout ── */
     .kimlik-layout { display: flex; gap: 28px; align-items: flex-start; }
     .kimlik-fields { flex: 1; }
 
     /* ── Resim Upload ── */
-    .img-upload-area { width: 130px; height: 130px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .2s, background .2s; color: #f59e0b; background: #fffbeb; }
+    .img-upload-area { width: 130px; height: 130px; border: 2px dashed var(--border2); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .2s, background .2s; color: #f59e0b; background: rgba(243,156,18,.15); }
     .img-upload-area:hover { border-color: #f59e0b; background: rgba(245,158,11,.06); }
     .img-upload-area i { font-size: 28px; }
     .img-upload-area span { font-size: 12px; font-weight: 600; }
@@ -68,17 +68,17 @@
     .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .toggle-track {
-      position: absolute; inset: 0; background: #e2e8f0;
+      position: absolute; inset: 0; background: var(--surface-2);
       border-radius: 24px; cursor: pointer; transition: background .25s;
     }
     .toggle-track::after {
       content: ''; position: absolute; left: 3px; top: 3px;
-      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      width: 18px; height: 18px; border-radius: 50%; background: var(--card-bg);
       transition: transform .25s; box-shadow: 0 1px 4px rgba(0,0,0,.18);
     }
     .toggle-switch input:checked + .toggle-track { background: #f59e0b; }
     .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
-    .toggle-label { font-size: 13px; color: #475569; }
+    .toggle-label { font-size: 13px; color: var(--text2); }
 
     /* ── Sınıflandırma ── */
     .label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
@@ -88,7 +88,7 @@
 
     /* ── Toast ── */
     .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-    .toast { background: #1e293b; color: #f1f5f9; padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); animation: toastIn .3s ease; }
+    .toast { background: #1e293b; color: var(--text); padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); animation: toastIn .3s ease; }
     .toast.success { border-left: 4px solid #4ade80; }
     .toast.error   { border-left: 4px solid #ef4444; }
     @keyframes toastIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }

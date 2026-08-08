@@ -86,14 +86,14 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 .cd-avatar{width:76px;height:76px;border-radius:50%;background:#d8d8d8;border:6px solid rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;color:#7b7b7b;font-size:30px;font-weight:900;flex:0 0 auto}
 .cd-profile h2{margin:0;color:#6f6f78;font-size:24px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;line-height:1.2}
 .cd-profile small{display:block;margin-top:7px;color:#7d7d86;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
-.cd-note{position:relative;background:#ffffd9;border:7px solid #666;border-radius:28px;min-height:96px;padding:18px 22px;color:#43c27f;box-shadow:0 8px 22px rgba(15,23,42,.08)}
-.cd-note::before{content:"";position:absolute;left:-37px;top:32px;border-width:18px 37px 18px 0;border-style:solid;border-color:transparent #666 transparent transparent}
-.cd-note::after{content:"";position:absolute;left:-24px;top:40px;border-width:10px 24px 10px 0;border-style:solid;border-color:transparent #ffffd9 transparent transparent}
+.cd-note{position:relative;background:rgba(243,156,18,.13);border:7px solid #666;border-radius:28px;min-height:96px;padding:18px 22px;color:#43c27f;box-shadow:0 8px 22px rgba(15,23,42,.08)}
+.cd-note::before{content:"";position:absolute;left:-37px;top:32px;border-width:18px 37px 18px 0;border-style:solid;border-color:transparent var(--muted) transparent transparent}
+.cd-note::after{content:"";position:absolute;left:-24px;top:40px;border-width:10px 24px 10px 0;border-style:solid;border-color:transparent rgba(243,156,18,.22) transparent transparent}
 .cd-note textarea{width:100%;min-height:50px;border:0;background:transparent;color:#2aa86a;resize:vertical;outline:0;font-size:13.5px}
 .cd-note-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
 .cd-note-actions button{border:0;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:800}
 .cd-note-save{background:#22c55e;color:#fff}
-.cd-note-clear{background:#e5e7eb;color:#334155}
+.cd-note-clear{background:var(--surface-2);color:var(--text2)}
 .cd-summary{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:18px}
 .cd-stat{height:82px;border-radius:3px;color:#fff;box-shadow:0 10px 22px rgba(15,23,42,.16);display:grid;grid-template-columns:76px 1fr;align-items:center;overflow:hidden}
 .cd-stat-icon{height:100%;display:flex;align-items:center;justify-content:center;font-size:34px;color:rgba(255,255,255,.9)}
@@ -107,36 +107,36 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 .cd-btn:hover{filter:brightness(1.05);color:#fff;transform:translateY(-1px)}
 .cd-dark{background:#334155}.cd-orange{background:#f6a633}.cd-success{background:#35ad50}.cd-info{background:#40a9c4}.cd-purple{background:#0b5533}.cd-danger{background:#d84a43}
 .cd-more{position:relative}
-.cd-more .dropdown-menu{min-width:255px;padding:0;border:1px solid #cbd5e1;border-radius:4px;box-shadow:0 14px 30px rgba(15,23,42,.18);overflow:hidden}
-.cd-more .dropdown-item{display:flex;align-items:center;gap:12px;padding:13px 18px;font-size:14px;color:#253044;border-bottom:1px solid #e5e7eb}
+.cd-more .dropdown-menu{min-width:255px;padding:0;border:1px solid var(--border2);border-radius:4px;box-shadow:0 14px 30px rgba(15,23,42,.18);overflow:hidden}
+.cd-more .dropdown-item{display:flex;align-items:center;gap:12px;padding:13px 18px;font-size:14px;color:var(--text);border-bottom:1px solid var(--border)}
 .cd-more .dropdown-item:last-child{border-bottom:0}
-.cd-more .dropdown-item:hover{background:#f8fafc;color:#0d623a}
+.cd-more .dropdown-item:hover{background:var(--surface-2);color:var(--accent)}
 .cd-more .dropdown-item i{width:22px;text-align:center;font-size:20px;color:#2f83c7}
 .cd-more .dropdown-item.is-green i{color:#248c41}
 .cd-more .dropdown-item.is-gold i{color:#9a6b25}
-.cd-more .dropdown-item.is-red i{color:#c43d3d}
+.cd-more .dropdown-item.is-red i{color:var(--danger)}
 .cd-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .cd-form-grid .full{grid-column:1 / -1}
-.cd-form-grid label{font-size:12px;font-weight:800;color:#475569;margin-bottom:6px}
+.cd-form-grid label{font-size:12px;font-weight:800;color:var(--text2);margin-bottom:6px}
 .cd-panels{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
-.cd-panel{background:#fff;border-radius:4px;box-shadow:0 14px 30px rgba(15,23,42,.18);overflow:hidden}
+.cd-panel{background:var(--card-bg);border-radius:4px;box-shadow:0 14px 30px rgba(15,23,42,.18);overflow:hidden}
 .cd-panel-wide{grid-column:span 1}
 .cd-panel-head{background:#334155;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 .cd-panel-head h3{margin:0;font-size:14px;font-weight:900;text-transform:uppercase}
-.cd-collapse{width:34px;height:34px;border:0;border-radius:4px;background:#e5e7eb;color:#64748b;font-weight:900}
+.cd-collapse{width:34px;height:34px;border:0;border-radius:4px;background:var(--surface-2);color:var(--muted);font-weight:900}
 .cd-panel-body{padding:22px 18px 16px}
 .cd-table{width:100%;border-collapse:collapse;font-size:13px}
 .cd-table th{color:#707070;font-weight:800;padding:8px 10px;border-bottom:1px solid #222}
-.cd-table td{padding:11px 10px;border-bottom:1px solid #d9d9d9;color:#64748b;vertical-align:middle}
+.cd-table td{padding:11px 10px;border-bottom:1px solid #d9d9d9;color:var(--muted);vertical-align:middle}
 .cd-table .money{text-align:right;white-space:nowrap}
 .cd-plus{width:20px;height:20px;border-radius:50%;background:#5ec99e;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
 .cd-status{color:#cf3f3f}
-.cd-empty{background:#fff9df;color:#9a741d;padding:16px;border-radius:4px;font-size:13px}
-.cd-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin-top:12px;font-size:12.5px;color:#475569}
-.cd-info-grid strong{color:#0f172a}
+.cd-empty{background:rgba(243,156,18,.15);color:#9a741d;padding:16px;border-radius:4px;font-size:13px}
+.cd-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin-top:12px;font-size:12.5px;color:var(--text2)}
+.cd-info-grid strong{color:var(--text)}
 .cd-mobile-info{display:none}
 .cd-alert{border-radius:6px;padding:12px 14px;font-size:13px;font-weight:800}
-.cd-alert.success{background:#dcfce7;color:#166534}.cd-alert.error{background:#fee2e2;color:#991b1b}
+.cd-alert.success{background:rgba(46,204,113,.15);color:var(--success)}.cd-alert.error{background:rgba(231,76,60,.15);color:var(--danger)}
 @media(max-width:1180px){.cd-summary{grid-template-columns:repeat(2,minmax(180px,1fr))}.cd-panels{grid-template-columns:1fr}}
 @media(max-width:760px){
   .cd-hero-row{grid-template-columns:1fr}
@@ -330,7 +330,7 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
         <p class="mb-2">Dosyayı indirdikten sonra imzalayıp kaşeleyip gönderebilirsiniz.</p>
         <p class="mb-0">Mutabakat hesabı <strong style="color:#22c55e;"><?= date('d.m.Y') ?></strong> tarihi itibarıyla yapılacaktır.</p>
       </div>
-      <div class="modal-footer" style="background:#fff9df;">
+      <div class="modal-footer" style="background:rgba(243,156,18,.15);">
         <button type="button" class="btn btn-warning text-white" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> Vazgeç</button>
         <a class="btn btn-danger" href="<?= htmlspecialchars($conciliationUrl) ?>"><i class="fa-solid fa-download"></i> İndir</a>
       </div>
