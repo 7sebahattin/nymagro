@@ -33,7 +33,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     .fi { flex: 1; padding: 7px 10px; border: 1px solid var(--border2); border-radius: 3px; font-size: 13px; color: var(--text); outline: none; width: 100%; }
     .fi:focus { border-color: #2f73b6; }
 
-    .ms-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border2); z-index: 200; max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 4px 4px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+    .ms-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--ink); border: 1px solid var(--border2); z-index: 200; max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 4px 4px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
     .ms-dropdown.open { display: block; }
     .ms-item { padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid var(--border); }
     .ms-item:hover { background: rgba(46,204,113,.10); }

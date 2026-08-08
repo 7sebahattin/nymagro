@@ -335,7 +335,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 
 /* ── Toast ────────────────────────────────────────────── */
 .sm-toast-wrap { position:fixed; bottom:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:6px; }
-.sm-toast { padding:10px 16px; border-radius:9px; background:var(--card-bg); box-shadow:0 6px 22px rgba(0,0,0,.13); font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; min-width:220px; animation:slideUp .2s ease; }
+.sm-toast { padding:10px 16px; border-radius:9px; background:var(--ink); border:1px solid var(--border2); box-shadow:0 6px 22px rgba(0,0,0,.13); font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; min-width:220px; animation:slideUp .2s ease; }
 @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 .sm-toast.ok  { border-left:4px solid #16a34a; color:var(--success); }
 .sm-toast.err { border-left:4px solid #dc2626; color:var(--danger); }

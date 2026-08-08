@@ -65,7 +65,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   .donem-wrap { position:relative; }
   .btn-donem { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:#334155; color:var(--text); border:none; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; transition:background .15s; }
   .btn-donem:hover { background:#1e293b; }
-  .donem-dropdown { position:absolute; top:calc(100% + 3px); left:0; z-index:300; background:var(--card-bg); border:1px solid var(--border2); border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,.1); min-width:150px; display:none; padding:4px 0; }
+  .donem-dropdown { position:absolute; top:calc(100% + 3px); left:0; z-index:300; background:var(--ink); border:1px solid var(--border2); border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,.1); min-width:150px; display:none; padding:4px 0; }
   .donem-dropdown.open { display:block; }
   .donem-item { padding:7px 16px; font-size:13px; color:var(--text2); cursor:pointer; display:block; text-decoration:none; }
   .donem-item:hover { background:var(--surface-2); }

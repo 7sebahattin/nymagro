@@ -45,7 +45,7 @@ $badgeClass = fn($renk) => [
 .tn-alert.error { background:rgba(231,76,60,.15); border:1px solid #fca5a5; color:var(--danger); }
 .tn-modal-backdrop { position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:900; display:none; align-items:center; justify-content:center; padding:16px; }
 .tn-modal-backdrop.open { display:flex; }
-.tn-modal { width:420px; max-width:100%; background:var(--card-bg); border-radius:6px; box-shadow:0 16px 48px rgba(0,0,0,.28); overflow:hidden; }
+.tn-modal { width:420px; max-width:100%; background:var(--ink); border:1px solid var(--border2); border-radius:6px; box-shadow:0 16px 48px rgba(0,0,0,.28); overflow:hidden; }
 .tn-modal-header { background:#337ab7; color:#fff; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; font-weight:800; }
 .tn-modal-body { padding:16px; display:grid; gap:12px; }
 .tn-field label { display:block; font-size:12px; font-weight:800; color:var(--text2); margin-bottom:4px; }

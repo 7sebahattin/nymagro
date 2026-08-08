@@ -32,7 +32,7 @@
     }
     .belge-dropdown {
       position: absolute; top: calc(100% + 3px); left: 0; z-index: 300;
-      background: var(--card-bg); border: 1px solid var(--border2); border-radius: 6px;
+      background: var(--ink); border: 1px solid var(--border2); border-radius: 6px;
       box-shadow: 0 6px 20px rgba(0,0,0,.1); min-width: 210px;
       display: none; padding: 5px 0;
     }
@@ -49,7 +49,7 @@
     }
     .period-dropdown {
       position: absolute; top: calc(100% + 3px); left: 0; z-index: 300;
-      background: var(--card-bg); border: 1px solid var(--border2); border-radius: 6px;
+      background: var(--ink); border: 1px solid var(--border2); border-radius: 6px;
       box-shadow: 0 6px 20px rgba(0,0,0,.1); min-width: 160px;
       display: none; padding: 4px 0;
     }
@@ -102,7 +102,7 @@
     /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 1000; display: none; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal-box { background: var(--card-bg); border-radius: 6px; width: 450px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .modal-box { background: var(--ink); border: 1px solid var(--border2); border-radius: 6px; width: 450px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
     .modal-head { background: #6ad0a5; color: #fff; padding: 14px 18px; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; }
     .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
     .modal-foot { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }

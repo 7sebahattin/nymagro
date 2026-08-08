@@ -42,7 +42,7 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   /* Modal Overlay */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal-box { background: var(--card-bg); border-radius: 6px; width: 450px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+  .modal-box { background: var(--ink); border: 1px solid var(--border2); border-radius: 6px; width: 450px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
   .modal-header { background: var(--surface-2); padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; border-radius: 6px 6px 0 0; }
   .modal-title { font-weight: 700; font-size: 15px; color: var(--text); }
   .modal-close { cursor: pointer; border: none; background: none; font-size: 20px; color: var(--muted); }

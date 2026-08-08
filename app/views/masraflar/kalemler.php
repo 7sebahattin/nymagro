@@ -56,7 +56,7 @@ $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22
   /* ── MODALLER ── */
   .mk-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:900; display:none; align-items:center; justify-content:center; }
   .mk-overlay.open { display:flex; }
-  .mk-modal { background:var(--card-bg); border-radius:7px; width:440px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
+  .mk-modal { background:var(--ink); border:1px solid var(--border2); border-radius:7px; width:440px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
   .mk-mhdr { background:var(--navy); color:#fff; padding:13px 18px; font-size:14px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
   .mk-mhdr.green { background:var(--green); }
   .mk-mhdr.blue  { background:#337ab7; }
@@ -82,7 +82,7 @@ $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22
 
   /* Toast */
   .toast-container { position:fixed; bottom:22px; right:22px; z-index:9999; display:flex; flex-direction:column; gap:7px; pointer-events:none; }
-  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--card-bg); pointer-events:auto; }
+  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--ink); border:1px solid var(--border2); pointer-events:auto; }
   .toast-msg.success { border-left:4px solid #22c55e; }
   .toast-msg.error   { border-left:4px solid #ef4444; }
 

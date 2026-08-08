@@ -81,7 +81,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
   }
   .ym-overlay.open { display: flex; }
   .ym-modal {
-    background: var(--card-bg); border-radius: 8px; width: 540px; max-width: 96vw;
+    background: var(--ink); border: 1px solid var(--border2); border-radius: 8px; width: 540px; max-width: 96vw;
     box-shadow: 0 8px 40px rgba(0,0,0,.25); overflow: hidden;
     display: flex; flex-direction: column; max-height: 94vh;
   }
@@ -112,7 +112,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
 
   /* ── TOAST ── */
   .toast-container { position: fixed; bottom: 22px; right: 22px; z-index: 9999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
-  .toast-msg { display: flex; align-items: center; gap: 9px; padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 3px 14px rgba(0,0,0,.15); background: var(--card-bg); pointer-events: auto; }
+  .toast-msg { display: flex; align-items: center; gap: 9px; padding: 11px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; box-shadow: 0 3px 14px rgba(0,0,0,.15); background: var(--ink); border: 1px solid var(--border2); pointer-events: auto; }
   .toast-msg.success { border-left: 4px solid #22c55e; }
   .toast-msg.error   { border-left: 4px solid #ef4444; }
   .toast-msg.info    { border-left: 4px solid #3b82f6; }

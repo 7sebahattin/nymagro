@@ -69,7 +69,7 @@ foreach ($kategoriler as $k) {
 
   /* Toast */
   .toast-container { position:fixed; bottom:22px; right:22px; z-index:9999; display:flex; flex-direction:column; gap:7px; pointer-events:none; }
-  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--card-bg); pointer-events:auto; }
+  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--ink); border:1px solid var(--border2); pointer-events:auto; }
   .toast-msg.success { border-left:4px solid #22c55e; }
   .toast-msg.error   { border-left:4px solid #ef4444; }
 

@@ -37,7 +37,7 @@
     /* Ürün Arama */
     .search-wrap { position: relative; }
     .search-drop { 
-        position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); 
+        position: absolute; top: 100%; left: 0; right: 0; background: var(--ink);
         border: 1px solid var(--border2); border-top: none; border-radius: 0 0 6px 6px; 
         box-shadow: 0 6px 16px rgba(0,0,0,.12); z-index: 1000; max-height: 250px; 
         overflow-y: auto; display: none; 

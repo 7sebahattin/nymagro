@@ -111,13 +111,14 @@
     justify-content: center; 
   }
   .modal-overlay.open { display: flex; }
-  .modal-box { 
-    background: var(--card-bg); 
-    border-radius: 4px; 
-    width: 500px; 
-    max-width: 90%; 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
-    overflow: hidden; 
+  .modal-box {
+    background: var(--ink);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    width: 500px;
+    max-width: 90%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    overflow: hidden;
   }
   .modal-header { 
     background: #62d6a5; /* Mint green from screenshot */

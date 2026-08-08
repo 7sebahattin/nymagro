@@ -39,7 +39,7 @@ $buildUrl = function(array $extra = []) use ($filters) {
 /* ── TOPLU ÖDEME PANELİ ── */
 .top-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none}
 .top-panel-overlay.open{display:block}
-.top-panel{position:fixed;top:0;right:-100%;height:100%;width:min(820px,98vw);background:var(--card-bg);z-index:1001;display:flex;flex-direction:column;box-shadow:-6px 0 32px rgba(0,0,0,.18);transition:right .28s cubic-bezier(.4,0,.2,1)}
+.top-panel{position:fixed;top:0;right:-100%;height:100%;width:min(820px,98vw);background:var(--ink);border-left:1px solid var(--border2);z-index:1001;display:flex;flex-direction:column;box-shadow:-6px 0 32px rgba(0,0,0,.18);transition:right .28s cubic-bezier(.4,0,.2,1)}
 .top-panel.open{right:0}
 .top-panel-hdr{background:linear-gradient(135deg,#2c3e6b,#1e293b);color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .top-panel-hdr h5{margin:0;font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px}

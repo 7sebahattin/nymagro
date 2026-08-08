@@ -49,7 +49,7 @@ $err = function(string $k) use ($hatalar): string {
   .musteri-input { width:100%; }
   .musteri-ac-btn { padding:7px 12px; border:1px solid #2f73b6; border-radius:3px; background:#2f73b6; color:#fff; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; flex-shrink:0; }
   .musteri-ac-btn:hover { background:#245d9a; }
-  .ms-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1.5px solid var(--border2); border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
+  .ms-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--ink); border:1.5px solid var(--border2); border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
   .ms-dropdown.open { display:block; }
   .ms-item { padding:8px 12px; font-size:13px; color:var(--text2); cursor:pointer; border-bottom:1px solid var(--border); }
   .ms-item:hover { background:rgba(46,204,113,.10); }
@@ -60,7 +60,7 @@ $err = function(string $k) use ($hatalar): string {
   .urun-search-wrap { margin-bottom:12px; position:relative; }
   .urun-input { width:100%; padding:8px 12px; border:1px solid var(--border2); border-radius:3px; font-size:13px; color:var(--text); outline:none; }
   .urun-input:focus { border-color:#5dbf68; }
-  .urun-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1.5px solid var(--border2); border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
+  .urun-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--ink); border:1.5px solid var(--border2); border-top:none; border-radius:0 0 6px 6px; box-shadow:0 6px 16px rgba(0,0,0,.12); z-index:200; max-height:200px; overflow-y:auto; display:none; }
   .urun-dropdown.open { display:block; }
   .urun-item { padding:8px 12px; font-size:13px; color:var(--text2); cursor:pointer; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
   .urun-item:hover { background:rgba(46,204,113,.10); }

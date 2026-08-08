@@ -26,7 +26,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
   .btn-sil { background:#f0ad4e; }
 
   /* Dropdown */
-  .dropdown-menu-custom { position:absolute; top:calc(100% + 2px); left:0; background:var(--card-bg); border:1px solid var(--border); border-radius:4px; box-shadow:0 6px 12px rgba(0,0,0,.175); min-width:180px; z-index:300; display:none; }
+  .dropdown-menu-custom { position:absolute; top:calc(100% + 2px); left:0; background:var(--ink); border:1px solid var(--border2); border-radius:4px; box-shadow:0 6px 12px rgba(0,0,0,.175); min-width:180px; z-index:300; display:none; }
   .dropdown-menu-custom.open { display:block; }
   .dd-item { display:block; padding:8px 16px; font-size:13px; color:var(--text); text-decoration:none; cursor:pointer; }
   .dd-item:hover { background:var(--surface-2); color:var(--text); }

@@ -83,7 +83,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
   /* ── CUSTOM FIXED DROPDOWN ── */
   .ctx-menu {
     position:fixed; z-index:9999;
-    background:var(--card-bg); border:1px solid var(--border); border-radius:6px;
+    background:var(--ink); border:1px solid var(--border2); border-radius:6px;
     box-shadow:0 6px 20px rgba(0,0,0,.13); min-width:160px;
     display:none; flex-direction:column; overflow:hidden;
   }
@@ -134,7 +134,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
   /* ── MODAL ── */
   .ms-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:900; display:none; align-items:center; justify-content:center; }
   .ms-overlay.open { display:flex; }
-  .ms-modal { background:var(--card-bg); border-radius:7px; width:480px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
+  .ms-modal { background:var(--ink); border:1px solid var(--border2); border-radius:7px; width:480px; max-width:96vw; box-shadow:0 8px 40px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; }
   .ms-mhdr { background:var(--navy); color:#fff; padding:13px 18px; font-size:14px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
   .ms-mhdr.green { background:var(--green); }
   .ms-mclose { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; opacity:.8; }
@@ -153,7 +153,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
 
   /* ── TOAST ── */
   .toast-container { position:fixed; bottom:22px; right:22px; z-index:9999; display:flex; flex-direction:column; gap:7px; pointer-events:none; }
-  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--card-bg); pointer-events:auto; }
+  .toast-msg { display:flex; align-items:center; gap:9px; padding:11px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 3px 14px rgba(0,0,0,.15); background:var(--ink); border:1px solid var(--border2); pointer-events:auto; }
   .toast-msg.success { border-left:4px solid #22c55e; }
   .toast-msg.error   { border-left:4px solid #ef4444; }
   .toast-msg.info    { border-left:4px solid #3b82f6; }
