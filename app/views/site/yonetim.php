@@ -319,7 +319,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 /* ── Modal ────────────────────────────────────────────── */
 .sm-overlay { position:fixed; inset:0; background:rgba(15,60,39,.55); z-index:900; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
 .sm-overlay.open { display:flex; }
-.sm-modal { background:var(--card-bg); border-radius:14px; width:min(680px,100%); max-height:calc(100dvh - 32px); box-shadow:0 24px 60px rgba(0,0,0,.22); display:flex; flex-direction:column; overflow:hidden; }
+.sm-modal { background:var(--ink); border:1px solid var(--border2); border-radius:14px; width:min(680px,100%); max-height:calc(100dvh - 32px); box-shadow:0 24px 60px rgba(0,0,0,.22); display:flex; flex-direction:column; overflow:hidden; }
 .sm-modal form { display:flex; flex-direction:column; flex:1; min-height:0; }
 .sm-mhdr { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
 .sm-mhdr h4 { font-size:15px; font-weight:800; }
