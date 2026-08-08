@@ -201,7 +201,7 @@ body[data-theme="acik"] .sidebar {
 .nav-sub.is-highlight {
   background: linear-gradient(135deg, var(--brand), var(--brand2));
   color: #fff; font-weight: 700;
-  margin: 6px 4px 8px 8px; padding: 9px 12px;
+  margin: 6px 0 8px; padding: 9px 12px;
   box-shadow: 0 6px 16px rgba(13, 98, 58, .3);
 }
 .nav-sub.is-highlight::before { background: #fff; }
