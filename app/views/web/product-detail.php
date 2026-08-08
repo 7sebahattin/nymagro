@@ -11,6 +11,8 @@
 @media(max-width:992px){.pd-grid{grid-template-columns:1fr}}
 .pd-image{border-radius:24px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.5);max-height:520px}
 .pd-image img{width:100%;height:520px;object-fit:cover}
+.pd-info{padding-top:2.5rem}
+@media(max-width:992px){.pd-info{padding-top:1.5rem}}
 .spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem}
 .spec-card{background:#fff;border:1px solid rgba(13,98,58,.1);border-radius:14px;padding:1.2rem}
 .spec-card h4{font-size:.85rem;color:var(--p1);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem}
@@ -63,7 +65,7 @@
     <div class="pd-image">
       <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($ad) ?> — Nymagro bitki besleme ürünü" width="900" height="520">
     </div>
-    <div>
+    <div class="pd-info">
       <span class="kicker"><i class="fas fa-leaf"></i> <?= htmlspecialchars(I18n::t('common.fresh')) ?></span>
       <h2 class="mt-3"><?= htmlspecialchars(I18n::t('products.detail.description')) ?></h2>
       <p style="color:var(--ink2);font-size:1.05rem"><?= htmlspecialchars($aciklama) ?></p>
