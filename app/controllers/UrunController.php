@@ -613,6 +613,17 @@ final class UrunController extends Controller
     {
         $kayit = $this->urun->getir($id);
         if ($kayit) {
+            // Siteyle bağlıysa önce bağı kopar; site ürünü yayında kalır ama
+            // artık silinmiş panel kaydını referans etmez.
+            if (!empty($kayit['site_urun_id'])) {
+                try {
+                    (new SiteIcerik())->panelBaginiKopar($id);
+                    $this->urun->guncelle($id, ['site_urun_id' => null, 'eticaret' => 0]);
+                } catch (Throwable $e) {
+                    // Site tarafı erişilemezse silme işlemi yine de sürsün.
+                }
+            }
+
             $this->urun->sil($id);
             $this->setFlash('success', '"' . htmlspecialchars($kayit['ad']) . '" silindi.');
         } else {

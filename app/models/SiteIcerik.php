@@ -637,6 +637,23 @@ class SiteIcerik
         );
     }
 
+    /**
+     * Panel ürünü silindiğinde site tarafındaki bağı koparır.
+     *
+     * Site ürünü kasıtlı olarak yayında bırakılır (pasife çekilmez, silinmez)
+     * — SiteController::urunSil()'in panele dokunmamasıyla aynı simetri.
+     * Amaç yalnızca ölü bağı temizlemek: bağ kalsaydı, site tarafında yapılan
+     * bir düzenleme Urun::syncFromSiteUrun() üzerinden silinmiş panel kaydını
+     * sessizce diriltebilirdi.
+     */
+    public function panelBaginiKopar(int $panelUrunId): void
+    {
+        $this->db->query(
+            "UPDATE site_urunler SET panel_urun_id = NULL WHERE panel_urun_id = :pid",
+            [':pid' => $panelUrunId]
+        );
+    }
+
     /** Panelde "e-ticaret'te göster" kaldırılınca bağlı site ürününü pasife alır (silmez). */
     public function unsyncPanelUrun(int $panelUrunId): void
     {
