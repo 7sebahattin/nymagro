@@ -701,6 +701,8 @@ class Rapor
     public function getCustomerSalesReport(array $filters): array
     {
         [$dateSql, $params] = $this->dateWhere($filters, 'f.fatura_tarihi');
+        $params[':tenant_company_id'] = TenantContext::activeCompanyId();
+        $params[':tenant_period_id'] = TenantContext::activePeriodId();
         $having = [];
         if (($filters['customer_search'] ?? '') !== '') {
             $params[':customer_search'] = '%' . $filters['customer_search'] . '%';
@@ -730,14 +732,16 @@ class Rapor
                     MAX(pay.son_tahsilat_tarihi) AS son_tahsilat_tarihi,
                     CASE WHEN COUNT(f.id) > 0 THEN SUM(f.genel_toplam) / COUNT(f.id) ELSE 0 END AS ort_fatura_tutari
              FROM cariler c
-             JOIN faturalar f ON f.cari_id = c.id AND f.silindi_mi = 0 AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende') {$dateSql}
+             JOIN faturalar f ON f.cari_id = c.id AND f.silindi_mi = 0 AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende')
+                  AND f.company_id = :tenant_company_id AND f.period_id = :tenant_period_id {$dateSql}
              LEFT JOIN (
                 SELECT cari_id, MAX(tarih) AS son_tahsilat_tarihi
                 FROM kasa_hareketleri
                 WHERE silindi_mi = 0 AND (hareket_tipi IN ('tahsilat','gelir') OR islem_tipi = 'giris') AND cari_id IS NOT NULL
+                  AND company_id = :tenant_company_id AND period_id = :tenant_period_id
                 GROUP BY cari_id
              ) pay ON pay.cari_id = c.id
-             WHERE c.silindi_mi = 0 {$nameSql}
+             WHERE c.silindi_mi = 0 AND c.company_id = :tenant_company_id {$nameSql}
              GROUP BY c.id, c.unvan
              {$havingSql}
              ORDER BY toplam_satis DESC",

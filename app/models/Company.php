@@ -25,7 +25,7 @@ class Company
     public function listForUser(int $userId): array
     {
         return $this->db->select(
-            "SELECT c.*, uc.role, uc.can_switch_company, uc.can_manage_company, uc.can_manage_period,
+            "SELECT c.*, uc.role, uc.can_switch_company, uc.can_manage_company, uc.can_manage_period, uc.is_default,
                     ap.period_name AS active_period_name, ap.status AS active_period_status
              FROM user_companies uc
              JOIN companies c ON c.id = uc.company_id
@@ -38,6 +38,32 @@ class Company
              ORDER BY c.company_name",
             [':uid' => $userId]
         );
+    }
+
+    /** Kullanıcının girişte otomatik açılacak varsayılan şirketini ayarlar. */
+    public function setDefault(int $userId, int $companyId): void
+    {
+        if (!TenantContext::userCanAccessCompany($companyId)) {
+            throw new RuntimeException('Bu şirkete erişim yetkiniz yok.');
+        }
+
+        $this->db->begin();
+        try {
+            $this->db->query(
+                "UPDATE user_companies SET is_default = 0 WHERE user_id = :uid",
+                [':uid' => $userId]
+            );
+            $this->db->query(
+                "UPDATE user_companies SET is_default = 1 WHERE user_id = :uid AND company_id = :cid",
+                [':uid' => $userId, ':cid' => $companyId]
+            );
+            $this->db->commit();
+        } catch (Throwable $e) {
+            if ($this->db->pdo()->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     public function all(): array
@@ -56,7 +82,7 @@ class Company
     public function allForUser(int $userId): array
     {
         return $this->db->select(
-            "SELECT c.*, COUNT(ap.id) AS period_count
+            "SELECT c.*, COUNT(ap.id) AS period_count, MAX(uc.is_default) AS is_default
              FROM companies c
              JOIN user_companies uc ON uc.company_id = c.id AND uc.user_id = :uid
              LEFT JOIN accounting_periods ap ON ap.company_id = c.id

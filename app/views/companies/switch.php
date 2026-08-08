@@ -21,7 +21,12 @@
               <h2 class="h6 mb-1"><?= htmlspecialchars($company['company_name']) ?></h2>
               <div class="text-muted small"><?= htmlspecialchars($company['short_name'] ?? '') ?></div>
             </div>
-            <span class="badge text-bg-<?= $company['status'] === 'active' ? 'success' : 'secondary' ?>"><?= htmlspecialchars($company['status']) ?></span>
+            <div class="d-flex flex-column align-items-end gap-1">
+              <span class="badge text-bg-<?= $company['status'] === 'active' ? 'success' : 'secondary' ?>"><?= htmlspecialchars($company['status']) ?></span>
+              <?php if (!empty($company['is_default'])): ?>
+                <span class="badge text-bg-warning"><i class="fa-solid fa-star me-1"></i>Varsayılan</span>
+              <?php endif; ?>
+            </div>
           </div>
           <div class="small mb-1"><span class="text-muted">Aktif dönem:</span> <?= htmlspecialchars($company['active_period_name'] ?? 'Seçilmedi') ?></div>
           <div class="small mb-1"><span class="text-muted">Dönem durumu:</span> <?= htmlspecialchars($company['active_period_status'] ?? '-') ?></div>
@@ -29,6 +34,11 @@
           <a href="<?= BASE_URL ?>/companies/select/<?= (int)$company['id'] ?>" class="btn btn-success w-100 <?= $company['status'] !== 'active' ? 'disabled' : '' ?>">
             <i class="fa-solid fa-check me-1"></i> Seç
           </a>
+          <?php if (empty($company['is_default']) && $company['status'] === 'active'): ?>
+            <a href="<?= BASE_URL ?>/companies/setDefault/<?= (int)$company['id'] ?>" class="btn btn-outline-secondary btn-sm w-100 mt-2">
+              <i class="fa-regular fa-star me-1"></i> Varsayılan Yap
+            </a>
+          <?php endif; ?>
         </div>
       </div>
     </div>

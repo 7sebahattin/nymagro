@@ -201,8 +201,11 @@ class Personel
     private function ensureLinks(): void
     {
         $this->addColumnIfMissing('personel_hareketleri', 'masraf_id', 'INT NULL AFTER personel_id');
+        $this->addColumnIfMissing('personel_hareketleri', 'belge_no', 'VARCHAR(80) NULL AFTER odeme_durumu');
+        $this->addColumnIfMissing('personel_hareketleri', 'para_birimi', "VARCHAR(5) NOT NULL DEFAULT 'TRY' AFTER belge_no");
         $this->addColumnIfMissing('masraflar', 'personel_id', 'INT UNSIGNED NULL AFTER kasa_id');
         $this->addColumnIfMissing('masraflar', 'personel_hareket_id', 'INT UNSIGNED NULL AFTER personel_id');
+        $this->addColumnIfMissing('masraflar', 'notlar', 'VARCHAR(255) NULL AFTER tekrar_periyot');
     }
 
     private function addColumnIfMissing(string $table, string $column, string $definition): void
@@ -219,8 +222,10 @@ class Personel
     private function personelKategoriId(string $tip): int
     {
         $label = $this->tipLabel($tip);
+        $companyId = TenantContext::activeCompanyId();
         $parent = $this->db->selectOne(
-            "SELECT id FROM masraf_kategoriler WHERE silindi_mi = 0 AND UPPER(ad) LIKE '%PERSONEL%' AND parent_id IS NULL ORDER BY id LIMIT 1"
+            "SELECT id FROM masraf_kategoriler WHERE silindi_mi = 0 AND company_id = :cid AND UPPER(ad) LIKE '%PERSONEL%' AND parent_id IS NULL ORDER BY id LIMIT 1",
+            [':cid' => $companyId]
         );
         if (!$parent) {
             $parentId = $this->db->insert('masraf_kategoriler', ['parent_id' => null, 'ad' => 'PERSONEL GIDERLERI', 'renk' => '#5bc0de', 'sira' => 0]);
@@ -229,8 +234,8 @@ class Personel
         }
 
         $category = $this->db->selectOne(
-            "SELECT id FROM masraf_kategoriler WHERE silindi_mi = 0 AND parent_id = :pid AND ad = :ad LIMIT 1",
-            [':pid' => $parentId, ':ad' => $label]
+            "SELECT id FROM masraf_kategoriler WHERE silindi_mi = 0 AND company_id = :cid AND parent_id = :pid AND ad = :ad LIMIT 1",
+            [':cid' => $companyId, ':pid' => $parentId, ':ad' => $label]
         );
         if ($category) {
             return (int)$category['id'];

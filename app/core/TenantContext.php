@@ -321,6 +321,7 @@ final class TenantContext
             can_switch_company TINYINT(1) NOT NULL DEFAULT 1,
             can_manage_company TINYINT(1) NOT NULL DEFAULT 1,
             can_manage_period TINYINT(1) NOT NULL DEFAULT 1,
+            is_default TINYINT(1) NOT NULL DEFAULT 0,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
@@ -328,6 +329,11 @@ final class TenantContext
             KEY idx_user_companies_company (company_id),
             CONSTRAINT fk_user_company_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE ON UPDATE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_turkish_ci");
+
+        if (!self::hasColumn('user_companies', 'is_default')) {
+            $db->query("ALTER TABLE user_companies ADD COLUMN is_default TINYINT(1) NOT NULL DEFAULT 0 AFTER can_manage_period");
+            self::$columnCache['user_companies.is_default'] = true;
+        }
 
         $db->query("CREATE TABLE IF NOT EXISTS company_settings (
             id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -451,6 +457,7 @@ final class TenantContext
                 'can_switch_company' => 1,
                 'can_manage_company' => 1,
                 'can_manage_period' => 1,
+                'is_default' => 1,
             ]);
         }
 
@@ -490,7 +497,7 @@ final class TenantContext
                  FROM user_companies uc
                  JOIN companies c ON c.id = uc.company_id
                  WHERE uc.user_id = :uid AND c.status = 'active' AND c.deleted_at IS NULL
-                 ORDER BY c.id LIMIT 1",
+                 ORDER BY uc.is_default DESC, c.id LIMIT 1",
                 [':uid' => self::userId()]
             );
             if ($company) {

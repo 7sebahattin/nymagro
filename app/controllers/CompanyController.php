@@ -66,6 +66,24 @@ final class CompanyController extends Controller
         $this->redirect('companies/periods/' . $companyId);
     }
 
+    public function setDefault(int $companyId): void
+    {
+        if (!TenantContext::userCanAccessCompany($companyId)) {
+            http_response_code(403);
+            die('Bu şirkete erişim yetkiniz yok.');
+        }
+
+        try {
+            $this->company->setDefault(TenantContext::userId(), $companyId);
+            $this->setFlash('success', 'Varsayılan şirket güncellendi. Bir sonraki girişte otomatik açılacak.');
+        } catch (Throwable $e) {
+            $this->setFlash('error', $e->getMessage());
+        }
+
+        $referer = (string)($_SERVER['HTTP_REFERER'] ?? '');
+        $this->redirect(str_contains($referer, '/companies/switch') ? 'companies/switch' : 'companies');
+    }
+
     public function select_period(int $periodId): void
     {
         $period = $this->company->findPeriod($periodId);

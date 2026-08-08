@@ -456,6 +456,7 @@ class Masraf
     {
         $this->addColumnIfMissing('masraflar', 'personel_id', 'INT UNSIGNED NULL AFTER kasa_id');
         $this->addColumnIfMissing('masraflar', 'personel_hareket_id', 'INT UNSIGNED NULL AFTER personel_id');
+        $this->addColumnIfMissing('masraflar', 'notlar', 'VARCHAR(255) NULL AFTER tekrar_periyot');
         $this->addColumnIfMissing('personel_hareketleri', 'masraf_id', 'INT NULL AFTER personel_id');
 
         $column = $this->db->selectOne("SHOW COLUMNS FROM personel_hareketleri LIKE 'tip'");

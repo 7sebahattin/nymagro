@@ -29,7 +29,12 @@
       <?php foreach ($companies as $company): ?>
         <tr>
           <td>
-            <div class="fw-semibold"><?= htmlspecialchars($company['company_name']) ?></div>
+            <div class="fw-semibold">
+              <?= htmlspecialchars($company['company_name']) ?>
+              <?php if (!empty($company['is_default'])): ?>
+                <span class="badge text-bg-warning ms-1"><i class="fa-solid fa-star me-1"></i>Varsayılan</span>
+              <?php endif; ?>
+            </div>
             <div class="text-muted small"><?= htmlspecialchars($company['short_name'] ?? '') ?></div>
           </td>
           <td><?= htmlspecialchars($company['tax_number'] ?? '-') ?></td>
@@ -39,6 +44,9 @@
           <td><span class="badge text-bg-<?= $company['status'] === 'active' ? 'success' : 'secondary' ?>"><?= htmlspecialchars($company['status']) ?></span></td>
           <td class="text-end">
             <a href="<?= BASE_URL ?>/companies/select/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-primary">Seç</a>
+            <?php if (empty($company['is_default'])): ?>
+              <a href="<?= BASE_URL ?>/companies/setDefault/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-warning">Varsayılan Yap</a>
+            <?php endif; ?>
             <a href="<?= BASE_URL ?>/companies/periods/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-secondary">Dönemler</a>
             <a href="<?= BASE_URL ?>/companies/edit/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-dark">Düzenle</a>
             <a href="<?= BASE_URL ?>/companies/delete/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Şirket pasife alınsın mı?')">Pasife Al</a>
