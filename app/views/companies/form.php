@@ -159,6 +159,11 @@ $selectedTheme = $settings['theme_color'] ?? 'emerald';
           <input class="form-check-input" type="checkbox" name="e_invoice_enabled" value="1" id="einvoice" <?= (int)($settings['e_invoice_enabled'] ?? 0) === 1 ? 'checked' : '' ?>>
           <label class="form-check-label" for="einvoice">E-fatura aktif</label>
         </div>
+        <div class="col-12 form-check ms-2">
+          <input class="form-check-input" type="checkbox" name="is_storefront_source" value="1" id="storefront" <?= (int)($settings['is_storefront_source'] ?? 0) === 1 ? 'checked' : '' ?>>
+          <label class="form-check-label" for="storefront">Vitrin şirketi (ürünler nymagro.com ile eşitlensin)</label>
+          <div class="form-text">Yalnızca bir şirket vitrin şirketi olabilir; burada işaretlerseniz başka bir şirkette işaretliyse oradaki otomatik kaldırılır.</div>
+        </div>
       </div>
     </div>
   </div>

@@ -12,6 +12,8 @@
  */
 require_once MODELS_PATH . '/SiteIcerik.php';
 require_once MODELS_PATH . '/ContactMessage.php';
+require_once MODELS_PATH . '/Urun.php';
+require_once MODELS_PATH . '/Company.php';
 
 class SiteController extends Controller
 {
@@ -192,10 +194,12 @@ class SiteController extends Controller
                     if (!$mevcut) throw new Exception('Ürün bulunamadı.');
                 }
                 $this->model->urunGuncelle($id, $veri);
+                $this->panelUrununeSenkronla($id);
                 echo json_encode(['ok' => true, 'msg' => 'Ürün güncellendi.', 'id' => $id]);
             } else {
                 if (empty($veri['gorsel'])) throw new Exception('Yeni ürün için görsel zorunludur.');
                 $newId = $this->model->urunEkle($veri);
+                $this->panelUrununeSenkronla($newId);
                 echo json_encode(['ok' => true, 'msg' => 'Ürün eklendi.', 'id' => $newId]);
             }
         } catch (Exception $e) {
@@ -212,6 +216,34 @@ class SiteController extends Controller
             echo json_encode(['ok' => true, 'msg' => 'Ürün silindi.']);
         } catch (Exception $e) {
             echo json_encode(['ok' => false, 'msg' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Site Yönetimi'nde eklenen/güncellenen bir ürünü, "vitrin şirketi"
+     * tanımlıysa panelin Ürünler listesine yansıtır. Vitrin şirketi
+     * ayarlanmamışsa sessizce hiçbir şey yapmaz (muhasebe tarafı
+     * karışmasın diye zorunlu değil).
+     */
+    private function panelUrununeSenkronla(int $siteUrunId): void
+    {
+        $storefrontId = (new Company())->storefrontCompanyId();
+        if (!$storefrontId) {
+            return;
+        }
+        $siteUrun = $this->model->urunGetir($siteUrunId);
+        if (!$siteUrun) {
+            return;
+        }
+
+        try {
+            $panelId = (new Urun())->syncFromSiteUrun($siteUrun, $storefrontId);
+            if ($panelId > 0 && (int)($siteUrun['panel_urun_id'] ?? 0) !== $panelId) {
+                $this->model->baglaPanelUrunu($siteUrunId, $panelId);
+            }
+        } catch (Throwable $e) {
+            // Panel senkronu başarısız olsa da site ürünü kaydı bozulmasın.
+            error_log('Panel ürün senkron hatası: ' . $e->getMessage());
         }
     }
 

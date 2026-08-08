@@ -12,14 +12,90 @@
 require_once MODELS_PATH . '/Urun.php';
 require_once MODELS_PATH . '/Varyant.php';
 require_once MODELS_PATH . '/Tanim.php';
+require_once MODELS_PATH . '/SiteIcerik.php';
+require_once MODELS_PATH . '/Company.php';
 
 final class UrunController extends Controller
 {
+    private const ALLOWED_IMG = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    private const MAX_BYTES   = 5 * 1024 * 1024; // 5 MB
+
     private Urun $urun;
 
     public function __construct()
     {
         $this->urun = new Urun();
+    }
+
+    /** Ürün ana görselini yükler, public path döner (aynı doğrulama SiteController::dosyaYukle ile). */
+    private function anaGorselYukle(array $file): string
+    {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new Exception('Görsel yükleme hatası: ' . ($file['error'] ?? '?'));
+        }
+        if (($file['size'] ?? 0) > self::MAX_BYTES) {
+            throw new Exception('Görsel 5 MB sınırını aşıyor.');
+        }
+        $uzanti = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($uzanti, self::ALLOWED_IMG, true)) {
+            throw new Exception('Geçersiz görsel türü: ' . $uzanti);
+        }
+        if (function_exists('mime_content_type')) {
+            $mime = (string)@mime_content_type($file['tmp_name']);
+            $okMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if ($mime !== '' && !in_array($mime, $okMimes, true)) {
+                throw new Exception('Dosya içeriği geçerli bir görsel değil.');
+            }
+        }
+        if (function_exists('getimagesize') && @getimagesize($file['tmp_name']) === false) {
+            throw new Exception('Dosya içeriği okunabilir bir görsel değil.');
+        }
+
+        $hedefKlasor = ROOT_PATH . DIRECTORY_SEPARATOR . 'public'
+                     . DIRECTORY_SEPARATOR . 'uploads'
+                     . DIRECTORY_SEPARATOR . 'urunler' . DIRECTORY_SEPARATOR;
+        if (!is_dir($hedefKlasor)) mkdir($hedefKlasor, 0755, true);
+
+        $yeniAd = 'urun_' . uniqid() . '.' . $uzanti;
+        $hedef  = $hedefKlasor . $yeniAd;
+        if (!move_uploaded_file($file['tmp_name'], $hedef)) {
+            throw new Exception('Görsel kaydedilemedi.');
+        }
+        return 'uploads/urunler/' . $yeniAd;
+    }
+
+    /** Aktif şirket, nymagro.com ile ürün senkronu yapılan "vitrin şirketi" mi? */
+    private function isStorefrontCompany(): bool
+    {
+        $storefrontId = (new Company())->storefrontCompanyId();
+        return $storefrontId !== null && $storefrontId === TenantContext::activeCompanyId();
+    }
+
+    /**
+     * Kaydedilmiş bir panel ürününü, "e-ticaret'te göster" durumuna göre
+     * site vitrinine bağlar/çözer. Yalnızca aktif şirket "vitrin şirketi"
+     * ise bir şey yapar — diğer şirketlerde nymagro.com'a hiç dokunulmaz.
+     */
+    private function siteVitriniSenkronla(int $urunId, bool $eticaret): void
+    {
+        if (!$this->isStorefrontCompany()) {
+            return;
+        }
+
+        $panelUrun = $this->urun->getir($urunId);
+        if (!$panelUrun) {
+            return;
+        }
+
+        $siteModel = new SiteIcerik();
+        if ($eticaret) {
+            $siteUrunId = $siteModel->syncFromPanelUrun($panelUrun);
+            if ($siteUrunId > 0 && (int)($panelUrun['site_urun_id'] ?? 0) !== $siteUrunId) {
+                $this->urun->guncelle($urunId, ['site_urun_id' => $siteUrunId]);
+            }
+        } elseif (!empty($panelUrun['site_urun_id'])) {
+            $siteModel->unsyncPanelUrun($urunId);
+        }
     }
 
     // ─── index ──────────────────────────────────────────────────────────
@@ -96,6 +172,7 @@ final class UrunController extends Controller
             'topbarTitle' => 'Yeni Ürün / Hizmet Ekle',
             'topbarIcon'  => 'fa-box-open',
             'activeMenu'  => 'urunler',
+            'isStorefront' => $this->isStorefrontCompany(),
         ]);
     }
 
@@ -145,6 +222,15 @@ final class UrunController extends Controller
             $hatalar['barkod'] = 'Bu barkod zaten kullanılıyor.';
         }
 
+        $resimYolu = null;
+        if (!empty($_FILES['resim_ana']['name'])) {
+            try {
+                $resimYolu = $this->anaGorselYukle($_FILES['resim_ana']);
+            } catch (Exception $e) {
+                $hatalar['resim_ana'] = $e->getMessage();
+            }
+        }
+
         // ── Hata varsa formu tekrar göster ─────────────
         if (!empty($hatalar)) {
             $vModel = new Varyant();
@@ -158,13 +244,15 @@ final class UrunController extends Controller
                 'topbarTitle' => 'Yeni Ürün / Hizmet Ekle',
                 'topbarIcon'  => 'fa-box-open',
                 'activeMenu'  => 'urunler',
+                'isStorefront' => $this->isStorefrontCompany(),
             ]);
             return;
         }
 
         // ── Kaydet ─────────────────────────────────────
         $acilisStogu = (float)($_POST['stok_miktari'] ?? 0);
-        
+        $eticaret = !empty($_POST['eticaret']);
+
         $veri = [
             'tip'          => $tip,
             'ad'           => $ad,
@@ -180,9 +268,13 @@ final class UrunController extends Controller
             'kategori'     => trim($_POST['kategori'] ?? '') ?: null,
             'marka'        => trim($_POST['marka']    ?? '') ?: null,
             'aciklama'     => trim($_POST['aciklama'] ?? '') ?: null,
+            'resim_yolu'   => $resimYolu,
+            'eticaret'     => $eticaret,
         ];
 
         $id = $this->urun->ekle($veri);
+
+        $this->siteVitriniSenkronla($id, $eticaret);
 
         // Eğer açılış stoğu girilmişse, varsayılan olarak ANA DEPO'ya (ID: 1) giriş yap
         if ($acilisStogu > 0) {
@@ -303,6 +395,7 @@ final class UrunController extends Controller
             'topbarTitle' => 'Ürün / Hizmet Düzenle',
             'topbarIcon'  => 'fa-pen',
             'activeMenu'  => 'urunler',
+            'isStorefront' => $this->isStorefrontCompany(),
         ]);
     }
 
@@ -329,6 +422,15 @@ final class UrunController extends Controller
             $hatalar['barkod'] = 'Bu barkod zaten kullanılıyor.';
         }
 
+        $resimYolu = null;
+        if (!empty($_FILES['resim_ana']['name'])) {
+            try {
+                $resimYolu = $this->anaGorselYukle($_FILES['resim_ana']);
+            } catch (Exception $e) {
+                $hatalar['resim_ana'] = $e->getMessage();
+            }
+        }
+
         if (!empty($hatalar)) {
             $vModel = new Varyant();
             $tanimGrouped = (new Tanim())->grouped();
@@ -341,6 +443,7 @@ final class UrunController extends Controller
                 'topbarTitle' => 'Ürün / Hizmet Düzenle',
                 'topbarIcon'  => 'fa-pen',
                 'activeMenu'  => 'urunler',
+                'isStorefront' => $this->isStorefrontCompany(),
             ]);
             return;
         }
@@ -348,6 +451,7 @@ final class UrunController extends Controller
         $satisFiyati = is_numeric(str_replace(',', '.', $_POST['satis_fiyati'] ?? '0')) ? (float)str_replace(',', '.', $_POST['satis_fiyati'] ?? '0') : 0.0;
         $alisFiyati = is_numeric(str_replace(',', '.', $_POST['alis_fiyati'] ?? '0')) ? (float)str_replace(',', '.', $_POST['alis_fiyati'] ?? '0') : 0.0;
         $kdvOrani = (float)($_POST['kdv_orani'] ?? 20);
+        $eticaret = !empty($_POST['eticaret']);
 
         $veri = [
             'tip'          => $_POST['tip'] ?? 'urun',
@@ -363,9 +467,14 @@ final class UrunController extends Controller
             'kategori'     => trim($_POST['kategori'] ?? '') ?: null,
             'marka'        => trim($_POST['marka'] ?? '') ?: null,
             'aciklama'     => trim($_POST['aciklama'] ?? '') ?: null,
+            'eticaret'     => $eticaret,
         ];
+        if ($resimYolu !== null) {
+            $veri['resim_yolu'] = $resimYolu;
+        }
 
         $this->urun->guncelle($id, $veri);
+        $this->siteVitriniSenkronla($id, $eticaret);
 
         // Stok miktarı formdan doğrudan ezilmez; farkı stok hareketi olarak
         // (Ana Depo üzerinden) audit-trailed şekilde işleriz.

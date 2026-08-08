@@ -15,12 +15,35 @@ class Urun
         'tip', 'stok_kodu', 'barkod', 'ad', 'aciklama', 'birim',
         'satis_fiyati', 'alis_fiyati', 'kdv_orani', 'para_birimi',
         'stok_miktari', 'kritik_stok', 'kategori', 'marka', 'resim_yolu',
-        'company_id',
+        'company_id', 'eticaret', 'site_urun_id',
     ];
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->ensureSyncColumns();
+    }
+
+    /** Panel ürünü ↔ site_urunler senkronu için gereken kolonlar (idempotent). */
+    private function ensureSyncColumns(): void
+    {
+        // 'aciklama' $fillable'da ve formda her zaman vardı ama bazı kurulumlarda
+        // tabloya hiç eklenmemiş — ekleme/güncelleme "Unknown column" ile patlıyordu.
+        $this->addColumnIfMissing('urunler_hizmetler', 'aciklama', 'TEXT NULL AFTER birim');
+        $this->addColumnIfMissing('urunler_hizmetler', 'para_birimi', "VARCHAR(5) NOT NULL DEFAULT 'TRY' AFTER kdv_orani");
+        $this->addColumnIfMissing('urunler_hizmetler', 'eticaret', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER resim_yolu');
+        $this->addColumnIfMissing('urunler_hizmetler', 'site_urun_id', 'INT UNSIGNED NULL AFTER eticaret');
+    }
+
+    private function addColumnIfMissing(string $table, string $column, string $definition): void
+    {
+        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $column)) {
+            throw new InvalidArgumentException('Geçersiz tablo veya kolon adı.');
+        }
+        $row = $this->db->selectOne("SHOW COLUMNS FROM {$table} LIKE " . $this->db->pdo()->quote($column));
+        if (!$row) {
+            $this->db->query("ALTER TABLE {$table} ADD COLUMN {$column} {$definition}");
+        }
     }
 
     /**
@@ -135,6 +158,65 @@ class Urun
              ORDER BY ad ASC LIMIT 10",
             [':q' => "%{$q}%", ':cid' => TenantContext::activeCompanyId()]
         );
+    }
+
+    // ─── SİTE VİTRİNİ SENKRONU ────────────────────────────────────────────
+
+    private const SITE_KATEGORI_ETIKETLERI = [
+        'micro'        => 'Şelatlı Mikro Element',
+        'macro'        => 'Makro Besin',
+        'biostimulant' => 'Biyostimülant',
+    ];
+
+    /**
+     * Site Yönetimi'nde eklenen/güncellenen bir ürünü panele yansıtır.
+     * $siteUrun zaten panele bağlıysa (panel_urun_id) o satırı günceller,
+     * değilse "vitrin şirketi" altında yeni bir ürün oluşturur. Fiyat/stok
+     * gibi yalnız-panel alanlarına dokunmaz — sadece ad/açıklama/görsel/
+     * kategori senkronlanır.
+     */
+    public function syncFromSiteUrun(array $siteUrun, int $storefrontCompanyId): int
+    {
+        $veri = [
+            'ad'         => trim((string)($siteUrun['ad_tr'] ?? '')),
+            'aciklama'   => trim((string)($siteUrun['aciklama_tr'] ?? '')) ?: null,
+            'resim_yolu' => trim((string)($siteUrun['gorsel'] ?? '')) ?: null,
+            'kategori'   => self::SITE_KATEGORI_ETIKETLERI[$siteUrun['kategori'] ?? 'micro']
+                ?? self::SITE_KATEGORI_ETIKETLERI['micro'],
+            'site_urun_id' => (int)($siteUrun['id'] ?? 0),
+        ];
+        if ($veri['ad'] === '') {
+            return 0;
+        }
+
+        $mevcutId = (int)($siteUrun['panel_urun_id'] ?? 0);
+        if ($mevcutId > 0) {
+            $satirVarMi = $this->db->selectOne(
+                "SELECT id FROM urunler_hizmetler WHERE id = :id AND company_id = :cid AND silindi_mi = 0",
+                [':id' => $mevcutId, ':cid' => $storefrontCompanyId]
+            );
+            if ($satirVarMi) {
+                $this->db->update(
+                    'urunler_hizmetler',
+                    array_intersect_key($veri, array_flip($this->fillable)),
+                    ['id' => $mevcutId, 'company_id' => $storefrontCompanyId]
+                );
+                return $mevcutId;
+            }
+        }
+
+        $veri['tip']          = 'urun';
+        $veri['birim']        = 'Adet';
+        $veri['satis_fiyati'] = 0;
+        $veri['alis_fiyati']  = 0;
+        $veri['stok_miktari'] = 0;
+        $veri['kritik_stok']  = 0;
+        $veri['kdv_orani']    = 20;
+        $veri['para_birimi']  = 'TRY';
+        $veri['eticaret']     = 1;
+        $veri['company_id']   = $storefrontCompanyId;
+
+        return $this->ekle($veri);
     }
 
     // ─── STOK VE GEÇMİŞ İŞLEMLERİ ───────────────────────────────────────

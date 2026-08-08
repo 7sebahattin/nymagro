@@ -9,6 +9,7 @@
 // Eski değeri XSS-güvenli döndürür
 $val = fn(string $k, string $def = '') =>
     htmlspecialchars($eski[$k] ?? $def, ENT_QUOTES);
+$isStorefront = $isStorefront ?? false;
 
 // Hata mesajı döndürür
 $err = function (string $k) use ($hatalar): string {
@@ -208,12 +209,19 @@ if (!empty($hatalar)) {
             <label class="flabel">E-Ticaret Ürünü?</label>
             <div class="check-row" style="margin-top:4px;">
               <input type="checkbox" class="custom-cb" id="eticaretCb" name="eticaret" value="1"
-                     <?= !empty($eski['eticaret']) ? 'checked' : '' ?> />
+                     <?= !empty($eski['eticaret']) ? 'checked' : '' ?>
+                     <?= $isStorefront ? '' : 'disabled' ?> />
               <label class="check-label" for="eticaretCb">Evet, e-ticaret sitesinde göster</label>
             </div>
-            <span class="fhint" style="margin-top:6px;">
-              Bu ürünün katalog/e-ticaret sayfasında görünüp görünmeyeceğini ayarlayabilirsiniz.
-            </span>
+            <?php if ($isStorefront): ?>
+              <span class="fhint" style="margin-top:6px;">
+                İşaretlerseniz ürün Site Yönetimi'nde pasif/taslak olarak oluşturulur; tescil no, doz tablosu gibi detayları tamamlayıp elle yayınlarsınız.
+              </span>
+            <?php else: ?>
+              <span class="fhint" style="margin-top:6px;">
+                Bu özelliği kullanmak için Şirket Ayarları'nda bu şirketi "vitrin şirketi" olarak işaretleyin.
+              </span>
+            <?php endif; ?>
           </div>
         </div>
       </div>

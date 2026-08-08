@@ -360,6 +360,34 @@ final class TenantContext
             self::$columnCache['company_settings.theme_color'] = true;
         }
 
+        if (!self::hasColumn('company_settings', 'is_storefront_source')) {
+            $db->query("ALTER TABLE company_settings ADD COLUMN is_storefront_source TINYINT(1) NOT NULL DEFAULT 0 AFTER theme_color");
+            self::$columnCache['company_settings.is_storefront_source'] = true;
+        }
+
+        // Kurulum: henüz hiçbir şirket "vitrin şirketi" (nymagro.com ile ürün
+        // senkronu yapılan şirket) olarak işaretlenmemişse, adı "Nymagro" ile
+        // eşleşen şirketi otomatik işaretle. Zaten bir vitrin şirketi
+        // ayarlanmışsa (yönetici Şirket Ayarları'ndan değiştirmiş olabilir)
+        // bir daha dokunulmaz.
+        $mevcutVitrin = $db->selectOne("SELECT company_id FROM company_settings WHERE is_storefront_source = 1 LIMIT 1");
+        if (!$mevcutVitrin) {
+            $nymagro = $db->selectOne(
+                "SELECT id FROM companies
+                 WHERE deleted_at IS NULL AND (company_name LIKE 'Nymagro%' OR short_name LIKE 'Nymagro%')
+                 ORDER BY id LIMIT 1"
+            );
+            if ($nymagro) {
+                $cid = (int)$nymagro['id'];
+                $satirVarMi = $db->selectOne("SELECT id FROM company_settings WHERE company_id = :cid", [':cid' => $cid]);
+                if ($satirVarMi) {
+                    $db->query("UPDATE company_settings SET is_storefront_source = 1 WHERE company_id = :cid", [':cid' => $cid]);
+                } else {
+                    $db->insert('company_settings', ['company_id' => $cid, 'is_storefront_source' => 1]);
+                }
+            }
+        }
+
         $db->query("CREATE TABLE IF NOT EXISTS period_opening_balances (
             id INT UNSIGNED NOT NULL AUTO_INCREMENT,
             company_id INT UNSIGNED NOT NULL,

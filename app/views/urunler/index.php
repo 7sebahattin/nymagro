@@ -263,6 +263,10 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
                   <?php if (!empty($u['kod'])): ?>
                      <span class="badge-tag"><?= mb_strtoupper(htmlspecialchars($u['kod'])) ?></span>
                   <?php endif; ?>
+
+                  <?php if (!empty($u['eticaret'])): ?>
+                    <span class="badge-ticari" style="background:#0d623a;" title="E-ticaret sitesinde gösteriliyor"><i class="fa-solid fa-globe"></i> Sitede</span>
+                  <?php endif; ?>
                 </a>
 
                 <div class="row-actions">

@@ -9,6 +9,9 @@
  *
  * Şirketten bağımsız (tek site) — TenantContext devre dışı bırakılır.
  */
+require_once MODELS_PATH . '/Urun.php';
+require_once MODELS_PATH . '/Company.php';
+
 class SiteIcerik
 {
     private Database $db;
@@ -546,6 +549,110 @@ class SiteIcerik
     }
 
     // ──────────────────────────────────────────────────────
+    // PANEL ÜRÜNÜ SENKRONU
+    // ──────────────────────────────────────────────────────
+
+    /**
+     * Panelde "e-ticaret'te göster" işaretlenen bir ürünü site_urunler'e
+     * ekler/günceller. $panelUrun zaten bağlıysa (site_urun_id) o satırı
+     * günceller — aktif_mi'ye DOKUNMAZ (admin Site Yönetimi'nde manuel
+     * yönetir). Bağlı değilse yeni bir satır PASİF (taslak) olarak açılır;
+     * admin tescil no/doz tablosu gibi detayları tamamlayıp elle yayınlar.
+     */
+    public function syncFromPanelUrun(array $panelUrun): int
+    {
+        $adTr = trim((string)($panelUrun['ad'] ?? ''));
+        if ($adTr === '') {
+            return 0;
+        }
+
+        $veri = [
+            'ad_tr'         => $adTr,
+            'aciklama_tr'   => trim((string)($panelUrun['aciklama'] ?? '')),
+            'gorsel'        => trim((string)($panelUrun['resim_yolu'] ?? '')) ?: 'img/urun-placeholder.jpg',
+            'panel_urun_id' => (int)($panelUrun['id'] ?? 0),
+        ];
+
+        $mevcutId = (int)($panelUrun['site_urun_id'] ?? 0);
+        if ($mevcutId > 0 && $this->urunGetir($mevcutId)) {
+            $this->urunGuncelle($mevcutId, $veri);
+            $this->baglaPanelUrunu($mevcutId, $veri['panel_urun_id']);
+            return $mevcutId;
+        }
+
+        $veri['kategori'] = 'micro';
+        $veri['etiket']   = 'YENİ';
+        $veri['aktif_mi'] = 0;
+        $yeniId = $this->urunEkle($veri);
+        if ($yeniId > 0) {
+            $this->baglaPanelUrunu($yeniId, $veri['panel_urun_id']);
+        }
+        return $yeniId;
+    }
+
+    /**
+     * Henüz panele bağlanmamış (panel_urun_id IS NULL) site ürünlerini,
+     * "vitrin şirketi" ayarlıysa panelin Ürünler listesine bağlar. Vitrin
+     * şirketi henüz ayarlanmamışsa sessizce çıkar — sonraki bootstrap'ta
+     * tekrar denenir. Idempotent: her ürün için yalnızca bir kez çalışır.
+     */
+    private function backfillPanelUrunBaglantilari(): void
+    {
+        // Panel yazımı aktif şirket/dönem gerektirir (TenantContext::assertWritablePeriod).
+        // Public site ziyaretçileri (WebsiteController/SitemapController de SiteIcerik
+        // kullanır) oturum açmadığı için burada sessizce çıkılır — girişli bir panel
+        // isteğinde tekrar denenir.
+        if (!class_exists('TenantContext') || !TenantContext::activeCompanyId() || !TenantContext::activePeriodId()) {
+            return;
+        }
+        $storefrontId = (new Company())->storefrontCompanyId();
+        if (!$storefrontId) {
+            return;
+        }
+        $bekleyenler = $this->db->select(
+            "SELECT * FROM site_urunler WHERE silindi_mi = 0 AND panel_urun_id IS NULL"
+        );
+        if (empty($bekleyenler)) {
+            return;
+        }
+        $urunModel = new Urun();
+        foreach ($bekleyenler as $siteUrun) {
+            try {
+                $panelId = $urunModel->syncFromSiteUrun($siteUrun, $storefrontId);
+                if ($panelId > 0) {
+                    $this->baglaPanelUrunu((int)$siteUrun['id'], $panelId);
+                }
+            } catch (Throwable $e) {
+                error_log('Backfill panel ürün senkron hatası (site_urun #' . $siteUrun['id'] . '): ' . $e->getMessage());
+            }
+        }
+    }
+
+    /** Site ürününü panel tarafındaki karşılığına bağlar (senkron sonrası çağrılır). */
+    public function baglaPanelUrunu(int $siteUrunId, int $panelUrunId): void
+    {
+        $this->db->query(
+            "UPDATE site_urunler SET panel_urun_id = :pid WHERE id = :id",
+            [':pid' => $panelUrunId, ':id' => $siteUrunId]
+        );
+    }
+
+    /** Panelde "e-ticaret'te göster" kaldırılınca bağlı site ürününü pasife alır (silmez). */
+    public function unsyncPanelUrun(int $panelUrunId): void
+    {
+        $row = $this->db->selectOne(
+            "SELECT id FROM site_urunler WHERE panel_urun_id = :pid AND silindi_mi = 0 LIMIT 1",
+            [':pid' => $panelUrunId]
+        );
+        if ($row) {
+            $this->db->query(
+                "UPDATE site_urunler SET aktif_mi = 0, updated_at = NOW() WHERE id = :id",
+                [':id' => (int)$row['id']]
+            );
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
     // GALERİ
     // ──────────────────────────────────────────────────────
 
@@ -668,6 +775,10 @@ class SiteIcerik
         // devralınan eski ürünleri yalnızca ilk seferde pasife alır, kendi
         // ürünlerini pasife alanları veya sildiklerini asla geri açmaz.
         $this->seedNymagroUrunleriIfMissing();
+
+        // Panele henüz bağlanmamış site ürünlerini (panel_urun_id IS NULL)
+        // "vitrin şirketi" tanımlıysa panele bağlar — tek seferlik, idempotent.
+        $this->backfillPanelUrunBaglantilari();
 
         // Ana sayfadaki "Ürün Grupları" istatistiği eski 5 gruplu taksonomiden
         // kalma '5' değerindeyse (hiç değiştirilmemişse) 3'e düzelt. Panelden
@@ -863,6 +974,7 @@ class SiteIcerik
             'doz_tr'       => "ALTER TABLE site_urunler ADD COLUMN doz_tr TEXT NULL AFTER icerik_ru",
             'doz_en'       => "ALTER TABLE site_urunler ADD COLUMN doz_en TEXT NULL AFTER doz_tr",
             'doz_ru'       => "ALTER TABLE site_urunler ADD COLUMN doz_ru TEXT NULL AFTER doz_en",
+            'panel_urun_id' => "ALTER TABLE site_urunler ADD COLUMN panel_urun_id INT UNSIGNED NULL AFTER doz_ru",
         ];
         foreach ($columns as $col => $sql) {
             $exists = $this->db->selectOne(

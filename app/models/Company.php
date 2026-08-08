@@ -14,7 +14,7 @@ class Company
         'invoice_prefix', 'purchase_invoice_prefix', 'quote_prefix',
         'default_currency', 'default_vat_rate', 'fiscal_year_start_month',
         'fiscal_year_end_month', 'stock_tracking_enabled', 'e_invoice_enabled',
-        'theme_color',
+        'theme_color', 'is_storefront_source',
     ];
 
     public function __construct()
@@ -289,6 +289,7 @@ class Company
         $settings['stock_tracking_enabled'] = !empty($settings['stock_tracking_enabled']) ? 1 : 0;
         $settings['e_invoice_enabled'] = !empty($settings['e_invoice_enabled']) ? 1 : 0;
         $settings['theme_color'] = $this->normalizeThemeColor((string)($settings['theme_color'] ?? 'emerald'));
+        $settings['is_storefront_source'] = !empty($settings['is_storefront_source']) ? 1 : 0;
 
         $exists = $this->db->selectOne("SELECT id FROM company_settings WHERE company_id = :cid", [':cid' => $companyId]);
         if ($exists) {
@@ -297,6 +298,22 @@ class Company
             $settings['company_id'] = $companyId;
             $this->db->insert('company_settings', $settings);
         }
+
+        if ($settings['is_storefront_source'] === 1) {
+            $this->db->query(
+                "UPDATE company_settings SET is_storefront_source = 0 WHERE company_id <> :cid",
+                [':cid' => $companyId]
+            );
+        }
+    }
+
+    /** nymagro.com ile ürün senkronu yapılan tek "vitrin şirketi"nin id'si (yoksa null). */
+    public function storefrontCompanyId(): ?int
+    {
+        $row = $this->db->selectOne(
+            "SELECT company_id FROM company_settings WHERE is_storefront_source = 1 LIMIT 1"
+        );
+        return $row ? (int)$row['company_id'] : null;
     }
 
     private function usageCounts(int $companyId): array
