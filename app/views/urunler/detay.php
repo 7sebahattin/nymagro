@@ -91,6 +91,9 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   .form-group { margin-bottom: 15px; }
   .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text); }
   .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+  .stok-giris-tipi { display: flex; gap: 14px; }
+  .stok-giris-tipi-opt { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; }
+  .stok-giris-tipi-opt input { width: auto; margin: 0; }
   .btn-modal { padding: 8px 16px; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; color: #fff; }
   .btn-cancel { background: #999; margin-right: 10px; }
   .btn-save { background: #5cb85c; }
@@ -338,9 +341,27 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
     </div>
     <form action="<?= BASE_URL ?>/urun/stokGiris/<?= $urun['id'] ?>" method="POST">
       <div class="modal-body">
+        <?php $koliIciAdet = (float)($urun['koli_ici_adet'] ?? 0); ?>
+        <?php if ($koliIciAdet > 0): ?>
         <div class="form-group">
-          <label>Miktar (<?= htmlspecialchars($urun['birim']) ?>)</label>
-          <input type="number" name="miktar" class="form-control" step="0.01" min="0.01" required placeholder="0.00">
+          <label>Giriş Şekli</label>
+          <div class="stok-giris-tipi">
+            <label class="stok-giris-tipi-opt">
+              <input type="radio" name="giris_tipi" value="adet" checked onchange="stokGirisTipiDegisti()"> Adet
+            </label>
+            <label class="stok-giris-tipi-opt">
+              <input type="radio" name="giris_tipi" value="koli" onchange="stokGirisTipiDegisti()">
+              Koli <span style="color:var(--muted);font-weight:400;">(1 koli = <?= rtrim(rtrim(number_format($koliIciAdet, 3, '.', ''), '0'), '.') ?> <?= htmlspecialchars($urun['birim']) ?>)</span>
+            </label>
+          </div>
+        </div>
+        <?php endif; ?>
+        <div class="form-group">
+          <label id="stokMiktarLabel">Miktar (<?= htmlspecialchars($urun['birim']) ?>)</label>
+          <input type="number" name="miktar" id="stokMiktarInput" class="form-control" step="0.01" min="0.01" required placeholder="0.00" <?= $koliIciAdet > 0 ? 'oninput="stokGirisHesapla()"' : '' ?>>
+          <?php if ($koliIciAdet > 0): ?>
+            <div id="stokAdetOnizleme" style="font-size:12px;color:var(--muted);margin-top:5px;display:none;"></div>
+          <?php endif; ?>
         </div>
         <div class="form-group">
           <label>Giriş Yapılacak Depo</label>
@@ -383,6 +404,34 @@ function openModal(id) {
 
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
+}
+
+var STOK_KOLI_ICI_ADET = <?= json_encode((float)($urun['koli_ici_adet'] ?? 0)) ?>;
+var STOK_URUN_BIRIM = <?= json_encode($urun['birim'] ?? 'Adet') ?>;
+
+function stokGirisTipiDegisti() {
+  var secili = document.querySelector('input[name="giris_tipi"]:checked');
+  var tip = secili ? secili.value : 'adet';
+  var label = document.getElementById('stokMiktarLabel');
+  var input = document.getElementById('stokMiktarInput');
+  if (!label || !input) return;
+  label.textContent = tip === 'koli' ? 'Koli Sayısı' : ('Miktar (' + STOK_URUN_BIRIM + ')');
+  stokGirisHesapla();
+}
+
+function stokGirisHesapla() {
+  var onizleme = document.getElementById('stokAdetOnizleme');
+  if (!onizleme) return;
+  var secili = document.querySelector('input[name="giris_tipi"]:checked');
+  var tip = secili ? secili.value : 'adet';
+  if (tip === 'koli') {
+    var koliSayisi = parseFloat(document.getElementById('stokMiktarInput').value) || 0;
+    var adet = koliSayisi * STOK_KOLI_ICI_ADET;
+    onizleme.textContent = '= ' + adet.toLocaleString('tr-TR', {maximumFractionDigits: 3}) + ' ' + STOK_URUN_BIRIM;
+    onizleme.style.display = 'block';
+  } else {
+    onizleme.style.display = 'none';
+  }
 }
 
 /* "Diğer İşlemler" açılır menüsü — dışarı tıklayınca kapanır */

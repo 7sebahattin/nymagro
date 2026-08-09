@@ -131,10 +131,12 @@ class Fatura
     public function kalemleriGetir(int $faturaId): array
     {
         return $this->db->select(
-            "SELECT * FROM fatura_kalemleri
-             WHERE fatura_id = :fid AND silindi_mi = 0
-               AND company_id = :cid
-             ORDER BY sira_no, id",
+            "SELECT fk.*, u.koli_ici_adet
+             FROM fatura_kalemleri fk
+             LEFT JOIN urunler_hizmetler u ON u.id = fk.urun_id
+             WHERE fk.fatura_id = :fid AND fk.silindi_mi = 0
+               AND fk.company_id = :cid
+             ORDER BY fk.sira_no, fk.id",
             [':fid' => $faturaId, ':cid' => TenantContext::activeCompanyId()]
         );
     }
@@ -518,7 +520,7 @@ class Fatura
     {
         $like = '%' . $q . '%';
         return $this->db->select(
-            "SELECT id, ad, tip, birim, satis_fiyati, alis_fiyati, kdv_orani, stok_miktari, para_birimi
+            "SELECT id, ad, tip, birim, satis_fiyati, alis_fiyati, kdv_orani, stok_miktari, para_birimi, koli_ici_adet
              FROM urunler_hizmetler
              WHERE silindi_mi = 0
                AND company_id = :company_id
@@ -527,6 +529,53 @@ class Fatura
              LIMIT :limit",
             [':q1' => $like, ':q2' => $like, ':q3' => $like, ':limit' => $limit, ':company_id' => TenantContext::activeCompanyId()]
         );
+    }
+
+    /**
+     * Verilen ürün id'leri için koli_ici_adet değerlerini toplu getirir.
+     * Satış/alış fatura kalemlerinde "Koli" girişini adete çevirmek için
+     * sunucu tarafında yetkili kaynak — istemciden gelen değere güvenilmez.
+     * @return array<int,float> [urun_id => koli_ici_adet] (0'dan büyük olanlar)
+     */
+    public function koliIciAdetMap(array $urunIdler): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $urunIdler))));
+        if (empty($ids)) {
+            return [];
+        }
+        $params = [':company_id' => TenantContext::activeCompanyId()];
+        $placeholders = [];
+        foreach ($ids as $i => $id) {
+            $key = ":id{$i}";
+            $placeholders[] = $key;
+            $params[$key] = $id;
+        }
+        $rows = $this->db->select(
+            "SELECT id, koli_ici_adet FROM urunler_hizmetler
+             WHERE id IN (" . implode(',', $placeholders) . ") AND company_id = :company_id",
+            $params
+        );
+        $map = [];
+        foreach ($rows as $row) {
+            $deger = (float)($row['koli_ici_adet'] ?? 0);
+            if ($deger > 0) {
+                $map[(int)$row['id']] = $deger;
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * Bir fatura kalemi için girilen miktarı, giriş tipine göre adete çevirir.
+     * "koli" ve ürünün geçerli bir koli_ici_adet'i varsa çarpar; aksi halde
+     * girileni adet olarak aynen kabul eder (mevcut davranış — geriye dönük uyumlu).
+     */
+    public static function kalemMiktarCevir(?int $urunId, float $miktarGirilen, string $girisTipi, array $koliMap): float
+    {
+        if ($girisTipi === 'koli' && $urunId !== null && ($koliMap[$urunId] ?? 0) > 0) {
+            return $miktarGirilen * $koliMap[$urunId];
+        }
+        return $miktarGirilen;
     }
 
     // ─── Private Helpers ────────────────────────────────────────────────

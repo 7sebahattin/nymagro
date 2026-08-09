@@ -72,6 +72,8 @@ $err = function(string $k) use ($hatalar): string {
   .kalemler-tablo tbody td { padding:6px 5px; vertical-align:middle; }
   .kalem-input { width:100%; padding:5px 7px; border:1px solid var(--border); border-radius:3px; font-size:12.5px; outline:none; color:var(--text); }
   .kalem-input:focus { border-color:#5dbf68; }
+  select[name="kalem_giris_tipi[]"] { background:#fff; color:#1a1a2e; }
+  select[name="kalem_giris_tipi[]"] option { background:#fff; color:#1a1a2e; }
   .td-r { text-align:right; }
   .td-sil { width:34px; text-align:center; }
   .btn-kalem-sil { background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px; padding:2px 5px; }
@@ -400,6 +402,8 @@ $err = function(string $k) use ($hatalar): string {
 
     const tr = document.createElement('tr');
     tr.id = 'kalem-' + idx;
+    const koliIci = parseFloat(urun.koli_ici_adet || 0);
+    tr.dataset.koliIciAdet = koliIci;
     tr.innerHTML = `
       <td>
         <input type="hidden" name="kalem_urun_id[]" value="${urun.id || ''}">
@@ -410,6 +414,13 @@ $err = function(string $k) use ($hatalar): string {
         <input type="number" name="kalem_miktar[]" class="kalem-input"
                value="1" min="0.001" step="any"
                oninput="satirHesapla('${idx}')" style="width:65px;" />
+        ${koliIci > 0 ? `
+        <select name="kalem_giris_tipi[]" class="kalem-input" style="width:65px;margin-top:4px;font-size:11px;padding:3px;" onchange="satirHesapla('${idx}')">
+          <option value="adet">Adet</option>
+          <option value="koli">Koli</option>
+        </select>
+        <div id="koliHint-${idx}" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>
+        ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
       </td>
       <td>
         <input type="text" name="kalem_birim[]" class="kalem-input"
@@ -445,10 +456,18 @@ $err = function(string $k) use ($hatalar): string {
 
   window.kalemEkle = kalemEkle;
 
+  function efektifMiktar(tr) {
+    const miktarGirilen = parseFloat(tr.querySelector('[name="kalem_miktar[]"]')?.value) || 0;
+    const girisTipiEl   = tr.querySelector('[name="kalem_giris_tipi[]"]');
+    const girisTipi     = girisTipiEl ? girisTipiEl.value : 'adet';
+    const koliIci       = parseFloat(tr.dataset.koliIciAdet || '0');
+    return (girisTipi === 'koli' && koliIci > 0) ? miktarGirilen * koliIci : miktarGirilen;
+  }
+
   window.satinHesapla = function(idx) {
     const tr         = document.getElementById('kalem-' + idx);
     if (!tr) return;
-    const miktar     = parseFloat(tr.querySelector('[name="kalem_miktar[]"]').value)        || 0;
+    const miktar     = efektifMiktar(tr);
     const fiyat      = parseFloat(tr.querySelector('[name="kalem_birim_fiyat[]"]').value)   || 0;
     const kdv        = parseFloat(tr.querySelector('[name="kalem_kdv_orani[]"]').value)      || 0;
     const iskonto    = parseFloat(tr.querySelector('[name="kalem_iskonto_orani[]"]').value)  || 0;
@@ -458,6 +477,18 @@ $err = function(string $k) use ($hatalar): string {
     const kdvT       = kdvTabani * (kdv / 100);
     const toplam     = kdvTabani + kdvT;
     document.getElementById('toplam-' + idx).textContent = formatPara(toplam) + ' ₺';
+
+    const hint = document.getElementById('koliHint-' + idx);
+    if (hint) {
+      const girisTipiEl = tr.querySelector('[name="kalem_giris_tipi[]"]');
+      const koliIci = parseFloat(tr.dataset.koliIciAdet || '0');
+      if (girisTipiEl && girisTipiEl.value === 'koli' && koliIci > 0) {
+        hint.textContent = '= ' + miktar.toLocaleString('tr-TR', {maximumFractionDigits: 3}) + ' adet';
+        hint.style.display = 'block';
+      } else {
+        hint.style.display = 'none';
+      }
+    }
     genelHesapla();
   };
 
@@ -476,7 +507,7 @@ $err = function(string $k) use ($hatalar): string {
     let araToplam = 0, iskontoT = 0, kdvT = 0;
     tbody.querySelectorAll('tr:not(#emptyRow)').forEach(tr => {
       const idx     = tr.id.replace('kalem-','');
-      const miktar  = parseFloat(tr.querySelector('[name="kalem_miktar[]"]')?.value)       || 0;
+      const miktar  = efektifMiktar(tr);
       const fiyat   = parseFloat(tr.querySelector('[name="kalem_birim_fiyat[]"]')?.value)  || 0;
       const kdv     = parseFloat(tr.querySelector('[name="kalem_kdv_orani[]"]')?.value)     || 0;
       const isk     = parseFloat(tr.querySelector('[name="kalem_iskonto_orani[]"]')?.value) || 0;

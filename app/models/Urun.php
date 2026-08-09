@@ -15,7 +15,7 @@ class Urun
         'tip', 'stok_kodu', 'barkod', 'ad', 'aciklama', 'birim',
         'satis_fiyati', 'alis_fiyati', 'kdv_orani', 'para_birimi', 'kdv_dahil',
         'alis_para_birimi', 'alis_kdv_orani', 'alis_iskonto',
-        'stok_miktari', 'kritik_stok', 'kategori', 'marka', 'resim_yolu',
+        'stok_miktari', 'kritik_stok', 'koli_ici_adet', 'kategori', 'marka', 'resim_yolu',
         'company_id', 'eticaret', 'site_urun_id',
     ];
 
@@ -42,6 +42,11 @@ class Urun
         $this->addColumnIfMissing('urunler_hizmetler', 'alis_para_birimi', "VARCHAR(5) NOT NULL DEFAULT 'TRY' AFTER alis_fiyati");
         $this->addColumnIfMissing('urunler_hizmetler', 'alis_kdv_orani', 'DECIMAL(5,2) NOT NULL DEFAULT 20.00 AFTER alis_para_birimi');
         $this->addColumnIfMissing('urunler_hizmetler', 'alis_iskonto', 'DECIMAL(5,2) NOT NULL DEFAULT 0.00 AFTER alis_kdv_orani');
+
+        // Koli/adet dönüşümü: bir kolide kaç adet olduğu. NULL/0 = koli modu yok,
+        // sadece adet bazlı giriş/çıkış. Stok girişi, satış ve alış faturalarında
+        // "Koli" seçilince bu değerle çarpılıp adete çevrilir.
+        $this->addColumnIfMissing('urunler_hizmetler', 'koli_ici_adet', 'DECIMAL(18,3) NULL DEFAULT NULL AFTER kritik_stok');
     }
 
     private function addColumnIfMissing(string $table, string $column, string $definition): void

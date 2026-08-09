@@ -27,6 +27,17 @@ final class UrunController extends Controller
         $this->urun = new Urun();
     }
 
+    /** "Koli İçi Adet Sayısı" formundan gelen değeri doğrular. Boş/geçersiz/0 → null (koli modu kapalı). */
+    private function parseKoliIciAdet(?string $raw): ?float
+    {
+        $raw = str_replace(',', '.', trim((string)$raw));
+        if ($raw === '' || !is_numeric($raw)) {
+            return null;
+        }
+        $deger = (float)$raw;
+        return $deger > 0 ? $deger : null;
+    }
+
     /** Ürün ana görselini yükler, public path döner (aynı doğrulama SiteController::dosyaYukle ile). */
     private function anaGorselYukle(array $file): string
     {
@@ -282,6 +293,7 @@ final class UrunController extends Controller
             'alis_iskonto'     => $alisIskonto,
             'stok_miktari' => 0, // Başlangıçta 0, hareket ile eklenecek
             'kritik_stok'  => (float)($_POST['kritik_stok']  ?? 0),
+            'koli_ici_adet' => $this->parseKoliIciAdet($_POST['koli_ici_adet'] ?? null),
             'kategori'     => trim($_POST['kategori'] ?? '') ?: null,
             'marka'        => trim($_POST['marka']    ?? '') ?: null,
             'aciklama'     => trim($_POST['aciklama'] ?? '') ?: null,
@@ -502,6 +514,7 @@ final class UrunController extends Controller
             'alis_kdv_orani'   => $alisKdvOrani,
             'alis_iskonto'     => $alisIskonto,
             'kritik_stok'  => (float)($_POST['kritik_stok'] ?? 0),
+            'koli_ici_adet' => $this->parseKoliIciAdet($_POST['koli_ici_adet'] ?? null),
             'kategori'     => trim($_POST['kategori'] ?? '') ?: null,
             'marka'        => trim($_POST['marka'] ?? '') ?: null,
             'aciklama'     => trim($_POST['aciklama'] ?? '') ?: null,
@@ -536,12 +549,26 @@ final class UrunController extends Controller
     public function stokGiris(int $id): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $miktar   = (float)($_POST['miktar'] ?? 0);
-            $aciklama = trim($_POST['aciklama'] ?? '');
-            $depoId   = (int)($_POST['depo_id'] ?? 0);
+            $miktarGirilen = (float)str_replace(',', '.', $_POST['miktar'] ?? '0');
+            $girisTipi     = ($_POST['giris_tipi'] ?? 'adet') === 'koli' ? 'koli' : 'adet';
+            $aciklama      = trim($_POST['aciklama'] ?? '');
+            $depoId        = (int)($_POST['depo_id'] ?? 0);
 
-            if ($miktar > 0 && $depoId > 0) {
-                $this->urun->stokHareketiEkle($id, $miktar, 'giris', $aciklama, $depoId);
+            // Koli → adet dönüşümü sunucu tarafında yapılır (tek yetkili kaynak);
+            // istemci tarafı sadece önizleme içindir.
+            $kayit       = $this->urun->getir($id);
+            $koliIciAdet = (float)($kayit['koli_ici_adet'] ?? 0);
+            $miktarAdet  = $miktarGirilen;
+
+            if ($girisTipi === 'koli' && $koliIciAdet > 0) {
+                $miktarAdet = $miktarGirilen * $koliIciAdet;
+                $fmtNum = fn(float $n): string => rtrim(rtrim(number_format($n, 3, '.', ''), '0'), '.');
+                $not = "{$fmtNum($miktarGirilen)} koli × {$fmtNum($koliIciAdet)} = {$fmtNum($miktarAdet)} adet";
+                $aciklama = $aciklama !== '' ? "{$not} — {$aciklama}" : $not;
+            }
+
+            if ($miktarAdet > 0 && $depoId > 0) {
+                $this->urun->stokHareketiEkle($id, $miktarAdet, 'giris', $aciklama, $depoId);
                 $this->setFlash('success', 'Stok girişi başarıyla yapıldı.');
             } else {
                 $this->setFlash('error', 'Geçerli bir miktar ve depo seçiniz.');

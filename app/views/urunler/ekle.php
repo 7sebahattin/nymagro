@@ -458,6 +458,19 @@ if (!empty($hatalar)) {
           </div>
 
           <div class="fg">
+            <label class="flabel">
+              Koli İçi Adet Sayısı
+              <i class="fa-solid fa-circle-question hi" title="Bir kolide kaç adet olduğunu girin. Girilirse stok girişi ve satış/alış faturalarında koli bazlı giriş yapılabilir, sistem adete otomatik çevirir."></i>
+            </label>
+            <div class="fwrap">
+              <i class="fa-solid fa-box fi"></i>
+              <input type="number" name="koli_ici_adet" class="finput"
+                     placeholder="varsa koli içi adet sayısı girin" min="0" step="0.001"
+                     value="<?= $val('koli_ici_adet') ?>" />
+            </div>
+          </div>
+
+          <div class="fg">
             <label class="flabel">GTIP</label>
             <input type="text" name="gtip" class="finput no-icon"
                    placeholder="varsa GTIP kodu girin"

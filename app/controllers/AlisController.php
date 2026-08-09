@@ -86,13 +86,22 @@ final class AlisController extends Controller
         if ($faturaT === '')  $hatalar['fatura_tarihi'] = 'Tarih zorunludur.';
 
         $kalemAdlari = $_POST['kalem_urun_adi'] ?? [];
+        $kalemUrunId = $_POST['kalem_urun_id'] ?? [];
+        $kalemGirisTipi = $_POST['kalem_giris_tipi'] ?? [];
+
+        // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
+        $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
+
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
             if (trim($ad) === '') continue;
+            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
+            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
+            $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
             $kalemler[] = [
-                'urun_id'       => !empty($_POST['kalem_urun_id'][$i]) ? (int)$_POST['kalem_urun_id'][$i] : null,
+                'urun_id'       => $urunId,
                 'urun_adi'      => trim($ad),
-                'miktar'        => (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1'),
+                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
                 'birim_fiyat'   => (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0'),
                 'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
                 'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),
@@ -195,13 +204,22 @@ final class AlisController extends Controller
         if ($faturaT === '')  $hatalar['fatura_tarihi'] = 'Tarih zorunludur.';
 
         $kalemAdlari = $_POST['kalem_urun_adi'] ?? [];
+        $kalemUrunId = $_POST['kalem_urun_id'] ?? [];
+        $kalemGirisTipi = $_POST['kalem_giris_tipi'] ?? [];
+
+        // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
+        $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
+
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
             if (trim($ad) === '') continue;
+            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
+            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
+            $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
             $kalemler[] = [
-                'urun_id'       => !empty($_POST['kalem_urun_id'][$i]) ? (int)$_POST['kalem_urun_id'][$i] : null,
+                'urun_id'       => $urunId,
                 'urun_adi'      => trim($ad),
-                'miktar'        => (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1'),
+                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
                 'birim_fiyat'   => (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0'),
                 'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
                 'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),

@@ -32,6 +32,8 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     .fg label { width: 90px; text-align: right; font-size: 12.5px; font-weight: 600; color: var(--text2); padding-top: 8px; flex-shrink: 0; }
     .fi { flex: 1; padding: 7px 10px; border: 1px solid var(--border2); border-radius: 3px; font-size: 13px; color: var(--text); outline: none; width: 100%; }
     .fi:focus { border-color: #2f73b6; }
+    select[name="kalem_giris_tipi[]"] { background: #fff; color: #1a1a2e; }
+    select[name="kalem_giris_tipi[]"] option { background: #fff; color: #1a1a2e; }
 
     .ms-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--ink); border: 1px solid var(--border2); z-index: 200; max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 4px 4px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
     .ms-dropdown.open { display: block; }
@@ -180,9 +182,20 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     const id = sayac++;
     const tr = document.createElement('tr');
     tr.id = 'k-' + id;
+    const koliIci = parseFloat(u.koli_ici_adet || 0);
+    tr.dataset.koliIciAdet = koliIci;
     tr.innerHTML = `
       <td><input type="hidden" name="kalem_urun_id[]" value="${u.id}"><input type="text" name="kalem_urun_adi[]" class="fi" style="padding:4px;" value="${u.ad}"></td>
-      <td><input type="number" name="kalem_miktar[]" class="fi" style="padding:4px;" value="${u.miktar || 1}" step="any" oninput="hesapla()"></td>
+      <td>
+        <input type="number" name="kalem_miktar[]" class="fi" style="padding:4px;" value="${u.miktar || 1}" step="any" oninput="hesapla()">
+        ${koliIci > 0 ? `
+        <select name="kalem_giris_tipi[]" class="fi" style="padding:2px;font-size:11px;margin-top:3px;" onchange="hesapla()">
+          <option value="adet">Adet</option>
+          <option value="koli">Koli</option>
+        </select>
+        <div class="koli-hint" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>
+        ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
+      </td>
       <td><input type="number" name="kalem_birim_fiyat[]" class="fi" style="padding:4px;" value="${u.birim_fiyat || u.alis_fiyati || 0}" step="any" oninput="hesapla()"></td>
       <td><input type="number" name="kalem_kdv_orani[]" class="fi" style="padding:4px;" value="${u.kdv_orani || 20}" oninput="hesapla()"></td>
       <td class="td-r" id="top-${id}" style="font-weight:700;">0,00 ₺</td>
@@ -195,12 +208,26 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
   window.hesapla = function() {
     let ara = 0, kdv = 0;
     tbody.querySelectorAll('tr:not(#emptyRow)').forEach(tr => {
-      const m = parseFloat(tr.querySelector('[name="kalem_miktar[]"]').value) || 0;
+      const mGirilen = parseFloat(tr.querySelector('[name="kalem_miktar[]"]').value) || 0;
+      const girisTipiEl = tr.querySelector('[name="kalem_giris_tipi[]"]');
+      const girisTipi = girisTipiEl ? girisTipiEl.value : 'adet';
+      const koliIci = parseFloat(tr.dataset.koliIciAdet || '0');
+      const m = (girisTipi === 'koli' && koliIci > 0) ? mGirilen * koliIci : mGirilen;
       const f = parseFloat(tr.querySelector('[name="kalem_birim_fiyat[]"]').value) || 0;
       const k = parseFloat(tr.querySelector('[name="kalem_kdv_orani[]"]').value) || 0;
       const lAra = m * f; const lKdv = lAra * (k/100);
       ara += lAra; kdv += lKdv;
       tr.querySelector('.td-r').textContent = (lAra + lKdv).toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+
+      const hint = tr.querySelector('.koli-hint');
+      if (hint) {
+        if (girisTipi === 'koli' && koliIci > 0) {
+          hint.textContent = '= ' + m.toLocaleString('tr-TR', {maximumFractionDigits: 3}) + ' adet';
+          hint.style.display = 'block';
+        } else {
+          hint.style.display = 'none';
+        }
+      }
     });
     document.getElementById('tAra').textContent = ara.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
     document.getElementById('tKdv').textContent = kdv.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
@@ -208,11 +235,12 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
   };
 
   const mevcutKalemler = <?= json_encode(array_map(fn($k) => [
-      'id'          => $k['urun_id'],
-      'ad'          => $k['urun_adi'],
-      'birim_fiyat' => $k['birim_fiyat'],
-      'kdv_orani'   => $k['kdv_orani'],
-      'miktar'      => $k['miktar'],
+      'id'            => $k['urun_id'],
+      'ad'            => $k['urun_adi'],
+      'birim_fiyat'   => $k['birim_fiyat'],
+      'kdv_orani'     => $k['kdv_orani'],
+      'miktar'        => $k['miktar'],
+      'koli_ici_adet' => $k['koli_ici_adet'] ?? null,
   ], $kalemler ?? []), JSON_UNESCAPED_UNICODE) ?>;
   mevcutKalemler.forEach(k => kalemEkle(k));
 })();
