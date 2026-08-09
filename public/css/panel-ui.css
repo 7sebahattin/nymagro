@@ -615,6 +615,37 @@ body[data-theme="acik"] .bnav-more-panel { box-shadow: 0 -8px 40px rgba(0, 0, 0,
 .form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
 .input-group-text { background: var(--surface-2); border-color: var(--border); color: var(--muted); }
 
+/* ============================================================
+   PANEL GENELİ "KUTU İÇİ" GÜVENLİK AĞI
+   Onlarca view kendi input/select/textarea class'ını tanımlıyor ve
+   çoğu background veya color'dan birini unutuyor (koyu zeminde
+   görünmeyen açık metin ya da açık zeminde görünmeyen soluk metin).
+   Sayfa sayfa avlamak yerine tüm panel için tek zorunlu varsayılan:
+   hangi yerel class ne derse desin bu kural üzerine yazar.
+   ============================================================ */
+.page-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="range"]):not([type="submit"]):not([type="button"]),
+.page-content select,
+.page-content textarea {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+}
+.page-content select option {
+  background: var(--ink);
+  color: var(--text);
+}
+.page-content input::placeholder,
+.page-content textarea::placeholder {
+  color: var(--muted) !important;
+  opacity: 1;
+}
+/* Koyu temada native tarih/saat seçici ikonu, artık garanti koyu olan
+   zemin üzerinde görünür kalsın diye tersine çevriliyor. */
+body:not([data-theme="acik"]) .page-content input[type="date"]::-webkit-calendar-picker-indicator,
+body:not([data-theme="acik"]) .page-content input[type="time"]::-webkit-calendar-picker-indicator,
+body:not([data-theme="acik"]) .page-content input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(.7);
+}
+
 /* Varsayılan gizlilik Bootstrap'tan gelir; CDN erişilemezse menü kalıcı açık
    kalmasın diye burada da tanımlıyoruz (zarif bozulma). */
 .dropdown-menu {
