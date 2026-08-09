@@ -839,13 +839,18 @@ html[lang="ru"] .mob-bb-item.cta span{
     letter-spacing:.12em;
   }
   .hero-cta{
-    gap:.6rem;
-    flex-direction:column;
-    align-items:stretch;
+    gap:.5rem;
+    flex-direction:row;
+    flex-wrap:nowrap;
   }
   .hero-cta .btn-primary-grad,
   .hero-cta .btn-outline-grad{
-    width:100%;
+    flex:1 1 0;
+    min-width:0;
+    padding:.62rem .5rem;
+    font-size:.78rem;
+    gap:.35rem;
+    border-radius:10px;
     justify-content:center;
     white-space:nowrap;
   }
@@ -1010,6 +1015,12 @@ html[lang="ru"] .mob-bb-item.cta span{
   }
   .mob-bb-item{
     font-size:.58rem;
+  }
+  .hero-cta .btn-primary-grad,
+  .hero-cta .btn-outline-grad{
+    padding:.55rem .35rem;
+    font-size:.68rem;
+    gap:.25rem;
   }
   .hero-stats{
     grid-template-columns:1fr;

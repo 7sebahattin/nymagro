@@ -1,6 +1,6 @@
 {
-  "name": "MuhasebeApp — Ticaret Paneli",
-  "short_name": "Ticaret",
+  "name": "Nymagro",
+  "short_name": "Nymagro",
   "description": "Nymagro ön muhasebe ve ticaret yönetim paneli",
   "start_url": "/dashboard",
   "scope": "/",

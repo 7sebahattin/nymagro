@@ -12,7 +12,7 @@ define('DB_USER', 'veritabani_kullanicisi');
 define('DB_PASS', 'veritabani_sifresi');
 define('DB_CHARSET', 'utf8mb4');
 
-define('APP_NAME', 'MuhasebeApp');
+define('APP_NAME', 'Nymagro');
 
 // Canliya alirken 'production' yapin — hata mesajlari gizlenir.
 define('APP_ENV', 'development');
