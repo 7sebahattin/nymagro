@@ -106,7 +106,7 @@
       <?php endif; ?>
 
       <div class="mt-4 d-flex gap-2 flex-wrap">
-        <a href="<?= I18n::altUrl('contact', $locale) ?>?p=<?= urlencode($ad) ?>" class="btn-primary-grad"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('products.detail.inquiry')) ?></a>
+        <button type="button" class="btn-primary-grad" onclick="openQuoteModal(<?= htmlspecialchars(json_encode($ad, JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>)"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('products.detail.inquiry')) ?></button>
         <?php if (!empty($ayarlar['whatsapp_link'])): ?>
           <a href="<?= htmlspecialchars($ayarlar['whatsapp_link']) ?>" target="_blank" rel="noopener" class="btn-outline-grad"><i class="fab fa-whatsapp"></i> WhatsApp</a>
         <?php endif; ?>
@@ -165,7 +165,7 @@
     <div class="inquiry-card fade-in">
       <h3><?= htmlspecialchars(I18n::t('products.detail.inquiry')) ?></h3>
       <p><?= htmlspecialchars(I18n::t('home.cta_band.desc')) ?></p>
-      <a href="<?= I18n::altUrl('contact', $locale) ?>?p=<?= urlencode($ad) ?>" class="btn-w" style="background:#fff;color:var(--p1);font-weight:800;padding:1rem 2rem;border-radius:999px"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('home.cta_band.btn')) ?></a>
+      <button type="button" class="btn-w" style="background:#fff;color:var(--p1);font-weight:800;padding:1rem 2rem;border-radius:999px;border:0" onclick="openQuoteModal(<?= htmlspecialchars(json_encode($ad, JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>)"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('home.cta_band.btn')) ?></button>
     </div>
   </div>
 </section>

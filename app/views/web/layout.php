@@ -263,9 +263,9 @@ img{max-width:100%;height:auto}
           </div>
         </div>
 
-        <a href="<?= I18n::altUrl('contact', $locale) ?>" class="btn-cta-quote">
+        <button type="button" class="btn-cta-quote" onclick="openQuoteModal()">
           <i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('common.cta_quote')) ?>
-        </a>
+        </button>
         <button type="button" class="menu-toggle" id="menuToggle" aria-label="Menu" aria-controls="mobDrawer" aria-expanded="false">
           <i class="fas fa-bars"></i>
         </button>
@@ -318,9 +318,9 @@ img{max-width:100%;height:auto}
       </div>
     </div>
     <div class="mt-3 d-grid gap-2">
-      <a href="<?= I18n::altUrl('contact', $locale) ?>" class="btn-primary-grad justify-content-center">
+      <button type="button" class="btn-primary-grad justify-content-center" onclick="closeMobDrawer(); openQuoteModal();">
         <i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('common.cta_quote')) ?>
-      </a>
+      </button>
       <a href="<?= BASE_URL ?>/giris" class="btn-outline-grad justify-content-center" rel="nofollow">
         <i class="fas fa-arrow-right-to-bracket"></i> <?= htmlspecialchars(I18n::t('common.login')) ?>
       </a>
@@ -910,13 +910,12 @@ html[lang="ru"] .mob-bb-item.cta span{
     font-size:1.35rem !important;
   }
   .product-cta{
-    gap:.65rem;
-    align-items:flex-start !important;
-    flex-direction:column;
+    gap:.5rem;
   }
-  .product-cta a.quote{
-    width:100%;
-    text-align:center;
+  .product-cta .detail,
+  .product-cta .quote{
+    font-size:.72rem;
+    padding:.5rem .5rem;
   }
   .about-flex{
     gap:2rem !important;
@@ -1112,8 +1111,100 @@ html[lang="ru"] .mob-bb-item.cta span{
 <nav class="mob-bottom-bar" aria-label="Mobile bottom navigation">
   <a href="<?= I18n::url('', $locale) ?>" class="mob-bb-item<?= $currentPage === 'home' ? ' active' : '' ?>"><i class="fas fa-house"></i><span><?= htmlspecialchars(I18n::t('mobile_nav.home')) ?></span></a>
   <a href="<?= I18n::altUrl('products', $locale) ?>" class="mob-bb-item<?= $currentPage === 'products' ? ' active' : '' ?>"><i class="fas fa-leaf"></i><span><?= htmlspecialchars(I18n::t('mobile_nav.products')) ?></span></a>
-  <a href="<?= I18n::altUrl('contact', $locale) ?>" class="mob-bb-item<?= $currentPage === 'contact' ? ' active' : '' ?>"><i class="fas fa-paper-plane"></i><span><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></span></a>
+  <button type="button" class="mob-bb-item" onclick="openQuoteModal()"><i class="fas fa-paper-plane"></i><span><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></span></button>
 </nav>
+
+<!-- QUOTE MODAL -->
+<style>
+.modal-overlay{position:fixed;inset:0;background:rgba(6,20,14,.55);backdrop-filter:blur(2px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:18px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:1.8rem 1.8rem 2rem;position:relative;box-shadow:0 30px 70px -20px rgba(0,0,0,.4)}
+.modal-close{position:absolute;top:1rem;right:1rem;width:36px;height:36px;border-radius:50%;border:0;background:rgba(13,98,58,.08);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;transition:.2s}
+.modal-close:hover{background:rgba(13,98,58,.15);color:var(--ink)}
+.modal-box h3{font-size:1.3rem;margin-bottom:.35rem;padding-right:2rem}
+.modal-box .modal-lead{color:var(--ink2);font-size:.92rem;margin-bottom:1.3rem}
+.modal-box label{font-size:.84rem;font-weight:700;color:var(--ink2);margin-bottom:.4rem;display:block}
+.modal-box input, .modal-box textarea{width:100%;border:1.5px solid rgba(13,98,58,.18);border-radius:12px;padding:.75rem 1rem;font-size:.95rem;background:#fff;transition:.2s}
+.modal-box input:focus, .modal-box textarea:focus{border-color:var(--p1);outline:none;box-shadow:0 0 0 4px rgba(13,98,58,.12)}
+.modal-box textarea{min-height:110px;resize:vertical}
+.modal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+@media(max-width:560px){.modal-form-grid{grid-template-columns:1fr}}
+.modal-box .honey{position:absolute;left:-9999px;top:-9999px;visibility:hidden}
+.modal-box .consent{display:flex;gap:.6rem;align-items:flex-start;font-size:.83rem;color:var(--ink2);margin:.9rem 0 1.1rem}
+.modal-box .consent input{width:auto;margin-top:.25rem}
+.modal-err{padding:.75rem 1rem;border-radius:12px;margin-bottom:1.1rem;font-weight:600;font-size:.88rem;display:none;align-items:center;gap:.55rem;background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(220,38,38,.08));color:#b91c1c;border:1px solid rgba(239,68,68,.2)}
+.modal-err.show{display:flex}
+.modal-done{display:none;text-align:center;padding:1.2rem 0 .4rem}
+.modal-done .di{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(16,185,129,.1));color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:1.7rem;margin:0 auto 1rem}
+.modal-done h3{margin-bottom:.6rem}
+.modal-done p{color:var(--ink2);font-size:.95rem;max-width:400px;margin:0 auto 1.4rem}
+[data-quote-state="done"] .quote-form-wrap{display:none}
+[data-quote-state="done"] .modal-done{display:block}
+[data-quote-state="form"] .modal-done{display:none}
+</style>
+<div class="modal-overlay" id="quoteModal" data-quote-state="form" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-label="<?= htmlspecialchars(I18n::t('common.cta_quote')) ?>">
+    <button type="button" class="modal-close" id="quoteModalClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+
+    <div class="quote-form-wrap">
+      <h3><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></h3>
+      <p class="modal-lead"><?= htmlspecialchars(I18n::t('contact.lead')) ?></p>
+
+      <div class="modal-err" id="quoteModalErr"></div>
+
+      <form id="quoteForm" method="POST" action="<?= I18n::url(I18n::pageMap()[$locale]['contact'] . '/gonder', $locale) ?>" novalidate>
+        <input type="hidden" name="_csrf" value="<?= htmlspecialchars($csrf ?? '') ?>">
+        <!-- honeypot -->
+        <input type="text" name="website_url" class="honey" tabindex="-1" autocomplete="off">
+
+        <div class="modal-form-grid">
+          <div class="mb-3">
+            <label for="q_ad_soyad"><?= htmlspecialchars(I18n::t('contact.form.name')) ?> *</label>
+            <input id="q_ad_soyad" name="ad_soyad" type="text" required minlength="2" maxlength="120">
+          </div>
+          <div class="mb-3">
+            <label for="q_firma"><?= htmlspecialchars(I18n::t('contact.form.company')) ?></label>
+            <input id="q_firma" name="firma" type="text" maxlength="120">
+          </div>
+          <div class="mb-3">
+            <label for="q_ulke"><?= htmlspecialchars(I18n::t('contact.form.country')) ?></label>
+            <input id="q_ulke" name="ulke" type="text" maxlength="80">
+          </div>
+          <div class="mb-3">
+            <label for="q_email"><?= htmlspecialchars(I18n::t('contact.form.email')) ?> *</label>
+            <input id="q_email" name="email" type="email" required maxlength="120">
+          </div>
+          <div class="mb-3">
+            <label for="q_telefon"><?= htmlspecialchars(I18n::t('contact.form.phone')) ?></label>
+            <input id="q_telefon" name="telefon" type="tel" maxlength="40">
+          </div>
+          <div class="mb-3">
+            <label for="q_urun"><?= htmlspecialchars(I18n::t('contact.form.product')) ?></label>
+            <input id="q_urun" name="urun" type="text" maxlength="120">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="q_mesaj"><?= htmlspecialchars(I18n::t('contact.form.message')) ?> *</label>
+          <textarea id="q_mesaj" name="mesaj" required minlength="5" maxlength="3500" placeholder="<?= htmlspecialchars(I18n::t('contact.form.placeholder_message')) ?>"></textarea>
+        </div>
+        <label class="consent">
+          <input type="checkbox" required>
+          <span><?= htmlspecialchars(I18n::t('contact.form.consent')) ?></span>
+        </label>
+        <button type="submit" class="btn-primary-grad" style="border:0" id="quoteSubmitBtn">
+          <i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('contact.form.submit')) ?>
+        </button>
+      </form>
+    </div>
+
+    <div class="modal-done" id="quoteModalDone">
+      <div class="di"><i class="fas fa-check"></i></div>
+      <h3><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></h3>
+      <p><?= htmlspecialchars(I18n::t('contact.form.success')) ?></p>
+      <button type="button" class="btn-primary-grad" id="quoteModalDoneClose"><?= htmlspecialchars(I18n::t('common.close')) ?></button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
 <script>
@@ -1151,6 +1242,73 @@ html[lang="ru"] .mob-bb-item.cta span{
     entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('shown'); io.unobserve(en.target); } });
   }, {threshold:.1});
   document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+
+  // Quote modal
+  const qModal = document.getElementById('quoteModal');
+  const qForm = document.getElementById('quoteForm');
+  const qErr = document.getElementById('quoteModalErr');
+  const qSubmitBtn = document.getElementById('quoteSubmitBtn');
+  const qUrun = document.getElementById('q_urun');
+
+  window.openQuoteModal = function(urunAdi) {
+    if (!qModal) return;
+    qModal.setAttribute('data-quote-state', 'form');
+    qModal.setAttribute('aria-hidden', 'false');
+    qErr.classList.remove('show');
+    qErr.textContent = '';
+    if (qForm) qForm.reset();
+    if (qUrun) qUrun.value = urunAdi || '';
+    qModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeQuoteModal = function() {
+    if (!qModal) return;
+    qModal.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  window.closeMobDrawer = function() {
+    if (drawer) { drawer.classList.remove('open'); document.body.style.overflow = ''; }
+  };
+
+  if (qModal) {
+    document.getElementById('quoteModalClose')?.addEventListener('click', closeQuoteModal);
+    document.getElementById('quoteModalDoneClose')?.addEventListener('click', closeQuoteModal);
+    qModal.addEventListener('click', e => { if (e.target === qModal) closeQuoteModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && qModal.classList.contains('open')) closeQuoteModal(); });
+  }
+
+  if (qForm) {
+    qForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      qErr.classList.remove('show');
+      qSubmitBtn.disabled = true;
+      const originalHtml = qSubmitBtn.innerHTML;
+      qSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
+
+      fetch(qForm.action, {
+        method: 'POST',
+        body: new FormData(qForm),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.ok) {
+            qModal.setAttribute('data-quote-state', 'done');
+          } else {
+            qErr.textContent = (data && data.msg) ? data.msg : 'Bir hata oluştu.';
+            qErr.classList.add('show');
+          }
+        })
+        .catch(() => {
+          qErr.textContent = 'Bağlantı hatası. Lütfen tekrar deneyin.';
+          qErr.classList.add('show');
+        })
+        .finally(() => {
+          qSubmitBtn.disabled = false;
+          qSubmitBtn.innerHTML = originalHtml;
+        });
+    });
+  }
 })();
 
 // "Ana ekrana ekle / Uygulamayı yükle" — tarayıcının bunu önerebilmesi

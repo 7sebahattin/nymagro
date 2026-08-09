@@ -327,6 +327,19 @@ class WebsiteController extends Controller
 
     public function contactSubmit(): void
     {
+        $isAjax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
+
+        $fail = function (string $msg) use ($isAjax): void {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['ok' => false, 'msg' => $msg]);
+                exit;
+            }
+            $_SESSION['flash_contact'] = ['ok' => false, 'msg' => $msg];
+            header('Location: ' . $this->canonical('contact'));
+            exit;
+        };
+
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             header('Location: ' . $this->canonical('contact'));
             exit;
@@ -334,24 +347,18 @@ class WebsiteController extends Controller
         // CSRF — basit kontrol
         $token = $_POST['_csrf'] ?? '';
         if (empty($_SESSION['_csrf']) || !hash_equals((string)$_SESSION['_csrf'], (string)$token)) {
-            $_SESSION['flash_contact'] = ['ok' => false, 'msg' => I18n::t('contact.form.error')];
-            header('Location: ' . $this->canonical('contact'));
-            exit;
+            $fail(I18n::t('contact.form.error'));
         }
         // Honeypot (bot algılama)
         if (!empty($_POST['website_url'])) {
-            $_SESSION['flash_contact'] = ['ok' => false, 'msg' => I18n::t('contact.form.spam')];
-            header('Location: ' . $this->canonical('contact'));
-            exit;
+            $fail(I18n::t('contact.form.spam'));
         }
 
         $ad    = trim((string)($_POST['ad_soyad'] ?? ''));
         $email = trim((string)($_POST['email'] ?? ''));
         $msg   = trim((string)($_POST['mesaj'] ?? ''));
         if ($ad === '' || $email === '' || $msg === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['flash_contact'] = ['ok' => false, 'msg' => I18n::t('contact.form.invalid')];
-            header('Location: ' . $this->canonical('contact'));
-            exit;
+            $fail(I18n::t('contact.form.invalid'));
         }
 
         try {
@@ -365,9 +372,15 @@ class WebsiteController extends Controller
                 'urun'    => trim((string)($_POST['urun'] ?? '')),
                 'mesaj'   => $msg,
             ]);
-            $_SESSION['flash_contact'] = ['ok' => true, 'msg' => I18n::t('contact.form.success')];
+            $successMsg = I18n::t('contact.form.success');
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['ok' => true, 'msg' => $successMsg]);
+                exit;
+            }
+            $_SESSION['flash_contact'] = ['ok' => true, 'msg' => $successMsg];
         } catch (Throwable $e) {
-            $_SESSION['flash_contact'] = ['ok' => false, 'msg' => I18n::t('contact.form.error')];
+            $fail(I18n::t('contact.form.error'));
         }
         header('Location: ' . $this->canonical('contact') . '#contact-form');
         exit;

@@ -258,7 +258,7 @@ for ($i = 1; $i <= $slideCount; $i++) {
     <span class="kicker" style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)"><i class="fas fa-bolt"></i> <?= htmlspecialchars(I18n::t('common.cta_quote')) ?></span>
     <h2 class="mt-3"><?= htmlspecialchars(I18n::t('home.cta_band.title')) ?></h2>
     <p><?= htmlspecialchars(I18n::t('home.cta_band.desc')) ?></p>
-    <a href="<?= I18n::altUrl('contact', $locale) ?>" class="btn-w"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('home.cta_band.btn')) ?></a>
+    <button type="button" class="btn-w" onclick="openQuoteModal()"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars(I18n::t('home.cta_band.btn')) ?></button>
   </div>
 </section>
 

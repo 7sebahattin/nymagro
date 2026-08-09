@@ -18,9 +18,11 @@
 .product-body p{color:#47745f;font-size:.86rem;flex:1;margin:0}
 .product-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0}
 .meta-pill{font-size:.7rem;color:var(--p1);background:rgba(13,98,58,.08);padding:.25rem .6rem;border-radius:999px;font-weight:600}
-.product-cta{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
-.product-cta a.detail{font-weight:700;font-size:.85rem;color:var(--p1)}
-.product-cta a.quote{font-weight:700;font-size:.78rem;background:var(--grad);color:#fff;padding:.4rem .9rem;border-radius:999px}
+.product-cta{display:flex;gap:.55rem;align-items:center;margin-top:.5rem}
+.product-cta .detail,
+.product-cta .quote{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:.3rem;text-align:center;font-weight:700;font-size:.78rem;font-family:inherit;line-height:1.2;box-sizing:border-box;padding:.5rem .7rem;border-radius:999px;border:0;cursor:pointer;white-space:nowrap}
+.product-cta .detail{background:var(--grad-cta);color:#fff}
+.product-cta .quote{background:var(--grad);color:#fff}
 </style>
 
 <section class="page-hero">
@@ -53,7 +55,7 @@
             <?php if ($sezon): ?><div class="product-meta"><span class="meta-pill"><i class="far fa-calendar"></i> <?= htmlspecialchars($sezon) ?></span></div><?php endif; ?>
             <div class="product-cta">
               <a href="<?= I18n::altUrl('products', $locale, $slug) ?>" class="detail"><?= htmlspecialchars(I18n::t('common.cta_more')) ?> <i class="fas fa-arrow-right"></i></a>
-              <a href="<?= I18n::altUrl('contact', $locale) ?>?p=<?= urlencode($ad) ?>" class="quote"><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></a>
+              <button type="button" class="quote" onclick="openQuoteModal(<?= htmlspecialchars(json_encode($ad, JSON_UNESCAPED_UNICODE), ENT_QUOTES) ?>)"><?= htmlspecialchars(I18n::t('common.cta_quote')) ?></button>
             </div>
           </div>
         </article>
