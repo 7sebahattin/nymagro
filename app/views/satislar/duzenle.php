@@ -39,10 +39,11 @@ $err = function(string $k) use ($hatalar): string {
   .fg { display:flex; align-items:flex-start; gap:14px; }
   .fg label { width:90px; text-align:right; font-size:12.5px; font-weight:600; color:var(--text2); padding-top:8px; flex-shrink:0; }
   .fg-inp-wrap { flex:1; display:flex; gap:8px; align-items:center; }
-  .fi { flex:1; padding:7px 10px; border:1px solid var(--border2); border-radius:3px; font-size:13px; color:var(--text); outline:none; box-shadow:inset 0 1px 3px rgba(0,0,0,.04); transition:border-color .2s; width:100%; }
+  .fi { flex:1; padding:7px 10px; border:1px solid var(--border2); border-radius:3px; font-size:13px; background:#fff; color:#1a1a2e; outline:none; box-shadow:inset 0 1px 3px rgba(0,0,0,.04); transition:border-color .2s; width:100%; }
   .fi:focus { border-color:#2f73b6; }
   textarea.fi { resize:vertical; min-height:70px; }
   .is-err .fi { border-color:#ef4444; }
+  select.fi option { background:#fff; color:#1a1a2e; }
 
   /* Müşteri seçimi */
   .musteri-secim-wrap { flex:1; position:relative; }
@@ -72,11 +73,10 @@ $err = function(string $k) use ($hatalar): string {
   .kalemler-tablo thead th { padding:7px 8px; font-size:11.5px; font-weight:700; color:var(--muted); text-align:left; border-bottom:2px solid var(--border); }
   .kalemler-tablo tbody tr { border-bottom:1px solid var(--border); }
   .kalemler-tablo tbody tr:last-child { border-bottom:none; }
-  .kalemler-tablo tbody td { padding:6px 5px; vertical-align:middle; }
-  .kalem-input { width:100%; padding:5px 7px; border:1px solid var(--border); border-radius:3px; font-size:12.5px; outline:none; color:var(--text); }
+  .kalemler-tablo tbody td { padding:6px 5px; vertical-align:top; }
+  .kalem-input { width:100%; padding:5px 7px; border:1px solid var(--border); border-radius:3px; font-size:12.5px; background:#fff; color:#1a1a2e; outline:none; }
   .kalem-input:focus { border-color:#5dbf68; }
-  select[name="kalem_giris_tipi[]"] { background:#fff; color:#1a1a2e; }
-  select[name="kalem_giris_tipi[]"] option { background:#fff; color:#1a1a2e; }
+  select.kalem-input option { background:#fff; color:#1a1a2e; }
   .td-r { text-align:right; }
   .td-sil { width:34px; text-align:center; }
   .btn-kalem-sil { background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px; padding:2px 5px; }
@@ -407,7 +407,7 @@ $err = function(string $k) use ($hatalar): string {
         <input type="text" name="kalem_urun_adi[]" class="kalem-input"
                value="${escHtml(urun.ad)}" required />
       </td>
-      <td>
+      <td class="td-miktar">
         <input type="number" name="kalem_miktar[]" class="kalem-input"
                value="${parseFloat(urun.miktar||1)}" min="0.001" step="any"
                oninput="satirHesapla('${idx}')" style="width:65px;" />

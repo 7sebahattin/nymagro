@@ -30,10 +30,10 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     
     .fg { display: flex; align-items: flex-start; gap: 16px; }
     .fg label { width: 90px; text-align: right; font-size: 12.5px; font-weight: 600; color: var(--text2); padding-top: 8px; flex-shrink: 0; }
-    .fi { flex: 1; padding: 7px 10px; border: 1px solid var(--border2); border-radius: 3px; font-size: 13px; color: var(--text); outline: none; width: 100%; }
+    .fi { flex: 1; padding: 7px 10px; border: 1px solid var(--border2); border-radius: 3px; font-size: 13px; background: #fff; color: #1a1a2e; outline: none; width: 100%; }
     .fi:focus { border-color: #2f73b6; }
-    select[name="kalem_giris_tipi[]"] { background: #fff; color: #1a1a2e; }
-    select[name="kalem_giris_tipi[]"] option { background: #fff; color: #1a1a2e; }
+    select.fi option { background: #fff; color: #1a1a2e; }
+    .kalemler-tablo tbody td { vertical-align: top; }
 
     .ms-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--ink); border: 1px solid var(--border2); z-index: 200; max-height: 200px; overflow-y: auto; display: none; border-radius: 0 0 4px 4px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
     .ms-dropdown.open { display: block; }
@@ -188,7 +188,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     tr.dataset.koliIciAdet = koliIci;
     tr.innerHTML = `
       <td><input type="hidden" name="kalem_urun_id[]" value="${u.id}"><input type="text" name="kalem_urun_adi[]" class="fi" style="padding:4px;" value="${u.ad}"></td>
-      <td>
+      <td class="td-miktar">
         <input type="number" name="kalem_miktar[]" class="fi" style="padding:4px;" value="1" step="any" oninput="hesapla()">
         ${koliIci > 0 ? `
         <select name="kalem_giris_tipi[]" class="fi" style="padding:2px;font-size:11px;margin-top:3px;" onchange="hesapla()">
