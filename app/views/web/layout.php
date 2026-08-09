@@ -186,7 +186,7 @@ section.block{padding:5rem 0}
 .footer-inner{position:relative;z-index:2}
 .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2.5rem;margin-bottom:2.5rem}
 .footer-brand{display:flex;align-items:center;margin-bottom:1rem}
-.footer-brand .brand-logo{height:60px;width:auto;display:flex;align-items:center;overflow:hidden}
+.footer-brand .brand-logo{height:78px;width:auto;display:flex;align-items:center;overflow:hidden}
 .footer-brand .brand-logo img{height:100%;width:auto;object-fit:contain;display:block}
 .footer h4{color:#fff;font-size:1.05rem;margin-bottom:1rem}
 .footer ul{list-style:none;padding:0;margin:0}
@@ -370,7 +370,7 @@ section[id],
   background:#fff;
 }
 .site-header .brand-logo{
-  height:52px;
+  height:68px;
   width:auto;
   transition:transform .22s ease;
 }
@@ -684,6 +684,11 @@ html[lang="ru"] .mob-bb-item.cta span{
     min-height:0;
     gap:.75rem;
   }
+  /* header-h-tablet (64px) 68px'lik masaüstü logosuna dar geliyor —
+     bu ara genişlikte taşmayan bir boyutta tutulur. */
+  .site-header .brand-logo{
+    height:52px;
+  }
   .site-header{
     background:rgba(255,255,255,.94);
   }
@@ -732,11 +737,11 @@ html[lang="ru"] .mob-bb-item.cta span{
     flex:0 0 auto;
   }
   .brand-logo{
-    height:32px;
+    height:42px;
     width:auto;
   }
   .site-header .brand-logo{
-    height:32px;
+    height:42px;
     width:auto;
   }
   .header-cta{
@@ -987,11 +992,11 @@ html[lang="ru"] .mob-bb-item.cta span{
     padding-right:.7rem;
   }
   .brand-logo{
-    height:28px;
+    height:36px;
     width:auto;
   }
   .site-header .brand-logo{
-    height:28px;
+    height:36px;
     width:auto;
   }
   .lang-btn{
