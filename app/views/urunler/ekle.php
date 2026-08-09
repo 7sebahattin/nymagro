@@ -76,6 +76,7 @@ if (!empty($hatalar)) {
   .finput:focus, .fselect:focus { border-color:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.12); }
   .finput.no-icon { padding-left:12px; }
   .fselect { padding-left:12px; appearance:auto; cursor:pointer; }
+  .fselect option { background:var(--ink); color:var(--text); }
   .ftextarea { padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13.5px; color:var(--text); background:var(--card-bg); outline:none; transition:border-color .2s,box-shadow .2s; width:100%; resize:vertical; min-height:90px; }
   .ftextarea:focus { border-color:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.12); }
   .fwrap { position:relative; }
@@ -87,6 +88,14 @@ if (!empty($hatalar)) {
   .price-group { display:flex; gap:0; }
   .price-group .finput { border-radius:8px 0 0 8px; border-right:none; flex:1; }
   .price-group .fselect { border-radius:0 8px 8px 0; width:80px; padding-left:8px; font-weight:700; color:var(--text2); }
+
+  /* Canlı fiyat/KDV önizlemesi */
+  .price-preview { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-top:22px; padding:16px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; }
+  .pp-item { display:flex; flex-direction:column; gap:4px; }
+  .pp-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); }
+  .pp-val { font-size:15px; font-weight:800; color:var(--text); }
+  .pp-val.pp-neg { color:#ef4444; }
+  .pp-val.pp-pos { color:#22c55e; }
 
   /* Checkbox */
   .check-row { display:flex; align-items:center; gap:8px; }
@@ -306,6 +315,25 @@ if (!empty($hatalar)) {
                    placeholder="0" min="0" max="100" step="0.01"
                    value="<?= $val('alis_iskonto', '0') ?>" />
           </div>
+        </div>
+      </div>
+
+      <div class="price-preview" id="pricePreview">
+        <div class="pp-item">
+          <span class="pp-label">Satış — KDV Hariç</span>
+          <span class="pp-val" id="ppSatisHaric">0,00</span>
+        </div>
+        <div class="pp-item">
+          <span class="pp-label">Satış — KDV Dahil</span>
+          <span class="pp-val" id="ppSatisDahil">0,00</span>
+        </div>
+        <div class="pp-item">
+          <span class="pp-label">Alış — İskonto Sonrası Net</span>
+          <span class="pp-val" id="ppAlisNet">0,00</span>
+        </div>
+        <div class="pp-item">
+          <span class="pp-label">Kâr Marjı (KDV hariç)</span>
+          <span class="pp-val" id="ppKarMarji">%0,00</span>
         </div>
       </div>
     </div>
@@ -607,5 +635,56 @@ if (!empty($hatalar)) {
   if (btnNewMarka) {
     btnNewMarka.addEventListener('click', () => yeniTanimEkle('urun_marka', document.getElementById('markaInput'), 'markaList'));
   }
+
+  /* ── Fiyatlandırma: canlı KDV / iskonto / kâr marjı önizlemesi ── */
+  (function () {
+    const $ = (n) => document.querySelector(`[name="${n}"]`);
+    const satisFiyati = $('satis_fiyati');
+    const kdvOraniSel = $('kdv_orani');
+    const kdvDahilSel = $('kdv_dahil');
+    const alisFiyati  = $('alis_fiyati');
+    const alisIskonto = $('alis_iskonto');
+    if (!satisFiyati || !kdvOraniSel || !kdvDahilSel || !alisFiyati || !alisIskonto) return;
+
+    const elHaric = document.getElementById('ppSatisHaric');
+    const elDahil = document.getElementById('ppSatisDahil');
+    const elNet   = document.getElementById('ppAlisNet');
+    const elMarji = document.getElementById('ppKarMarji');
+
+    const num = (el) => {
+      const v = parseFloat(String(el.value).replace(',', '.'));
+      return isFinite(v) ? v : 0;
+    };
+    const tl = (n) => n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function hesapla() {
+      const kdvOrani = num(kdvOraniSel) / 100;
+      const girilenSatis = num(satisFiyati);
+      const kdvDahilGirildi = kdvDahilSel.value === '1';
+
+      const satisHaric = kdvDahilGirildi ? girilenSatis / (1 + kdvOrani) : girilenSatis;
+      const satisDahil = kdvDahilGirildi ? girilenSatis : girilenSatis * (1 + kdvOrani);
+
+      const alisNet = num(alisFiyati) * (1 - num(alisIskonto) / 100);
+
+      elHaric.textContent = tl(satisHaric);
+      elDahil.textContent = tl(satisDahil);
+      elNet.textContent   = tl(alisNet);
+
+      let marji = 0;
+      if (satisHaric > 0) {
+        marji = ((satisHaric - alisNet) / satisHaric) * 100;
+      }
+      elMarji.textContent = '%' + tl(marji);
+      elMarji.classList.toggle('pp-neg', marji < 0);
+      elMarji.classList.toggle('pp-pos', marji > 0);
+    }
+
+    [satisFiyati, kdvOraniSel, kdvDahilSel, alisFiyati, alisIskonto].forEach((el) => {
+      el.addEventListener('input', hesapla);
+      el.addEventListener('change', hesapla);
+    });
+    hesapla();
+  })();
 })();
 </script>

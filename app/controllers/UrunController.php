@@ -211,6 +211,19 @@ final class UrunController extends Controller
         if (!in_array((int)$kdvOrani, [0, 1, 8, 10, 18, 20])) {
             $kdvOrani = 20;
         }
+        $kdvDahil = !empty($_POST['kdv_dahil']) && $_POST['kdv_dahil'] === '1' ? 1 : 0;
+
+        $alisParaBirimi = trim($_POST['alis_para_birimi'] ?? 'TRY');
+        if (!in_array($alisParaBirimi, ['TRY', 'USD', 'EUR', 'GBP'], true)) {
+            $alisParaBirimi = 'TRY';
+        }
+        $alisKdvOrani = (float)($_POST['alis_kdv_orani'] ?? 20);
+        if (!in_array((int)$alisKdvOrani, [0, 1, 8, 10, 18, 20])) {
+            $alisKdvOrani = 20;
+        }
+        $alisIskonto = is_numeric(str_replace(',', '.', $_POST['alis_iskonto'] ?? '0'))
+            ? (float)str_replace(',', '.', $_POST['alis_iskonto'] ?? '0') : 0.0;
+        $alisIskonto = max(0.0, min(100.0, $alisIskonto));
 
         $stokKodu = trim($_POST['stok_kodu'] ?? '');
         if ($stokKodu !== '' && $this->urun->kodMevcutMu('stok_kodu', $stokKodu)) {
@@ -262,7 +275,11 @@ final class UrunController extends Controller
             'satis_fiyati' => $satisFiyati,
             'alis_fiyati'  => $alisFiyati,
             'kdv_orani'    => $kdvOrani,
+            'kdv_dahil'    => $kdvDahil,
             'para_birimi'  => trim($_POST['para_birimi'] ?? 'TRY'),
+            'alis_para_birimi' => $alisParaBirimi,
+            'alis_kdv_orani'   => $alisKdvOrani,
+            'alis_iskonto'     => $alisIskonto,
             'stok_miktari' => 0, // Başlangıçta 0, hareket ile eklenecek
             'kritik_stok'  => (float)($_POST['kritik_stok']  ?? 0),
             'kategori'     => trim($_POST['kategori'] ?? '') ?: null,
@@ -451,6 +468,23 @@ final class UrunController extends Controller
         $satisFiyati = is_numeric(str_replace(',', '.', $_POST['satis_fiyati'] ?? '0')) ? (float)str_replace(',', '.', $_POST['satis_fiyati'] ?? '0') : 0.0;
         $alisFiyati = is_numeric(str_replace(',', '.', $_POST['alis_fiyati'] ?? '0')) ? (float)str_replace(',', '.', $_POST['alis_fiyati'] ?? '0') : 0.0;
         $kdvOrani = (float)($_POST['kdv_orani'] ?? 20);
+        if (!in_array((int)$kdvOrani, [0, 1, 8, 10, 18, 20])) {
+            $kdvOrani = 20;
+        }
+        $kdvDahil = !empty($_POST['kdv_dahil']) && $_POST['kdv_dahil'] === '1' ? 1 : 0;
+
+        $alisParaBirimi = trim($_POST['alis_para_birimi'] ?? 'TRY');
+        if (!in_array($alisParaBirimi, ['TRY', 'USD', 'EUR', 'GBP'], true)) {
+            $alisParaBirimi = 'TRY';
+        }
+        $alisKdvOrani = (float)($_POST['alis_kdv_orani'] ?? 20);
+        if (!in_array((int)$alisKdvOrani, [0, 1, 8, 10, 18, 20])) {
+            $alisKdvOrani = 20;
+        }
+        $alisIskonto = is_numeric(str_replace(',', '.', $_POST['alis_iskonto'] ?? '0'))
+            ? (float)str_replace(',', '.', $_POST['alis_iskonto'] ?? '0') : 0.0;
+        $alisIskonto = max(0.0, min(100.0, $alisIskonto));
+
         $eticaret = !empty($_POST['eticaret']);
 
         $veri = [
@@ -462,7 +496,11 @@ final class UrunController extends Controller
             'satis_fiyati' => $satisFiyati,
             'alis_fiyati'  => $alisFiyati,
             'kdv_orani'    => $kdvOrani,
+            'kdv_dahil'    => $kdvDahil,
             'para_birimi'  => trim($_POST['para_birimi'] ?? 'TRY'),
+            'alis_para_birimi' => $alisParaBirimi,
+            'alis_kdv_orani'   => $alisKdvOrani,
+            'alis_iskonto'     => $alisIskonto,
             'kritik_stok'  => (float)($_POST['kritik_stok'] ?? 0),
             'kategori'     => trim($_POST['kategori'] ?? '') ?: null,
             'marka'        => trim($_POST['marka'] ?? '') ?: null,

@@ -13,7 +13,8 @@ class Urun
     /** Toplu atama için izin verilen sütunlar */
     private array $fillable = [
         'tip', 'stok_kodu', 'barkod', 'ad', 'aciklama', 'birim',
-        'satis_fiyati', 'alis_fiyati', 'kdv_orani', 'para_birimi',
+        'satis_fiyati', 'alis_fiyati', 'kdv_orani', 'para_birimi', 'kdv_dahil',
+        'alis_para_birimi', 'alis_kdv_orani', 'alis_iskonto',
         'stok_miktari', 'kritik_stok', 'kategori', 'marka', 'resim_yolu',
         'company_id', 'eticaret', 'site_urun_id',
     ];
@@ -33,6 +34,14 @@ class Urun
         $this->addColumnIfMissing('urunler_hizmetler', 'para_birimi', "VARCHAR(5) NOT NULL DEFAULT 'TRY' AFTER kdv_orani");
         $this->addColumnIfMissing('urunler_hizmetler', 'eticaret', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER resim_yolu');
         $this->addColumnIfMissing('urunler_hizmetler', 'site_urun_id', 'INT UNSIGNED NULL AFTER eticaret');
+
+        // Fiyatlandırma formunda ("Alış KDV Oranı", "Alış İskontosu" vb.) var
+        // olan alanlar hiçbir zaman şemaya eklenmemişti — form değerleri
+        // hiçbir yere kaydedilmeden sessizce kayboluyordu.
+        $this->addColumnIfMissing('urunler_hizmetler', 'kdv_dahil', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER kdv_orani');
+        $this->addColumnIfMissing('urunler_hizmetler', 'alis_para_birimi', "VARCHAR(5) NOT NULL DEFAULT 'TRY' AFTER alis_fiyati");
+        $this->addColumnIfMissing('urunler_hizmetler', 'alis_kdv_orani', 'DECIMAL(5,2) NOT NULL DEFAULT 20.00 AFTER alis_para_birimi');
+        $this->addColumnIfMissing('urunler_hizmetler', 'alis_iskonto', 'DECIMAL(5,2) NOT NULL DEFAULT 0.00 AFTER alis_kdv_orani');
     }
 
     private function addColumnIfMissing(string $table, string $column, string $definition): void
