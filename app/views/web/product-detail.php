@@ -67,8 +67,6 @@
     </div>
     <div class="pd-info">
       <span class="kicker"><i class="fas fa-leaf"></i> <?= htmlspecialchars(I18n::t('common.fresh')) ?></span>
-      <h2 class="mt-3"><?= htmlspecialchars(I18n::t('products.detail.description')) ?></h2>
-      <p style="color:var(--ink2);font-size:1.05rem"><?= htmlspecialchars($aciklama) ?></p>
 
       <div class="spec-grid">
         <?php if (!empty($urun['sezon_'.$locale]) || !empty($urun['sezon_tr'])): ?>

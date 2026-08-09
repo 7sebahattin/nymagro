@@ -93,8 +93,9 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
   .note-close{width:32px;height:32px;border:0;border-radius:9px;background:rgba(255,255,255,.18);color:#fff}
   .note-form{padding:20px;display:grid;gap:12px}
   .note-form label{font-size:12px;font-weight:900;color:var(--text2)}
-  .note-form input,.note-form textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font:inherit;font-size:13.5px;color:var(--text);outline:none}
+  .note-form input,.note-form textarea{width:100%;background:var(--ink);border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font:inherit;font-size:13.5px;color:var(--text);outline:none}
   .note-form textarea{min-height:90px;resize:vertical}
+  body:not([data-theme="acik"]) .note-form input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
   .note-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
   .note-btn{border:0;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:900}
   .note-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
