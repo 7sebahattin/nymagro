@@ -4,12 +4,24 @@ $LL        = I18n::all();
 $siteText  = $siteText ?? static fn(string $k, string $d = '') => $d;
 $defaultSlides = $LL['home']['hero']['slides']     ?? [];
 $slideCount = max(count($defaultSlides), (int)($ayarlar['slide_count'] ?? count($defaultSlides)));
+
+/** Yönetim panelinden serbest metin olarak girilen buton linkini doğrular.
+ *  javascript:/data: gibi tehlikeli şemaları reddeder; boş veya geçersizse
+ *  $fallback (sabit site içi sayfa) döner. */
+$safeUrl = static function (string $url, string $fallback): string {
+    $url = trim($url);
+    if ($url === '') return $fallback;
+    return preg_match('~^(https?://|mailto:|tel:|/|#)~i', $url) ? $url : $fallback;
+};
+
 $slidesArr = [];
 for ($i = 1; $i <= $slideCount; $i++) {
     $default = $defaultSlides[$i - 1] ?? ['kicker'=>'', 'title'=>'', 'desc'=>'', 'cta1'=>'', 'cta2'=>''];
     foreach (['kicker','title','desc','cta1','cta2'] as $field) {
         $default[$field] = $siteText("slide{$i}_{$field}", (string)($default[$field] ?? ''));
     }
+    $default['cta1_url'] = $safeUrl($siteText("slide{$i}_cta1_url", ''), I18n::altUrl('products', $locale));
+    $default['cta2_url'] = $safeUrl($siteText("slide{$i}_cta2_url", ''), I18n::altUrl('contact', $locale));
     $slidesArr[] = $default;
 }
 $cards     = $LL['home']['trust']['cards']     ?? [];
@@ -121,8 +133,8 @@ for ($i = 1; $i <= $slideCount; $i++) {
         <h1><?= htmlspecialchars($s['title']) ?></h1>
         <p class="lead"><?= htmlspecialchars($s['desc']) ?></p>
         <div class="hero-cta">
-          <a href="<?= I18n::altUrl('products', $locale) ?>" class="btn-primary-grad"><i class="fas fa-leaf"></i> <?= htmlspecialchars($s['cta1']) ?></a>
-          <a href="<?= I18n::altUrl('contact', $locale) ?>" class="btn-outline-grad" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars($s['cta2']) ?></a>
+          <a href="<?= htmlspecialchars($s['cta1_url']) ?>" class="btn-primary-grad"><i class="fas fa-leaf"></i> <?= htmlspecialchars($s['cta1']) ?></a>
+          <a href="<?= htmlspecialchars($s['cta2_url']) ?>" class="btn-outline-grad" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)"><i class="fas fa-paper-plane"></i> <?= htmlspecialchars($s['cta2']) ?></a>
         </div>
       </div>
     <?php endforeach; ?>

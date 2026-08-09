@@ -579,15 +579,19 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
                 <?php foreach (['tr','en','ru'] as $lc): ?>
                 <div class="lang-panel <?= $lc === 'tr' ? 'active' : '' ?>" id="lang-slide<?= $n ?>-<?= $lc ?>">
                   <div class="sm-grid">
-                    <?php foreach (['kicker'=>'Üst etiket', 'title'=>'Başlık', 'desc'=>'Açıklama', 'cta1'=>'1. Buton', 'cta2'=>'2. Buton'] as $field => $label):
+                    <?php foreach (['kicker'=>'Üst etiket', 'title'=>'Başlık', 'desc'=>'Açıklama', 'cta1'=>'1. Buton', 'cta1_url'=>'1. Buton Linki', 'cta2'=>'2. Buton', 'cta2_url'=>'2. Buton Linki'] as $field => $label):
                       $key = "slide{$n}_{$field}";
                       $isArea = $field === 'desc';
-                      $val = $tv($lc, $key, $slideDefault($lc, $n, $field));
+                      $isUrl = str_ends_with($field, '_url');
+                      $val = $tv($lc, $key, $isUrl ? '' : $slideDefault($lc, $n, $field));
                     ?>
                     <div class="sm-field <?= $isArea ? 'full' : '' ?>">
                       <label><?= htmlspecialchars($label) ?></label>
                       <?php if ($isArea): ?>
                         <textarea name="i18n[<?= $lc ?>][<?= $key ?>]" class="sm-area" rows="2"><?= $val ?></textarea>
+                      <?php elseif ($isUrl): ?>
+                        <input type="text" name="i18n[<?= $lc ?>][<?= $key ?>]" class="sm-inp" value="<?= $val ?>" placeholder="/<?= $lc ?>/iletisim veya https://wa.me/...">
+                        <span class="hint" style="font-size:11px;color:var(--muted)">Boş bırakılırsa varsayılan sayfaya gider.</span>
                       <?php else: ?>
                         <input type="text" name="i18n[<?= $lc ?>][<?= $key ?>]" class="sm-inp" value="<?= $val ?>">
                       <?php endif; ?>
@@ -1030,18 +1034,21 @@ function smAddSlider() {
           <div class="lang-panel ${idx === 0 ? 'active' : ''}" id="lang-slide${next}-${lc}">
             <div class="sm-grid">
               ${[
-                ['kicker','Üst etiket',false],
-                ['title','Başlık',false],
-                ['desc','Açıklama',true],
-                ['cta1','1. Buton',false],
-                ['cta2','2. Buton',false]
-              ].map(([field, label, area]) => `
+                ['kicker','Üst etiket',false,false],
+                ['title','Başlık',false,false],
+                ['desc','Açıklama',true,false],
+                ['cta1','1. Buton',false,false],
+                ['cta1_url','1. Buton Linki',false,true],
+                ['cta2','2. Buton',false,false],
+                ['cta2_url','2. Buton Linki',false,true]
+              ].map(([field, label, area, isUrl]) => `
                 <div class="sm-field ${area ? 'full' : ''}">
                   <label>${label}</label>
                   ${area
                     ? `<textarea name="i18n[${lc}][slide${next}_${field}]" class="sm-area" rows="2"></textarea>`
-                    : `<input type="text" name="i18n[${lc}][slide${next}_${field}]" class="sm-inp">`
+                    : `<input type="text" name="i18n[${lc}][slide${next}_${field}]" class="sm-inp"${isUrl ? ` placeholder="/${lc}/iletisim veya https://wa.me/..."` : ''}>`
                   }
+                  ${isUrl ? `<span class="hint" style="font-size:11px;color:var(--muted)">Boş bırakılırsa varsayılan sayfaya gider.</span>` : ''}
                 </div>
               `).join('')}
             </div>
