@@ -261,9 +261,9 @@ $err = function(string $k) use ($hatalar): string {
         <table class="kalemler-tablo" id="kalemlerTablo" style="min-width: 680px;">
           <thead>
             <tr>
-              <th style="width:20%;">Ürün / Hizmet</th>
+              <th style="width:17%;">Ürün / Hizmet</th>
               <th style="width:18%;">Miktar</th>
-              <th style="width:9%;">Birim</th>
+              <th style="width:12%;">Birim</th>
               <th style="width:14%;">Birim Fiyat</th>
               <th style="width:7%;">KDV%</th>
               <th style="width:7%;">İsk%</th>
@@ -319,6 +319,17 @@ $err = function(string $k) use ($hatalar): string {
 
   const BASE = '<?= BASE_URL ?>';
   let kalemSayac = 0;
+
+  /* ══════════════════════════════════════
+     BİRİM SEÇENEKLERİ
+  ══════════════════════════════════════ */
+  const BIRIM_LISTESI = ['Adet','Ay','Bağ','Bidon','Boy','Cc','Cilt','Cm','Cm2','Çift','Çuval','Dakika','Dekar','Desi','Deste','Dilim','Dönem','Düzine','Galon','Gram','Gross','Grup','Gün','Hektar','Ibc','Karat','Kasa','Kavanoz','Kilogram','Kilometre','Kişi','Koçan','Koli','Kontör','Kova','Kutu','Kwatt','Kwh','Libre','Litre','Makara','Metre','Metre2','Metre3','Metretül','Mililitre','Milimetre','Mwh','Paket','Palet','Porsiyon','Puan','Rulo','Saat','Saniye','Santilitre','Sayfa','Seans','Servis','Set','Sqft2','Sütun/Cm','Şişe','Tabaka','Takım','Teneke','Tepsi','Test','Tır','Ton','Top','Torba','Ünite','Varil','Viyol','Yard','Yıl'];
+  function birimSecenekleriHtml(secili) {
+    secili = secili || 'Adet';
+    let opts = BIRIM_LISTESI.includes(secili) ? '' : `<option value="${escHtml(secili)}" selected>${escHtml(secili)}</option>`;
+    opts += BIRIM_LISTESI.map(b => `<option value="${b}"${b === secili ? ' selected' : ''}>${b}</option>`).join('');
+    return opts;
+  }
 
   /* ══════════════════════════════════════
      PARA BİRİMİ / KUR
@@ -467,8 +478,7 @@ $err = function(string $k) use ($hatalar): string {
         ${koliIci > 0 ? `<div id="koliHint-${idx}" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>` : ''}
       </td>
       <td>
-        <input type="text" name="kalem_birim[]" class="kalem-input"
-               value="${escHtml(urun.birim || 'Adet')}" />
+        <select name="kalem_birim[]" class="kalem-input" style="padding:4px;">${birimSecenekleriHtml(urun.birim)}</select>
       </td>
       <td>
         <input type="number" name="kalem_birim_fiyat[]" class="kalem-input"

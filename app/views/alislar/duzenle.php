@@ -133,9 +133,9 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
         <table class="kalemler-tablo" style="min-width:680px;">
           <thead>
             <tr>
-              <th style="width:26%;">Ürün / Hizmet</th>
+              <th style="width:23%;">Ürün / Hizmet</th>
               <th style="width:130px;">Miktar</th>
-              <th style="width:70px;">Birim</th>
+              <th style="width:95px;">Birim</th>
               <th style="width:110px;">Fiyat</th>
               <th style="width:50px;">KDV</th>
               <th class="td-r" style="width:100px;">Toplam</th>
@@ -166,6 +166,17 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
   const urunInput = document.getElementById('urunAraInput'), urunDrop = document.getElementById('urunDrop');
   const tbody = document.getElementById('kalemlerBody'), emptyRow = document.getElementById('emptyRow');
   let sayac = 0;
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  const BIRIM_LISTESI = ['Adet','Ay','Bağ','Bidon','Boy','Cc','Cilt','Cm','Cm2','Çift','Çuval','Dakika','Dekar','Desi','Deste','Dilim','Dönem','Düzine','Galon','Gram','Gross','Grup','Gün','Hektar','Ibc','Karat','Kasa','Kavanoz','Kilogram','Kilometre','Kişi','Koçan','Koli','Kontör','Kova','Kutu','Kwatt','Kwh','Libre','Litre','Makara','Metre','Metre2','Metre3','Metretül','Mililitre','Milimetre','Mwh','Paket','Palet','Porsiyon','Puan','Rulo','Saat','Saniye','Santilitre','Sayfa','Seans','Servis','Set','Sqft2','Sütun/Cm','Şişe','Tabaka','Takım','Teneke','Tepsi','Test','Tır','Ton','Top','Torba','Ünite','Varil','Viyol','Yard','Yıl'];
+  function birimSecenekleriHtml(secili) {
+    secili = secili || 'Adet';
+    let opts = BIRIM_LISTESI.includes(secili) ? '' : `<option value="${escHtml(secili)}" selected>${escHtml(secili)}</option>`;
+    opts += BIRIM_LISTESI.map(b => `<option value="${b}"${b === secili ? ' selected' : ''}>${b}</option>`).join('');
+    return opts;
+  }
 
   const paraBirimiSel = document.getElementById('paraBirimiSel');
   const kurAlani = document.getElementById('kurAlani');
@@ -230,7 +241,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
         </div>
         ${koliIci > 0 ? `<div class="koli-hint" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>` : ''}
       </td>
-      <td><input type="text" name="kalem_birim[]" class="fi" style="padding:4px;" value="${u.birim || 'Adet'}"></td>
+      <td><select name="kalem_birim[]" class="fi" style="padding:4px;">${birimSecenekleriHtml(u.birim)}</select></td>
       <td><input type="number" name="kalem_birim_fiyat[]" class="fi" style="padding:4px;" value="${u.birim_fiyat || u.alis_fiyati || 0}" step="any" oninput="hesapla()"></td>
       <td><input type="number" name="kalem_kdv_orani[]" class="fi" style="padding:4px;" value="${u.kdv_orani || 20}" oninput="hesapla()"></td>
       <td class="td-r" id="top-${id}" style="font-weight:700;">0,00 ₺</td>
