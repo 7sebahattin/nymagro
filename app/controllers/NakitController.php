@@ -28,13 +28,24 @@ final class NakitController extends Controller
         }
 
         try {
+            $odemeYontemleri = ['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'];
+            $odemeYontemi = trim($_POST['odeme_yontemi'] ?? '');
+            if (!in_array($odemeYontemi, $odemeYontemleri, true)) {
+                throw new Exception('Geçerli bir ödeme yöntemi seçiniz.');
+            }
+
+            $tarihGiris = trim($_POST['tarih'] ?? '') ?: date('Y-m-d');
+            $saatGiris  = trim($_POST['saat'] ?? '') ?: date('H:i');
+            $tarihTs = strtotime($tarihGiris . ' ' . $saatGiris);
+
             $data = [
-                'kasa_id'    => (int)($_POST['kasa_id'] ?? 1),
-                'cari_id'    => !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null,
-                'islem_tipi' => $_POST['islem_tipi'], // 'giris' (tahsilat) | 'cikis' (ödeme)
-                'tutar'      => (float)str_replace(',', '.', $_POST['tutar']),
-                'aciklama'   => $_POST['aciklama'] ?? '',
-                'tarih'      => date('Y-m-d H:i:s')
+                'kasa_id'       => (int)($_POST['kasa_id'] ?? 1),
+                'cari_id'       => !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null,
+                'islem_tipi'    => $_POST['islem_tipi'], // 'giris' (tahsilat) | 'cikis' (ödeme)
+                'odeme_yontemi' => $odemeYontemi,
+                'tutar'         => (float)str_replace(',', '.', $_POST['tutar']),
+                'aciklama'      => $_POST['aciklama'] ?? '',
+                'tarih'         => date('Y-m-d H:i:s', $tarihTs !== false ? $tarihTs : time()),
             ];
 
             if ($data['tutar'] <= 0) {

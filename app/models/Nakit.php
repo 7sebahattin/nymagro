@@ -10,6 +10,23 @@ class Nakit
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->ensureOdemeYontemiColumn();
+    }
+
+    /**
+     * kasa_hareketleri.odeme_yontemi kolonu yoksa ekler (idempotent).
+     */
+    private function ensureOdemeYontemiColumn(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'kasa_hareketleri' AND COLUMN_NAME = 'odeme_yontemi'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE kasa_hareketleri ADD COLUMN odeme_yontemi VARCHAR(30) NULL DEFAULT NULL AFTER hareket_tipi");
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
     }
 
     /**
@@ -28,6 +45,7 @@ class Nakit
                 'kasa_id'       => $kasaId,
                 'kasa_banka_id' => $kasaId,
                 'hareket_tipi'  => $hareketTipi,
+                'odeme_yontemi' => $data['odeme_yontemi'] ?? null,
                 'cari_id'       => $data['cari_id'] ?? null,
                 'islem_tipi'    => $islemTipi, // 'giris' veya 'cikis'
                 'tutar'         => $data['tutar'],

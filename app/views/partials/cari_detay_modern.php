@@ -46,6 +46,11 @@ $fmtDate = static function($value): string {
     $ts = strtotime((string)$value);
     return $ts ? date('d.m.Y', $ts) : '-';
 };
+$fmtDateTime = static function($value): string {
+    if (empty($value)) return '-';
+    $ts = strtotime((string)$value);
+    return $ts ? date('d.m.Y H:i', $ts) : '-';
+};
 $sumInvoices = static function(array $rows): float {
     $sum = 0.0;
     foreach ($rows as $row) $sum += (float)($row['genel_toplam'] ?? 0);
@@ -78,14 +83,10 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 <style>
 .cd-page{display:flex;flex-direction:column;gap:18px}
 .cd-hero-row{display:grid;grid-template-columns:minmax(320px,1fr) minmax(280px,420px);gap:22px;align-items:center}
-.cd-profile{min-height:118px;border-radius:4px;background:
-  linear-gradient(90deg,rgba(255,255,255,.36),rgba(255,255,255,.08)),
-  repeating-linear-gradient(90deg,rgba(166,111,45,.10) 0 18px,rgba(255,255,255,.12) 18px 36px),
-  linear-gradient(135deg,#f5d9a7,#f1c982);
-  box-shadow:0 10px 25px rgba(15,23,42,.18);display:flex;align-items:center;gap:24px;padding:20px 28px}
-.cd-avatar{width:76px;height:76px;border-radius:50%;background:#d8d8d8;border:6px solid rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;color:#7b7b7b;font-size:30px;font-weight:900;flex:0 0 auto}
-.cd-profile h2{margin:0;color:#6f6f78;font-size:24px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;line-height:1.2}
-.cd-profile small{display:block;margin-top:7px;color:#7d7d86;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
+.cd-profile{min-height:118px;border-radius:4px;background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--accent);box-shadow:0 10px 25px rgba(15,23,42,.18);display:flex;align-items:center;gap:24px;padding:20px 28px}
+.cd-avatar{width:76px;height:76px;border-radius:50%;background:var(--accent);border:4px solid var(--border2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;font-weight:900;flex:0 0 auto}
+.cd-profile h2{margin:0;color:var(--text);font-size:24px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;line-height:1.2}
+.cd-profile small{display:block;margin-top:7px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
 .cd-note{position:relative;background:rgba(243,156,18,.13);border:7px solid #666;border-radius:28px;min-height:96px;padding:18px 22px;color:#43c27f;box-shadow:0 8px 22px rgba(15,23,42,.08)}
 .cd-note::before{content:"";position:absolute;left:-37px;top:32px;border-width:18px 37px 18px 0;border-style:solid;border-color:transparent var(--muted) transparent transparent}
 .cd-note::after{content:"";position:absolute;left:-24px;top:40px;border-width:10px 24px 10px 0;border-style:solid;border-color:transparent rgba(243,156,18,.22) transparent transparent}
@@ -295,9 +296,9 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
             <?php foreach ($odemeGecmisi as $row): ?>
               <tr>
                 <td><span class="cd-plus"><i class="fa-solid fa-plus"></i></span></td>
-                <td><?= htmlspecialchars($fmtDate($row['tarih'] ?? '')) ?></td>
+                <td><?= htmlspecialchars($fmtDateTime($row['tarih'] ?? '')) ?></td>
                 <td class="money"><?= $fmtMoney($row['tutar'] ?? 0) ?></td>
-                <td><?= htmlspecialchars($row['kasa_adi'] ?? (($row['islem_tipi'] ?? '') === 'giris' ? 'Tahsilat' : 'Ödeme')) ?></td>
+                <td><?= htmlspecialchars($row['odeme_yontemi'] ?? (($row['islem_tipi'] ?? '') === 'giris' ? 'Tahsilat' : 'Ödeme')) ?></td>
               </tr>
             <?php endforeach; ?>
             </tbody>
@@ -425,6 +426,25 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
                 <option value="<?= (int)$kh['id'] ?>"><?= htmlspecialchars($kh['hesap_adi'] . ' (' . $kh['para_birimi'] . ')') ?></option>
               <?php endforeach; ?>
             </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ödeme Yöntemi</label>
+            <select name="odeme_yontemi" class="form-select" required>
+              <option value="">Seçiniz</option>
+              <?php foreach (['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'] as $oy): ?>
+                <option value="<?= $oy ?>"><?= $oy ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="cd-form-grid mb-3">
+            <div>
+              <label class="form-label">Tarih</label>
+              <input type="date" name="tarih" class="form-control" value="<?= date('Y-m-d') ?>" required>
+            </div>
+            <div>
+              <label class="form-label">Saat</label>
+              <input type="time" name="saat" class="form-control" value="<?= date('H:i') ?>" required>
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label">Tutar</label>
