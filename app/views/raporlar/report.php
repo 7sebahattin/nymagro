@@ -139,6 +139,9 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
             <?php if ($has('status')): ?>
                 <div class="filter-field"><label>Durum</label><select name="status"><option value="">Tümü</option><?php foreach (['taslak','onaylandi','odendi','kismi_odendi','iptal'] as $s): ?><option value="<?= $s ?>" <?= ($filters['status'] ?? '') === $s ? 'selected' : '' ?>><?= $e($s) ?></option><?php endforeach; ?></select></div>
             <?php endif; ?>
+            <?php if ($has('warehouse')): ?>
+                <div class="filter-field"><label>Depo</label><select name="warehouse_id"><option value="">Tümü</option><?php foreach (($options['warehouses'] ?? []) as $w): ?><option value="<?= (int)$w['id'] ?>" <?= (int)($filters['warehouse_id'] ?? 0) === (int)$w['id'] ? 'selected' : '' ?>><?= $e($w['depo_adi']) ?></option><?php endforeach; ?></select></div>
+            <?php endif; ?>
             <?php if ($has('payment')): ?>
                 <div class="filter-field"><label>Ödeme durumu</label><select name="payment_status"><option value="">Tümü</option><option value="paid" <?= ($filters['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>>Ödendi</option><option value="partial" <?= ($filters['payment_status'] ?? '') === 'partial' ? 'selected' : '' ?>>Kısmi</option><option value="unpaid" <?= ($filters['payment_status'] ?? '') === 'unpaid' ? 'selected' : '' ?>>Ödenmedi</option></select></div>
             <?php endif; ?>

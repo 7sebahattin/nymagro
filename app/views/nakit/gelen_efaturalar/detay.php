@@ -79,6 +79,7 @@ input,select,textarea{width:100%;border:1px solid var(--border2);border-radius:4
         <form method="post" action="<?= BASE_URL ?>/nakit/gelen-e-faturalar/odeme-ekle/<?= (int)$fatura['id'] ?>">
           <input type="date" name="odeme_tarihi" value="<?= date('Y-m-d') ?>">
           <input type="text" name="odeme_tutari_tl" placeholder="Ödeme tutarı TL" value="<?= $fmt($fatura['kalan_tutar_tl']) ?>">
+          <select name="odeme_yontemi"><option value="">Ödeme Yöntemi Seçiniz</option><?php foreach (['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'] as $oy): ?><option value="<?= $oy ?>"><?= $oy ?></option><?php endforeach; ?></select>
           <select name="kasa_banka_hesap_id"><option value="">Kasa/Banka seçmeden kaydet</option><?php foreach($hesaplar as $h): ?><option value="<?= (int)$h['id'] ?>"><?= htmlspecialchars($h['hesap_adi']) ?></option><?php endforeach; ?></select>
           <input type="text" name="odeme_hesabi" placeholder="Ödeme hesabı açıklaması">
           <textarea name="aciklama" placeholder="Açıklama"></textarea>

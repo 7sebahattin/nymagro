@@ -22,23 +22,6 @@
     .filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; }
     .filter-row + .filter-row { border-top: 1px solid var(--border); }
 
-    /* Belge Tipi custom dropdown */
-    .belge-tipi-wrap { position: relative; }
-    .belge-tipi-btn {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      padding: 6px 12px; border: 1px solid var(--border2); border-radius: 6px;
-      background: var(--card-bg); font-size: 13px; color: var(--text2); cursor: pointer;
-      min-width: 170px;
-    }
-    .belge-dropdown {
-      position: absolute; top: calc(100% + 3px); left: 0; z-index: 300;
-      background: var(--ink); border: 1px solid var(--border2); border-radius: 6px;
-      box-shadow: 0 6px 20px rgba(0,0,0,.1); min-width: 210px;
-      display: none; padding: 5px 0;
-    }
-    .belge-dropdown.open { display: block; }
-    .belge-chk-item { display: flex; align-items: center; gap: 8px; padding: 7px 14px; font-size: 13px; color: var(--text2); cursor: pointer; }
-
     /* Dönem dropdown */
     .period-wrap { position: relative; }
     .btn-period {
@@ -131,14 +114,18 @@
 <!-- Filter Panel -->
 <div class="filter-panel">
   <div class="filter-row">
-    <div class="belge-tipi-wrap">
-      <button class="belge-tipi-btn" onclick="toggleDrop('belgeDrop')">
-        <span>Tüm Belge Tipleri</span>
+    <div class="period-wrap">
+      <button class="btn-period" onclick="toggleDrop('durumDrop')">
+        <?php
+          $durumLabels = ['' => 'Tüm Durumlar', 'taslak' => 'Taslak', 'onaylandi' => 'Onaylandı', 'odendi' => 'Ödendi', 'kismi_odendi' => 'Kısmi Ödendi', 'iptal' => 'İptal'];
+          echo $durumLabels[$durum ?? ''] ?? 'Tüm Durumlar';
+        ?>
         <i class="fa-solid fa-chevron-down"></i>
       </button>
-      <div class="belge-dropdown" id="belgeDrop">
-        <label class="belge-chk-item"><input type="checkbox" checked> Tümünü Seç</label>
-        <label class="belge-chk-item"><input type="checkbox" checked> Faturalaşmış</label>
+      <div class="period-dropdown" id="durumDrop">
+        <?php foreach ($durumLabels as $val => $label): ?>
+          <div class="period-item" onclick="goFilter('durum','<?= $val ?>')"><?= $label ?></div>
+        <?php endforeach; ?>
       </div>
     </div>
 
@@ -190,7 +177,13 @@
               <span class="row-toggle plus" id="toggle-btn-<?= $f['id'] ?>">+</span>
             </td>
             <td><?= date('d.m.Y', strtotime($f['fatura_tarihi'])) ?></td>
-            <td><a href="#" style="color:var(--info); text-decoration:none; font-weight:500;"><?= htmlspecialchars($f['cari_unvan'] ?? 'Belirtilmedi') ?></a></td>
+            <td>
+              <?php if (!empty($f['cari_id'])): ?>
+                <a href="<?= BASE_URL ?>/tedarikci/detay/<?= (int)$f['cari_id'] ?>" onclick="event.stopPropagation()" style="color:var(--info); text-decoration:none; font-weight:500;"><?= htmlspecialchars($f['cari_unvan'] ?? 'Belirtilmedi') ?></a>
+              <?php else: ?>
+                <span><?= htmlspecialchars($f['cari_unvan'] ?? 'Belirtilmedi') ?></span>
+              <?php endif; ?>
+            </td>
             <td><?= htmlspecialchars($f['fatura_no']) ?></td>
             <td style="text-align:right; font-weight:600;"><?= number_format($f['genel_toplam'], 2, ',', '.') ?> TL</td>
             <td><span class="status-badge status-<?= $f['durum'] ?>"><?= $f['durum'] === 'onaylandi' ? 'Onaylandı' : 'Taslak' ?></span></td>
@@ -300,14 +293,14 @@ const BASE = '<?= BASE_URL ?>';
 const currentParams = new URLSearchParams(window.location.search);
 
 function toggleDrop(id) {
-  document.querySelectorAll('.belge-dropdown, .period-dropdown').forEach(d => {
+  document.querySelectorAll('.period-dropdown').forEach(d => {
     if (d.id !== id) d.classList.remove('open');
   });
   document.getElementById(id).classList.toggle('open');
 }
 document.addEventListener('click', e => {
-  if (!e.target.closest('.belge-tipi-wrap, .period-wrap')) {
-    document.querySelectorAll('.belge-dropdown, .period-dropdown').forEach(d => d.classList.remove('open'));
+  if (!e.target.closest('.period-wrap')) {
+    document.querySelectorAll('.period-dropdown').forEach(d => d.classList.remove('open'));
   }
 });
 
