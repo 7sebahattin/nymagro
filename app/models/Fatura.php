@@ -620,13 +620,8 @@ class Fatura
         string $donem,
         bool   $iptalleri
     ): array {
-        if ($belge_tipi === 'satis') {
-            $conds  = ['f.silindi_mi = 0', "f.belge_tipi IN ('satis', 'proforma', 'irsaliye')"];
-            $params = [];
-        } else {
-            $conds  = ['f.silindi_mi = 0', 'f.belge_tipi = :belge_tipi'];
-            $params = [':belge_tipi' => $belge_tipi];
-        }
+        $conds  = ['f.silindi_mi = 0', 'f.belge_tipi = :belge_tipi'];
+        $params = [':belge_tipi' => $belge_tipi];
         $conds[] = 'f.company_id = :tenant_company_id';
         $conds[] = 'f.period_id = :tenant_period_id';
         $params[':tenant_company_id'] = TenantContext::activeCompanyId();
