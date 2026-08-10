@@ -35,6 +35,37 @@ class Fatura
         $this->ensureDepoIdColumn();
         $this->ensureDovizColumns();
         $this->ensureCreatedByColumn();
+        $this->ensurePerformansIndexleri();
+    }
+
+    /**
+     * fatura_kalemleri.fatura_id ve faturalar/fatura_kalemleri.cari_id/urun_id
+     * hiç index'lenmemişti — her fatura görüntüleme/düzenleme/yazdırma ve her
+     * recomputeCariBalance() çağrısı tam tablo taraması yapıyordu (EXPLAIN ile
+     * doğrulandı). Idempotent: yalnızca eksikse ALTER atar.
+     */
+    private function ensurePerformansIndexleri(): void
+    {
+        $this->ensureIndex('fatura_kalemleri', 'idx_fk_fatura', '(fatura_id, company_id, period_id)');
+        $this->ensureIndex('fatura_kalemleri', 'idx_fk_urun', '(urun_id, company_id, period_id)');
+        $this->ensureIndex('faturalar', 'idx_faturalar_cari', '(cari_id, company_id, period_id)');
+    }
+
+    /** Bir index yoksa idempotent olarak ekler (INFORMATION_SCHEMA.STATISTICS kontrolü). */
+    private function ensureIndex(string $table, string $indexName, string $columnsSql): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :t AND INDEX_NAME = :i",
+                [':t' => $table, ':i' => $indexName]
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE {$table} ADD INDEX {$indexName} {$columnsSql}");
+            }
+        } catch (\Throwable $e) {
+            // Sessizce geç — tablo henüz yoksa veya yetki yoksa uygulamayı kilitleme.
+        }
     }
 
     /**

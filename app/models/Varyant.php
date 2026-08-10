@@ -96,18 +96,26 @@ class Varyant
         $this->assertProductBelongsToCompany($urunId);
         $companyId = TenantContext::activeCompanyId();
 
-        $this->db->query(
-            "DELETE FROM urun_varyant_degerleri WHERE urun_id = :id AND company_id = :company_id",
-            [':id' => $urunId, ':company_id' => $companyId]
-        );
-        
-        foreach ($degerIds as $dId) {
-            $this->assertVariantValueBelongsToCompany((int)$dId);
-            $this->db->insert('urun_varyant_degerleri', [
-                'urun_id'          => $urunId,
-                'varyant_deger_id' => (int)$dId,
-                'company_id'       => $companyId,
-            ]);
+        $this->db->begin();
+        try {
+            $this->db->query(
+                "DELETE FROM urun_varyant_degerleri WHERE urun_id = :id AND company_id = :company_id",
+                [':id' => $urunId, ':company_id' => $companyId]
+            );
+
+            foreach ($degerIds as $dId) {
+                $this->assertVariantValueBelongsToCompany((int)$dId);
+                $this->db->insert('urun_varyant_degerleri', [
+                    'urun_id'          => $urunId,
+                    'varyant_deger_id' => (int)$dId,
+                    'company_id'       => $companyId,
+                ]);
+            }
+
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
         }
     }
 

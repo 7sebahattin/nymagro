@@ -216,11 +216,46 @@ class Masraf
     public function sil(int $id): int
     {
         $masraf = $this->getir($id);
-        $rows = $this->db->update('masraflar', ['silindi_mi' => 1], ['id' => $id]);
-        if (!empty($masraf['personel_hareket_id'])) {
-            $this->db->update('personel_hareketleri', ['silindi_mi' => 1], ['id' => (int)$masraf['personel_hareket_id']]);
+
+        $this->db->begin();
+        try {
+            $rows = $this->db->update('masraflar', ['silindi_mi' => 1], ['id' => $id]);
+            if (!empty($masraf['personel_hareket_id'])) {
+                $this->db->update('personel_hareketleri', ['silindi_mi' => 1], ['id' => (int)$masraf['personel_hareket_id']]);
+            }
+
+            // Masraf "ödendi" durumundaysa kasaHareketiEkle() ile oluşturulmuş
+            // bağlı kasa_hareketleri kaydı da geri alınmalı — aksi halde masraf
+            // silinse bile kasa/banka bakiyesi kalıcı olarak düşük kalır ve
+            // ekstrede var olmayan bir gidere ait hareket görünmeye devam eder.
+            if (($masraf['odeme_durumu'] ?? '') === 'odendi' && !empty($masraf['kasa_id'])) {
+                $hareket = $this->db->selectOne(
+                    "SELECT id, kasa_id, tutar FROM kasa_hareketleri
+                     WHERE aciklama LIKE :pat AND kasa_id = :kid AND silindi_mi = 0
+                       AND company_id = :cid AND period_id = :pid
+                     LIMIT 1",
+                    [
+                        ':pat' => '%[masraf#' . $id . ']%',
+                        ':kid' => (int)$masraf['kasa_id'],
+                        ':cid' => TenantContext::activeCompanyId(),
+                        ':pid' => TenantContext::activePeriodId(),
+                    ]
+                );
+                if ($hareket) {
+                    $this->db->update('kasa_hareketleri', ['silindi_mi' => 1], ['id' => (int)$hareket['id']]);
+                    $this->db->query(
+                        "UPDATE kasa_banka SET guncel_bakiye = guncel_bakiye + :t WHERE id = :id AND company_id = :cid",
+                        [':t' => (float)$hareket['tutar'], ':id' => (int)$hareket['kasa_id'], ':cid' => TenantContext::activeCompanyId()]
+                    );
+                }
+            }
+
+            $this->db->commit();
+            return $rows;
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
         }
-        return $rows;
     }
 
     /** Masrafı ödendi olarak işaretle */
@@ -457,6 +492,7 @@ class Masraf
         $this->addColumnIfMissing('masraflar', 'personel_id', 'INT UNSIGNED NULL AFTER kasa_id');
         $this->addColumnIfMissing('masraflar', 'personel_hareket_id', 'INT UNSIGNED NULL AFTER personel_id');
         $this->addColumnIfMissing('masraflar', 'notlar', 'VARCHAR(255) NULL AFTER tekrar_periyot');
+        $this->addColumnIfMissing('masraflar', 'tekrarlayan', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER odeme_tarihi');
         $this->addColumnIfMissing('personel_hareketleri', 'masraf_id', 'INT NULL AFTER personel_id');
 
         $column = $this->db->selectOne("SHOW COLUMNS FROM personel_hareketleri LIKE 'tip'");

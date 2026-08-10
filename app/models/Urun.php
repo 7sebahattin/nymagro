@@ -24,6 +24,25 @@ class Urun
     {
         $this->db = Database::getInstance();
         $this->ensureSyncColumns();
+        $this->ensurePerformansIndeksi();
+    }
+
+    /**
+     * stok_hareketleri.urun_id hiç index'lenmemişti — ürün detayındaki
+     * satış/alış/stok geçmişi ve rapordaki stok hareket sorguları tam tablo
+     * taraması yapıyordu. Idempotent: yalnızca eksikse ALTER atar.
+     */
+    private function ensurePerformansIndeksi(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stok_hareketleri' AND INDEX_NAME = 'idx_sh_urun'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE stok_hareketleri ADD INDEX idx_sh_urun (urun_id, company_id, period_id)");
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
     }
 
     /** Panel ürünü ↔ site_urunler senkronu için gereken kolonlar (idempotent). */
@@ -129,9 +148,18 @@ class Urun
         return $this->db->update('urunler_hizmetler', $temiz, ['id' => $id]);
     }
 
-    /** Soft-delete. */
+    /**
+     * Soft-delete. Depo::sil()'deki desenle tutarlı: stokta hâlâ miktarı olan
+     * ürün silinemez — aksi halde ürün depo stok durumu/depo değeri
+     * raporlarından sessizce kaybolurken stok_miktari ve urun_stok_depo
+     * satırları değişmeden kalır (envanter değeri raporu eksik gösterir).
+     */
     public function sil(int $id): int
     {
+        $urun = $this->getir($id);
+        if ($urun && (float)($urun['stok_miktari'] ?? 0) > 0) {
+            throw new RuntimeException('Stokta miktarı olan ürün silinemez. Önce stoğu sıfırlayın.');
+        }
         return $this->db->softDelete('urunler_hizmetler', $id);
     }
 
