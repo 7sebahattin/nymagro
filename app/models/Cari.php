@@ -25,6 +25,7 @@ class Cari
         'adres', 'il', 'ilce', 'ulke', 'cari_kodu',
         'bakiye', 'para_birimi', 'notlar', 'company_id',
         'sinif_1', 'sinif_2', 'resim_yolu',
+        'vergi_muaf', 'banka_bilgileri', 'vade_gun', 'diger_erisim_bilgileri',
         // 'aktif_mi', 'eticaret_mi',   // v2: tabloya eklenince aktif edilecek
     ];
 
@@ -34,6 +35,7 @@ class Cari
         $this->ensureSiniflandirmaColumns();
         $this->ensureResimYoluColumn();
         $this->ensureCekSenetTable();
+        $this->ensureTedarikciAlanlariColumns();
     }
 
     /** cek_senet_portfoyu tablosu yoksa oluşturur (NakitModul ile aynı şema — portföy hiç açılmamış olabilir). */
@@ -89,6 +91,29 @@ class Cari
             );
             if (!$var) {
                 $this->db->query("ALTER TABLE cariler ADD COLUMN resim_yolu VARCHAR(255) NULL");
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
+    }
+
+    /** Tedarikçi formundaki vergi muafiyeti/banka/vade/diğer erişim alanları yoksa ekler. */
+    private function ensureTedarikciAlanlariColumns(): void
+    {
+        try {
+            $kolonlar = [
+                'vergi_muaf'             => "TINYINT(1) NOT NULL DEFAULT 0",
+                'banka_bilgileri'        => "TEXT NULL",
+                'vade_gun'               => "INT UNSIGNED NULL",
+                'diger_erisim_bilgileri' => "TEXT NULL",
+            ];
+            foreach ($kolonlar as $col => $tanim) {
+                $var = $this->db->selectOne(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cariler' AND COLUMN_NAME = :col",
+                    [':col' => $col]
+                );
+                if (!$var) {
+                    $this->db->query("ALTER TABLE cariler ADD COLUMN {$col} {$tanim}");
+                }
             }
         } catch (\Throwable $e) { /* sessizce geç */ }
     }

@@ -71,11 +71,16 @@ class TedarikciController extends Controller
                 'eposta' => trim($_POST['eposta'] ?? ''),
                 'adres' => trim($_POST['adres'] ?? ''),
                 'para_birimi' => trim($_POST['para_birimi'] ?? 'TRY'),
-                'bakiye' => trim($_POST['bakiye'] ?? 0),
+                'bakiye' => trim($_POST['bakiye'] ?? '') !== '' ? (float)str_replace(',', '.', $_POST['bakiye']) : 0,
                 'yetkili_kisi' => trim($_POST['yetkili_kisi'] ?? ''),
                 'notlar' => trim($_POST['notlar'] ?? ''),
                 'sinif_1' => trim($_POST['sinif_1'] ?? '') ?: null,
                 'sinif_2' => trim($_POST['sinif_2'] ?? '') ?: null,
+                'cari_kodu' => trim($_POST['cari_kodu'] ?? '') ?: null,
+                'vergi_muaf' => !empty($_POST['vergi_muaf']) ? 1 : 0,
+                'banka_bilgileri' => trim($_POST['banka_bilgileri'] ?? ''),
+                'vade_gun' => !empty($_POST['vade_gun']) ? (int)$_POST['vade_gun'] : null,
+                'diger_erisim_bilgileri' => trim($_POST['diger_erisim_bilgileri'] ?? ''),
             ];
 
             if (empty($data['unvan'])) {
@@ -209,6 +214,10 @@ class TedarikciController extends Controller
             'para_birimi'   => trim($_POST['para_birimi'] ?? 'TRY'),
             'cari_kodu'     => trim($_POST['cari_kodu'] ?? ''),
             'notlar'        => trim($_POST['notlar'] ?? ''),
+            'vergi_muaf'             => !empty($_POST['vergi_muaf']) ? 1 : 0,
+            'banka_bilgileri'        => trim($_POST['banka_bilgileri'] ?? ''),
+            'vade_gun'               => !empty($_POST['vade_gun']) ? (int)$_POST['vade_gun'] : null,
+            'diger_erisim_bilgileri' => trim($_POST['diger_erisim_bilgileri'] ?? ''),
         ];
 
         if ($veri['unvan'] === '') {

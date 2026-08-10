@@ -390,6 +390,15 @@ $tipLabel = [
         <input type="date" id="giTarih" class="hupd-inp" value="<?= date('Y-m-d') ?>">
       </div>
       <div class="hupd-row">
+        <label>Ödeme Yöntemi <span style="color:#ef4444;">*</span></label>
+        <select id="giOdemeYontemi" class="hupd-inp">
+          <option value="">Seçiniz</option>
+          <?php foreach (['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'] as $oy): ?>
+            <option value="<?= $oy ?>"><?= $oy ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="hupd-row">
         <label>Açıklama</label>
         <input type="text" id="giAciklama" class="hupd-inp" placeholder="Opsiyonel">
       </div>
@@ -418,6 +427,15 @@ $tipLabel = [
       <div class="hupd-row">
         <label>Tarih</label>
         <input type="date" id="ciTarih" class="hupd-inp" value="<?= date('Y-m-d') ?>">
+      </div>
+      <div class="hupd-row">
+        <label>Ödeme Yöntemi <span style="color:#ef4444;">*</span></label>
+        <select id="ciOdemeYontemi" class="hupd-inp">
+          <option value="">Seçiniz</option>
+          <?php foreach (['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'] as $oy): ?>
+            <option value="<?= $oy ?>"><?= $oy ?></option>
+          <?php endforeach; ?>
+        </select>
       </div>
       <div class="hupd-row">
         <label>Açıklama</label>
@@ -551,10 +569,15 @@ function hareketKaydet(tip) {
   const prefix = tip === 'giris' ? 'gi' : 'ci';
   const tutar  = document.getElementById(prefix + 'Tutar').value.replace(',', '.');
   const tarih  = document.getElementById(prefix + 'Tarih').value;
+  const odemeYontemi = document.getElementById(prefix + 'OdemeYontemi').value;
   const acikl  = document.getElementById(prefix + 'Aciklama').value.trim();
 
   if (!tutar || parseFloat(tutar) <= 0) {
     showToast('Geçerli bir tutar giriniz.', 'error');
+    return;
+  }
+  if (!odemeYontemi) {
+    showToast('Ödeme yöntemi seçiniz.', 'error');
     return;
   }
 
@@ -568,6 +591,7 @@ function hareketKaydet(tip) {
   fd.append('islem_tipi', tip);
   fd.append('tutar',      tutar);
   fd.append('tarih',      tarih);
+  fd.append('odeme_yontemi', odemeYontemi);
   fd.append('aciklama',   acikl);
 
   fetch(BASE + '/hesap/hareketKaydet', { method: 'POST', body: fd })

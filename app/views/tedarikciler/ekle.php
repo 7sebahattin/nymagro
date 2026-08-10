@@ -188,7 +188,7 @@
               </label>
               <div class="toggle-row">
                 <label class="toggle-switch">
-                  <input type="checkbox" id="vergiMuaf" />
+                  <input type="checkbox" id="vergiMuaf" name="vergi_muaf" value="1" />
                   <span class="toggle-track"></span>
                 </label>
                 <span class="toggle-label" id="muafLabel">Hayır</span>
@@ -196,7 +196,7 @@
             </div>
             <div class="form-group">
               <label class="form-label">Banka Bilgileri</label>
-              <textarea class="form-textarea" placeholder="tedarikçinizin banka hesap bilgilerini girebilirsiniz" rows="4"></textarea>
+              <textarea name="banka_bilgileri" class="form-textarea" placeholder="tedarikçinizin banka hesap bilgilerini girebilirsiniz" rows="4"></textarea>
             </div>
           </div>
           <!-- Sağ -->
@@ -220,7 +220,7 @@
               </label>
               <div class="input-wrap">
                 <i class="fa-solid fa-calendar-days field-icon"></i>
-                <input type="number" class="form-input" placeholder="0" min="0" />
+                <input type="number" name="vade_gun" class="form-input" placeholder="0" min="0" />
               </div>
             </div>
             <div class="form-group">
@@ -277,7 +277,7 @@
             </div>
             <div class="form-group" style="flex:1;">
               <label class="form-label">Diğer Erişim Bilgileri</label>
-              <textarea class="form-textarea" placeholder="Sabit telefon, faks vb." rows="7"></textarea>
+              <textarea name="diger_erisim_bilgileri" class="form-textarea" placeholder="Sabit telefon, faks vb." rows="7"></textarea>
             </div>
           </div>
         </div>
@@ -329,7 +329,7 @@
               </label>
               <div class="input-wrap">
                 <i class="fa-solid fa-barcode field-icon"></i>
-                <input type="text" class="form-input" placeholder="varsa muhasebe kodu veya barkod girebilirsiniz" />
+                <input type="text" name="cari_kodu" class="form-input" placeholder="varsa muhasebe kodu veya barkod girebilirsiniz" />
               </div>
             </div>
           </div>

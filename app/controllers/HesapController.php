@@ -148,18 +148,23 @@ class HesapController extends Controller
             $kasaId = (int)($_POST['kasa_id'] ?? 0);
             $tutar  = (float)str_replace(',', '.', $_POST['tutar'] ?? 0);
 
+            $odemeYontemleri = ['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'];
+            $odemeYontemi = trim($_POST['odeme_yontemi'] ?? '');
+
             if ($kasaId <= 0) throw new Exception('Geçersiz hesap.');
             if ($tutar <= 0)  throw new Exception('Tutar sıfırdan büyük olmalıdır.');
+            if (!in_array($odemeYontemi, $odemeYontemleri, true)) throw new Exception('Geçerli bir ödeme yöntemi seçiniz.');
 
             $id = $this->model->hareketEkle([
-                'kasa_id'      => $kasaId,
-                'cari_id'      => !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null,
-                'islem_tipi'   => $_POST['islem_tipi']   ?? 'giris',
-                'hareket_tipi' => $_POST['hareket_tipi'] ?? null,
-                'tutar'        => $tutar,
-                'aciklama'     => trim($_POST['aciklama'] ?? ''),
-                'tarih'        => !empty($_POST['tarih']) ? $_POST['tarih'] . ' ' . (date('H:i:s')) : date('Y-m-d H:i:s'),
-                'para_birimi'  => $_POST['para_birimi']  ?? 'TRY',
+                'kasa_id'       => $kasaId,
+                'cari_id'       => !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null,
+                'islem_tipi'    => $_POST['islem_tipi']   ?? 'giris',
+                'hareket_tipi'  => $_POST['hareket_tipi'] ?? null,
+                'odeme_yontemi' => $odemeYontemi,
+                'tutar'         => $tutar,
+                'aciklama'      => trim($_POST['aciklama'] ?? ''),
+                'tarih'         => !empty($_POST['tarih']) ? $_POST['tarih'] . ' ' . (date('H:i:s')) : date('Y-m-d H:i:s'),
+                'para_birimi'   => $_POST['para_birimi']  ?? 'TRY',
             ]);
 
             $hesap = $this->model->getir($kasaId);

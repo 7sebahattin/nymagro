@@ -16,7 +16,7 @@ class RaporController extends Controller
             ['donem' => 'Dönem', 'satis_matrahi' => 'Satış matrahı', 'satis_kdv' => 'Satış KDV', 'alis_matrahi' => 'Alış matrahı', 'alis_kdv' => 'Alış KDV', 'odenecek_kdv' => 'Ödenecek KDV', 'devreden_kdv' => 'Devreden KDV', 'net_durum' => 'Net durum'],
             ['date', 'month_year', 'vat_rate', 'invoice_type']],
         'masraflar' => ['getExpenseReport', 'Masraflar Raporu',
-            ['tarih' => 'Tarih', 'masraf_kategorisi' => 'Masraf kategorisi', 'aciklama' => 'Açıklama', 'tutar' => 'Tutar', 'kdv' => 'KDV', 'toplam' => 'Toplam', 'odeme_yontemi' => 'Ödeme yöntemi', 'kasa_banka' => 'Kasa/Banka', 'belge_no' => 'Belge no', 'kullanici' => 'Kullanıcı'],
+            ['tarih' => 'Tarih', 'masraf_kategorisi' => 'Masraf kategorisi', 'aciklama' => 'Açıklama', 'tutar' => 'Tutar', 'kdv' => 'KDV', 'toplam' => 'Toplam', 'odeme_yontemi' => 'Ödeme durumu', 'kasa_banka' => 'Kasa/Banka', 'belge_no' => 'Belge no', 'kullanici' => 'Kullanıcı'],
             ['date', 'expense_category', 'payment', 'account', 'amount', 'user']],
         'senetler' => ['getPromissoryNotesReport', 'Senetler Raporu',
             ['cek_senet_no' => 'Senet no', 'cari_adi' => 'Cari adı', 'tur' => 'Senet türü', 'duzenleme_tarihi' => 'Düzenleme tarihi', 'vade_tarihi' => 'Vade tarihi', 'tutar' => 'Tutar', 'durum' => 'Durum', 'gecikme_gunu' => 'Gecikme günü', 'aciklama' => 'Açıklama'],

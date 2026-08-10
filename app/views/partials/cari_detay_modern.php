@@ -393,6 +393,24 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
               <label class="form-label">Adres</label>
               <textarea name="adres" class="form-control" rows="2"><?= htmlspecialchars($cari['adres'] ?? '') ?></textarea>
             </div>
+            <?php if (!$isMusteri): ?>
+            <div>
+              <label class="form-label">Vade (gün)</label>
+              <input type="number" name="vade_gun" class="form-control" min="0" value="<?= htmlspecialchars((string)($cari['vade_gun'] ?? '')) ?>">
+            </div>
+            <div class="form-check" style="margin-top:28px;">
+              <input class="form-check-input" type="checkbox" name="vergi_muaf" value="1" id="cdVergiMuaf" <?= !empty($cari['vergi_muaf']) ? 'checked' : '' ?>>
+              <label class="form-check-label" for="cdVergiMuaf">Vergiden Muaf</label>
+            </div>
+            <div class="full">
+              <label class="form-label">Banka Bilgileri</label>
+              <textarea name="banka_bilgileri" class="form-control" rows="2"><?= htmlspecialchars($cari['banka_bilgileri'] ?? '') ?></textarea>
+            </div>
+            <div class="full">
+              <label class="form-label">Diğer Erişim Bilgileri</label>
+              <textarea name="diger_erisim_bilgileri" class="form-control" rows="2"><?= htmlspecialchars($cari['diger_erisim_bilgileri'] ?? '') ?></textarea>
+            </div>
+            <?php endif; ?>
             <div class="full">
               <label class="form-label">Notlar</label>
               <textarea name="notlar" class="form-control" rows="3"><?= htmlspecialchars($cari['notlar'] ?? '') ?></textarea>

@@ -26,6 +26,21 @@ class KasaHesap
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->ensureOdemeYontemiColumn();
+    }
+
+    /** kasa_hareketleri.odeme_yontemi kolonu yoksa ekler (Nakit modeliyle aynı kolon/desen — güvenlik için buradan da garanti edilir). */
+    private function ensureOdemeYontemiColumn(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'kasa_hareketleri' AND COLUMN_NAME = 'odeme_yontemi'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE kasa_hareketleri ADD COLUMN odeme_yontemi VARCHAR(30) NULL DEFAULT NULL AFTER hareket_tipi");
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
     }
 
     private function normalizeHareketTipi(string $islemTipi, ?string $hareketTipi = null, bool $hasCari = false): string
@@ -183,6 +198,7 @@ class KasaHesap
                 'cari_id'       => $cariId,
                 'islem_tipi'    => $islem,
                 'hareket_tipi'  => $hareketTipi,
+                'odeme_yontemi' => $data['odeme_yontemi'] ?? null,
                 'tutar'         => $tutar,
                 'tarih'         => $data['tarih'] ?? date('Y-m-d H:i:s'),
                 'aciklama'      => $data['aciklama'] ?? '',
