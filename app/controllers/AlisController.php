@@ -171,7 +171,8 @@ final class AlisController extends Controller
             'iskonto_tutari_doviz' => $iskontoTutarDoviz,
             'kdv_tutari_doviz'     => $kdvTutarDoviz,
             'genel_toplam_doviz'   => $genelToplamDoviz,
-            'durum'          => 'onaylandi'
+            'durum'          => 'onaylandi',
+            'created_by'     => class_exists('TenantContext') ? TenantContext::userId() : null,
         ];
 
         $this->fatura->ekle($faturaVeri, $kalemler, $depoId);

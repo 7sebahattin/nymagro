@@ -58,6 +58,7 @@ class MasrafController extends Controller
             'sayfa'       => $sayfa,
             'sayfaSay'    => $sayfaSay,
             'limit'       => $limit,
+            'hesaplar'    => $this->hesap->hepsini(),
             'flash'       => $this->getFlash(),
         ]);
     }

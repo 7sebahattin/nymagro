@@ -196,7 +196,7 @@
                   <a href="<?= BASE_URL ?>/alis/detay/<?= $f['id'] ?>?print=1" class="btn-det" style="background:#efa341;"><i class="fa-solid fa-print"></i> Yazdır</a>
                 </div>
                 <div style="font-size:12px; color:var(--muted);">
-                  Kullanıcı: <strong>Sistem</strong>
+                  Kullanıcı: <strong><?= htmlspecialchars($f['olusturan_adi'] ?? 'Sistem') ?></strong>
                 </div>
               </div>
             </td>

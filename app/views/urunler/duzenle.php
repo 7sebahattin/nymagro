@@ -427,10 +427,10 @@ if (!empty($hatalar)) {
               <i class="fa-solid fa-circle-question hi" title="Ürün stok takip yöntemi"></i>
             </label>
             <select name="stok_takibi" class="fselect">
-              <option value="normal">Normal stok takibi</option>
-              <option value="seri">Seri numarasıyla takip</option>
-              <option value="lot">Lot numarasıyla takip</option>
-              <option value="yok">Stok takibi yok</option>
+              <option value="normal" <?= ($eski['stok_takibi'] ?? 'normal') === 'normal' ? 'selected' : '' ?>>Normal stok takibi</option>
+              <option value="seri" <?= ($eski['stok_takibi'] ?? '') === 'seri' ? 'selected' : '' ?>>Seri numarasıyla takip</option>
+              <option value="lot" <?= ($eski['stok_takibi'] ?? '') === 'lot' ? 'selected' : '' ?>>Lot numarasıyla takip</option>
+              <option value="yok" <?= ($eski['stok_takibi'] ?? '') === 'yok' ? 'selected' : '' ?>>Stok takibi yok</option>
             </select>
           </div>
 
@@ -496,14 +496,6 @@ if (!empty($hatalar)) {
           <span>Ana Resim</span>
           <div class="img-main-badge">ANA</div>
         </label>
-        <!-- Ek resim slotları -->
-        <?php for ($s = 1; $s <= 5; $s++): ?>
-        <label class="img-slot">
-          <input type="file" name="resim_ek[]" accept="image/*" />
-          <i class="fa-regular fa-image"></i>
-          <span>Resim <?= $s ?></span>
-        </label>
-        <?php endfor; ?>
       </div>
     </div>
 

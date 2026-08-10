@@ -17,6 +17,7 @@ class Urun
         'alis_para_birimi', 'alis_kdv_orani', 'alis_iskonto',
         'stok_miktari', 'kritik_stok', 'koli_ici_adet', 'kategori', 'marka', 'resim_yolu',
         'company_id', 'eticaret', 'site_urun_id',
+        'stok_takibi', 'fatura_basligi', 'gtip',
     ];
 
     public function __construct()
@@ -47,6 +48,11 @@ class Urun
         // sadece adet bazlı giriş/çıkış. Stok girişi, satış ve alış faturalarında
         // "Koli" seçilince bu değerle çarpılıp adete çevrilir.
         $this->addColumnIfMissing('urunler_hizmetler', 'koli_ici_adet', 'DECIMAL(18,3) NULL DEFAULT NULL AFTER kritik_stok');
+
+        // Diğer Bilgiler formundaki alanlar: stok takibi biçimi, fatura başlığı ve GTİP kodu.
+        $this->addColumnIfMissing('urunler_hizmetler', 'stok_takibi', "VARCHAR(20) NOT NULL DEFAULT 'normal'");
+        $this->addColumnIfMissing('urunler_hizmetler', 'fatura_basligi', 'VARCHAR(255) NULL DEFAULT NULL');
+        $this->addColumnIfMissing('urunler_hizmetler', 'gtip', 'VARCHAR(20) NULL DEFAULT NULL');
     }
 
     private function addColumnIfMissing(string $table, string $column, string $definition): void

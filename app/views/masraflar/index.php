@@ -737,7 +737,7 @@ document.querySelectorAll('.submenu').forEach(sub => {
 (function loadHesaplar() {
   const hesaplar = <?= json_encode(
       array_map(fn($h) => ['id' => $h['id'], 'ad' => $h['hesap_adi'] . ' (' . number_format($h['guncel_bakiye'], 2, ',', '.') . ' ' . $h['para_birimi'] . ')'],
-      (new KasaHesap())->hepsini())
+      $hesaplar ?? [])
   , JSON_UNESCAPED_UNICODE) ?>;
 
   const sel = document.getElementById('odemeKasa');

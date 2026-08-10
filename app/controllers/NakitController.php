@@ -34,12 +34,17 @@ final class NakitController extends Controller
                 throw new Exception('Geçerli bir ödeme yöntemi seçiniz.');
             }
 
+            $kasaId = (int)($_POST['kasa_id'] ?? 0);
+            if ($kasaId <= 0) {
+                throw new Exception('Kasa/Hesap seçimi zorunludur.');
+            }
+
             $tarihGiris = trim($_POST['tarih'] ?? '') ?: date('Y-m-d');
             $saatGiris  = trim($_POST['saat'] ?? '') ?: date('H:i');
             $tarihTs = strtotime($tarihGiris . ' ' . $saatGiris);
 
             $data = [
-                'kasa_id'       => (int)($_POST['kasa_id'] ?? 1),
+                'kasa_id'       => $kasaId,
                 'cari_id'       => !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null,
                 'islem_tipi'    => $_POST['islem_tipi'], // 'giris' (tahsilat) | 'cikis' (ödeme)
                 'odeme_yontemi' => $odemeYontemi,

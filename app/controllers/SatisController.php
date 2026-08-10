@@ -452,6 +452,7 @@ final class SatisController extends Controller
             'durum'          => $durum === 'taslak' ? 'taslak' : 'onaylandi',
             'odeme_sekli'    => $odemeSekli ?: null,
             'aciklama'       => $aciklama   ?: null,
+            'created_by'     => class_exists('TenantContext') ? TenantContext::userId() : null,
         ];
 
         $depoId = !empty($_POST['depo_id']) ? (int)$_POST['depo_id'] : 1;
@@ -513,6 +514,7 @@ final class SatisController extends Controller
             'para_birimi'    => 'TRY',
             'durum'          => 'onaylandi',
             'aciklama'       => $data['aciklama'] ?? 'Perakende Satış',
+            'created_by'     => class_exists('TenantContext') ? TenantContext::userId() : null,
         ];
 
         $depoId = !empty($data['depo_id']) ? (int)$data['depo_id'] : 1;

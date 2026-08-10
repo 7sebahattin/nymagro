@@ -299,6 +299,9 @@ final class UrunController extends Controller
             'aciklama'     => trim($_POST['aciklama'] ?? '') ?: null,
             'resim_yolu'   => $resimYolu,
             'eticaret'     => $eticaret,
+            'stok_takibi'    => in_array($_POST['stok_takibi'] ?? '', ['normal', 'seri', 'lot', 'yok'], true) ? $_POST['stok_takibi'] : 'normal',
+            'fatura_basligi' => trim($_POST['fatura_basligi'] ?? '') ?: null,
+            'gtip'           => trim($_POST['gtip'] ?? '') ?: null,
         ];
 
         $id = $this->urun->ekle($veri);
@@ -519,6 +522,9 @@ final class UrunController extends Controller
             'marka'        => trim($_POST['marka'] ?? '') ?: null,
             'aciklama'     => trim($_POST['aciklama'] ?? '') ?: null,
             'eticaret'     => $eticaret,
+            'stok_takibi'    => in_array($_POST['stok_takibi'] ?? '', ['normal', 'seri', 'lot', 'yok'], true) ? $_POST['stok_takibi'] : 'normal',
+            'fatura_basligi' => trim($_POST['fatura_basligi'] ?? '') ?: null,
+            'gtip'           => trim($_POST['gtip'] ?? '') ?: null,
         ];
         if ($resimYolu !== null) {
             $veri['resim_yolu'] = $resimYolu;

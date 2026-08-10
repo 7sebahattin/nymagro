@@ -20,6 +20,7 @@ class Fatura
         'odenen_tutar', 'kalan_tutar', 'para_birimi', 'kur',
         'ara_toplam_doviz', 'iskonto_tutari_doviz', 'kdv_tutari_doviz', 'genel_toplam_doviz',
         'durum', 'odeme_sekli', 'aciklama', 'company_id', 'period_id', 'depo_id',
+        'created_by',
     ];
 
     private array $kalemFillable = [
@@ -33,6 +34,27 @@ class Fatura
         $this->db = Database::getInstance();
         $this->ensureDepoIdColumn();
         $this->ensureDovizColumns();
+        $this->ensureCreatedByColumn();
+    }
+
+    /**
+     * faturalar.created_by yoksa ekler (fatura listelerinde "Kullanıcı: Sistem"
+     * her zaman sabit metin gösteriliyordu — gerçek oluşturan kullanıcı hiç
+     * saklanmıyordu). Idempotent: yalnızca eksikse ALTER atar.
+     */
+    private function ensureCreatedByColumn(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = 'created_by'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE faturalar ADD COLUMN created_by INT UNSIGNED NULL");
+            }
+        } catch (\Throwable $e) {
+            // Sessizce geç — tablo henüz yoksa veya yetki yoksa uygulamayı kilitleme.
+        }
     }
 
     /**
@@ -99,9 +121,10 @@ class Fatura
     ): array {
         [$where, $params] = $this->buildWhere($belge_tipi, $arama, $durum, $donem, $iptalleri);
 
-        $sql = "SELECT f.*, c.unvan AS cari_unvan
+        $sql = "SELECT f.*, c.unvan AS cari_unvan, u.full_name AS olusturan_adi
                 FROM faturalar f
                 LEFT JOIN cariler c ON c.id = f.cari_id
+                LEFT JOIN users u ON u.id = f.created_by
                 WHERE {$where}
                 ORDER BY f.fatura_tarihi DESC, f.id DESC
                 LIMIT :limit OFFSET :offset";
