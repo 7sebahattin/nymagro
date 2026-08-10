@@ -206,6 +206,17 @@ final class Database
         return true;
     }
 
+    /**
+     * Şu an açık bir transaction var mı? DDL (ALTER TABLE/CREATE TABLE)
+     * çalıştırmadan önce kontrol edilmeli — MySQL/MariaDB DDL'de örtük
+     * commit yapar, bu da transactionDepth sayacını dış transaction'dan
+     * habersiz bırakıp sonraki rollBack()'i etkisiz/tutarsız kılar.
+     */
+    public function inTransaction(): bool
+    {
+        return $this->transactionDepth > 0;
+    }
+
     public function commit(): bool
     {
         if ($this->transactionDepth <= 0) {

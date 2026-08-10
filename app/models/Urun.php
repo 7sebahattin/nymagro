@@ -23,8 +23,12 @@ class Urun
     public function __construct()
     {
         $this->db = Database::getInstance();
-        $this->ensureSyncColumns();
-        $this->ensurePerformansIndeksi();
+        // DDL örtük commit yapar — açık transaction içindeyken çalıştırma
+        // (bkz. Fatura::__construct() üzerindeki açıklama).
+        if (!$this->db->inTransaction()) {
+            $this->ensureSyncColumns();
+            $this->ensurePerformansIndeksi();
+        }
     }
 
     /**
@@ -157,7 +161,20 @@ class Urun
     public function sil(int $id): int
     {
         $urun = $this->getir($id);
-        if ($urun && (float)($urun['stok_miktari'] ?? 0) > 0) {
+        // stokHareketiEkle() sıfır tabanı zorlamıyor (negatif stoğa
+        // düşebilir) — bu yüzden yalnızca >0 değil, herhangi bir sıfırdan
+        // farklı (pozitif veya negatif) miktar engellenmeli.
+        if ($urun && abs((float)($urun['stok_miktari'] ?? 0)) > 0.0001) {
+            throw new RuntimeException('Stokta miktarı olan ürün silinemez. Önce stoğu sıfırlayın.');
+        }
+        // Genel toplam sıfır görünse bile depo bazlı satırlarda (depo_id
+        // verilmeden yapılan hareketler yüzünden) sıfırdan farklı miktar
+        // kalmış olabilir — onu da kontrol et.
+        $depoStok = $this->db->selectOne(
+            "SELECT SUM(ABS(miktar)) AS toplam FROM urun_stok_depo WHERE urun_id = :id AND company_id = :cid",
+            [':id' => $id, ':cid' => TenantContext::activeCompanyId()]
+        );
+        if ($depoStok && (float)($depoStok['toplam'] ?? 0) > 0.0001) {
             throw new RuntimeException('Stokta miktarı olan ürün silinemez. Önce stoğu sıfırlayın.');
         }
         return $this->db->softDelete('urunler_hizmetler', $id);

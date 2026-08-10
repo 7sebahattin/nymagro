@@ -32,10 +32,20 @@ class Fatura
     public function __construct()
     {
         $this->db = Database::getInstance();
-        $this->ensureDepoIdColumn();
-        $this->ensureDovizColumns();
-        $this->ensureCreatedByColumn();
-        $this->ensurePerformansIndexleri();
+        // DDL (ALTER TABLE) MySQL/MariaDB'de örtük commit yapar — açık bir
+        // transaction içindeyken çalıştırılırsa dış transaction'ı erken/
+        // sessizce commit eder ve sonraki rollBack() tutarsız kalır (örn.
+        // Nakit::hareketEkle() kendi transaction'ı içinde
+        // recomputeCariBalance() için new Fatura() oluşturuyor). Bu yüzden
+        // idempotent şema migrasyonları yalnızca hiçbir transaction açık
+        // değilken çalıştırılır; aksi halde bir sonraki transaction-dışı
+        // çağrıda tekrar denenir.
+        if (!$this->db->inTransaction()) {
+            $this->ensureDepoIdColumn();
+            $this->ensureDovizColumns();
+            $this->ensureCreatedByColumn();
+            $this->ensurePerformansIndexleri();
+        }
     }
 
     /**

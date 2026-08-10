@@ -10,8 +10,12 @@ class Nakit
     public function __construct()
     {
         $this->db = Database::getInstance();
-        $this->ensureOdemeYontemiColumn();
-        $this->ensurePerformansIndexleri();
+        // DDL örtük commit yapar — açık transaction içindeyken çalıştırma
+        // (bkz. Fatura::__construct() üzerindeki açıklama).
+        if (!$this->db->inTransaction()) {
+            $this->ensureOdemeYontemiColumn();
+            $this->ensurePerformansIndexleri();
+        }
     }
 
     /**

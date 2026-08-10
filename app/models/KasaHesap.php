@@ -26,8 +26,12 @@ class KasaHesap
     public function __construct()
     {
         $this->db = Database::getInstance();
-        $this->ensureOdemeYontemiColumn();
-        $this->ensurePerformansIndexleri();
+        // DDL örtük commit yapar — açık transaction içindeyken çalıştırma
+        // (bkz. Fatura::__construct() üzerindeki açıklama).
+        if (!$this->db->inTransaction()) {
+            $this->ensureOdemeYontemiColumn();
+            $this->ensurePerformansIndexleri();
+        }
     }
 
     /** kasa_hareketleri.odeme_yontemi kolonu yoksa ekler (Nakit modeliyle aynı kolon/desen — güvenlik için buradan da garanti edilir). */
