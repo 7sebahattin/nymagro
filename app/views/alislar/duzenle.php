@@ -91,7 +91,9 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
       <div class="fg">
         <label>Depo</label>
         <select name="depo_id" class="fi">
-          <option value="1">Ana Depo</option>
+          <?php foreach (($depolar ?? []) as $d): ?>
+            <option value="<?= (int)$d['id'] ?>" <?= (int)($eski['depo_id'] ?? 1) === (int)$d['id'] ? 'selected' : '' ?>><?= htmlspecialchars($d['ad']) ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
 

@@ -5,17 +5,20 @@
  */
 
 require_once MODELS_PATH . '/Fatura.php';
+require_once MODELS_PATH . '/Depo.php';
 
 final class AlisController extends Controller
 {
     private Fatura $fatura;
     private $cariModel;
+    private Depo $depoModel;
 
     public function __construct()
     {
         $this->fatura = new Fatura();
         require_once MODELS_PATH . '/Cari.php';
         $this->cariModel = new Cari();
+        $this->depoModel = new Depo();
     }
 
     public function index(): void
@@ -64,6 +67,7 @@ final class AlisController extends Controller
             'eski'        => [],
             'cari'        => $cari,
             'tedarikciAdi' => $tedarikciAdi,
+            'depolar'     => $this->depoModel->listele(),
             'topbarTitle' => 'Yeni Alış Faturası',
             'topbarIcon'  => 'fa-solid fa-truck',
             'activeMenu'  => 'alislar'
@@ -128,6 +132,7 @@ final class AlisController extends Controller
                 'bugun'    => date('d.m.Y'),
                 'hatalar'  => $hatalar,
                 'eski'     => $_POST,
+                'depolar'  => $this->depoModel->listele(),
                 'activeMenu' => 'alislar'
             ]);
             return;
@@ -200,6 +205,7 @@ final class AlisController extends Controller
             'hatalar'     => [],
             'eski'        => $eski,
             'cari'        => $cari,
+            'depolar'     => $this->depoModel->listele(),
             'topbarTitle' => 'Alış Faturası Düzenle — ' . $f['fatura_no'],
             'topbarIcon'  => 'fa-solid fa-truck',
             'activeMenu'  => 'alislar'
@@ -273,6 +279,7 @@ final class AlisController extends Controller
                 'hatalar'     => $hatalar,
                 'eski'        => $_POST,
                 'cari'        => $cariId ? $this->cariModel->getir($cariId) : null,
+                'depolar'     => $this->depoModel->listele(),
                 'topbarTitle' => 'Alış Faturası Düzenle — ' . $mevcut['fatura_no'],
                 'topbarIcon'  => 'fa-solid fa-truck',
                 'activeMenu'  => 'alislar'

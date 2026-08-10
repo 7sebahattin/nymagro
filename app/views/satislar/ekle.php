@@ -201,7 +201,9 @@ $err = function(string $k) use ($hatalar): string {
         <label>Depo</label>
         <div class="fg-inp-wrap">
           <select name="depo_id" class="fi">
-             <option value="1">Ana Depo</option>
+            <?php foreach (($depolar ?? []) as $d): ?>
+              <option value="<?= (int)$d['id'] ?>" <?= (int)($eski['depo_id'] ?? 1) === (int)$d['id'] ? 'selected' : '' ?>><?= htmlspecialchars($d['ad']) ?></option>
+            <?php endforeach; ?>
           </select>
         </div>
       </div>

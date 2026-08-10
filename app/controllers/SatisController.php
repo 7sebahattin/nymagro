@@ -14,17 +14,20 @@
  */
 
 require_once MODELS_PATH . '/Fatura.php';
+require_once MODELS_PATH . '/Depo.php';
 
 final class SatisController extends Controller
 {
     private Fatura $fatura;
 
     private $cariModel;
+    private Depo $depoModel;
     public function __construct()
     {
         $this->fatura = new Fatura();
         require_once MODELS_PATH . '/Cari.php';
         $this->cariModel = new Cari();
+        $this->depoModel = new Depo();
     }
 
     // ─── index ──────────────────────────────────────────────────────────
@@ -82,6 +85,7 @@ final class SatisController extends Controller
             'hatalar'     => [],
             'eski'        => [],
             'cari'        => $cari,
+            'depolar'     => $this->depoModel->listele(),
             'topbarTitle' => 'Yeni Satış Faturası',
             'topbarIcon'  => 'fa-file-invoice-dollar',
         ]);
@@ -111,6 +115,7 @@ final class SatisController extends Controller
             'hatalar'     => [],
             'eski'        => $eski,
             'cari'        => $cari,
+            'depolar'     => $this->depoModel->listele(),
             'topbarTitle' => 'Fatura Düzenle — ' . $f['fatura_no'],
             'topbarIcon'  => 'fa-file-invoice-dollar',
         ]);
@@ -207,6 +212,7 @@ final class SatisController extends Controller
                 'hatalar'     => $hatalar,
                 'eski'        => $eski,
                 'cari'        => $cariId ? $this->cariModel->getir($cariId) : null,
+                'depolar'     => $this->depoModel->listele(),
                 'topbarTitle' => 'Fatura Düzenle — ' . $mevcut['fatura_no'],
                 'topbarIcon'  => 'fa-file-invoice-dollar',
             ]);
@@ -386,6 +392,7 @@ final class SatisController extends Controller
                 'bugun'       => date('d.m.Y'),
                 'hatalar'     => $hatalar,
                 'eski'        => $eski,
+                'depolar'     => $this->depoModel->listele(),
                 'topbarTitle' => 'Yeni Satış Faturası',
                 'topbarIcon'  => 'fa-file-invoice-dollar',
             ]);
