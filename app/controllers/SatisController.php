@@ -15,6 +15,8 @@
 
 require_once MODELS_PATH . '/Fatura.php';
 require_once MODELS_PATH . '/Depo.php';
+require_once MODELS_PATH . '/KasaHesap.php';
+require_once MODELS_PATH . '/Nakit.php';
 
 final class SatisController extends Controller
 {
@@ -22,12 +24,16 @@ final class SatisController extends Controller
 
     private $cariModel;
     private Depo $depoModel;
+    private KasaHesap $kasaHesapModel;
+    private Nakit $nakitModel;
     public function __construct()
     {
         $this->fatura = new Fatura();
         require_once MODELS_PATH . '/Cari.php';
         $this->cariModel = new Cari();
         $this->depoModel = new Depo();
+        $this->kasaHesapModel = new KasaHesap();
+        $this->nakitModel = new Nakit();
     }
 
     // ─── index ──────────────────────────────────────────────────────────
@@ -459,11 +465,13 @@ final class SatisController extends Controller
     public function perakende(): void
     {
         $this->view('satislar/perakende', [
-            'bugun'       => date('Y-m-d'),
-            'simdi'       => date('H:i'),
-            'topbarTitle' => 'Perakende Satış Gir',
-            'topbarIcon'  => 'fa-cash-register',
-            'faturaNo'    => $this->fatura->faturaNoUret('perakende'),
+            'bugun'        => date('Y-m-d'),
+            'simdi'        => date('H:i'),
+            'topbarTitle'  => 'Perakende Satış Gir',
+            'topbarIcon'   => 'fa-cash-register',
+            'faturaNo'     => $this->fatura->faturaNoUret('perakende'),
+            'kasaHesaplar' => $this->kasaHesapModel->hepsini(),
+            'depolar'      => $this->depoModel->listele(),
         ]);
     }
 
@@ -493,6 +501,7 @@ final class SatisController extends Controller
         }
 
         $faturaNo = $this->fatura->faturaNoUret('perakende');
+        $genelToplam = (float)$data['genelToplam'];
         $faturaVeri = [
             'belge_tipi'     => 'perakende',
             'fatura_no'      => $faturaNo,
@@ -500,14 +509,29 @@ final class SatisController extends Controller
             'fatura_tarihi'  => $data['tarih'],
             'ara_toplam'     => (float)$data['araToplam'],
             'kdv_tutari'     => (float)$data['kdvToplam'],
-            'genel_toplam'   => (float)$data['genelToplam'],
+            'genel_toplam'   => $genelToplam,
             'para_birimi'    => 'TRY',
             'durum'          => 'onaylandi',
             'aciklama'       => $data['aciklama'] ?? 'Perakende Satış',
         ];
 
+        $depoId = !empty($data['depo_id']) ? (int)$data['depo_id'] : 1;
+        $kasaId = !empty($data['kasa_id']) ? (int)$data['kasa_id'] : null;
+
         try {
-            $this->fatura->ekle($faturaVeri, $kalemler, 1);
+            $this->fatura->ekle($faturaVeri, $kalemler, $depoId);
+
+            if ($kasaId && $genelToplam > 0) {
+                $this->nakitModel->hareketEkle([
+                    'kasa_id'  => $kasaId,
+                    'cari_id'  => null,
+                    'islem_tipi' => 'giris',
+                    'tutar'    => $genelToplam,
+                    'tarih'    => trim(($data['tarih'] ?? date('Y-m-d')) . ' ' . ($data['saat'] ?? date('H:i')) . ':00'),
+                    'aciklama' => 'Perakende Satış #' . $faturaNo,
+                ]);
+            }
+
             echo json_encode(['status' => 'success', 'message' => 'Satış kaydedildi.', 'fatura_no' => $faturaNo]);
         } catch (\Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);

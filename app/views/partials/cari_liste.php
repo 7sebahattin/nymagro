@@ -132,10 +132,6 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
         <option value="1" <?= $aktifMi === '1' ? 'selected' : '' ?>>Aktif <?= $h($cfg['entityPlural']) ?></option>
         <option value="0" <?= $aktifMi === '0' ? 'selected' : '' ?>>Pasif <?= $h($cfg['entityPlural']) ?></option>
       </select>
-      <select name="eticaret" class="cari-filter-select" onchange="document.getElementById('filterForm').submit()">
-        <option value="" <?= $eticaretMi === '' ? 'selected' : '' ?>>Tüm Tipler</option>
-        <option value="1" <?= $eticaretMi === '1' ? 'selected' : '' ?>>Entegrasyonlu</option>
-      </select>
       <select name="bakiyeli" class="cari-filter-select" onchange="document.getElementById('filterForm').submit()">
         <option value="" <?= !$sadeceBakiyeli ? 'selected' : '' ?>>Hepsini Göster</option>
         <option value="1" <?= $sadeceBakiyeli ? 'selected' : '' ?>>Bakiyesi Olanlar (&gt; 0)</option>
@@ -181,8 +177,7 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
               <?php
               $acikBakiye = (float)($item['acik_bakiye'] ?? $item['bakiye'] ?? 0);
               $cekSenet = (float)($item['cek_senet_bakiye'] ?? 0);
-              $isAktif = (int)($item['aktif_mi'] ?? 1) === 1;
-              $isEticaret = (int)($item['eticaret_mi'] ?? 0) === 1;
+              $isAktif = (int)($item['silindi_mi'] ?? 0) === 0;
               $telefon = $item['telefon'] ?: ($item['cep_telefon'] ?? '—');
               ?>
               <tr>
@@ -209,7 +204,6 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
                 </td>
                 <td class="td-center">
                   <span class="<?= $isAktif ? 'cari-badge-active' : 'cari-badge-passive' ?>"><?= $isAktif ? 'Aktif' : 'Pasif' ?></span>
-                  <?php if ($isEticaret): ?><span class="cari-badge-extra">Entegre</span><?php endif; ?>
                 </td>
                 <td class="td-right" style="color:var(--muted);font-size:13px"><?= $h($telefon ?: '—') ?></td>
                 <td class="td-right">

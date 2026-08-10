@@ -33,6 +33,33 @@ class Cari
         $this->db = Database::getInstance();
         $this->ensureSiniflandirmaColumns();
         $this->ensureResimYoluColumn();
+        $this->ensureCekSenetTable();
+    }
+
+    /** cek_senet_portfoyu tablosu yoksa oluşturur (NakitModul ile aynı şema — portföy hiç açılmamış olabilir). */
+    private function ensureCekSenetTable(): void
+    {
+        try {
+            $this->db->query("CREATE TABLE IF NOT EXISTS cek_senet_portfoyu (
+                id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                company_id INT UNSIGNED NULL,
+                period_id INT UNSIGNED NULL,
+                tip ENUM('cek','senet') NOT NULL,
+                belge_no VARCHAR(80) NOT NULL,
+                cari_id INT UNSIGNED NULL,
+                vade_tarihi DATE NOT NULL,
+                tutar DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+                durum ENUM('bekliyor','tahsil','odendi','ciro','iade','kapandi') NOT NULL DEFAULT 'bekliyor',
+                aciklama TEXT NULL,
+                silindi_mi TINYINT(1) NOT NULL DEFAULT 0,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY idx_cek_senet_tenant (company_id, period_id),
+                KEY idx_cek_senet_vade (vade_tarihi),
+                KEY idx_cek_senet_tip (tip)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_turkish_ci");
+        } catch (\Throwable $e) { /* sessizce geç */ }
     }
 
     /** cariler.sinif_1/sinif_2 yoksa ekler (müşteri/tedarikçi sınıflandırma). */
@@ -144,12 +171,17 @@ class Cari
         $sql = "SELECT
                     c.id, c.unvan, c.telefon, c.cep_telefon,
                     c.bakiye, c.para_birimi, c.vergi_no, c.eposta,
-                    c.olusturulma_tarihi,
+                    c.olusturulma_tarihi, c.silindi_mi,
                     -- Anlık açık bakiye: (Satışlar + Ödemeler) - (Alışlar + Tahsilatlar)
                     -- Veya daha basit: (Borç İşlemleri - Alacak İşlemleri)
                     ({$balanceSql}) AS acik_bakiye,
-                    -- Portföyde bekleyen çek/senet toplamı (tablo henüz oluşturulmadı)
-                    0 AS cek_senet_bakiye
+                    -- Portföyde bekleyen (durum='bekliyor') çek+senet toplamı
+                    COALESCE((
+                        SELECT SUM(csp.tutar) FROM cek_senet_portfoyu csp
+                        WHERE csp.cari_id = c.id AND csp.silindi_mi = 0
+                          AND csp.durum = 'bekliyor'
+                          AND csp.company_id = :tenant_company_id
+                    ), 0) AS cek_senet_bakiye
                 FROM cariler c
                 WHERE {$where}
                 ORDER BY c.unvan ASC
@@ -185,7 +217,6 @@ class Cari
             "SELECT
                  COUNT(*) AS toplam_kayit,
                  SUM(CASE WHEN silindi_mi = 0 THEN 1 ELSE 0 END) AS aktif_sayisi,
-                 0 AS eticaret_sayisi,
                  SUM(CASE WHEN bakiye > 0 THEN 1 ELSE 0 END) AS borclu_sayisi,
                  COALESCE(SUM(bakiye), 0) AS toplam_bakiye
              FROM cariler
@@ -205,6 +236,26 @@ class Cari
             "SELECT * FROM cariler WHERE id = :id AND silindi_mi = 0 AND company_id = :cid",
             [':id' => $id, ':cid' => TenantContext::activeCompanyId()]
         );
+    }
+
+    /** Cari kartında ayrı gösterilecek bekleyen çek/senet bakiyeleri. */
+    public function cekSenetBakiyeAyrik(int $cariId): array
+    {
+        $rows = $this->db->select(
+            "SELECT tip, COALESCE(SUM(tutar), 0) AS toplam
+             FROM cek_senet_portfoyu
+             WHERE cari_id = :cid AND silindi_mi = 0 AND durum = 'bekliyor'
+               AND company_id = :company_id
+             GROUP BY tip",
+            [':cid' => $cariId, ':company_id' => TenantContext::activeCompanyId()]
+        );
+        $sonuc = ['cek' => 0.0, 'senet' => 0.0];
+        foreach ($rows as $row) {
+            if (isset($sonuc[$row['tip']])) {
+                $sonuc[$row['tip']] = (float)$row['toplam'];
+            }
+        }
+        return $sonuc;
     }
 
     // ──────────────────────────────────────────────────────
@@ -511,7 +562,8 @@ class Cari
             $params[':arama3'] = $like;
         }
 
-        // aktif_mi ve eticaret_mi sütunları henüz tabloda yok, filtre devre dışı
+        // Not: aktif/pasif filtresi c.silindi_mi üzerinden yukarıda uygulanıyor.
+        // eticaret_mi için karşılığı olan bir kolon/kavram yok, bu yüzden filtre uygulanmıyor.
 
         // Sadece bakiyesi olanlar (correlated subquery — index ile hızlı çalışır)
         if ($sadeceBakiyeli) {

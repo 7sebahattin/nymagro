@@ -95,8 +95,18 @@
             <div class="fg">
                 <label>Kasa / Hesap</label>
                 <select id="kasa_id" class="fi">
-                    <option value="1">Merkez Kasa</option>
-                    <option value="2">Banka Hesabı</option>
+                    <?php foreach (($kasaHesaplar ?? []) as $kh): ?>
+                        <option value="<?= (int)$kh['id'] ?>"><?= htmlspecialchars($kh['hesap_adi'] . ' (' . $kh['para_birimi'] . ')') ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="fg">
+                <label>Depo</label>
+                <select id="depo_id" class="fi">
+                    <?php foreach (($depolar ?? []) as $d): ?>
+                        <option value="<?= (int)$d['id'] ?>"><?= htmlspecialchars($d['ad']) ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
@@ -292,6 +302,7 @@
             tarih: document.getElementById('tarih').value,
             saat: document.getElementById('saat').value,
             kasa_id: document.getElementById('kasa_id').value,
+            depo_id: document.getElementById('depo_id').value,
             aciklama: document.getElementById('aciklama').value,
             sepet: sepet,
             araToplam: ara,

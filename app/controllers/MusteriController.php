@@ -89,6 +89,7 @@ final class MusteriController extends Controller
         $satisGecmisi = $this->cariModel->satisGecmisi((int)$id);
         $odemeGecmisi = $this->cariModel->odemeGecmisi((int)$id);
         $kasaHesaplar = $this->model('KasaHesap')->hepsini();
+        $cekSenetBakiye = $this->cariModel->cekSenetBakiyeAyrik((int)$id);
 
         $this->view('musteriler/detay', [
             'pageTitle'   => 'Müşteri Detayları',
@@ -99,6 +100,8 @@ final class MusteriController extends Controller
             'satisGecmisi'=> $satisGecmisi,
             'odemeGecmisi'=> $odemeGecmisi,
             'kasaHesaplar'=> $kasaHesaplar,
+            'cekBakiye'   => $cekSenetBakiye['cek'],
+            'senetBakiye' => $cekSenetBakiye['senet'],
             'flash'       => $this->getFlash(),
         ]);
     }

@@ -193,14 +193,14 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
       <div class="cd-stat-icon"><i class="fa-solid fa-tag"></i></div>
       <div class="cd-stat-body">
         <div class="cd-stat-title">Çek Bakiyesi</div>
-        <div class="cd-stat-value">TL 0,00</div>
+        <div class="cd-stat-value"><?= $fmtMoney($cekBakiye ?? 0) ?></div>
       </div>
     </div>
     <div class="cd-stat cd-blue">
       <div class="cd-stat-icon"><i class="fa-solid fa-tag"></i></div>
       <div class="cd-stat-body">
         <div class="cd-stat-title">Senet Bakiyesi</div>
-        <div class="cd-stat-value">TL 0,00</div>
+        <div class="cd-stat-value"><?= $fmtMoney($senetBakiye ?? 0) ?></div>
       </div>
     </div>
     <div class="cd-stat <?= $isMusteri ? 'cd-green' : 'cd-teal' ?>">

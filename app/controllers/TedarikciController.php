@@ -166,6 +166,7 @@ class TedarikciController extends Controller
         $alisGecmisi = $this->cariModel->alisGecmisi((int)$id);
         $odemeGecmisi = $this->cariModel->odemeGecmisi((int)$id);
         $kasaHesaplar = $this->model('KasaHesap')->hepsini();
+        $cekSenetBakiye = $this->cariModel->cekSenetBakiyeAyrik((int)$id);
 
         $this->view('tedarikciler/detay', [
             'pageTitle'    => 'Tedarikçi Detayı',
@@ -176,6 +177,8 @@ class TedarikciController extends Controller
             'alisGecmisi'  => $alisGecmisi,
             'odemeGecmisi' => $odemeGecmisi,
             'kasaHesaplar' => $kasaHesaplar,
+            'cekBakiye'    => $cekSenetBakiye['cek'],
+            'senetBakiye'  => $cekSenetBakiye['senet'],
             'flash'        => $this->getFlash(),
         ]);
     }
