@@ -24,6 +24,25 @@ class Urun
     {
         $this->db = Database::getInstance();
         $this->ensureSyncColumns();
+        $this->ensurePerformansIndeksi();
+    }
+
+    /**
+     * stok_hareketleri.urun_id hiç index'lenmemişti — ürün detayındaki
+     * satış/alış/stok geçmişi ve rapordaki stok hareket sorguları tam tablo
+     * taraması yapıyordu. Idempotent: yalnızca eksikse ALTER atar.
+     */
+    private function ensurePerformansIndeksi(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stok_hareketleri' AND INDEX_NAME = 'idx_sh_urun'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE stok_hareketleri ADD INDEX idx_sh_urun (urun_id, company_id, period_id)");
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
     }
 
     /** Panel ürünü ↔ site_urunler senkronu için gereken kolonlar (idempotent). */

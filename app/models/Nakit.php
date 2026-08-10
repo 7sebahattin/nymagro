@@ -11,6 +11,7 @@ class Nakit
     {
         $this->db = Database::getInstance();
         $this->ensureOdemeYontemiColumn();
+        $this->ensurePerformansIndexleri();
     }
 
     /**
@@ -25,6 +26,31 @@ class Nakit
             );
             if (!$var) {
                 $this->db->query("ALTER TABLE kasa_hareketleri ADD COLUMN odeme_yontemi VARCHAR(30) NULL DEFAULT NULL AFTER hareket_tipi");
+            }
+        } catch (\Throwable $e) { /* sessizce geç */ }
+    }
+
+    /**
+     * kasa_hareketleri.cari_id/kasa_id hiç index'lenmemişti — cari ekstresi,
+     * kasa hesap ekstresi ve recomputeCariBalance() tam tablo taraması
+     * yapıyordu. Idempotent: yalnızca eksikse ALTER atar.
+     */
+    private function ensurePerformansIndexleri(): void
+    {
+        try {
+            $var = $this->db->selectOne(
+                "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'kasa_hareketleri' AND INDEX_NAME = 'idx_kh_cari'"
+            );
+            if (!$var) {
+                $this->db->query("ALTER TABLE kasa_hareketleri ADD INDEX idx_kh_cari (cari_id, company_id, period_id)");
+            }
+            $var2 = $this->db->selectOne(
+                "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'kasa_hareketleri' AND INDEX_NAME = 'idx_kh_kasa'"
+            );
+            if (!$var2) {
+                $this->db->query("ALTER TABLE kasa_hareketleri ADD INDEX idx_kh_kasa (kasa_id, company_id, period_id)");
             }
         } catch (\Throwable $e) { /* sessizce geç */ }
     }
