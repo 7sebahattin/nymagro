@@ -695,8 +695,12 @@ final class UrunController extends Controller
                 }
             }
 
-            $this->urun->sil($id);
-            $this->setFlash('success', '"' . htmlspecialchars($kayit['ad']) . '" silindi.');
+            try {
+                $this->urun->sil($id);
+                $this->setFlash('success', '"' . htmlspecialchars($kayit['ad']) . '" silindi.');
+            } catch (RuntimeException $e) {
+                $this->setFlash('error', $e->getMessage());
+            }
         } else {
             $this->setFlash('error', 'Kayıt bulunamadı.');
         }

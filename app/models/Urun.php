@@ -148,9 +148,18 @@ class Urun
         return $this->db->update('urunler_hizmetler', $temiz, ['id' => $id]);
     }
 
-    /** Soft-delete. */
+    /**
+     * Soft-delete. Depo::sil()'deki desenle tutarlı: stokta hâlâ miktarı olan
+     * ürün silinemez — aksi halde ürün depo stok durumu/depo değeri
+     * raporlarından sessizce kaybolurken stok_miktari ve urun_stok_depo
+     * satırları değişmeden kalır (envanter değeri raporu eksik gösterir).
+     */
     public function sil(int $id): int
     {
+        $urun = $this->getir($id);
+        if ($urun && (float)($urun['stok_miktari'] ?? 0) > 0) {
+            throw new RuntimeException('Stokta miktarı olan ürün silinemez. Önce stoğu sıfırlayın.');
+        }
         return $this->db->softDelete('urunler_hizmetler', $id);
     }
 
