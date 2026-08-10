@@ -504,26 +504,40 @@ class GelenEFatura
 
     public function odemeEkle(int $invoiceId, array $data, ?int $userId = null): void
     {
-        $invoice = $this->detay($invoiceId);
-        if (!$invoice) {
-            throw new RuntimeException('Fatura bulunamadı.');
-        }
-
         $tutarTl = $this->money($data['odeme_tutari_tl'] ?? 0);
         if ($tutarTl <= 0) {
             throw new InvalidArgumentException('Ödeme tutarı sıfırdan büyük olmalıdır.');
         }
-        if ($tutarTl > (float)$invoice['kalan_tutar_tl'] + 0.01) {
-            throw new InvalidArgumentException('Ödeme tutarı kalan tutardan büyük olamaz.');
-        }
-
-        $rate = (float)$invoice['doviz_kuru'] > 0 ? (float)$invoice['doviz_kuru'] : 1;
-        $tutar = $this->money($data['odeme_tutari'] ?? ($tutarTl / $rate));
-        $hesapId = !empty($data['kasa_banka_hesap_id']) ? (int)$data['kasa_banka_hesap_id'] : null;
-        $odemeTarihi = $this->parseDate($data['odeme_tarihi'] ?? date('Y-m-d'));
 
         $this->db->begin();
         try {
+            // Fatura satırını kilitle: eşzamanlı iki ödeme isteği (iki
+            // sekme/kullanıcı) birbirinin henüz commit olmamış eklemesini
+            // görmeden aynı bayat kalan_tutar_tl üzerinden doğrulama/hesaplama
+            // yapıp birbirinin özet alanlarını (toplam_odenen/kalan_tutar)
+            // silecek şekilde ezmesin (lost update).
+            $invoice = $this->db->selectOne(
+                "SELECT * FROM gelen_efaturalar
+                 WHERE id = :id AND company_id = :company_id AND period_id = :period_id
+                 FOR UPDATE",
+                [
+                    ':id' => $invoiceId,
+                    ':company_id' => TenantContext::activeCompanyId(),
+                    ':period_id' => TenantContext::activePeriodId(),
+                ]
+            );
+            if (!$invoice) {
+                throw new RuntimeException('Fatura bulunamadı.');
+            }
+            if ($tutarTl > (float)$invoice['kalan_tutar_tl'] + 0.01) {
+                throw new InvalidArgumentException('Ödeme tutarı kalan tutardan büyük olamaz.');
+            }
+
+            $rate = (float)$invoice['doviz_kuru'] > 0 ? (float)$invoice['doviz_kuru'] : 1;
+            $tutar = $this->money($data['odeme_tutari'] ?? ($tutarTl / $rate));
+            $hesapId = !empty($data['kasa_banka_hesap_id']) ? (int)$data['kasa_banka_hesap_id'] : null;
+            $odemeTarihi = $this->parseDate($data['odeme_tarihi'] ?? date('Y-m-d'));
+
             $this->db->insert('gelen_efatura_odemeleri', [
                 'gelen_efatura_id' => $invoiceId,
                 'company_id' => TenantContext::activeCompanyId(),
