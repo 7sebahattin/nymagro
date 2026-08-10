@@ -85,6 +85,16 @@ final class AlisController extends Controller
         if ($faturaNo === '') $hatalar['fatura_no'] = 'Fatura no zorunludur.';
         if ($faturaT === '')  $hatalar['fatura_tarihi'] = 'Tarih zorunludur.';
 
+        // ── Döviz ────────────────────────────────────────
+        $paraBirimi = trim($_POST['para_birimi'] ?? 'TRY');
+        if (!in_array($paraBirimi, ['TRY', 'USD', 'EUR', 'GBP'], true)) {
+            $paraBirimi = 'TRY';
+        }
+        $kur = $paraBirimi === 'TRY' ? 1.0 : (float)str_replace(',', '.', $_POST['kur'] ?? '0');
+        if ($paraBirimi !== 'TRY' && $kur <= 0) {
+            $hatalar['kur'] = 'Döviz seçildiğinde kur girilmesi zorunludur.';
+        }
+
         $kalemAdlari = $_POST['kalem_urun_adi'] ?? [];
         $kalemUrunId = $_POST['kalem_urun_id'] ?? [];
         $kalemGirisTipi = $_POST['kalem_giris_tipi'] ?? [];
@@ -98,11 +108,12 @@ final class AlisController extends Controller
             $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
             $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
             $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
+            $birimFiyatGirilen = (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0');
             $kalemler[] = [
                 'urun_id'       => $urunId,
                 'urun_adi'      => trim($ad),
                 'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0'),
+                'birim_fiyat'   => $birimFiyatGirilen * $kur,
                 'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
                 'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),
                 'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
@@ -132,16 +143,29 @@ final class AlisController extends Controller
         }
         $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
 
+        $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
+        if ($paraBirimi !== 'TRY' && $kur > 0) {
+            $araToplamDoviz    = round($araToplam / $kur, 2);
+            $iskontoTutarDoviz = round($iskontoTutar / $kur, 2);
+            $kdvTutarDoviz     = round($kdvTutar / $kur, 2);
+            $genelToplamDoviz  = round($genelToplam / $kur, 2);
+        }
+
         $faturaVeri = [
-            'belge_tipi'     => 'alis',
-            'fatura_no'      => $faturaNo,
-            'cari_id'        => $cariId,
-            'fatura_tarihi'  => $this->tarihCevir($faturaT),
-            'ara_toplam'     => round($araToplam, 2),
-            'iskonto_tutari' => round($iskontoTutar, 2),
-            'kdv_tutari'     => round($kdvTutar, 2),
-            'genel_toplam'   => round($genelToplam, 2),
-            'para_birimi'    => $_POST['para_birimi'] ?? 'TRY',
+            'belge_tipi'          => 'alis',
+            'fatura_no'           => $faturaNo,
+            'cari_id'             => $cariId,
+            'fatura_tarihi'       => $this->tarihCevir($faturaT),
+            'ara_toplam'          => round($araToplam, 2),
+            'iskonto_tutari'      => round($iskontoTutar, 2),
+            'kdv_tutari'          => round($kdvTutar, 2),
+            'genel_toplam'        => round($genelToplam, 2),
+            'para_birimi'         => $paraBirimi,
+            'kur'                 => $kur,
+            'ara_toplam_doviz'     => $araToplamDoviz,
+            'iskonto_tutari_doviz' => $iskontoTutarDoviz,
+            'kdv_tutari_doviz'     => $kdvTutarDoviz,
+            'genel_toplam_doviz'   => $genelToplamDoviz,
             'durum'          => 'onaylandi'
         ];
 
@@ -203,6 +227,16 @@ final class AlisController extends Controller
         if ($faturaNo === '') $hatalar['fatura_no'] = 'Fatura no zorunludur.';
         if ($faturaT === '')  $hatalar['fatura_tarihi'] = 'Tarih zorunludur.';
 
+        // ── Döviz ────────────────────────────────────────
+        $paraBirimi = trim($_POST['para_birimi'] ?? 'TRY');
+        if (!in_array($paraBirimi, ['TRY', 'USD', 'EUR', 'GBP'], true)) {
+            $paraBirimi = 'TRY';
+        }
+        $kur = $paraBirimi === 'TRY' ? 1.0 : (float)str_replace(',', '.', $_POST['kur'] ?? '0');
+        if ($paraBirimi !== 'TRY' && $kur <= 0) {
+            $hatalar['kur'] = 'Döviz seçildiğinde kur girilmesi zorunludur.';
+        }
+
         $kalemAdlari = $_POST['kalem_urun_adi'] ?? [];
         $kalemUrunId = $_POST['kalem_urun_id'] ?? [];
         $kalemGirisTipi = $_POST['kalem_giris_tipi'] ?? [];
@@ -216,11 +250,12 @@ final class AlisController extends Controller
             $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
             $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
             $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
+            $birimFiyatGirilen = (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0');
             $kalemler[] = [
                 'urun_id'       => $urunId,
                 'urun_adi'      => trim($ad),
                 'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0'),
+                'birim_fiyat'   => $birimFiyatGirilen * $kur,
                 'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
                 'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),
                 'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
@@ -254,17 +289,30 @@ final class AlisController extends Controller
         }
         $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
 
+        $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
+        if ($paraBirimi !== 'TRY' && $kur > 0) {
+            $araToplamDoviz    = round($araToplam / $kur, 2);
+            $iskontoTutarDoviz = round($iskontoTutar / $kur, 2);
+            $kdvTutarDoviz     = round($kdvTutar / $kur, 2);
+            $genelToplamDoviz  = round($genelToplam / $kur, 2);
+        }
+
         $faturaVeri = [
-            'belge_tipi'     => $mevcut['belge_tipi'],
-            'fatura_no'      => $faturaNo,
-            'cari_id'        => $cariId,
-            'fatura_tarihi'  => $this->tarihCevir($faturaT),
-            'ara_toplam'     => round($araToplam, 2),
-            'iskonto_tutari' => round($iskontoTutar, 2),
-            'kdv_tutari'     => round($kdvTutar, 2),
-            'genel_toplam'   => round($genelToplam, 2),
-            'kalan_tutar'    => round($genelToplam - (float)($mevcut['odenen_tutar'] ?? 0), 2),
-            'para_birimi'    => $_POST['para_birimi'] ?? $mevcut['para_birimi'],
+            'belge_tipi'          => $mevcut['belge_tipi'],
+            'fatura_no'           => $faturaNo,
+            'cari_id'             => $cariId,
+            'fatura_tarihi'       => $this->tarihCevir($faturaT),
+            'ara_toplam'          => round($araToplam, 2),
+            'iskonto_tutari'      => round($iskontoTutar, 2),
+            'kdv_tutari'          => round($kdvTutar, 2),
+            'genel_toplam'        => round($genelToplam, 2),
+            'kalan_tutar'         => round($genelToplam - (float)($mevcut['odenen_tutar'] ?? 0), 2),
+            'para_birimi'         => $paraBirimi,
+            'kur'                 => $kur,
+            'ara_toplam_doviz'     => $araToplamDoviz,
+            'iskonto_tutari_doviz' => $iskontoTutarDoviz,
+            'kdv_tutari_doviz'     => $kdvTutarDoviz,
+            'genel_toplam_doviz'   => $genelToplamDoviz,
             'durum'          => $mevcut['durum'],
         ];
 

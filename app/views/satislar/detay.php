@@ -127,7 +127,7 @@ $printUrl = BASE_URL . '/satis/fatura/' . (int)$fatura['id'] . '/print';
         <div class="info-box">
             <h4>Odeme Bilgileri</h4>
             <p><strong>Durum:</strong> <?= htmlspecialchars(strtoupper((string)($fatura['durum'] ?? '-'))) ?></p>
-            <p><strong>Para Birimi:</strong> <?= htmlspecialchars($fatura['para_birimi'] ?? $settings['default_currency'] ?? 'TRY') ?></p>
+            <p><strong>Para Birimi:</strong> <?= htmlspecialchars($fatura['para_birimi'] ?? $settings['default_currency'] ?? 'TRY') ?><?php if (!empty($fatura['para_birimi']) && $fatura['para_birimi'] !== 'TRY' && !empty($fatura['kur'])): ?> (Kur: <?= number_format((float)$fatura['kur'], 4, ',', '.') ?>)<?php endif; ?></p>
             <p><strong>Aciklama:</strong> <?= htmlspecialchars($fatura['aciklama'] ?? '-') ?></p>
         </div>
     </div>
@@ -180,6 +180,12 @@ $printUrl = BASE_URL . '/satis/fatura/' . (int)$fatura['id'] . '/print';
                 <span>GENEL TOPLAM</span>
                 <span><?= $money($fatura['genel_toplam'] ?? 0) ?></span>
             </div>
+            <?php if (!empty($fatura['para_birimi']) && $fatura['para_birimi'] !== 'TRY' && isset($fatura['genel_toplam_doviz'])): ?>
+                <div class="total-row">
+                    <span>Döviz Tutarı</span>
+                    <span><?= number_format((float)$fatura['genel_toplam_doviz'], 2, ',', '.') ?> <?= htmlspecialchars($fatura['para_birimi']) ?></span>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

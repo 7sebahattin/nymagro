@@ -98,6 +98,24 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
       </div>
 
       <div class="fg">
+        <label>Para Birimi</label>
+        <select name="para_birimi" id="paraBirimiSel" class="fi" onchange="paraBirimiDegisti()">
+          <?php foreach (['TRY','USD','EUR','GBP'] as $pb): ?>
+            <option value="<?= $pb ?>" <?= ($eski['para_birimi'] ?? 'TRY') === $pb ? 'selected' : '' ?>><?= $pb ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div class="fg" id="kurAlani" style="display:none;">
+        <label>Kur</label>
+        <input type="number" name="kur" id="kurInput" class="fi" step="0.0001" min="0.0001"
+               value="<?= $val('kur', '') ?>" placeholder="1 birim = ? TL">
+      </div>
+      <?php if (!empty($hatalar['kur'])): ?>
+        <div class="fg"><label></label><span style="color:#ef4444;font-size:12px;"><?= htmlspecialchars($hatalar['kur']) ?></span></div>
+      <?php endif; ?>
+
+      <div class="fg">
         <label>Açıklama</label>
         <textarea name="aciklama" class="fi" style="min-height:80px;"><?= $val('aciklama') ?></textarea>
       </div>
@@ -114,11 +132,12 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
       </div>
 
       <div style="overflow-x: auto;">
-        <table class="kalemler-tablo">
+        <table class="kalemler-tablo" style="min-width:680px;">
           <thead>
             <tr>
-              <th>Ürün / Hizmet</th>
-              <th style="width:70px;">Miktar</th>
+              <th style="width:26%;">Ürün / Hizmet</th>
+              <th style="width:130px;">Miktar</th>
+              <th style="width:70px;">Birim</th>
               <th style="width:110px;">Fiyat</th>
               <th style="width:50px;">KDV</th>
               <th class="td-r" style="width:100px;">Toplam</th>
@@ -126,7 +145,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
             </tr>
           </thead>
           <tbody id="kalemlerBody">
-            <tr id="emptyRow"><td colspan="6" style="text-align:center; padding:30px; color:var(--muted);">Ürün eklemek için yukarıdan arama yapın.</td></tr>
+            <tr id="emptyRow"><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">Ürün eklemek için yukarıdan arama yapın.</td></tr>
           </tbody>
         </table>
       </div>
@@ -135,6 +154,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
         <div class="totals-row"><span>Ara Toplam:</span> <span id="tAra">0,00 ₺</span></div>
         <div class="totals-row"><span>KDV:</span> <span id="tKdv">0,00 ₺</span></div>
         <div class="totals-row genel"><span>GENEL TOPLAM:</span> <span id="tGenel">0,00 ₺</span></div>
+        <div class="totals-row" id="tlKarsiligiRow" style="display:none;font-size:12px;color:var(--muted);"><span>TL Karşılığı:</span> <span id="tTlKarsiligi">0,00 ₺</span></div>
       </div>
     </div>
   </div>
@@ -148,6 +168,18 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
   const urunInput = document.getElementById('urunAraInput'), urunDrop = document.getElementById('urunDrop');
   const tbody = document.getElementById('kalemlerBody'), emptyRow = document.getElementById('emptyRow');
   let sayac = 0;
+
+  const paraBirimiSel = document.getElementById('paraBirimiSel');
+  const kurAlani = document.getElementById('kurAlani');
+  const kurInput = document.getElementById('kurInput');
+  window.paraBirimiDegisti = function() {
+    const doviz = paraBirimiSel.value !== 'TRY';
+    kurAlani.style.display = doviz ? '' : 'none';
+    kurInput.required = doviz;
+    if (!doviz) kurInput.value = '';
+    if (typeof hesapla === 'function') hesapla();
+  };
+  kurInput.addEventListener('input', () => { if (typeof hesapla === 'function') hesapla(); });
 
   // Autocomplete helpers
   msInput.addEventListener('input', e => {
@@ -189,15 +221,18 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     tr.innerHTML = `
       <td><input type="hidden" name="kalem_urun_id[]" value="${u.id}"><input type="text" name="kalem_urun_adi[]" class="fi" style="padding:4px;" value="${u.ad}"></td>
       <td class="td-miktar">
-        <input type="number" name="kalem_miktar[]" class="fi" style="padding:4px;" value="1" step="any" oninput="hesapla()">
-        ${koliIci > 0 ? `
-        <select name="kalem_giris_tipi[]" class="fi" style="padding:2px;font-size:11px;margin-top:3px;" onchange="hesapla()">
-          <option value="adet">Adet</option>
-          <option value="koli">Koli</option>
-        </select>
-        <div class="koli-hint" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>
-        ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
+        <div style="display:flex;gap:4px;align-items:center;">
+          <input type="number" name="kalem_miktar[]" class="fi" style="padding:4px;width:56px;flex-shrink:0;" value="1" step="any" oninput="hesapla()">
+          ${koliIci > 0 ? `
+          <select name="kalem_giris_tipi[]" class="fi" style="padding:2px;font-size:11px;width:56px;flex-shrink:0;" onchange="hesapla()">
+            <option value="adet">Adet</option>
+            <option value="koli">Koli</option>
+          </select>
+          ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
+        </div>
+        ${koliIci > 0 ? `<div class="koli-hint" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>` : ''}
       </td>
+      <td><input type="text" name="kalem_birim[]" class="fi" style="padding:4px;" value="${u.birim || 'Adet'}"></td>
       <td><input type="number" name="kalem_birim_fiyat[]" class="fi" style="padding:4px;" value="${u.alis_fiyati || 0}" step="any" oninput="hesapla()"></td>
       <td><input type="number" name="kalem_kdv_orani[]" class="fi" style="padding:4px;" value="${u.kdv_orani || 20}" oninput="hesapla()"></td>
       <td class="td-r" id="top-${id}" style="font-weight:700;">0,00 ₺</td>
@@ -219,7 +254,8 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
       const k = parseFloat(tr.querySelector('[name="kalem_kdv_orani[]"]').value) || 0;
       const lAra = m * f; const lKdv = lAra * (k/100);
       ara += lAra; kdv += lKdv;
-      tr.querySelector('.td-r').textContent = (lAra + lKdv).toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+      const satirSembol = paraBirimiSel.value === 'TRY' ? '₺' : paraBirimiSel.value;
+      tr.querySelector('.td-r').textContent = (lAra + lKdv).toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ' + satirSembol;
 
       const hint = tr.querySelector('.koli-hint');
       if (hint) {
@@ -231,9 +267,21 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
         }
       }
     });
-    document.getElementById('tAra').textContent = ara.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
-    document.getElementById('tKdv').textContent = kdv.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
-    document.getElementById('tGenel').textContent = (ara + kdv).toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+    const sembol = paraBirimiSel.value === 'TRY' ? '₺' : paraBirimiSel.value;
+    document.getElementById('tAra').textContent = ara.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ' + sembol;
+    document.getElementById('tKdv').textContent = kdv.toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ' + sembol;
+    document.getElementById('tGenel').textContent = (ara + kdv).toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ' + sembol;
+
+    const tlRow = document.getElementById('tlKarsiligiRow');
+    if (paraBirimiSel.value !== 'TRY') {
+      const kur = parseFloat(kurInput.value) || 0;
+      document.getElementById('tTlKarsiligi').textContent = ((ara + kdv) * kur).toLocaleString('tr-TR', {minimumFractionDigits:2}) + ' ₺';
+      tlRow.style.display = '';
+    } else {
+      tlRow.style.display = 'none';
+    }
   };
+
+  paraBirimiDegisti();
 })();
 </script>

@@ -167,8 +167,13 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
       <div>İndirim <span class="val"><?= number_format($fatura['iskonto_tutari'], 2, ',', '.') ?> TL</span></div>
       <div>KDV Toplam <span class="val"><?= number_format($fatura['kdv_tutari'], 2, ',', '.') ?> TL</span></div>
       <div class="grand-total">
-        GENEL TOPLAM <span class="val"><?= number_format($fatura['genel_toplam'], 2, ',', '.') ?> <?= $fatura['para_birimi'] ?></span>
+        GENEL TOPLAM <span class="val"><?= number_format($fatura['genel_toplam'], 2, ',', '.') ?> TL</span>
       </div>
+      <?php if (!empty($fatura['para_birimi']) && $fatura['para_birimi'] !== 'TRY' && isset($fatura['genel_toplam_doviz'])): ?>
+      <div>
+        Döviz Tutarı <span class="val"><?= number_format((float)$fatura['genel_toplam_doviz'], 2, ',', '.') ?> <?= htmlspecialchars($fatura['para_birimi']) ?><?php if (!empty($fatura['kur'])): ?> (Kur: <?= number_format((float)$fatura['kur'], 4, ',', '.') ?>)<?php endif; ?></span>
+      </div>
+      <?php endif; ?>
     </div>
   </div>
 </div>

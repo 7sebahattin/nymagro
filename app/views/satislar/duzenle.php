@@ -203,6 +203,28 @@ $err = function(string $k) use ($hatalar): string {
         </div>
       </div>
 
+      <!-- Para Birimi -->
+      <div class="fg">
+        <label>Para Birimi</label>
+        <div class="fg-inp-wrap">
+          <select name="para_birimi" id="paraBirimiSel" class="fi" onchange="paraBirimiDegisti()">
+            <?php foreach (['TRY','USD','EUR','GBP'] as $pb): ?>
+              <option value="<?= $pb ?>" <?= ($eski['para_birimi'] ?? 'TRY') === $pb ? 'selected' : '' ?>><?= $pb ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      </div>
+
+      <!-- Kur (döviz seçilince zorunlu) -->
+      <div class="fg <?= !empty($hatalar['kur']) ? 'is-err' : '' ?>" id="kurAlani" style="display:none;">
+        <label>Kur</label>
+        <div class="fg-inp-wrap">
+          <input type="number" name="kur" id="kurInput" class="fi" step="0.0001" min="0.0001"
+                 value="<?= $val('kur', '') ?>" placeholder="1 birim = ? TL" />
+        </div>
+      </div>
+      <?= $err('kur') ?>
+
       <!-- Açıklama -->
       <div class="fg">
         <label>Açıklama</label>
@@ -233,15 +255,15 @@ $err = function(string $k) use ($hatalar): string {
 
       <!-- Kalemler Tablosu -->
       <div style="overflow-x: auto;">
-        <table class="kalemler-tablo" id="kalemlerTablo" style="min-width: 600px;">
+        <table class="kalemler-tablo" id="kalemlerTablo" style="min-width: 680px;">
           <thead>
             <tr>
-              <th style="width:35%;">Ürün / Hizmet</th>
-              <th style="width:10%;">Miktar</th>
-              <th style="width:12%;">Birim</th>
+              <th style="width:20%;">Ürün / Hizmet</th>
+              <th style="width:18%;">Miktar</th>
+              <th style="width:9%;">Birim</th>
               <th style="width:14%;">Birim Fiyat</th>
-              <th style="width:8%;">KDV%</th>
-              <th style="width:8%;">İsk%</th>
+              <th style="width:7%;">KDV%</th>
+              <th style="width:7%;">İsk%</th>
               <th class="td-r" style="width:12%;">Toplam</th>
               <th class="td-sil"></th>
             </tr>
@@ -276,6 +298,10 @@ $err = function(string $k) use ($hatalar): string {
           <span>Genel Toplam:</span>
           <span id="tGenel">0,00 ₺</span>
         </div>
+        <div class="totals-row" id="tlKarsiligiRow" style="display:none;font-size:12px;color:var(--muted);">
+          <span>TL Karşılığı:</span>
+          <span id="tTlKarsiligi">0,00 ₺</span>
+        </div>
       </div>
 
     </div>
@@ -290,6 +316,22 @@ $err = function(string $k) use ($hatalar): string {
 
   const BASE = '<?= BASE_URL ?>';
   let kalemSayac = 0;
+
+  /* ══════════════════════════════════════
+     PARA BİRİMİ / KUR
+  ══════════════════════════════════════ */
+  const paraBirimiSel = document.getElementById('paraBirimiSel');
+  const kurAlani = document.getElementById('kurAlani');
+  const kurInput = document.getElementById('kurInput');
+
+  window.paraBirimiDegisti = function() {
+    const doviz = paraBirimiSel.value !== 'TRY';
+    kurAlani.style.display = doviz ? '' : 'none';
+    kurInput.required = doviz;
+    if (!doviz) kurInput.value = '';
+    if (typeof genelHesapla === 'function') genelHesapla();
+  };
+  kurInput.addEventListener('input', () => { if (typeof genelHesapla === 'function') genelHesapla(); });
 
   /* ══════════════════════════════════════
      MÜŞTERİ ARAMA (autocomplete)
@@ -408,20 +450,22 @@ $err = function(string $k) use ($hatalar): string {
                value="${escHtml(urun.ad)}" required />
       </td>
       <td class="td-miktar">
-        <input type="number" name="kalem_miktar[]" class="kalem-input"
-               value="${parseFloat(urun.miktar||1)}" min="0.001" step="any"
-               oninput="satirHesapla('${idx}')" style="width:65px;" />
-        ${koliIci > 0 ? `
-        <select name="kalem_giris_tipi[]" class="kalem-input" style="width:65px;margin-top:4px;font-size:11px;padding:3px;" onchange="satirHesapla('${idx}')">
-          <option value="adet">Adet</option>
-          <option value="koli">Koli</option>
-        </select>
-        <div id="koliHint-${idx}" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>
-        ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
+        <div style="display:flex;gap:4px;align-items:center;">
+          <input type="number" name="kalem_miktar[]" class="kalem-input"
+                 value="${parseFloat(urun.miktar||1)}" min="0.001" step="any"
+                 oninput="satirHesapla('${idx}')" style="width:56px;flex-shrink:0;" />
+          ${koliIci > 0 ? `
+          <select name="kalem_giris_tipi[]" class="kalem-input" style="width:56px;flex-shrink:0;font-size:11px;padding:3px;" onchange="satirHesapla('${idx}')">
+            <option value="adet">Adet</option>
+            <option value="koli">Koli</option>
+          </select>
+          ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
+        </div>
+        ${koliIci > 0 ? `<div id="koliHint-${idx}" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>` : ''}
       </td>
       <td>
         <input type="text" name="kalem_birim[]" class="kalem-input"
-               value="${escHtml(urun.birim || 'Adet')}" style="width:65px;" />
+               value="${escHtml(urun.birim || 'Adet')}" />
       </td>
       <td>
         <input type="number" name="kalem_birim_fiyat[]" class="kalem-input"
@@ -517,10 +561,20 @@ $err = function(string $k) use ($hatalar): string {
       kdvT      += kt;
     });
     const genel = araToplam - iskontoT + kdvT;
-    document.getElementById('tAraToplam').textContent = formatPara(araToplam) + ' ₺';
-    document.getElementById('tIskonto').textContent   = formatPara(iskontoT)  + ' ₺';
-    document.getElementById('tKdv').textContent       = formatPara(kdvT)      + ' ₺';
-    document.getElementById('tGenel').textContent     = formatPara(genel)     + ' ₺';
+    const sembol = paraBirimiSel.value === 'TRY' ? '₺' : paraBirimiSel.value;
+    document.getElementById('tAraToplam').textContent = formatPara(araToplam) + ' ' + sembol;
+    document.getElementById('tIskonto').textContent   = formatPara(iskontoT)  + ' ' + sembol;
+    document.getElementById('tKdv').textContent       = formatPara(kdvT)      + ' ' + sembol;
+    document.getElementById('tGenel').textContent     = formatPara(genel)     + ' ' + sembol;
+
+    const tlRow = document.getElementById('tlKarsiligiRow');
+    if (paraBirimiSel.value !== 'TRY') {
+      const kur = parseFloat(kurInput.value) || 0;
+      document.getElementById('tTlKarsiligi').textContent = formatPara(genel * kur) + ' ₺';
+      tlRow.style.display = '';
+    } else {
+      tlRow.style.display = 'none';
+    }
   }
 
   /* ══════════════════════════════════════
@@ -536,11 +590,15 @@ $err = function(string $k) use ($hatalar): string {
   /* ══════════════════════════════════════
      MEVCUT KALEMLERİ ÖN YÜKLE (düzenleme)
   ══════════════════════════════════════ */
+  <?php $mevcutKur = (float)($fatura['kur'] ?? 1) ?: 1.0; ?>
   const mevcutKalemler = <?= json_encode(array_map(fn($k) => [
       'id'            => $k['urun_id'],
       'ad'            => $k['urun_adi'],
       'birim'         => $k['birim'],
-      'birim_fiyat'   => $k['birim_fiyat'],
+      // fatura_kalemleri.birim_fiyat her zaman TL'dir; döviz faturasında
+      // formu tekrar döviz tutarıyla doldurmak için kur'a bölünür —
+      // aksi halde tekrar kaydetmede kur ikinci kez uygulanır (çift çevrim).
+      'birim_fiyat'   => $mevcutKur > 0 ? $k['birim_fiyat'] / $mevcutKur : $k['birim_fiyat'],
       'kdv_orani'     => $k['kdv_orani'],
       'iskonto_orani' => $k['iskonto_orani'],
       'miktar'        => $k['miktar'],
@@ -548,6 +606,7 @@ $err = function(string $k) use ($hatalar): string {
   ], $kalemler ?? []), JSON_UNESCAPED_UNICODE) ?>;
   mevcutKalemler.forEach(k => kalemEkle(k));
 
+  paraBirimiDegisti();
 })();
 </script>
 

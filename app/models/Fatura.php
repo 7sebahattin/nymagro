@@ -18,6 +18,7 @@ class Fatura
         'belge_tipi', 'fatura_no', 'cari_id', 'fatura_tarihi', 'vade_tarihi',
         'ara_toplam', 'iskonto_tutari', 'kdv_tutari', 'genel_toplam',
         'odenen_tutar', 'kalan_tutar', 'para_birimi', 'kur',
+        'ara_toplam_doviz', 'iskonto_tutari_doviz', 'kdv_tutari_doviz', 'genel_toplam_doviz',
         'durum', 'odeme_sekli', 'aciklama', 'company_id', 'period_id', 'depo_id',
     ];
 
@@ -31,6 +32,7 @@ class Fatura
     {
         $this->db = Database::getInstance();
         $this->ensureDepoIdColumn();
+        $this->ensureDovizColumns();
     }
 
     /**
@@ -47,6 +49,37 @@ class Fatura
             );
             if (!$var) {
                 $this->db->query("ALTER TABLE faturalar ADD COLUMN depo_id INT NULL AFTER period_id");
+            }
+        } catch (\Throwable $e) {
+            // Sessizce geç — tablo henüz yoksa veya yetki yoksa uygulamayı kilitleme.
+        }
+    }
+
+    /**
+     * Döviz faturaları için TL karşılığının yanında orijinal döviz
+     * toplamlarını da saklayabilmek için gerekli kolonlar (idempotent).
+     * ara_toplam/kdv_tutari/genel_toplam vb. HER ZAMAN TL'dir (cari bakiye,
+     * kasa hareketleri ve raporlar bunu varsayıyor) — bu 4 kolon sadece
+     * para_birimi TRY değilken doldurulan, orijinal döviz tutarlarıdır.
+     */
+    private function ensureDovizColumns(): void
+    {
+        $kolonlar = [
+            'ara_toplam_doviz'     => 'DECIMAL(18,2) NULL DEFAULT NULL AFTER genel_toplam',
+            'iskonto_tutari_doviz' => 'DECIMAL(18,2) NULL DEFAULT NULL AFTER ara_toplam_doviz',
+            'kdv_tutari_doviz'     => 'DECIMAL(18,2) NULL DEFAULT NULL AFTER iskonto_tutari_doviz',
+            'genel_toplam_doviz'   => 'DECIMAL(18,2) NULL DEFAULT NULL AFTER kdv_tutari_doviz',
+        ];
+        try {
+            foreach ($kolonlar as $ad => $tanim) {
+                $var = $this->db->selectOne(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = :ad",
+                    [':ad' => $ad]
+                );
+                if (!$var) {
+                    $this->db->query("ALTER TABLE faturalar ADD COLUMN {$ad} {$tanim}");
+                }
             }
         } catch (\Throwable $e) {
             // Sessizce geç — tablo henüz yoksa veya yetki yoksa uygulamayı kilitleme.

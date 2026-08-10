@@ -139,10 +139,19 @@ final class SatisController extends Controller
         }
         $durum      = $_POST['durum'] ?? $mevcut['durum'];
         $cariId     = !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null;
-        $paraBirimi = trim($_POST['para_birimi'] ?? 'TRY');
         $odemeSekli = trim($_POST['odeme_sekli'] ?? '');
         $aciklama   = trim($_POST['aciklama']    ?? '');
         $vadeTarihi = trim($_POST['vade_tarihi'] ?? '') ?: null;
+
+        // ── Döviz ────────────────────────────────────────
+        $paraBirimi = trim($_POST['para_birimi'] ?? 'TRY');
+        if (!in_array($paraBirimi, ['TRY', 'USD', 'EUR', 'GBP'], true)) {
+            $paraBirimi = 'TRY';
+        }
+        $kur = $paraBirimi === 'TRY' ? 1.0 : (float)str_replace(',', '.', $_POST['kur'] ?? '0');
+        if ($paraBirimi !== 'TRY' && $kur <= 0) {
+            $hatalar['kur'] = 'Döviz seçildiğinde kur girilmesi zorunludur.';
+        }
 
         if ($faturaNo === '') {
             $hatalar['fatura_no'] = 'Fatura no zorunludur.';
@@ -175,11 +184,12 @@ final class SatisController extends Controller
             $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
             $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
             $miktarGirilen = max(0.001, (float)str_replace(',', '.', $kalemMiktar[$i] ?? '1'));
+            $birimFiyatGirilen = max(0, (float)str_replace(',', '.', $kalemFiyat[$i] ?? '0'));
             $kalemler[] = [
                 'urun_id'       => $urunId,
                 'urun_adi'      => $ad,
                 'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => max(0, (float)str_replace(',', '.', $kalemFiyat[$i] ?? '0')),
+                'birim_fiyat'   => $birimFiyatGirilen * $kur,
                 'kdv_orani'     => (float)($kalemKdv[$i] ?? 20),
                 'iskonto_orani' => (float)($kalemIskonto[$i] ?? 0),
                 'birim'         => $kalemBirim[$i] ?? 'Adet',
@@ -216,18 +226,31 @@ final class SatisController extends Controller
         }
         $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
 
+        $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
+        if ($paraBirimi !== 'TRY' && $kur > 0) {
+            $araToplamDoviz    = round($araToplam / $kur, 2);
+            $iskontoTutarDoviz = round($iskontoTutar / $kur, 2);
+            $kdvTutarDoviz     = round($kdvTutar / $kur, 2);
+            $genelToplamDoviz  = round($genelToplam / $kur, 2);
+        }
+
         $faturaVeri = [
-            'belge_tipi'     => $belgeTipi,
-            'fatura_no'      => $faturaNo,
-            'cari_id'        => $cariId,
-            'fatura_tarihi'  => $faturaT,
-            'vade_tarihi'    => $vadeTarihi,
-            'ara_toplam'     => round($araToplam, 2),
-            'iskonto_tutari' => round($iskontoTutar, 2),
-            'kdv_tutari'     => round($kdvTutar, 2),
-            'genel_toplam'   => round($genelToplam, 2),
-            'kalan_tutar'    => round($genelToplam - (float)($mevcut['odenen_tutar'] ?? 0), 2),
-            'para_birimi'    => $paraBirimi,
+            'belge_tipi'          => $belgeTipi,
+            'fatura_no'           => $faturaNo,
+            'cari_id'             => $cariId,
+            'fatura_tarihi'       => $faturaT,
+            'vade_tarihi'         => $vadeTarihi,
+            'ara_toplam'          => round($araToplam, 2),
+            'iskonto_tutari'      => round($iskontoTutar, 2),
+            'kdv_tutari'          => round($kdvTutar, 2),
+            'genel_toplam'        => round($genelToplam, 2),
+            'kalan_tutar'         => round($genelToplam - (float)($mevcut['odenen_tutar'] ?? 0), 2),
+            'para_birimi'         => $paraBirimi,
+            'kur'                 => $kur,
+            'ara_toplam_doviz'     => $araToplamDoviz,
+            'iskonto_tutari_doviz' => $iskontoTutarDoviz,
+            'kdv_tutari_doviz'     => $kdvTutarDoviz,
+            'genel_toplam_doviz'   => $genelToplamDoviz,
             'durum'          => $durum === 'taslak' ? 'taslak' : ($mevcut['durum'] === 'taslak' ? 'onaylandi' : $mevcut['durum']),
             'odeme_sekli'    => $odemeSekli ?: null,
             'aciklama'       => $aciklama   ?: null,
@@ -285,10 +308,19 @@ final class SatisController extends Controller
         }
         $durum       = $_POST['durum'] ?? 'taslak';
         $cariId      = !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null;
-        $paraBirimi  = trim($_POST['para_birimi'] ?? 'TRY');
         $odemeSekli  = trim($_POST['odeme_sekli'] ?? '');
         $aciklama    = trim($_POST['aciklama']    ?? '');
         $vadeTarihi  = trim($_POST['vade_tarihi'] ?? '') ?: null;
+
+        // ── Döviz ────────────────────────────────────────
+        $paraBirimi = trim($_POST['para_birimi'] ?? 'TRY');
+        if (!in_array($paraBirimi, ['TRY', 'USD', 'EUR', 'GBP'], true)) {
+            $paraBirimi = 'TRY';
+        }
+        $kur = $paraBirimi === 'TRY' ? 1.0 : (float)str_replace(',', '.', $_POST['kur'] ?? '0');
+        if ($paraBirimi !== 'TRY' && $kur <= 0) {
+            $hatalar['kur'] = 'Döviz seçildiğinde kur girilmesi zorunludur.';
+        }
 
         // EĞER numara otomatik üretilen formatta gelmişse ve belge tipi farklıysa, 
         // o tip için yeni bir numara üret (çakışmayı önlemek için)
@@ -330,11 +362,14 @@ final class SatisController extends Controller
             $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
             $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
             $miktarGirilen = max(0.001, (float)str_replace(',', '.', $kalemMiktar[$i] ?? '1'));
+            $birimFiyatGirilen = max(0, (float)str_replace(',', '.', $kalemFiyat[$i] ?? '0'));
             $kalemler[] = [
                 'urun_id'       => $urunId,
                 'urun_adi'      => $ad,
                 'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => max(0, (float)str_replace(',', '.', $kalemFiyat[$i] ?? '0')),
+                // Birim fiyat döviz seçiliyse fatura kuruyla TL'ye çevrilir — fatura_kalemleri
+                // her zaman TL tutar; stok maliyeti/kâr marjı hesapları da böylece bozulmaz.
+                'birim_fiyat'   => $birimFiyatGirilen * $kur,
                 'kdv_orani'     => (float)($kalemKdv[$i] ?? 20),
                 'iskonto_orani' => (float)($kalemIskonto[$i] ?? 0),
                 'birim'         => $kalemBirim[$i] ?? 'Adet',
@@ -373,20 +408,34 @@ final class SatisController extends Controller
         $odenenTutar = 0;
         $kalanTutar  = $genelToplam;
 
+        // Döviz seçiliyse orijinal döviz toplamları da (referans/gösterim için)
+        // ayrıca saklanır — TL toplamları her zaman ana doğruluk kaynağıdır.
+        $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
+        if ($paraBirimi !== 'TRY' && $kur > 0) {
+            $araToplamDoviz    = round($araToplam / $kur, 2);
+            $iskontoTutarDoviz = round($iskontoTutar / $kur, 2);
+            $kdvTutarDoviz     = round($kdvTutar / $kur, 2);
+            $genelToplamDoviz  = round($genelToplam / $kur, 2);
+        }
+
         $faturaVeri = [
-            'belge_tipi'     => $belgeTipi,
-            'fatura_no'      => $faturaNo,
-            'cari_id'        => $cariId,
-            'fatura_tarihi'  => $faturaT,
-            'vade_tarihi'    => $vadeTarihi,
-            'ara_toplam'     => round($araToplam, 2),
-            'iskonto_tutari' => round($iskontoTutar, 2),
-            'kdv_tutari'     => round($kdvTutar, 2),
-            'genel_toplam'   => round($genelToplam, 2),
-            'odenen_tutar'   => $odenenTutar,
-            'kalan_tutar'    => round($kalanTutar, 2),
-            'para_birimi'    => $paraBirimi,
-            'kur'            => 1.000000,
+            'belge_tipi'          => $belgeTipi,
+            'fatura_no'           => $faturaNo,
+            'cari_id'             => $cariId,
+            'fatura_tarihi'       => $faturaT,
+            'vade_tarihi'         => $vadeTarihi,
+            'ara_toplam'          => round($araToplam, 2),
+            'iskonto_tutari'      => round($iskontoTutar, 2),
+            'kdv_tutari'          => round($kdvTutar, 2),
+            'genel_toplam'        => round($genelToplam, 2),
+            'odenen_tutar'        => $odenenTutar,
+            'kalan_tutar'         => round($kalanTutar, 2),
+            'para_birimi'         => $paraBirimi,
+            'kur'                 => $kur,
+            'ara_toplam_doviz'     => $araToplamDoviz,
+            'iskonto_tutari_doviz' => $iskontoTutarDoviz,
+            'kdv_tutari_doviz'     => $kdvTutarDoviz,
+            'genel_toplam_doviz'   => $genelToplamDoviz,
             'durum'          => $durum === 'taslak' ? 'taslak' : 'onaylandi',
             'odeme_sekli'    => $odemeSekli ?: null,
             'aciklama'       => $aciklama   ?: null,

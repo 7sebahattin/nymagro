@@ -112,7 +112,7 @@ $rowCount = count($kalemler ?? []);
     <div class="invoice-box">
       <h3>Odeme / Belge Bilgileri</h3>
       <p>Belge tipi: <?= htmlspecialchars($fatura['belge_tipi'] ?? 'satis') ?></p>
-      <p>Para birimi: <?= htmlspecialchars($fatura['para_birimi'] ?? $settings['default_currency'] ?? 'TRY') ?></p>
+      <p>Para birimi: <?= htmlspecialchars($fatura['para_birimi'] ?? $settings['default_currency'] ?? 'TRY') ?><?php if (!empty($fatura['para_birimi']) && $fatura['para_birimi'] !== 'TRY' && !empty($fatura['kur'])): ?> (Kur: <?= number_format((float)$fatura['kur'], 4, ',', '.') ?>)<?php endif; ?></p>
       <p>Aciklama: <?= htmlspecialchars($fatura['aciklama'] ?? '-') ?></p>
     </div>
   </div>
@@ -161,6 +161,9 @@ $rowCount = count($kalemler ?? []);
         <div class="invoice-total-line"><span>Iskonto</span><strong><?= $money($fatura['iskonto_tutari']) ?></strong></div>
       <?php endif; ?>
       <div class="invoice-total-line grand"><span>GENEL TOPLAM</span><strong><?= $money($fatura['genel_toplam'] ?? 0) ?></strong></div>
+      <?php if (!empty($fatura['para_birimi']) && $fatura['para_birimi'] !== 'TRY' && isset($fatura['genel_toplam_doviz'])): ?>
+        <div class="invoice-total-line"><span>Döviz Tutarı</span><strong><?= number_format((float)$fatura['genel_toplam_doviz'], 2, ',', '.') ?> <?= htmlspecialchars($fatura['para_birimi']) ?></strong></div>
+      <?php endif; ?>
     </div>
   </div>
 
