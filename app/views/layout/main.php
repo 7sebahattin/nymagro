@@ -237,6 +237,7 @@ $sayfaIkonu   = $topbarIcon ?? '';
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <meta name="googlebot" content="noindex, nofollow" />
   <title><?= htmlspecialchars($pageTitle) ?> — <?= htmlspecialchars(APP_NAME) ?></title>
+  <meta name="csrf-token" content="<?= htmlspecialchars(Csrf::token(), ENT_QUOTES, 'UTF-8') ?>">
 
   <!-- PWA -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -457,6 +458,12 @@ $sayfaIkonu   = $topbarIcon ?? '';
   </div>
 </div>
 
+<script>
+  /* CSRF: panel-ui.js bu iki globali kullanarak TÜM form/fetch/link'lere
+     otomatik token ekler — hiçbir modül view'i tek tek değiştirilmedi. */
+  window.NYM_BASE_URL = <?= json_encode(BASE_URL) ?>;
+  window.NYM_CSRF_TOKEN = <?= json_encode(Csrf::token()) ?>;
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= varlik('/js/panel-ui.js') ?>"></script>
 </body>

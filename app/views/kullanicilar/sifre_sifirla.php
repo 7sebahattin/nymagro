@@ -14,6 +14,7 @@ $kullanici = $kullanici ?? [];
       Mevcut şifreyi göremezsiniz — sadece sıfırlayabilirsiniz. Kullanıcıya yeni şifreyi güvenli bir kanaldan iletin.
     </p>
     <form method="post" action="<?= BASE_URL ?>/kullanicilar/<?= (int)$kullanici['id'] ?>/sifre-sifirla">
+      <?= Csrf::fieldHtml() ?>
       <div class="mb-3">
         <label class="form-label">Yeni Şifre *</label>
         <input type="password" name="new_password" class="form-control" required minlength="6" autocomplete="new-password">

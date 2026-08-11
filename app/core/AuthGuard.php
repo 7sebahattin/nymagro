@@ -196,6 +196,9 @@ final class AuthGuard
         $_SESSION['user_email']     = $user['email'] ?? '';
         $_SESSION['user_avatar_path'] = $user['avatar_path'] ?? '';
         session_regenerate_id(true);
+        if (class_exists('Csrf')) {
+            Csrf::rotate();
+        }
 
         $db->update('users', [
             'last_login_at'      => date('Y-m-d H:i:s'),
@@ -256,6 +259,19 @@ final class AuthGuard
         ");
     }
 
+    /**
+     * İlk kurulumda hiç kullanıcı yoksa bir Süper Yönetici seed eder.
+     *
+     * GÜVENLİK: `production` ortamında ASLA sabit/bilinen bir şifre
+     * (ör. eski "admin123") kullanılmaz — kriptografik olarak güçlü,
+     * rastgele bir şifre üretilir ve YALNIZCA bir kez error_log()'a
+     * yazılır (ekrana/response'a asla basılmaz). Development/test'te
+     * (APP_ENV production değilse) eski kolay şifre korunur — yerel
+     * geliştirme kolaylığı için, spec'in izin verdiği şekilde.
+     *
+     * Zaten bir kullanıcı (ör. mevcut canlı Süper Admin) varsa bu metot
+     * HİÇBİR ŞEYE dokunmaz — mevcut hesap/şifre asla değiştirilmez.
+     */
     private static function ensureDefaultAdmin(): void
     {
         $db  = Database::getInstance();
@@ -264,15 +280,40 @@ final class AuthGuard
             return;
         }
 
-        // Varsayılan yönetici → admin / admin123
+        $isProduction = defined('APP_ENV') && APP_ENV === 'production';
+        $password = $isProduction ? self::generateStrongPassword() : 'admin123';
+
         $db->insert('users', [
             'username'      => 'admin',
             'email'         => 'admin@nymagro.com',
-            'password_hash' => password_hash('admin123', PASSWORD_DEFAULT),
+            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
             'full_name'     => 'Sistem Yöneticisi',
             'role'          => 'super_admin',
             'status'        => 'active',
         ]);
+
+        if ($isProduction) {
+            error_log(
+                "[NYMAGRO KURULUM] İlk Süper Yönetici hesabı oluşturuldu.\n" .
+                "  Kullanıcı adı : admin\n" .
+                "  Geçici şifre  : {$password}\n" .
+                "  Bu şifre başka HİÇBİR yerde (ekranda, veritabanında düz metin olarak, " .
+                "başka bir logda) görüntülenmez. Şimdi giriş yapıp Profil > Şifre Değiştir " .
+                "üzerinden değiştirin. Bu log satırını okuduktan sonra sunucu log dosyanızdan silin."
+            );
+        }
+    }
+
+    private static function generateStrongPassword(): string
+    {
+        // 24 karakter, kriptografik RNG, karışık karakter seti — kolay
+        // kopyalanabilir (belirsiz karakter yok) ama tahmin edilemez.
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
+        $password = '';
+        for ($i = 0; $i < 24; $i++) {
+            $password .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+        }
+        return $password;
     }
 
     private static function ensureUserProfileColumns(): void

@@ -19,6 +19,7 @@ $moduleLabels = Rbac::moduleLabels();
 <?php endif; ?>
 
 <form method="post" action="<?= $action ?>">
+  <?= Csrf::fieldHtml() ?>
   <div class="card border-0 shadow-sm mb-3">
     <div class="card-body p-4 row g-3">
       <div class="col-md-6">

@@ -84,9 +84,18 @@ final class NakitController extends Controller
         $mutatingCreate = ['yeni', 'toplu-yukle', 'onizleme', 'kaydet', 'pdf-yukle', 'odeme-ekle', 'not-ekle', 'toplu-odeme', 'toplu-not'];
         $mutatingDelete = ['iptal'];
         if (in_array($action, $mutatingCreate, true)) {
+            // Bu alt aksiyonların bir kısmı GET'te sadece FORM gösterir (ör. 'yeni'),
+            // gerçek yazma her zaman kendi POST kontrolüyle olur — o yüzden yetki
+            // kontrolü GET+POST'ta, CSRF kontrolü SADECE POST'ta uygulanır (aksi halde
+            // formu GÖRÜNTÜLEMEK bile CSRF hatası verirdi).
             Rbac::authorizeOrDeny('NakitController', 'gelen_e_faturalar_create');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                Csrf::verifyOrDeny('NakitController', 'gelen_e_faturalar_create');
+            }
         } elseif (in_array($action, $mutatingDelete, true)) {
+            // 'iptal' GET ile tetiklenen GERÇEK bir mutasyondur (bkz. Csrf::EXPLICIT_GET_MUTATIONS).
             Rbac::authorizeOrDeny('NakitController', 'gelen_e_faturalar_delete');
+            Csrf::verifyOrDeny('NakitController', 'gelen_e_faturalar_delete');
         }
 
         try {

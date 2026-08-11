@@ -263,9 +263,17 @@ final class Rbac
         ]);
         self::grantAll($superAdminId, $allCodes);
 
-        // 2) Mevcut (miras) roller — mevcut kullanıcıların bugünkü yetkisini KORUR:
-        //    tüm iş modüllerinde tam CRUD, ama Kullanıcı/Rol/Audit yönetimi yok.
-        //    (Migrasyon öncesi zaten hiçbir yetki kontrolü yoktu; davranış bozulmasın diye.)
+        // 2) Mevcut (miras) roller — mevcut kullanıcıların GÜNLÜK İŞLERİNİ (görüntüleme/
+        //    ekleme/düzenleme) KORUR, ama DELETE'i otomatik vermez.
+        //    Neden: migrasyon öncesi hiçbir yetki kontrolü yoktu, dolayısıyla teorik
+        //    olarak herkes her şeyi silebiliyordu — ama bu bir TASARIM değil, sadece
+        //    kontrolün hiç var olmamasıydı. Silme, kalıcı ve geri alınamaz bir işlem
+        //    olduğu için "varsayılan olarak kimseye verilmeyen, Süper Yönetici'nin
+        //    bilinçli olarak açtığı" bir yetki olmalı (spec §24/§71). Bu yüzden VIEW/
+        //    CREATE/UPDATE miras rollerde otomatik açık kalır (çalışma akışı bozulmaz),
+        //    DELETE ise açık DEĞİLDİR — gerekiyorsa Süper Yönetici Roller ekranından
+        //    saniyeler içinde açabilir.
+        $nonCriticalNoDelete = array_values(array_filter($nonCriticalCodes, fn($c) => !str_ends_with($c, '_DELETE')));
         foreach ([
             'admin'      => 'Yönetici (miras)',
             'accountant' => 'Muhasebe (miras)',
@@ -273,10 +281,10 @@ final class Rbac
         ] as $code => $name) {
             $rid = $db->insert('roles', [
                 'code' => $code, 'name' => $name,
-                'description' => 'Mevcut kullanıcıların önceki tam erişimini koruyan geçiş rolü.',
+                'description' => 'Mevcut kullanıcıların görüntüleme/ekleme/düzenleme erişimini koruyan geçiş rolü. Silme yetkisi YOKTUR — gerekiyorsa Roller ekranından açılmalı.',
                 'is_system' => 0,
             ]);
-            self::grantAll($rid, $nonCriticalCodes);
+            self::grantAll($rid, $nonCriticalNoDelete);
         }
 
         // 3) Yeni şablon roller (spec'te istenen) — Süper Yönetici bunları

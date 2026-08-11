@@ -15,6 +15,7 @@ $action = $isEdit ? (BASE_URL . '/kullanicilar/' . (int)$kullanici['id'] . '/gun
 <div class="card border-0 shadow-sm">
   <div class="card-body p-4">
     <form method="post" action="<?= $action ?>" class="row g-3">
+      <?= Csrf::fieldHtml() ?>
       <div class="col-md-6">
         <label class="form-label">Ad Soyad *</label>
         <input type="text" name="full_name" class="form-control" required value="<?= $h($kullanici['full_name'] ?? '') ?>">

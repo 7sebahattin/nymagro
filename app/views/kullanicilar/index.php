@@ -73,11 +73,13 @@ $meId = AuthGuard::userId();
               <?php if ($canDisable && (int)$u['id'] !== $meId): ?>
                 <?php if ($u['status'] === 'active'): ?>
                   <form method="post" action="<?= BASE_URL ?>/kullanicilar/<?= (int)$u['id'] ?>/durum" class="d-inline" onsubmit="return confirm('<?= $h($u['username']) ?> pasifleştirilsin mi?')">
+                    <?= Csrf::fieldHtml() ?>
                     <input type="hidden" name="status" value="passive">
                     <button class="btn btn-outline-secondary" title="Pasifleştir"><i class="fa-solid fa-user-slash"></i></button>
                   </form>
                 <?php else: ?>
                   <form method="post" action="<?= BASE_URL ?>/kullanicilar/<?= (int)$u['id'] ?>/durum" class="d-inline">
+                    <?= Csrf::fieldHtml() ?>
                     <input type="hidden" name="status" value="active">
                     <button class="btn btn-outline-success" title="Aktifleştir"><i class="fa-solid fa-user-check"></i></button>
                   </form>
@@ -94,6 +96,7 @@ $meId = AuthGuard::userId();
           <div class="modal-dialog">
             <div class="modal-content">
               <form method="post" action="<?= BASE_URL ?>/kullanicilar/<?= (int)$u['id'] ?>/sil">
+                <?= Csrf::fieldHtml() ?>
                 <div class="modal-header"><h5 class="modal-title">Kullanıcıyı Kalıcı Sil</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                   <p><strong><?= $h($u['full_name']) ?></strong> (<?= $h($u['username']) ?>, #<?= (int)$u['id'] ?>) kalıcı olarak silinecek. Bu işlem geri alınamaz; kullanıcının audit geçmişi korunur ama hesabı tamamen kaldırılır.</p>

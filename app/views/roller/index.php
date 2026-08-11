@@ -35,6 +35,7 @@ $canDelete = Rbac::currentUserCan('ROLE_DELETE');
               <?php endif; ?>
               <?php if ($canDelete): ?>
                 <form method="post" action="<?= BASE_URL ?>/roller/<?= (int)$r['id'] ?>/sil" class="d-inline" onsubmit="return confirm('<?= $h($r['name']) ?> rolü silinsin mi?')">
+                  <?= Csrf::fieldHtml() ?>
                   <button class="btn btn-sm btn-outline-danger" <?= (int)$r['user_count'] > 0 ? 'disabled title="Bu rolde kullanıcı var"' : '' ?>><i class="fa-solid fa-trash"></i></button>
                 </form>
               <?php endif; ?>

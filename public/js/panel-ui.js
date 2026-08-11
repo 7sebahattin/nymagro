@@ -5,6 +5,109 @@
 (function () {
   'use strict';
 
+  /* ── CSRF: TÜM form/fetch/link'lere otomatik token ekleme ────────────
+     Bu dosya main.php layout'unda TÜM panel sayfalarında yüklendiği için,
+     buradaki tek bir değişiklik ~20 mevcut modülün view dosyalarının HİÇBİRİ
+     tek tek düzenlenmeden CSRF korumasına dahil olmasını sağlar:
+       1) fetch(): POST/PUT/PATCH/DELETE gövdesine/başlığına token eklenir.
+       2) <form method="post"> submit anında gizli csrf_token alanı eklenir.
+       3) Aynı-origin panel linkleri (ör. eski GET tabanlı "/modul/sil/{id}")
+          tıklanmadan hemen önce href'e ?csrf=... eklenir.
+     Sunucu tarafı (Csrf::verifyOrDeny) TEK doğruluk kaynağıdır; bu JS sadece
+     mevcut kullanıcı deneyimini bozmadan token'ı taşımanın bir yoludur —
+     JS engellenirse/başarısız olursa sunucu yine de isteği reddeder. */
+  (function setupCsrf() {
+    var TOKEN = window.NYM_CSRF_TOKEN || '';
+    var BASE = window.NYM_BASE_URL || '';
+    if (!TOKEN) return;
+
+    function sameOrigin(url) {
+      if (!url) return false;
+      if (url.indexOf('/') === 0) return true; // köke göreli
+      if (BASE && url.indexOf(BASE) === 0) return true;
+      return url.indexOf('http') !== 0; // şema yok → göreli kabul et
+    }
+
+    function appendCsrfParam(url) {
+      if (/[?&]csrf=/.test(url)) return url;
+      var sep = url.indexOf('?') === -1 ? '?' : '&';
+      return url + sep + 'csrf=' + encodeURIComponent(TOKEN);
+    }
+
+    // 1) fetch() gövdesine/başlığına/URL'sine token ekle
+    if (window.fetch) {
+      var origFetch = window.fetch.bind(window);
+      window.fetch = function (input, init) {
+        init = init || {};
+        var method = (init.method || (input && input.method) || 'GET').toString().toUpperCase();
+        var url = typeof input === 'string' ? input : (input && input.url) || '';
+        if (!sameOrigin(url)) {
+          return origFetch(input, init); // farklı origin — dokunma
+        }
+        if (method === 'GET' || method === 'HEAD') {
+          // Bare fetch(url) ile tetiklenen GET-tabanlı mutasyonlar da olabilir
+          // (ör. eski `/masraf/kopyala/{id}`, `/masraf/sil/{id}` gibi form
+          // kullanmayan aksiyonlar). Zararsız/kullanılmayan bir parametre
+          // olarak SAF görüntüleme isteklerinde de eklenir.
+          if (typeof input === 'string') {
+            return origFetch(appendCsrfParam(url), init);
+          }
+          return origFetch(input, init);
+        }
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].indexOf(method) === -1) {
+          return origFetch(input, init);
+        }
+        if (init.body instanceof FormData) {
+          if (!init.body.has('csrf_token')) init.body.append('csrf_token', TOKEN);
+        } else if (init.body instanceof URLSearchParams) {
+          if (!init.body.has('csrf_token')) init.body.append('csrf_token', TOKEN);
+        } else if (typeof init.body === 'string' && init.body.length && init.body.indexOf('csrf_token=') === -1
+                   && (!init.headers || !(init.headers['Content-Type'] || init.headers['content-type'] || '').includes('json'))) {
+          init.body += (init.body.indexOf('=') !== -1 ? '&' : '') + 'csrf_token=' + encodeURIComponent(TOKEN);
+        } else {
+          init.headers = init.headers || {};
+          if (init.headers instanceof Headers) {
+            if (!init.headers.has('X-CSRF-Token')) init.headers.set('X-CSRF-Token', TOKEN);
+          } else if (!init.headers['X-CSRF-Token']) {
+            init.headers['X-CSRF-Token'] = TOKEN;
+          }
+        }
+        return origFetch(input, init);
+      };
+    }
+
+    // 2) <form method="post"> submit anında gizli alan ekle
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+      var method = (form.getAttribute('method') || 'GET').toUpperCase();
+      if (method !== 'POST') return;
+      if (form.querySelector('input[name="csrf_token"]')) return;
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'csrf_token';
+      input.value = TOKEN;
+      form.appendChild(input);
+    }, true);
+
+    // 3) Aynı-origin panel linkleri: tıklanmadan önce href'e ?csrf= ekle
+    //    (eski GET-tabanlı sil/iptal/durum linkleri için — sunucu VIEW
+    //    olmayan GET işlemlerinde bunu zorunlu kılar, VIEW linklerinde
+    //    zararsız/kullanılmayan bir parametre olarak kalır).
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest('a[href]');
+      if (!a || !BASE) return;
+      var href = a.getAttribute('href') || '';
+      if (href.indexOf(BASE + '/') !== 0) return;
+      if (a.target && a.target !== '_self') return;
+      if (a.hasAttribute('download')) return;
+      if (/[?&]csrf=/.test(href)) return;
+      var sep = href.indexOf('?') === -1 ? '?' : '&';
+      a.setAttribute('href', href + sep + 'csrf=' + encodeURIComponent(TOKEN));
+    }, true);
+  })();
+
   /* ── Tema geçişi ────────────────────────────────────────────────────
      Tercih hem localStorage'a hem çereze yazılır. Çerez sayesinde PHP
      tarafı <body data-theme> değerini sunucuda basar; böylece sayfa

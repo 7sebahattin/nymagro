@@ -140,6 +140,10 @@ final class Router
         //     ile YETİNİLMEZ — her kritik endpoint burada da kontrol edilir) ──
         Rbac::authorizeOrDeny($controllerName, $method);
 
+        // ─── CSRF: state-changing tüm POST/PUT/PATCH/DELETE + eski GET-tabanlı
+        //     silme/mutasyon linkleri (bkz. Csrf::isRequired) burada reddedilir ──
+        Csrf::verifyOrDeny($controllerName, $method);
+
         if ($numericResourceId !== null) {
             array_unshift($url, $numericResourceId);
         } else {
