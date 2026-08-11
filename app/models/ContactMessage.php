@@ -43,6 +43,11 @@ final class ContactMessage
         return $this->db->select("SELECT * FROM contact_messages ORDER BY id DESC LIMIT {$limit}");
     }
 
+    public function bul(int $id): ?array
+    {
+        return $this->db->selectOne("SELECT * FROM contact_messages WHERE id = :id", [':id' => $id]);
+    }
+
     public function yeniSay(): int
     {
         $r = $this->db->select("SELECT COUNT(*) AS n FROM contact_messages WHERE status = 'new'");

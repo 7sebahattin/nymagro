@@ -171,12 +171,16 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
 
 <!-- Aksiyon Satırı -->
 <div class="ms-action">
+  <?php if (Rbac::currentUserCan('MASRAF_CREATE')): ?>
   <a href="<?= BASE_URL ?>/masraf/ekle" class="btn-ms-ekle">
     <i class="fa-solid fa-plus"></i> Yeni Masraf Gir
   </a>
+  <?php endif; ?>
+  <?php if (Rbac::currentUserCan('MASRAF_UPDATE')): ?>
   <a href="<?= BASE_URL ?>/masraf/kalemler" class="btn-ms-kat">
     <i class="fa-solid fa-pen-to-square"></i> Masraf Kalemleri
   </a>
+  <?php endif; ?>
 </div>
 
 <!-- Özet Kartlar -->
@@ -404,13 +408,17 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
 <!-- Custom Fixed Dropdown (overflow sorunu yok) -->
 <div class="ctx-menu" id="ctxMenu">
   <a href="#" id="ctxYazdir"><i class="fa-solid fa-print fa-fw"></i> Yazdır</a>
-  <a href="#" id="ctxDuzenle"><i class="fa-solid fa-pen fa-fw"></i> Düzenle</a>
-  <a href="#" id="ctxKopyala"><i class="fa-regular fa-copy fa-fw"></i> Kopyala</a>
+  <?php if (Rbac::currentUserCan('MASRAF_UPDATE')): ?><a href="#" id="ctxDuzenle"><i class="fa-solid fa-pen fa-fw"></i> Düzenle</a><?php endif; ?>
+  <?php if (Rbac::currentUserCan('MASRAF_CREATE')): ?><a href="#" id="ctxKopyala"><i class="fa-regular fa-copy fa-fw"></i> Kopyala</a><?php endif; ?>
+  <?php if (Rbac::currentUserCan('MASRAF_DELETE')): ?>
   <hr>
   <a href="#" id="ctxSil" class="danger"><i class="fa-solid fa-trash fa-fw"></i> Sil</a>
+  <?php endif; ?>
+  <?php if (Rbac::currentUserCan('MASRAF_UPDATE')): ?>
   <hr>
   <a href="#" id="ctxBelge" class="belge"><i class="fa-solid fa-plus fa-fw"></i> Belge Ekle</a>
   <a href="#" id="ctxOdeme" class="success" style="display:none;"><i class="fa-solid fa-check fa-fw"></i> Ödendi İşaretle</a>
+  <?php endif; ?>
 </div>
 
 <!-- MODAL: Belge Yükleme -->
@@ -453,26 +461,34 @@ function ctxOpen(btn) {
   const menu = document.getElementById('ctxMenu');
   try { _ctx = JSON.parse(btn.dataset.masraf); } catch(e) { return; }
 
-  // Ödendi İşaretle — sadece ödenmediyse görünür
+  // Ödendi İşaretle — sadece ödenmediyse görünür (element yalnızca yetkili kullanıcıda DOM'da vardır)
   const odemeEl = document.getElementById('ctxOdeme');
-  odemeEl.style.display = (_ctx.dur !== 'odendi') ? 'flex' : 'none';
-  odemeEl.onclick = e => { e.preventDefault(); closeCtx(); openOdeme(_ctx.id, _ctx.kat); };
+  if (odemeEl) {
+    odemeEl.style.display = (_ctx.dur !== 'odendi') ? 'flex' : 'none';
+    odemeEl.onclick = e => { e.preventDefault(); closeCtx(); openOdeme(_ctx.id, _ctx.kat); };
+  }
 
   // Yazdır
   document.getElementById('ctxYazdir').onclick = e => { e.preventDefault(); closeCtx(); masrafYazdir(_ctx); };
 
-  // Düzenle
-  document.getElementById('ctxDuzenle').href = BASE + '/masraf/ekle?duzenle=' + _ctx.id;
-  document.getElementById('ctxDuzenle').onclick = () => closeCtx();
+  // Düzenle (yetkisi olmayan kullanıcıda element DOM'da yok)
+  const duzenleEl = document.getElementById('ctxDuzenle');
+  if (duzenleEl) {
+    duzenleEl.href = BASE + '/masraf/ekle?duzenle=' + _ctx.id;
+    duzenleEl.onclick = () => closeCtx();
+  }
 
   // Kopyala
-  document.getElementById('ctxKopyala').onclick = e => { e.preventDefault(); closeCtx(); masrafKopyala(_ctx.id); };
+  const kopyalaEl = document.getElementById('ctxKopyala');
+  if (kopyalaEl) kopyalaEl.onclick = e => { e.preventDefault(); closeCtx(); masrafKopyala(_ctx.id); };
 
   // Sil
-  document.getElementById('ctxSil').onclick = e => { e.preventDefault(); closeCtx(); masrafSil(_ctx.id, btn); };
+  const silEl = document.getElementById('ctxSil');
+  if (silEl) silEl.onclick = e => { e.preventDefault(); closeCtx(); masrafSil(_ctx.id, btn); };
 
   // Belge Ekle
-  document.getElementById('ctxBelge').onclick = e => { e.preventDefault(); closeCtx(); openBelgeModal(_ctx.id); };
+  const belgeEl = document.getElementById('ctxBelge');
+  if (belgeEl) belgeEl.onclick = e => { e.preventDefault(); closeCtx(); openBelgeModal(_ctx.id); };
 
   // Pozisyon: butonun altına — viewport dışına taşmaz
   menu.classList.add('open');
@@ -497,7 +513,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCtx(); 
 /* ── KOPYALA ─────────────────────────────────────────── */
 function masrafKopyala(id) {
   if (!confirm('Bu masraf kaydını kopyalamak istiyor musunuz? Yeni kayıt bugün tarihiyle oluşturulur.')) return;
-  fetch(BASE + '/masraf/kopyala/' + id)
+  fetch(BASE + '/masraf/kopyala/' + id, { method: 'POST' })
     .then(r => r.json())
     .then(res => {
       if (res.success) { showToast(res.message, 'success'); setTimeout(() => location.reload(), 1000); }
@@ -693,7 +709,7 @@ function odemeKaydet() {
 function masrafSil(id, el) {
   if (!confirm('Bu masraf kaydını silmek istediğinizden emin misiniz?')) return;
 
-  fetch(BASE + '/masraf/sil/' + id)
+  fetch(BASE + '/masraf/sil/' + id, { method: 'POST' })
     .then(r => r.json())
     .then(res => {
       if (res.success) {

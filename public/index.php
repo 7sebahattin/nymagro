@@ -20,6 +20,9 @@ require_once CORE_PATH . '/Varlik.php';
 require_once CORE_PATH . '/Database.php';
 require_once CORE_PATH . '/TenantContext.php';
 require_once CORE_PATH . '/AuthGuard.php';
+require_once CORE_PATH . '/Rbac.php';
+require_once CORE_PATH . '/Audit.php';
+require_once CORE_PATH . '/Csrf.php';
 require_once CORE_PATH . '/Controller.php';
 require_once CORE_PATH . '/Router.php';
 

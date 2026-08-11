@@ -153,7 +153,9 @@ class KasaHesap
         $temiz['acilis_bakiyesi'] = $acilis;
         $temiz['guncel_bakiye'] = $acilis; // Açılışta güncel = açılış
 
-        return $this->db->insert('kasa_banka', $temiz);
+        $id = $this->db->insert('kasa_banka', $temiz);
+        Audit::log('CREATE', 'HESAP', $id, null, $temiz, 'Hesap oluşturuldu: ' . ($temiz['hesap_adi'] ?? ''));
+        return $id;
     }
 
     public function guncelle(int $id, array $veri): int
@@ -162,12 +164,18 @@ class KasaHesap
         if (empty($temiz)) {
             return 0;
         }
-        return $this->db->update('kasa_banka', $temiz, ['id' => $id]);
+        $before = $this->getir($id);
+        $sonuc = $this->db->update('kasa_banka', $temiz, ['id' => $id]);
+        Audit::log('UPDATE', 'HESAP', $id, $before, $temiz, 'Hesap güncellendi: ' . ($temiz['hesap_adi'] ?? ''));
+        return $sonuc;
     }
 
     public function sil(int $id): int
     {
-        return $this->db->update('kasa_banka', ['silindi_mi' => 1], ['id' => $id]);
+        $before = $this->getir($id);
+        $sonuc = $this->db->update('kasa_banka', ['silindi_mi' => 1], ['id' => $id]);
+        Audit::log('DELETE', 'HESAP', $id, $before, null, 'Hesap silindi: ' . ($before['hesap_adi'] ?? ''));
+        return $sonuc;
     }
 
     // ──────────────────────────────────────────────────────
@@ -240,6 +248,10 @@ class KasaHesap
                 [':tutar' => $tutar, ':id' => $kasaId, ':company_id' => TenantContext::activeCompanyId()]
             );
 
+            Audit::log('CREATE', 'HESAP', $id, null, [
+                'kasa_id' => $kasaId, 'islem_tipi' => $islem, 'hareket_tipi' => $hareketTipi, 'tutar' => $tutar,
+            ], "Kasa hareketi eklendi ({$islem}): {$tutar}");
+
             $this->db->commit();
             return $id;
         } catch (\Exception $e) {
@@ -304,6 +316,8 @@ class KasaHesap
                 [':t' => $tutar, ':id' => $toId, ':company_id' => TenantContext::activeCompanyId()]
             );
 
+            Audit::log('UPDATE', 'HESAP', $fromId, null, ['transfer_to' => $toId, 'tutar' => $tutar], "Hesaplar arası transfer: {$fromId} → {$toId}, {$tutar}");
+
             $this->db->commit();
         } catch (\Exception $e) {
             $this->db->rollBack();
@@ -335,6 +349,8 @@ class KasaHesap
                 "UPDATE kasa_banka SET guncel_bakiye = guncel_bakiye {$sign} :tutar WHERE id = :id AND company_id = :company_id",
                 [':tutar' => $h['tutar'], ':id' => $h['kasa_id'], ':company_id' => TenantContext::activeCompanyId()]
             );
+
+            Audit::log('DELETE', 'HESAP', $id, $h, null, 'Kasa hareketi silindi: ' . $h['tutar']);
 
             $this->db->commit();
             return true;

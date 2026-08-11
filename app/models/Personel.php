@@ -33,19 +33,25 @@ class Personel
             throw new InvalidArgumentException('Personel adı boş olamaz.');
         }
 
-        return $this->db->insert('personeller', [
+        $veri = [
             'ad' => $ad,
             'gorev' => trim((string)($data['gorev'] ?? '')) ?: null,
             'departman' => trim((string)($data['departman'] ?? '')) ?: null,
             'maas' => (float)($data['maas'] ?? 0),
             'aktif_mi' => !empty($data['aktif_mi']) ? 1 : 0,
             'notlar' => trim((string)($data['notlar'] ?? '')) ?: null,
-        ]);
+        ];
+        $id = $this->db->insert('personeller', $veri);
+        Audit::log('CREATE', 'PERSONEL', $id, null, $veri, "Personel eklendi: {$ad}");
+        return $id;
     }
 
     public function sil(int $id): int
     {
-        return $this->db->update('personeller', ['silindi_mi' => 1], ['id' => $id]);
+        $before = $this->db->selectOne("SELECT * FROM personeller WHERE id = :id AND company_id = :cid", [':id' => $id, ':cid' => TenantContext::activeCompanyId()]);
+        $result = $this->db->update('personeller', ['silindi_mi' => 1], ['id' => $id]);
+        Audit::log('DELETE', 'PERSONEL', $id, $before, null, 'Personel silindi: ' . ($before['ad'] ?? ''));
+        return $result;
     }
 
     public function hareketEkle(array $data): int
@@ -105,6 +111,9 @@ class Personel
             ]);
 
             $this->db->update('masraflar', ['personel_hareket_id' => $id], ['id' => $masrafId]);
+            Audit::log('CREATE', 'PERSONEL', $id, null,
+                ['personel_id' => $personelId, 'tip' => $tip, 'tutar' => $tutar, 'odeme_durumu' => $durum],
+                "Personel hareketi eklendi: {$this->tipLabel($tip)}");
 
             if ($durum === 'odendi' && $kasaId) {
                 $this->db->insert('kasa_hareketleri', [
@@ -135,11 +144,12 @@ class Personel
 
     public function hareketSil(int $id): int
     {
-        $row = $this->db->selectOne("SELECT masraf_id FROM personel_hareketleri WHERE id = :id AND company_id = :cid", [':id' => $id, ':cid' => TenantContext::activeCompanyId()]);
+        $row = $this->db->selectOne("SELECT * FROM personel_hareketleri WHERE id = :id AND company_id = :cid", [':id' => $id, ':cid' => TenantContext::activeCompanyId()]);
         $count = $this->db->update('personel_hareketleri', ['silindi_mi' => 1], ['id' => $id]);
         if (!empty($row['masraf_id'])) {
             $this->db->update('masraflar', ['silindi_mi' => 1], ['id' => (int)$row['masraf_id']]);
         }
+        Audit::log('DELETE', 'PERSONEL', $id, $row, null, 'Personel hareketi silindi.');
         return $count;
     }
 

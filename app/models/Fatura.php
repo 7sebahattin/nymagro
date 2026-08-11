@@ -238,6 +238,12 @@ class Fatura
         );
     }
 
+    /** belge_tipi'ne göre ilgili Rbac/Audit modülünü döner (alış tarafı → ALIS, diğerleri → SATIS). */
+    private function moduleForBelgeTipi(string $belgeTipi): string
+    {
+        return in_array($belgeTipi, ['alis', 'iade_alis'], true) ? 'ALIS' : 'SATIS';
+    }
+
     // ─── Kayıt ──────────────────────────────────────────────────────────
 
     /**
@@ -310,6 +316,7 @@ class Fatura
             }
 
             $this->db->commit();
+            Audit::log('CREATE', $this->moduleForBelgeTipi($temizFatura['belge_tipi']), $faturaId, null, $temizFatura, "Fatura oluşturuldu: " . ($temizFatura['fatura_no'] ?? ''));
             return $faturaId;
         } catch (\Throwable $e) {
             if ($this->db->pdo()->inTransaction()) {
@@ -350,6 +357,7 @@ class Fatura
             $temizFatura['depo_id'] = $depoId;
             $this->assertCariBelongsToCompany($temizFatura['cari_id'] ?? null);
             $this->db->update('faturalar', $temizFatura, ['id' => $id]);
+            Audit::log('UPDATE', $this->moduleForBelgeTipi($mevcut['belge_tipi']), $id, $mevcut, $temizFatura, "Fatura güncellendi: " . ($temizFatura['fatura_no'] ?? $mevcut['fatura_no']));
 
             $islemTipi = in_array($fatura['belge_tipi'], ['alis', 'iade_satis'], true) ? 'giris' : 'cikis';
 
@@ -496,6 +504,7 @@ class Fatura
             }
             $sonuc = $this->db->update('faturalar', ['durum' => 'iptal'], ['id' => $id]);
             $this->reverseStockAndBalance($fatura);
+            Audit::log('UPDATE', $this->moduleForBelgeTipi($fatura['belge_tipi']), $id, ['durum' => $fatura['durum']], ['durum' => 'iptal'], "Fatura iptal edildi: " . ($fatura['fatura_no'] ?? ''));
             $this->db->commit();
             return $sonuc;
         } catch (\Throwable $e) {
@@ -525,6 +534,7 @@ class Fatura
                 $this->reverseStockAndBalance($fatura);
             }
             $sonuc = $this->db->softDelete('faturalar', $id);
+            Audit::log('DELETE', $this->moduleForBelgeTipi($fatura['belge_tipi']), $id, $fatura, null, "Fatura silindi: " . ($fatura['fatura_no'] ?? ''));
             $this->db->commit();
             return $sonuc;
         } catch (\Throwable $e) {

@@ -71,8 +71,35 @@ final class NakitController extends Controller
      * /nakit/gelen-e-faturalar/toplu-yukle
      * /nakit/gelen-e-faturalar/detay/{id}
      */
+    /**
+     * Bu metot /nakit/gelen-e-faturalar/{action} altındaki TÜM alt işlemleri
+     * ($action ile) kendi içinde yönlendirir; Router seviyesindeki merkezi
+     * RBAC haritası (Rbac::requiredPermissionFor) bu iç dallanmayı GÖREMEZ —
+     * bu yüzden VIEW'i aşan alt işlemler için burada AYRICA yetki kontrolü
+     * yapılır (bkz. Rbac::METHOD_OVERRIDES → bu metot router'da sadece
+     * NAKIT_VIEW ister; create/delete niteliğindeki dallar burada korunur).
+     */
     public function gelen_e_faturalar(string $action = '', ?string $id = null): void
     {
+        $mutatingCreate = ['yeni', 'toplu-yukle', 'onizleme', 'kaydet', 'pdf-yukle', 'odeme-ekle', 'not-ekle', 'toplu-odeme', 'toplu-not'];
+        $mutatingDelete = ['iptal'];
+        if (in_array($action, $mutatingCreate, true)) {
+            // Bu alt aksiyonların bir kısmı GET'te sadece FORM gösterir (ör. 'yeni'),
+            // gerçek yazma her zaman kendi POST kontrolüyle olur — o yüzden yetki
+            // kontrolü GET+POST'ta, CSRF kontrolü SADECE POST'ta uygulanır (aksi halde
+            // formu GÖRÜNTÜLEMEK bile CSRF hatası verirdi).
+            Rbac::authorizeOrDeny('NakitController', 'gelen_e_faturalar_create');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                Csrf::verifyOrDeny('NakitController', 'gelen_e_faturalar_create');
+            }
+        } elseif (in_array($action, $mutatingDelete, true)) {
+            // 'iptal' artık yalnızca POST ile tetiklenir; CSRF de yalnızca POST'ta doğrulanır.
+            Rbac::authorizeOrDeny('NakitController', 'gelen_e_faturalar_delete');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                Csrf::verifyOrDeny('NakitController', 'gelen_e_faturalar_delete');
+            }
+        }
+
         try {
             match ($action) {
                 'yeni' => $this->gelenEFaturaYeni(),
@@ -313,6 +340,9 @@ final class NakitController extends Controller
 
     private function gelenEFaturaIptal(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('nakit/gelen-e-faturalar/detay/' . $id);
+        }
         $this->gelenEFatura->pasifYap($id);
         $this->setFlash('success', 'Fatura iptal/pasif yapıldı.');
         $this->redirect('nakit/gelen-e-faturalar');

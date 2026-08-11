@@ -60,9 +60,11 @@
 
   <div class="top-bar">
     <div style="font-size: 13px; color: var(--muted);">Tanımlı depolarınızı yönetebilir ve stok durumlarını inceleyebilirsiniz.</div>
+    <?php if (Rbac::currentUserCan('DEPO_CREATE')): ?>
     <button class="btn-new" onclick="openModal('depoModal')">
       <i class="fa-solid fa-plus"></i> Yeni Depo Ekle
     </button>
+    <?php endif; ?>
   </div>
 
   <div class="depo-grid">
@@ -85,8 +87,8 @@
         
         <div class="depo-actions">
           <a href="<?= BASE_URL ?>/depo/detay/<?= $d['id'] ?>" class="btn-action btn-view">Stok Durumu</a>
-          <?php if ($d['id'] != 1): ?>
-            <a href="<?= BASE_URL ?>/depo/sil/<?= $d['id'] ?>" class="btn-action btn-delete" onclick="return confirm('Bu depoyu silmek istediğinize emin misiniz?')">Sil</a>
+          <?php if ($d['id'] != 1 && Rbac::currentUserCan('DEPO_DELETE')): ?>
+            <a href="#" class="btn-action btn-delete" onclick="return nymPost('<?= BASE_URL ?>/depo/sil/<?= $d['id'] ?>', 'Bu depoyu silmek istediğinize emin misiniz?')">Sil</a>
           <?php endif; ?>
         </div>
       </div>

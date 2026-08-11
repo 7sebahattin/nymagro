@@ -682,6 +682,9 @@ final class UrunController extends Controller
 
     public function sil(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('urun');
+        }
         $kayit = $this->urun->getir($id);
         if ($kayit) {
             // Önce silmeyi dene (stok kontrolü burada yapılır). Ancak

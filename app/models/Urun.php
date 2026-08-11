@@ -142,14 +142,19 @@ class Urun
     public function ekle(array $veri): int
     {
         $temiz = array_intersect_key($veri, array_flip($this->fillable));
-        return $this->db->insert('urunler_hizmetler', $temiz);
+        $id = $this->db->insert('urunler_hizmetler', $temiz);
+        Audit::log('CREATE', 'URUN', $id, null, $temiz, 'Ürün/hizmet eklendi: ' . ($temiz['ad'] ?? ''));
+        return $id;
     }
 
     /** Kayıt güncelle. */
     public function guncelle(int $id, array $veri): int
     {
         $temiz = array_intersect_key($veri, array_flip($this->fillable));
-        return $this->db->update('urunler_hizmetler', $temiz, ['id' => $id]);
+        $before = $this->getir($id);
+        $result = $this->db->update('urunler_hizmetler', $temiz, ['id' => $id]);
+        Audit::log('UPDATE', 'URUN', $id, $before, $temiz, 'Ürün/hizmet güncellendi: ' . ($before['ad'] ?? $temiz['ad'] ?? ''));
+        return $result;
     }
 
     /**
@@ -177,7 +182,9 @@ class Urun
         if ($depoStok && (float)($depoStok['toplam'] ?? 0) > 0.0001) {
             throw new RuntimeException('Stokta miktarı olan ürün silinemez. Önce stoğu sıfırlayın.');
         }
-        return $this->db->softDelete('urunler_hizmetler', $id);
+        $result = $this->db->softDelete('urunler_hizmetler', $id);
+        Audit::log('DELETE', 'URUN', $id, $urun, null, 'Ürün/hizmet silindi: ' . ($urun['ad'] ?? ''));
+        return $result;
     }
 
     /** Stok kodu/barkod benzersiz mi? */
@@ -324,6 +331,9 @@ class Urun
             $this->db->query($sqlTotal, [':miktar' => $miktar, ':id' => $urunId, ':company_id' => TenantContext::activeCompanyId()]);
 
             $this->db->commit();
+            Audit::log('UPDATE', 'URUN', $urunId, null,
+                ['islem_tipi' => $islemTipi, 'miktar' => $miktar, 'depo_id' => $depoId],
+                "Stok hareketi: {$aciklama}");
             return true;
         } catch (Exception $e) {
             $this->db->rollBack();

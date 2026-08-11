@@ -95,10 +95,12 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
 <!-- Action Buttons -->
 <div class="top-action-row no-print">
   <button class="btn-act b-yazdir" onclick="window.print()"><i class="fa-solid fa-print"></i> Yazdır</button>
-  <?php if (($fatura['durum'] ?? '') !== 'iptal'): ?>
+  <?php if (($fatura['durum'] ?? '') !== 'iptal' && Rbac::currentUserCan('ALIS_UPDATE')): ?>
   <a href="<?= BASE_URL ?>/alis/duzenle/<?= (int)$fatura['id'] ?>" class="btn-act b-duzenle"><i class="fa-solid fa-pen"></i> Düzenle</a>
   <?php endif; ?>
-  <button class="btn-act b-iptal" onclick="if(confirm('İptal edilsin mi?')) window.location.href='<?= BASE_URL ?>/alis/iptal/<?= $fatura['id'] ?>'"><i class="fa-solid fa-xmark"></i> İptal Et</button>
+  <?php if (($fatura['durum'] ?? '') !== 'iptal' && Rbac::currentUserCan('ALIS_UPDATE')): ?>
+  <button type="button" class="btn-act b-iptal" onclick="return nymPost('<?= BASE_URL ?>/alis/iptal/<?= $fatura['id'] ?>', 'İptal edilsin mi?')"><i class="fa-solid fa-xmark"></i> İptal Et</button>
+  <?php endif; ?>
   <button class="btn-act b-paylas" onclick="alisPaylas(this)"><i class="fa-regular fa-envelope"></i> Paylaş</button>
   <button class="btn-act b-tedarikci" onclick="window.location.href='<?= BASE_URL ?>/tedarikci/detay/<?= (int)$fatura['cari_id'] ?>'"><i class="fa-solid fa-user"></i> Tedarikçi Sayfası</button>
   <a href="<?= BASE_URL ?>/alis" class="btn-act" style="background:#64748b;"><i class="fa-solid fa-reply"></i> Geri Dön</a>

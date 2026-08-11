@@ -275,9 +275,11 @@ $durumRenk = [
 
 <!-- ── Üst Aksiyon Çubuğu ── -->
     <div class="action-btns" style="display:flex; gap:10px; align-items:center; margin-bottom: 16px; flex-wrap:wrap;">
+      <?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>
       <a href="<?= BASE_URL ?>/satis/ekle" class="btn-action" style="background:#5bc0de; color:#fff; padding:7px 12px; border-radius:3px; font-weight:600; font-size:12.5px; display:inline-flex; align-items:center; gap:6px;">
         <i class="fa-solid fa-plus"></i> Yeni Teklif Hazırla
       </a>
+      <?php endif; ?>
       <form method="GET" action="<?= BASE_URL ?>/teklif" style="margin-left:auto; display:flex; gap:6px;">
         <input type="text" name="ara" value="<?= htmlspecialchars($arama) ?>" placeholder="Müşteri veya belge no ara…" class="search-txt">
         <button type="submit" class="btn-action" style="background:#334155;">
@@ -330,8 +332,8 @@ $durumRenk = [
                   <div class="detail-btns">
                     <a href="<?= BASE_URL ?>/satis/duzenle/<?= $t['id'] ?>" class="btn-det blue"><i class="fa-solid fa-pen"></i> Görüntüle / Düzenle</a>
                     <a href="<?= BASE_URL ?>/satis/fatura/<?= $t['id'] ?>/print" target="_blank" rel="noopener" class="btn-det" style="background:#efa341;"><i class="fa-solid fa-print"></i> Yazdır</a>
-                    <?php if ($t['durum'] !== 'iptal'): ?>
-                      <a href="<?= BASE_URL ?>/satis/iptal/<?= $t['id'] ?>" class="btn-det red" onclick="return confirm('Teklif iptal edilsin mi?')"><i class="fa-solid fa-ban"></i> İptal Et</a>
+                    <?php if ($t['durum'] !== 'iptal' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
+                      <a href="#" class="btn-det red" onclick="return nymPost('<?= BASE_URL ?>/satis/iptal/<?= $t['id'] ?>', 'Teklif iptal edilsin mi?')"><i class="fa-solid fa-ban"></i> İptal Et</a>
                     <?php endif; ?>
                   </div>
                 </div>

@@ -52,16 +52,23 @@ class Fihrist
 
         $id = (int)($data['id'] ?? 0);
         if ($id > 0) {
+            $before = $this->getir($id);
             $this->db->update('fihrist_kartlari', $temiz, ['id' => $id]);
+            Audit::log('UPDATE', 'FIHRIST', $id, $before, $temiz, "Fihrist kartı güncellendi: {$unvan}");
             return $id;
         }
 
-        return $this->db->insert('fihrist_kartlari', $temiz);
+        $newId = $this->db->insert('fihrist_kartlari', $temiz);
+        Audit::log('CREATE', 'FIHRIST', $newId, null, $temiz, "Fihrist kartı eklendi: {$unvan}");
+        return $newId;
     }
 
     public function sil(int $id): int
     {
-        return $this->db->update('fihrist_kartlari', ['silindi_mi' => 1], ['id' => $id]);
+        $before = $this->getir($id);
+        $result = $this->db->update('fihrist_kartlari', ['silindi_mi' => 1], ['id' => $id]);
+        Audit::log('DELETE', 'FIHRIST', $id, $before, null, 'Fihrist kartı silindi: ' . ($before['unvan'] ?? ''));
+        return $result;
     }
 
     private function tenantParams(): array

@@ -40,6 +40,9 @@ class KrediController extends Controller
 
     public function sil(int $id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('kredi');
+        }
         if ($id > 0) {
             $this->model->krediSil($id);
             $this->setFlash('success', 'Kredi silindi.');
@@ -68,6 +71,9 @@ class KrediController extends Controller
 
     public function taksitOde(int $id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('kredi');
+        }
         try {
             if ($id > 0) {
                 $this->model->taksitOde($id);

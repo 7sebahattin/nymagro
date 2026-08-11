@@ -147,6 +147,9 @@ final class DokumanController extends Controller
 
     public function sil($id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('dashboard');
+        }
         $doc = $this->dokumanModel->getir((int)$id);
         if (!$doc) {
             $this->setFlash('error', 'Döküman bulunamadı.');

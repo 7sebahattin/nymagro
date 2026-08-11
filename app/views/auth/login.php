@@ -163,6 +163,7 @@
   <?php endif; ?>
 
   <form method="post" action="<?= BASE_URL ?>/giris" autocomplete="off">
+    <?= Csrf::fieldHtml() ?>
     <input type="hidden" name="next" value="<?= htmlspecialchars((string)$next) ?>">
 
     <div class="auth-row">

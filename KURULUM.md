@@ -170,6 +170,90 @@ Yayına almadan önce tarayıcıdan doğrulayın:
 
 ---
 
+## RBAC, Kullanıcı Yönetimi ve Audit Log
+
+Panele kapalı sistem mantığında bir kullanıcı yönetimi, rol tabanlı yetkilendirme
+(RBAC) ve gizli audit log sistemi eklendi. Herhangi bir manuel migration
+komutu YOKTUR — yeni tablolar (`roles`, `permissions`, `role_permissions`,
+`audit_logs`, `login_history`) ve `users` tablosundaki yeni sütunlar
+(`role_id`, `failed_login_count`, `locked_until`, `status_changed_at`),
+uygulamanın kendi idempotent şema-bootstrap konvansiyonuyla (bu depodaki
+diğer tüm tablolar gibi) **ilk istekte otomatik** oluşturulur/eklenir.
+
+### Yapmanız gerekenler
+
+1. **Backup alın** (her zamanki gibi, bu depodaki genel kural):
+   ```bash
+   mysqldump -u KULLANICI -p VERITABANI > yedek_$(date +%F).sql
+   ```
+2. Dosyaları sunucuya kopyalayın (`app/` ve `public/`), her zamanki gibi.
+3. Panele giriş yapın (mevcut Super Admin hesabınızla — şifresi değişmedi).
+   İlk istekte şema otomatik kurulur; mevcut kullanıcılarınızın hepsi otomatik
+   olarak birer role eşlenir (aşağıya bakın), **hiçbir mevcut yetkiniz
+   otomatik olarak kısıtlanmaz.**
+4. Süper Yönetici menüsünde yeni "Yönetim" grubu görünür: **Kullanıcılar**,
+   **Roller**, **Audit Log**. Normal kullanıcılar bu grubu göremez.
+
+### Mevcut kullanıcılarınıza ne olur?
+
+Eski `users.role` değeriniz (`admin` / `accountant` / `user` / `super_admin`)
+otomatik olarak aynı isimli bir role eşlenir. Bu "miras" roller **görüntüleme/
+ekleme/düzenleme** yetkisini korur (günlük iş akışınız bozulmaz) ama
+**otomatik olarak silme (DELETE) yetkisi almaz** — migrasyon öncesi zaten
+hiçbir yetki kontrolü olmadığı için teorik olarak herkes silebiliyordu, ama
+bu bilinçli bir tasarım değildi. Silme kalıcı ve geri alınamaz olduğu için
+varsayılan olarak sadece Süper Yönetici'ye açıktır. Belirli bir personelin
+gerçekten silme yetkisine ihtiyacı varsa, Süper Yönetici bunu Roller
+ekranından saniyeler içinde açabilir (ilgili rolün DELETE kutucuklarını
+işaretleyip kaydetmek yeterli).
+
+Yeni personel için daha kısıtlı roller de hazır gelir: **Veri Giriş**
+(görüntüle/ekle/düzenle, silme yok), **Görüntüleme** (sadece görüntüleme),
+**Muhasebe** (finans modüllerinde görüntüle/ekle/düzenle, silme yok).
+
+### Güvenlik notları
+
+- **CSRF koruması** tüm state-changing işlemlerde (kullanıcı oluşturma,
+  pasifleştirme, rol/izin değiştirme, silme dahil) zorunludur. Mevcut ~20
+  modülün view dosyaları tek tek değiştirilmedi — `public/js/panel-ui.js`
+  içine eklenen tek bir katman, sayfadaki tüm form/fetch/link'lere otomatik
+  güvenlik anahtarı ekler. JS engelliyse sunucu isteği yine de reddeder.
+- **Production'da `admin`/`admin123` artık otomatik seed EDİLMEZ.**
+  `APP_ENV=production` iken ilk kurulumda kriptografik olarak güçlü, rastgele
+  bir şifre üretilir ve YALNIZCA sunucunun `error_log`'una bir kez yazılır
+  (ekranda/veritabanında düz metin olarak asla görünmez). Kurulumdan hemen
+  sonra sunucu log dosyanızı kontrol edin, "`[NYMAGRO KURULUM]`" satırını
+  bulun, giriş yapıp şifreyi hemen değiştirin, sonra o log satırını silin.
+  Zaten mevcut bir Süper Admin hesabınız varsa (ör. bu güncellemeden önce
+  kurulmuş bir site) buna kesinlikle dokunulmaz. `APP_ENV` production
+  değilse (yerel geliştirme) eski `admin123` kolaylığı korunur.
+- Başarısız girişlerde 5 denemeden sonra hesap 15 dakika otomatik kilitlenir;
+  başarılı girişte sayaç sıfırlanır.
+- Bir kullanıcı pasifleştirildiğinde/kilitlendiğinde veya rolü/izinleri
+  değiştiğinde, o kullanıcının **açık oturumu/yetkileri bir sonraki
+  isteğinde anında güncellenir** (eski yetkilerle devam edemez) — yeniden
+  giriş yapması gerekmez, değişiklik anında etkilidir.
+- Audit Log ve Giriş Geçmişi sadece Süper Yönetici'ye açıktır; şifreler,
+  token'lar ve benzeri hassas alanlar hiçbir zaman loglanmaz. Bu tablolara
+  yazan tek kod yolu `Audit::log()`/`Audit::loginHistory()`'dir — uygulamanın
+  hiçbir yerinde bu kayıtları güncelleyen/silen bir endpoint yoktur
+  (append-only).
+
+### Bilinen sınırlamalar (bu sürümde YOK, bilinçli olarak ertelendi — Faz 1.5/2)
+
+- 2FA/TOTP, her modülde optimistic locking (version numarası), audit log
+  için PDF/gelişmiş export, kullanıcıya özel (per-user) izin override'ları.
+- **Faz 1.5 (planlandı, henüz uygulanmadı):** Modül görünümlerinde (ör.
+  Müşteriler listesi) Ekle/Düzenle/Sil butonları şu an SADECE backend'de
+  zorunlu kılınıyor; buton bazlı frontend gizleme yalnız yeni eklenen
+  Kullanıcılar/Roller/Audit ekranlarında var, ~20 mevcut modülün kendi
+  view'lerine henüz yayılmadı (backend zaten reddettiği için güvenlik açığı
+  değil, sadece "yetkisiz" hata sayfasına düşme UX'i). Aynı geçişte, hâlâ
+  GET ile tetiklenen birkaç eski aksiyon (ör. `/musteri/sil/{id}` linkleri)
+  POST'a çevrilip CSRF token'ının URL'de görünmesi (`?csrf=...`) ortadan
+  kaldırılabilir — şu an bu linkler JS ile otomatik token alıyor (güvenli)
+  ama URL'ler kozmetik olarak token taşıyor.
+
 ## Marka varlıkları
 
 `brand/` klasöründe:

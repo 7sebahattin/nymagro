@@ -10,6 +10,7 @@ $durumlar = ['aktif' => 'Aktif', 'pasif' => 'Pasif', 'tamamlandi' => 'Tamamland�
 </style>
 <div class="project-page">
   <?php if (!empty($flash)): ?><div class="project-alert <?= $h($flash['tip'] ?? 'success') ?>"><?= $h($flash['mesaj'] ?? '') ?></div><?php endif; ?>
+  <?php if (Rbac::currentUserCan('PROJE_CREATE')): ?>
   <section class="project-card">
     <div class="project-head"><h2><i class="fa-solid fa-diagram-project"></i> Yeni Proje</h2><p>Gelir ve giderleri proje başlıkları altında izlemek için kayıt açın.</p></div>
     <form class="project-form" method="post" action="<?= BASE_URL ?>/proje/kaydet">
@@ -19,9 +20,10 @@ $durumlar = ['aktif' => 'Aktif', 'pasif' => 'Pasif', 'tamamlandi' => 'Tamamland�
       <div class="project-actions"><button class="project-btn primary"><i class="fa-solid fa-check"></i> Kaydet</button></div>
     </form>
   </section>
+  <?php endif; ?>
   <section class="project-card">
     <div class="project-head"><h2>Proje Listesi</h2><p><?= count($kayitlar) ?> kayıt</p></div>
     <?php if (empty($kayitlar)): ?><div class="project-empty"><i class="fa-solid fa-circle-info"></i> Henüz proje kaydı yok.</div>
-    <?php else: ?><div class="project-grid"><?php foreach ($kayitlar as $row): ?><article class="project-item"><h3><?= $h($row['ad']) ?></h3><p><?= $h($row['aciklama']) ?></p><span class="status"><?= $h($durumlar[$row['durum']] ?? $row['durum']) ?></span><div style="margin-top:12px"><a class="project-btn danger" href="<?= BASE_URL ?>/proje/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Proje silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a></div></article><?php endforeach; ?></div><?php endif; ?>
+    <?php else: ?><div class="project-grid"><?php foreach ($kayitlar as $row): ?><article class="project-item"><h3><?= $h($row['ad']) ?></h3><p><?= $h($row['aciklama']) ?></p><span class="status"><?= $h($durumlar[$row['durum']] ?? $row['durum']) ?></span><?php if (Rbac::currentUserCan('PROJE_DELETE')): ?><div style="margin-top:12px"><a class="project-btn danger" href="#" onclick="return nymPost('<?= BASE_URL ?>/proje/sil/<?= (int)$row['id'] ?>', 'Proje silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a></div><?php endif; ?></article><?php endforeach; ?></div><?php endif; ?>
   </section>
 </div>

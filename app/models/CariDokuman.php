@@ -36,7 +36,7 @@ final class CariDokuman
 
     public function ekle(array $data): int
     {
-        return $this->db->insert('cari_dokumanlar', [
+        $veri = [
             'cari_id' => (int)$data['cari_id'],
             'baslik' => (string)($data['baslik'] ?? ''),
             'aciklama' => (string)($data['aciklama'] ?? ''),
@@ -46,7 +46,10 @@ final class CariDokuman
             'mime_type' => (string)($data['mime_type'] ?? ''),
             'boyut' => (int)($data['boyut'] ?? 0),
             'created_by' => AuthGuard::userId(),
-        ]);
+        ];
+        $id = $this->db->insert('cari_dokumanlar', $veri);
+        Audit::log('CREATE', 'DOKUMAN', $id, null, $veri, 'Döküman yüklendi: ' . ($veri['orijinal_ad'] ?? ''));
+        return $id;
     }
 
     public function getir(int $id): ?array
@@ -64,7 +67,10 @@ final class CariDokuman
 
     public function sil(int $id): int
     {
-        return $this->db->softDelete('cari_dokumanlar', $id);
+        $before = $this->getir($id);
+        $sonuc = $this->db->softDelete('cari_dokumanlar', $id);
+        Audit::log('DELETE', 'DOKUMAN', $id, $before, null, 'Döküman silindi: ' . ($before['orijinal_ad'] ?? ''));
+        return $sonuc;
     }
 
     private function ensureTable(): void

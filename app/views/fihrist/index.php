@@ -105,9 +105,11 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
 
 <!-- LİSTE GÖRÜNÜMÜ -->
 <div id="view-list">
+  <?php if (Rbac::currentUserCan('FIHRIST_CREATE')): ?>
   <div class="mb-3 d-flex gap-2">
     <button type="button" class="btn btn-green btn-sm px-3" id="btnYeniKart"><i class="fa-solid fa-plus"></i> Yeni Kart Ekle</button>
   </div>
+  <?php endif; ?>
 
   <?php if (empty($kayitlar)): ?>
     <div class="info-alert">
@@ -137,6 +139,7 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
               <td><?= $h($k['eposta'] ?: '-') ?></td>
               <td><?= $h($k['telefon1'] ?: '-') ?></td>
               <td class="text-end">
+                <?php if (Rbac::currentUserCan('FIHRIST_UPDATE')): ?>
                 <button type="button" class="btn btn-sm btn-outline-dark btn-edit-kart"
                         data-id="<?= (int)$k['id'] ?>"
                         data-unvan="<?= $h($k['unvan']) ?>"
@@ -150,9 +153,12 @@ $siniflar2 = $grouped['fihrist_grup_2'] ?? [];
                         data-notlar="<?= $h($k['notlar']) ?>">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <a class="btn btn-sm btn-outline-danger" href="<?= BASE_URL ?>/fihrist/sil/<?= (int)$k['id'] ?>" onclick="return confirm('Bu kart silinsin mi?')">
+                <?php endif; ?>
+                <?php if (Rbac::currentUserCan('FIHRIST_DELETE')): ?>
+                <a class="btn btn-sm btn-outline-danger" href="#" onclick="return nymPost('<?= BASE_URL ?>/fihrist/sil/<?= (int)$k['id'] ?>', 'Bu kart silinsin mi?')">
                   <i class="fa-solid fa-trash"></i>
                 </a>
+                <?php endif; ?>
               </td>
             </tr>
           <?php endforeach; ?>

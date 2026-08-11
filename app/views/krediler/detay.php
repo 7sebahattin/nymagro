@@ -40,8 +40,8 @@ $taksitler = $taksitler ?? [];
             <?php endif; ?>
           </td>
           <td>
-            <?php if ((int)$t['odendi'] !== 1): ?>
-              <a class="nm-btn primary" href="<?= BASE_URL ?>/kredi/taksitOde/<?= (int)$t['id'] ?>?kredi_id=<?= (int)$kredi['id'] ?>" onclick="return confirm('Bu taksit ödendi olarak işaretlensin mi?')"><i class="fa-solid fa-check"></i> Öde</a>
+            <?php if ((int)$t['odendi'] !== 1 && Rbac::currentUserCan('KREDI_UPDATE')): ?>
+              <a class="nm-btn primary" href="#" onclick="return nymPost('<?= BASE_URL ?>/kredi/taksitOde/<?= (int)$t['id'] ?>?kredi_id=<?= (int)$kredi['id'] ?>', 'Bu taksit ödendi olarak işaretlensin mi?')"><i class="fa-solid fa-check"></i> Öde</a>
             <?php endif; ?>
           </td>
         </tr><?php endforeach; ?></tbody>

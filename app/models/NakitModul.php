@@ -39,7 +39,7 @@ class NakitModul
 
         $this->db->begin();
         try {
-            $id = $this->db->insert('krediler', [
+            $veri = [
                 'ad' => $ad,
                 'kalan_borc' => $tutar,
                 'kalan_taksit_sayisi' => $taksitSayisi,
@@ -49,7 +49,8 @@ class NakitModul
                 'notlar' => trim((string)($data['notlar'] ?? '')),
                 'company_id' => TenantContext::activeCompanyId(),
                 'period_id' => TenantContext::activePeriodId(),
-            ]);
+            ];
+            $id = $this->db->insert('krediler', $veri);
 
             $taksitTutari = $taksitSayisi > 0 ? round($tutar / $taksitSayisi, 2) : $tutar;
             $date = new DateTimeImmutable($ilkTarih);
@@ -69,6 +70,7 @@ class NakitModul
             }
 
             $this->db->commit();
+            Audit::log('CREATE', 'KREDI', $id, null, $veri, "Kredi oluşturuldu: {$ad}");
             return $id;
         } catch (Throwable $e) {
             $this->db->rollBack();
@@ -78,8 +80,10 @@ class NakitModul
 
     public function krediSil(int $id): void
     {
+        $before = $this->krediGetir($id);
         $this->db->update('krediler', ['silindi_mi' => 1], ['id' => $id]);
         $this->db->update('kredi_odeme_plani', ['silindi_mi' => 1], ['kredi_id' => $id]);
+        Audit::log('DELETE', 'KREDI', $id, $before, null, 'Kredi silindi: ' . ($before['ad'] ?? ''));
     }
 
     public function krediGetir(int $id): ?array
@@ -150,6 +154,8 @@ class NakitModul
             }
 
             $this->db->commit();
+            Audit::log('UPDATE', 'KREDI', $kredi['id'], ['odendi' => 0], ['odendi' => 1, 'taksit_no' => $plan['taksit_no']],
+                "Taksit ödendi: {$kredi['ad']} - Taksit #{$plan['taksit_no']}");
         } catch (Throwable $e) {
             $this->db->rollBack();
             throw $e;
@@ -161,13 +167,18 @@ class NakitModul
         return $this->listele('demirbaslar', 'alis_tarihi DESC, id DESC');
     }
 
+    public function demirbasGetir(int $id): ?array
+    {
+        return $this->getir('demirbaslar', $id);
+    }
+
     public function demirbasEkle(array $data): int
     {
         $ad = trim((string)($data['ad'] ?? ''));
         if ($ad === '') {
             throw new InvalidArgumentException('Demirbaş adı boş olamaz.');
         }
-        return $this->db->insert('demirbaslar', [
+        $veri = [
             'ad' => $ad,
             'aciklama' => trim((string)($data['aciklama'] ?? '')),
             'seri_no' => trim((string)($data['seri_no'] ?? '')),
@@ -175,17 +186,27 @@ class NakitModul
             'fiyat' => $this->money($data['fiyat'] ?? 0),
             'company_id' => TenantContext::activeCompanyId(),
             'period_id' => TenantContext::activePeriodId(),
-        ]);
+        ];
+        $id = $this->db->insert('demirbaslar', $veri);
+        Audit::log('CREATE', 'DEMIRBAS', $id, null, $veri, "Demirbaş eklendi: {$ad}");
+        return $id;
     }
 
     public function demirbasSil(int $id): void
     {
+        $before = $this->getir('demirbaslar', $id);
         $this->softDelete('demirbaslar', $id);
+        Audit::log('DELETE', 'DEMIRBAS', $id, $before, null, 'Demirbaş silindi: ' . ($before['ad'] ?? ''));
     }
 
     public function projeler(): array
     {
         return $this->listele('projeler', 'id DESC');
+    }
+
+    public function projeGetir(int $id): ?array
+    {
+        return $this->getir('projeler', $id);
     }
 
     public function projeEkle(array $data): int
@@ -194,18 +215,23 @@ class NakitModul
         if ($ad === '') {
             throw new InvalidArgumentException('Proje adı boş olamaz.');
         }
-        return $this->db->insert('projeler', [
+        $veri = [
             'ad' => $ad,
             'aciklama' => trim((string)($data['aciklama'] ?? '')),
             'durum' => in_array(($data['durum'] ?? 'aktif'), ['aktif', 'pasif', 'tamamlandi'], true) ? $data['durum'] : 'aktif',
             'company_id' => TenantContext::activeCompanyId(),
             'period_id' => TenantContext::activePeriodId(),
-        ]);
+        ];
+        $id = $this->db->insert('projeler', $veri);
+        Audit::log('CREATE', 'PROJE', $id, null, $veri, "Proje eklendi: {$ad}");
+        return $id;
     }
 
     public function projeSil(int $id): void
     {
+        $before = $this->getir('projeler', $id);
         $this->softDelete('projeler', $id);
+        Audit::log('DELETE', 'PROJE', $id, $before, null, 'Proje silindi: ' . ($before['ad'] ?? ''));
     }
 
     public function portfoy(string $tip): array
@@ -220,6 +246,11 @@ class NakitModul
         );
     }
 
+    public function portfoyGetir(int $id): ?array
+    {
+        return $this->getir('cek_senet_portfoyu', $id);
+    }
+
     public function portfoyEkle(string $tip, array $data): int
     {
         if (!in_array($tip, ['cek', 'senet'], true)) {
@@ -229,7 +260,7 @@ class NakitModul
         if ($belgeNo === '') {
             throw new InvalidArgumentException('Belge numarası boş olamaz.');
         }
-        return $this->db->insert('cek_senet_portfoyu', [
+        $veri = [
             'tip' => $tip,
             'belge_no' => $belgeNo,
             'cari_id' => !empty($data['cari_id']) ? (int)$data['cari_id'] : null,
@@ -239,12 +270,17 @@ class NakitModul
             'aciklama' => trim((string)($data['aciklama'] ?? '')),
             'company_id' => TenantContext::activeCompanyId(),
             'period_id' => TenantContext::activePeriodId(),
-        ]);
+        ];
+        $id = $this->db->insert('cek_senet_portfoyu', $veri);
+        Audit::log('CREATE', 'PORTFOY', $id, null, $veri, ucfirst($tip) . ' eklendi: ' . $belgeNo);
+        return $id;
     }
 
     public function portfoySil(int $id): void
     {
+        $before = $this->getir('cek_senet_portfoyu', $id);
         $this->softDelete('cek_senet_portfoyu', $id);
+        Audit::log('DELETE', 'PORTFOY', $id, $before, null, 'Çek/Senet silindi: ' . ($before['belge_no'] ?? ''));
     }
 
     public function portfoyDurumGuncelle(int $id, string $durum): void
@@ -252,7 +288,9 @@ class NakitModul
         if (!in_array($durum, ['bekliyor', 'tahsil', 'odendi', 'ciro', 'iade', 'kapandi'], true)) {
             throw new InvalidArgumentException('Geçersiz durum.');
         }
+        $before = $this->getir('cek_senet_portfoyu', $id);
         $this->db->update('cek_senet_portfoyu', ['durum' => $durum], ['id' => $id]);
+        Audit::log('UPDATE', 'PORTFOY', $id, ['durum' => $before['durum'] ?? null], ['durum' => $durum], 'Çek/Senet durumu güncellendi.');
     }
 
     public function cariler(): array
@@ -277,6 +315,14 @@ class NakitModul
     private function softDelete(string $table, int $id): void
     {
         $this->db->update($table, ['silindi_mi' => 1], ['id' => $id]);
+    }
+
+    private function getir(string $table, int $id): ?array
+    {
+        return $this->db->selectOne(
+            "SELECT * FROM {$table} WHERE id = :id AND silindi_mi = 0 AND company_id = :cid AND period_id = :pid",
+            array_merge([':id' => $id], $this->tenantParams())
+        );
     }
 
     private function tenantParams(): array

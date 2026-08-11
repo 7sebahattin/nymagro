@@ -49,7 +49,8 @@ final class PeriodController extends Controller
         }
 
         try {
-            $this->company->createPeriod($companyId, $_POST);
+            $newId = $this->company->createPeriod($companyId, $_POST);
+            Audit::log('CREATE', 'PERIOD', $newId, null, ['period_name' => $_POST['period_name'] ?? ''], 'Dönem oluşturuldu.');
             $this->setFlash('success', 'Dönem oluşturuldu.');
         } catch (Throwable $e) {
             $this->setFlash('error', $e->getMessage());
@@ -87,6 +88,7 @@ final class PeriodController extends Controller
 
         try {
             $this->company->updatePeriod($id, $_POST);
+            Audit::log('UPDATE', 'PERIOD', $id, $period, ['period_name' => $_POST['period_name'] ?? ''], 'Dönem güncellendi.');
             $this->setFlash('success', 'Dönem güncellendi.');
         } catch (Throwable $e) {
             $this->setFlash('error', $e->getMessage());
@@ -135,6 +137,12 @@ final class PeriodController extends Controller
 
     private function setStatus(int $id, string $status, string $message): void
     {
+        // Faz 1.5-A: dönem kapatma/kilitleme/açma/arşivleme önemli finansal
+        // işlemlerdir — artık sadece POST + CSRF ile yapılabilir.
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('companies');
+        }
+
         $period = $this->company->findPeriod($id);
         if (!$period || !TenantContext::canManagePeriod((int)$period['company_id'])) {
             http_response_code(403);
@@ -143,6 +151,7 @@ final class PeriodController extends Controller
 
         try {
             $this->company->setPeriodStatus($id, $status);
+            Audit::log('SETTINGS_CHANGE', 'PERIOD', $id, ['status' => $period['status']], ['status' => $status], $message);
             $this->setFlash('success', $message);
         } catch (Throwable $e) {
             $this->setFlash('error', $e->getMessage());

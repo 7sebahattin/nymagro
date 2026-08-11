@@ -81,22 +81,29 @@ final class TakvimController extends Controller
 
     public function not_sil(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('takvim');
+        }
+
+        $cid = TenantContext::activeCompanyId();
+        $pid = TenantContext::activePeriodId();
+        $uid = AuthGuard::userId();
+
         $note = $this->db->selectOne(
-            "SELECT id, tarih FROM takvim_notlari
+            "SELECT id, tarih, baslik, aciklama FROM takvim_notlari
              WHERE id = :id AND user_id = :uid AND company_id = :cid AND period_id = :pid
              LIMIT 1",
-            [
-                ':id' => $id,
-                ':uid' => AuthGuard::userId(),
-                ':cid' => TenantContext::activeCompanyId(),
-                ':pid' => TenantContext::activePeriodId(),
-            ]
+            [':id' => $id, ':uid' => $uid, ':cid' => $cid, ':pid' => $pid]
         );
         if ($note) {
+            // Savunma-derinliği: SELECT ile zaten şirket/dönem/kullanıcı eşleşmesi
+            // doğrulandı, ama silme sorgusu da AYNI filtreleri taşır (ham query()
+            // TenantContext'in otomatik company_id enjeksiyonundan geçmez).
             $this->db->query(
-                "DELETE FROM takvim_notlari WHERE id = :id AND user_id = :uid",
-                [':id' => $id, ':uid' => AuthGuard::userId()]
+                "DELETE FROM takvim_notlari WHERE id = :id AND user_id = :uid AND company_id = :cid AND period_id = :pid",
+                [':id' => $id, ':uid' => $uid, ':cid' => $cid, ':pid' => $pid]
             );
+            Audit::log('DELETE', 'TAKVIM', $id, $note, null, "Takvim notu silindi: {$note['baslik']}");
             $this->setFlash('success', 'Takvim notu silindi.');
             $this->redirect('takvim?ay=' . substr((string)$note['tarih'], 0, 7));
         }

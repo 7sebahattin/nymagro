@@ -39,13 +39,13 @@
             <a href="<?= BASE_URL ?>/periods/edit/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-dark">Düzenle</a>
             <a href="<?= BASE_URL ?>/periods/close_summary/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-secondary">Kapama Özeti</a>
             <?php if ($period['status'] === 'open'): ?>
-              <a href="<?= BASE_URL ?>/periods/lock/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-warning">Kilitle</a>
-              <a href="<?= BASE_URL ?>/periods/close/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Dönem kapatılsın mı?')">Kapat</a>
+              <a href="#" class="btn btn-sm btn-outline-warning" onclick="return nymPost('<?= BASE_URL ?>/periods/lock/<?= (int)$period['id'] ?>', 'Dönem kilitlensin mi?')">Kilitle</a>
+              <a href="#" class="btn btn-sm btn-outline-danger" onclick="return nymPost('<?= BASE_URL ?>/periods/close/<?= (int)$period['id'] ?>', 'Dönem kapatılsın mı?')">Kapat</a>
             <?php elseif ($period['status'] !== 'archived'): ?>
-              <a href="<?= BASE_URL ?>/periods/reopen/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-success">Yeniden Aç</a>
+              <a href="#" class="btn btn-sm btn-outline-success" onclick="return nymPost('<?= BASE_URL ?>/periods/reopen/<?= (int)$period['id'] ?>', 'Dönem yeniden açılsın mı?')">Yeniden Aç</a>
             <?php endif; ?>
             <?php if ($period['status'] !== 'archived'): ?>
-              <a href="<?= BASE_URL ?>/periods/archive/<?= (int)$period['id'] ?>" class="btn btn-sm btn-outline-secondary">Arşivle</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary" onclick="return nymPost('<?= BASE_URL ?>/periods/archive/<?= (int)$period['id'] ?>', 'Dönem arşivlensin mi?')">Arşivle</a>
             <?php endif; ?>
           </td>
         </tr>

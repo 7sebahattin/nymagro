@@ -19,6 +19,9 @@ class TanimController extends Controller
 
     public function kaydet(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('tanim');
+        }
         try {
             $this->model('Tanim')->kaydet($_POST);
             $this->setFlash('success', 'Tanım kaydedildi.');
@@ -32,6 +35,9 @@ class TanimController extends Controller
 
     public function sil(int $id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('tanim');
+        }
         if ($id > 0) {
             $this->model('Tanim')->sil($id);
             $this->setFlash('success', 'Tanım silindi.');
@@ -44,6 +50,11 @@ class TanimController extends Controller
     public function kaydetAjax(): void
     {
         header('Content-Type: application/json; charset=utf-8');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'error' => 'Bu işlem sadece POST ile yapılabilir.']);
+            exit;
+        }
         try {
             $id = $this->model('Tanim')->kaydet($_POST);
             echo json_encode(['success' => true, 'id' => $id, 'ad' => trim((string)($_POST['ad'] ?? ''))]);

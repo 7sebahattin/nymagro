@@ -249,6 +249,9 @@ final class MusteriController extends Controller
     // ──────────────────────────────────────────────────────
     public function sil(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('musteri');
+        }
         $cari = $this->cariModel->getir($id);
         if ($cari) {
             $this->cariModel->sil($id);

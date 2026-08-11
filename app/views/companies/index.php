@@ -49,7 +49,7 @@
             <?php endif; ?>
             <a href="<?= BASE_URL ?>/companies/periods/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-secondary">Dönemler</a>
             <a href="<?= BASE_URL ?>/companies/edit/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-dark">Düzenle</a>
-            <a href="<?= BASE_URL ?>/companies/delete/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Şirket pasife alınsın mı?')">Pasife Al</a>
+            <a href="#" class="btn btn-sm btn-outline-danger" onclick="return nymPost('<?= BASE_URL ?>/companies/delete/<?= (int)$company['id'] ?>', 'Şirket pasife alınsın mı?')">Pasife Al</a>
           </td>
         </tr>
       <?php endforeach; ?>

@@ -102,6 +102,7 @@
 <?php endif; ?>
 
 <!-- Action Buttons -->
+<?php if (Rbac::currentUserCan('ALIS_CREATE')): ?>
 <div class="action-btns">
   <button class="btn-action btn-kayitli" onclick="document.getElementById('modalKayitli').classList.add('open')">
     <i class="fa-solid fa-plus"></i> Kayıtlı Tedarikçiden Alış Gir
@@ -110,6 +111,7 @@
     <i class="fa-solid fa-plus"></i> Yeni Tedarikçiden Alış Gir
   </button>
 </div>
+<?php endif; ?>
 
 <!-- Filter Panel -->
 <div class="filter-panel">

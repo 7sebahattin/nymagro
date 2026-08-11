@@ -164,21 +164,30 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
 
   <!-- Actions -->
   <div class="actions-row">
-    <a href="<?= BASE_URL ?>/urun/duzenle/<?= $urun['id'] ?>" class="btn-act btn-act-orange"><i class="fa-solid fa-pen"></i> Güncelle</a>
-    
-    <button type="button" class="btn-act btn-act-green" onclick="openModal('stokModal')"><i class="fa-solid fa-arrow-down"></i> Stoklara Giriş Yap</button>
+    <?php if (Rbac::currentUserCan('URUN_UPDATE')): ?>
+      <a href="<?= BASE_URL ?>/urun/duzenle/<?= $urun['id'] ?>" class="btn-act btn-act-orange"><i class="fa-solid fa-pen"></i> Güncelle</a>
+      <button type="button" class="btn-act btn-act-green" onclick="openModal('stokModal')"><i class="fa-solid fa-arrow-down"></i> Stoklara Giriş Yap</button>
+    <?php endif; ?>
 
     <a href="<?= BASE_URL ?>/urun/stokEkstresi/<?= $urun['id'] ?>" class="btn-act btn-act-dark"><i class="fa-solid fa-list"></i> Stok Ekstresi</a>
 
+    <?php if (Rbac::currentUserCan('URUN_CREATE') || Rbac::currentUserCan('URUN_UPDATE') || Rbac::currentUserCan('URUN_DELETE')): ?>
     <div class="btn-dropdown-wrap">
       <button type="button" class="btn-act btn-act-red" id="btnDigerIslemler"><i class="fa-solid fa-bars"></i> Diğer İşlemler <i class="fa-solid fa-caret-down" style="margin-left:4px;"></i></button>
       <div class="dropdown-menu-custom" id="digerIslemlerMenu">
-        <a href="<?= BASE_URL ?>/urun/ekle?copy_id=<?= $urun['id'] ?>" class="dd-item"><i class="fa-regular fa-copy"></i> Bu üründen kopyala</a>
-        <a href="<?= BASE_URL ?>/urun/varyantlar" class="dd-item"><i class="fa-solid fa-sliders"></i> Varyantlar</a>
-        <a href="<?= BASE_URL ?>/urun/sil/<?= $urun['id'] ?>" class="dd-item dd-item-danger"
-           onclick="return confirm('&quot;<?= htmlspecialchars(addslashes($urun['ad']), ENT_QUOTES) ?>&quot; silinecek. Emin misiniz?')"><i class="fa-solid fa-trash"></i> Ürünü sil</a>
+        <?php if (Rbac::currentUserCan('URUN_CREATE')): ?>
+          <a href="<?= BASE_URL ?>/urun/ekle?copy_id=<?= $urun['id'] ?>" class="dd-item"><i class="fa-regular fa-copy"></i> Bu üründen kopyala</a>
+        <?php endif; ?>
+        <?php if (Rbac::currentUserCan('URUN_UPDATE')): ?>
+          <a href="<?= BASE_URL ?>/urun/varyantlar" class="dd-item"><i class="fa-solid fa-sliders"></i> Varyantlar</a>
+        <?php endif; ?>
+        <?php if (Rbac::currentUserCan('URUN_DELETE')): ?>
+          <a href="#" class="dd-item dd-item-danger"
+             onclick="return nymPost('<?= BASE_URL ?>/urun/sil/<?= $urun['id'] ?>', '&quot;<?= htmlspecialchars(addslashes($urun['ad']), ENT_QUOTES) ?>&quot; silinecek. Emin misiniz?')"><i class="fa-solid fa-trash"></i> Ürünü sil</a>
+        <?php endif; ?>
       </div>
     </div>
+    <?php endif; ?>
   </div>
 
   <!-- Accordions -->

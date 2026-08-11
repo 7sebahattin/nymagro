@@ -71,7 +71,9 @@ $formatDate = static function ($value): string {
   <?php endif; ?>
 
   <div class="doc-actions">
+    <?php if (Rbac::currentUserCan('DOKUMAN_CREATE')): ?>
     <a class="doc-btn doc-green" href="#uploadForm"><i class="fa-solid fa-plus"></i> Yeni Belge Yükle</a>
+    <?php endif; ?>
     <a class="doc-btn doc-orange" href="<?= htmlspecialchars($backUrl) ?>"><i class="fa-solid fa-reply"></i> Geri Dön</a>
   </div>
 
@@ -84,6 +86,7 @@ $formatDate = static function ($value): string {
   </div>
 
   <div class="doc-shell">
+    <?php if (Rbac::currentUserCan('DOKUMAN_CREATE')): ?>
     <section class="doc-card" id="uploadForm">
       <h3><i class="fa-regular fa-file-lines"></i> Belge Yükle</h3>
       <form class="doc-form" method="post" action="<?= htmlspecialchars($uploadUrl) ?>" enctype="multipart/form-data">
@@ -105,6 +108,7 @@ $formatDate = static function ($value): string {
         <button type="submit" class="doc-btn doc-green"><i class="fa-solid fa-upload"></i> Yükle</button>
       </form>
     </section>
+    <?php endif; ?>
 
     <section class="doc-card">
       <h3><i class="fa-solid fa-folder-open"></i> Kayıtlı Belgeler</h3>
@@ -137,7 +141,9 @@ $formatDate = static function ($value): string {
                 <td>
                   <div class="doc-row-actions">
                     <a class="doc-btn doc-blue" href="<?= BASE_URL ?>/dokuman/indir/<?= (int)$doc['id'] ?>"><i class="fa-solid fa-download"></i> İndir</a>
-                    <a class="doc-btn doc-red" href="<?= BASE_URL ?>/dokuman/sil/<?= (int)$doc['id'] ?>?tip=<?= urlencode($cariTip) ?>" onclick="return confirm('Bu dökümanı listeden kaldırmak istiyor musunuz?')"><i class="fa-solid fa-xmark"></i> Sil</a>
+                    <?php if (Rbac::currentUserCan('DOKUMAN_DELETE')): ?>
+                    <a class="doc-btn doc-red" href="#" onclick="return nymPost('<?= BASE_URL ?>/dokuman/sil/<?= (int)$doc['id'] ?>?tip=<?= urlencode($cariTip) ?>', 'Bu dökümanı listeden kaldırmak istiyor musunuz?')"><i class="fa-solid fa-xmark"></i> Sil</a>
+                    <?php endif; ?>
                   </div>
                 </td>
               </tr>
