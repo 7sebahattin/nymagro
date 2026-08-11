@@ -195,6 +195,10 @@ class MasrafController extends Controller
     public function sil(int $id = 0): void
     {
         header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz istek.']);
+            return;
+        }
         try {
             if ($id <= 0) throw new Exception('Geçersiz ID.');
             $this->model->sil($id);
@@ -211,6 +215,10 @@ class MasrafController extends Controller
     public function kopyala(int $id = 0): void
     {
         header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz istek.']);
+            return;
+        }
         try {
             if ($id <= 0) throw new Exception('Geçersiz ID.');
             $kaynak = $this->model->getir($id);
@@ -403,6 +411,10 @@ class MasrafController extends Controller
     public function kategoriSil(int $id = 0): void
     {
         header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz istek.']);
+            return;
+        }
         try {
             if ($id <= 0) throw new Exception('Geçersiz ID.');
             $this->model->kategoriSil($id);

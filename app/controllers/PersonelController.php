@@ -20,6 +20,9 @@ class PersonelController extends Controller
 
     public function ekle(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('personel');
+        }
         try {
             $this->model('Personel')->ekle($_POST);
             $this->setFlash('success', 'Personel kaydı eklendi.');
@@ -32,6 +35,9 @@ class PersonelController extends Controller
 
     public function sil(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('personel');
+        }
         if ($this->model('Personel')->sil($id) > 0) {
             $this->setFlash('success', 'Personel kaydı silindi.');
         } else {
@@ -42,6 +48,9 @@ class PersonelController extends Controller
 
     public function hareket_ekle(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('personel');
+        }
         try {
             $this->model('Personel')->hareketEkle($_POST);
             $this->setFlash('success', 'Personel hareketi eklendi.');
@@ -54,6 +63,9 @@ class PersonelController extends Controller
 
     public function hareket_sil(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('personel');
+        }
         $this->model('Personel')->hareketSil($id);
         $this->setFlash('success', 'Personel hareketi silindi.');
         $this->redirect('personel');

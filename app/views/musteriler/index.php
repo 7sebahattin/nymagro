@@ -2,6 +2,7 @@
 $items = $musteriler ?? [];
 $cariListConfig = [
     'route' => 'musteri',
+    'module' => 'MUSTERI',
     'entityPlural' => 'Müşteriler',
     'entitySingular' => 'Müşteri',
     'nameHeader' => 'İsim / Unvan',

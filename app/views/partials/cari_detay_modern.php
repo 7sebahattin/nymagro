@@ -213,13 +213,23 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
   </div>
 
   <div class="cd-actions">
+    <?php if (Rbac::currentUserCan(($isMusteri ? 'SATIS' : 'ALIS') . '_CREATE')): ?>
     <a class="cd-btn cd-dark" href="<?= htmlspecialchars($primaryActionUrl) ?>"><i class="fa-solid <?= $primaryActionIcon ?>"></i> <?= htmlspecialchars($primaryActionText) ?></a>
+    <?php endif; ?>
     <?php if ($isMusteri): ?>
+      <?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>
       <a class="cd-btn cd-orange" href="<?= BASE_URL ?>/teklif"><i class="fa-solid fa-list"></i> Teklif Hazırla</a>
+      <?php endif; ?>
+      <?php if (Rbac::currentUserCan('NAKIT_CREATE')): ?>
       <button class="cd-btn cd-success" type="button" onclick="openPaymentModal('giris')"><i class="fa-solid fa-turkish-lira-sign"></i> Tahsilat/Ödeme</button>
+      <?php endif; ?>
     <?php else: ?>
+      <?php if (Rbac::currentUserCan('NAKIT_CREATE')): ?>
       <button class="cd-btn cd-success" type="button" onclick="openPaymentModal('cikis')"><i class="fa-solid fa-turkish-lira-sign"></i> Ödeme/Tahsilat</button>
+      <?php endif; ?>
+      <?php if (Rbac::currentUserCan('DOKUMAN_VIEW')): ?>
       <a class="cd-btn cd-info" href="<?= htmlspecialchars($documentUrl) ?>"><i class="fa-solid fa-file-lines"></i> Dökümanlar</a>
+      <?php endif; ?>
     <?php endif; ?>
     <div class="dropdown cd-more">
       <button class="cd-btn cd-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -237,17 +247,31 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
         <i class="fa-solid fa-bars"></i> Diğer İşlemler
       </button>
       <div class="dropdown-menu">
+        <?php if (Rbac::currentUserCan(($isMusteri ? 'MUSTERI' : 'TEDARIKCI') . '_UPDATE')): ?>
         <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#cdUpdateModal">
           <i class="fa-solid fa-pen"></i> <?= $isMusteri ? 'Müşteri Bilgilerini Güncelle' : 'Tedarikçi Bilgilerini Güncelle' ?>
         </button>
+        <?php endif; ?>
         <?php if ($isMusteri): ?>
+          <?php if (Rbac::currentUserCan('DOKUMAN_VIEW')): ?>
           <a class="dropdown-item" href="<?= htmlspecialchars($documentUrl) ?>"><i class="fa-regular fa-file-lines"></i> Döküman Ekle</a>
+          <?php endif; ?>
+          <?php if (Rbac::currentUserCan('ALIS_CREATE')): ?>
           <a class="dropdown-item is-gold" href="<?= htmlspecialchars($customerPurchaseUrl) ?>"><i class="fa-solid fa-tags"></i> Alış Yap</a>
-          <a class="dropdown-item is-red" href="<?= htmlspecialchars($deleteUrl) ?>" onclick="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?')"><i class="fa-solid fa-xmark"></i> Müşteriyi Sil</a>
+          <?php endif; ?>
+          <?php if (Rbac::currentUserCan('MUSTERI_DELETE')): ?>
+          <a class="dropdown-item is-red" href="#" onclick="return nymPost('<?= htmlspecialchars($deleteUrl) ?>', 'Bu müşteriyi silmek istediğinize emin misiniz?')"><i class="fa-solid fa-xmark"></i> Müşteriyi Sil</a>
+          <?php endif; ?>
         <?php else: ?>
+          <?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>
           <a class="dropdown-item is-green" href="<?= htmlspecialchars($supplierSaleUrl) ?>"><i class="fa-solid fa-cart-shopping"></i> Tedarikçiye Satış Yap</a>
+          <?php endif; ?>
+          <?php if (Rbac::currentUserCan('ALIS_CREATE')): ?>
           <a class="dropdown-item is-gold" href="<?= htmlspecialchars($supplierReturnUrl) ?>"><i class="fa-solid fa-rotate-left"></i> Tedarikçiye İade Ver</a>
-          <a class="dropdown-item is-red" href="<?= htmlspecialchars($deleteUrl) ?>" onclick="return confirm('Bu tedarikçiyi silmek istediğinize emin misiniz?')"><i class="fa-solid fa-xmark"></i> Tedarikçiyi Sil</a>
+          <?php endif; ?>
+          <?php if (Rbac::currentUserCan('TEDARIKCI_DELETE')): ?>
+          <a class="dropdown-item is-red" href="#" onclick="return nymPost('<?= htmlspecialchars($deleteUrl) ?>', 'Bu tedarikçiyi silmek istediğinize emin misiniz?')"><i class="fa-solid fa-xmark"></i> Tedarikçiyi Sil</a>
+          <?php endif; ?>
         <?php endif; ?>
       </div>
     </div>

@@ -18,7 +18,9 @@ input,select,textarea{width:100%;border:1px solid var(--border2);border-radius:4
 
 <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
   <a class="gef-btn gray" href="<?= BASE_URL ?>/nakit/gelen-e-faturalar"><i class="fa-solid fa-rotate-left"></i> Geri Dön</a>
-  <a class="gef-btn red" href="<?= BASE_URL ?>/nakit/gelen-e-faturalar/iptal/<?= (int)$fatura['id'] ?>" onclick="return confirm('Fatura iptal/pasif yapılsın mı?')"><i class="fa-solid fa-ban"></i> İptal/Pasif Yap</a>
+  <?php if (Rbac::currentUserCan('NAKIT_DELETE')): ?>
+  <a class="gef-btn red" href="#" onclick="return nymPost('<?= BASE_URL ?>/nakit/gelen-e-faturalar/iptal/<?= (int)$fatura['id'] ?>', 'Fatura iptal/pasif yapılsın mı?')"><i class="fa-solid fa-ban"></i> İptal/Pasif Yap</a>
+  <?php endif; ?>
 </div>
 
 <div class="gef-layout">
@@ -64,6 +66,7 @@ input,select,textarea{width:100%;border:1px solid var(--border2);border-radius:4
   </div>
 
   <div>
+    <?php if (Rbac::currentUserCan('NAKIT_CREATE')): ?>
     <div class="panel">
       <h5>PDF Yükle</h5>
       <div class="body">
@@ -87,13 +90,16 @@ input,select,textarea{width:100%;border:1px solid var(--border2);border-radius:4
         </form>
       </div>
     </div>
+    <?php endif; ?>
     <div class="panel" style="margin-top:14px">
       <h5>Notlar</h5>
       <div class="body">
+        <?php if (Rbac::currentUserCan('NAKIT_CREATE')): ?>
         <form method="post" action="<?= BASE_URL ?>/nakit/gelen-e-faturalar/not-ekle/<?= (int)$fatura['id'] ?>">
           <textarea name="not_metni" placeholder="Not ekle"></textarea>
           <button class="gef-btn gray" type="submit">Not Ekle</button>
         </form>
+        <?php endif; ?>
         <?php foreach ($notlar as $n): ?><div style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px;font-size:12px"><?= htmlspecialchars($n['not_metni']) ?><br><small><?= htmlspecialchars($n['created_at']) ?></small></div><?php endforeach; ?>
       </div>
     </div>

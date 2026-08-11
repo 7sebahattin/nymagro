@@ -556,6 +556,9 @@ class GelenEFatura
             if ($hesapId) {
                 $this->createCashMovement($hesapId, $invoiceId, $tutarTl, $odemeTarihi, trim((string)($data['aciklama'] ?? 'Gelen e-fatura ödemesi')));
             }
+
+            Audit::log('UPDATE', 'NAKIT', $invoiceId, ['kalan_tutar_tl' => $invoice['kalan_tutar_tl']], ['odeme_tutari_tl' => $tutarTl], 'Gelen e-fatura ödemesi eklendi: ' . $tutarTl, true, $userId);
+
             $this->db->commit();
         } catch (Throwable $e) {
             $this->db->rollBack();
@@ -590,7 +593,9 @@ class GelenEFatura
 
     public function pasifYap(int $invoiceId): void
     {
+        $before = $this->detay($invoiceId);
         $this->db->update('gelen_efaturalar', ['fatura_durumu' => 'iptal', 'silindi_mi' => 1], ['id' => $invoiceId]);
+        Audit::log('DELETE', 'NAKIT', $invoiceId, $before, ['fatura_durumu' => 'iptal'], 'Gelen e-fatura iptal/pasif yapıldı.');
     }
 
     public function exportRows(array $filters = []): array
@@ -1046,6 +1051,10 @@ class GelenEFatura
                 'created_by' => $userId,
             ]);
         }
+
+        Audit::log('CREATE', 'NAKIT', $id, null, [
+            'fatura_ismi' => $invoice['fatura_ismi'] ?? null, 'genel_toplam_tl' => $invoice['genel_toplam_tl'] ?? 0, 'kaynak' => $source,
+        ], 'Gelen e-fatura kaydedildi: ' . ($invoice['fatura_ismi'] ?? ''), true, $userId);
 
         return $id;
     }

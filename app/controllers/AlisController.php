@@ -351,6 +351,9 @@ final class AlisController extends Controller
 
     public function iptal(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('alis');
+        }
         $f = $this->fatura->getir($id);
         if ($f) {
             $this->fatura->iptalEt($id);
@@ -363,6 +366,9 @@ final class AlisController extends Controller
 
     public function sil(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('alis');
+        }
         $f = $this->fatura->getir($id);
         if ($f) {
             $this->fatura->sil($id);

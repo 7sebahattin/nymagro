@@ -133,6 +133,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
 
 <!-- Aksiyon Satırı -->
 <div class="h-action-row">
+  <?php if (Rbac::currentUserCan('HESAP_CREATE')): ?>
   <div class="dropdown">
     <button class="btn-tgreen dropdown-toggle" data-bs-toggle="dropdown">
       <i class="fa-solid fa-plus"></i> Yeni Hesap Ekle
@@ -146,6 +147,7 @@ $fmt = fn(float $n, string $pb = 'TRY') =>
       <li><a class="dropdown-item" href="#" onclick="openYeniHesap('kredi_karti','Kredi Kartı');return false;">Kredi Kartı Ekle</a></li>
     </ul>
   </div>
+  <?php endif; ?>
   <button class="btn-teal" disabled title="Yakında">
     <i class="fa-solid fa-plus"></i> Yeni Banka Entegrasyonu Ekle <span class="yeni-badge">yakında</span>
   </button>

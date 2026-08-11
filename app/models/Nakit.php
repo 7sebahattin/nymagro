@@ -100,6 +100,10 @@ class Nakit
                 (new Fatura())->recomputeCariBalance((int)$data['cari_id']);
             }
 
+            Audit::log('CREATE', 'NAKIT', $id, null, [
+                'kasa_id' => $kasaId, 'islem_tipi' => $islemTipi, 'hareket_tipi' => $hareketTipi, 'tutar' => $data['tutar'],
+            ], "Kasa/banka hareketi eklendi ({$islemTipi}): " . $data['tutar']);
+
             $this->db->commit();
             return $id;
         } catch (\Exception $e) {

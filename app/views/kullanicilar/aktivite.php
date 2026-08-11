@@ -5,6 +5,8 @@ $kullanici = $kullanici ?? [];
 $kayitlar = $kayitlar ?? [];
 $filters = $filters ?? [];
 $moduleLabels = $moduleLabels ?? [];
+$sirketler = $sirketler ?? [];
+$donemler = $donemler ?? [];
 $actionLabels = [
     'CREATE' => 'Oluşturdu', 'UPDATE' => 'Güncelledi', 'DELETE' => 'Sildi',
     'LOGIN' => 'Giriş yaptı', 'LOGOUT' => 'Çıkış yaptı', 'FAILED_LOGIN' => 'Başarısız giriş',
@@ -27,6 +29,19 @@ $actionLabels = [
 <form class="row g-2 mb-3" method="get">
   <div class="col-auto"><input type="text" name="module" class="form-control form-control-sm" placeholder="Modül (ör. MUSTERI)" value="<?= $h($filters['module'] ?? '') ?>"></div>
   <div class="col-auto"><input type="text" name="action" class="form-control form-control-sm" placeholder="İşlem (ör. UPDATE)" value="<?= $h($filters['action'] ?? '') ?>"></div>
+  <div class="col-auto"><input type="text" name="record_id" class="form-control form-control-sm" placeholder="Kayıt ID" value="<?= $h($filters['record_id'] ?? '') ?>" style="width:110px"></div>
+  <div class="col-auto">
+    <select name="company_id" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">Tüm şirketler</option>
+      <?php foreach ($sirketler as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (int)($filters['company_id'] ?? 0) === (int)$s['id'] ? 'selected' : '' ?>><?= $h($s['company_name']) ?></option><?php endforeach; ?>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="period_id" class="form-select form-select-sm">
+      <option value="">Tüm dönemler</option>
+      <?php foreach ($donemler as $d): ?><option value="<?= (int)$d['id'] ?>" <?= (int)($filters['period_id'] ?? 0) === (int)$d['id'] ? 'selected' : '' ?>><?= $h($d['fiscal_year'] ?? $d['id']) ?></option><?php endforeach; ?>
+    </select>
+  </div>
   <div class="col-auto"><input type="date" name="start" class="form-control form-control-sm" value="<?= $h($filters['start'] ?? '') ?>"></div>
   <div class="col-auto"><input type="date" name="end" class="form-control form-control-sm" value="<?= $h($filters['end'] ?? '') ?>"></div>
   <div class="col-auto"><button class="btn btn-sm btn-outline-secondary">Filtrele</button></div>
@@ -34,7 +49,10 @@ $actionLabels = [
 
 <div class="card border-0 shadow-sm">
   <div class="card-header bg-transparent">
-    <strong><?= $h($kullanici['full_name']) ?></strong> — Aktivite Geçmişi (<?= (int)$toplam ?> kayıt)
+    <strong><?= $h(mb_strtoupper($kullanici['full_name'], 'UTF-8')) ?></strong>
+    &nbsp;/&nbsp;Rol: <?= $h($kullanici['role_name'] ?? '-') ?>
+    &nbsp;/&nbsp;Durum: <?= $h($kullanici['status'] === 'active' ? 'Aktif' : ($kullanici['status'] === 'locked' ? 'Kilitli' : 'Pasif')) ?>
+    &nbsp;/&nbsp;Aktivite Geçmişi (<?= (int)$toplam ?> kayıt)
   </div>
   <div class="table-responsive">
     <table class="table table-sm align-middle mb-0">

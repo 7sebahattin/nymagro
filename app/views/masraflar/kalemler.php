@@ -99,12 +99,16 @@ $renkler = ['#5cb85c','#5bc0de','#f0ad4e','#d9534f','#2f7350','#34495e','#e67e22
 
 <!-- Aksiyon -->
 <div class="mk-action">
+  <?php if (Rbac::currentUserCan('MASRAF_CREATE')): ?>
   <button class="btn-mk-ekle" onclick="openAnaModal()">
     <i class="fa-solid fa-plus"></i> Yeni Ana Masraf Kalemi Ekle
   </button>
+  <?php endif; ?>
+  <?php if (Rbac::currentUserCan('MASRAF_CREATE')): ?>
   <a href="<?= BASE_URL ?>/masraf/ekle" class="btn-mk-masraf">
     <i class="fa-solid fa-plus"></i> Yeni Masraf Gir
   </a>
+  <?php endif; ?>
 </div>
 
 <!-- Kategori Grid -->
@@ -135,18 +139,24 @@ function renderKat(array $kat): string {
       <div class="mk-header" style="background:<?= htmlspecialchars($kat['renk']) ?>;">
         <span><?= htmlspecialchars($kat['ad']) ?></span>
         <div class="mk-header-btns">
+          <?php if (Rbac::currentUserCan('MASRAF_UPDATE')): ?>
           <button class="btn-kat-duzenle"
                   onclick="openDuzenleModal(<?= $kat['id'] ?>, '<?= addslashes($kat['ad']) ?>', '<?= $kat['renk'] ?>', true)">
             <i class="fa-solid fa-pen"></i>
           </button>
+          <?php endif; ?>
+          <?php if (Rbac::currentUserCan('MASRAF_CREATE')): ?>
           <button class="btn-althesap"
                   onclick="openAltModal(<?= $kat['id'] ?>, '<?= addslashes($kat['ad']) ?>')">
             Alt Hesap Ekle +
           </button>
+          <?php endif; ?>
+          <?php if (Rbac::currentUserCan('MASRAF_DELETE')): ?>
           <button class="btn-kat-sil"
                   onclick="katSil(<?= $kat['id'] ?>, '<?= addslashes($kat['ad']) ?>', true)">
             <i class="fa-solid fa-trash"></i>
           </button>
+          <?php endif; ?>
         </div>
       </div>
       <div class="mk-body" id="katBody-<?= $kat['id'] ?>">
@@ -156,8 +166,10 @@ function renderKat(array $kat): string {
         <span class="mk-badge" style="background:<?= htmlspecialchars($alt['renk']) ?>;"
               id="alt-<?= $alt['id'] ?>">
           <?= htmlspecialchars($alt['ad']) ?>
+          <?php if (Rbac::currentUserCan('MASRAF_DELETE')): ?>
           <button class="badge-del" title="Sil"
                   onclick="katSil(<?= $alt['id'] ?>, '<?= addslashes($alt['ad']) ?>', false)">×</button>
+          <?php endif; ?>
         </span>
         <?php endforeach; endif; ?>
       </div>
@@ -444,7 +456,7 @@ function katSil(id, ad, isAna) {
     : `"${ad}" kalemini silmek istediğinizden emin misiniz?`;
   if (!confirm(msg)) return;
 
-  fetch(BASE + '/masraf/kategoriSil/' + id)
+  fetch(BASE + '/masraf/kategoriSil/' + id, { method: 'POST' })
     .then(r => r.json())
     .then(res => {
       if (res.success) {

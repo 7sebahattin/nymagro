@@ -175,6 +175,8 @@ class Masraf
             $this->kasaHareketiEkle($id, $temiz);
         }
 
+        Audit::log('CREATE', 'MASRAF', $id, null, $temiz, 'Masraf oluşturuldu: ' . ($temiz['aciklama'] ?? ''));
+
         return $id;
     }
 
@@ -209,6 +211,8 @@ class Masraf
         if (($guncel['odeme_durumu'] ?? '') === 'odendi' && !empty($guncel['kasa_id'])) {
             $this->kasaHareketiEkle($id, $guncel);
         }
+
+        Audit::log('UPDATE', 'MASRAF', $id, $mevcut, $temiz, 'Masraf güncellendi: ' . ($temiz['aciklama'] ?? $mevcut['aciklama'] ?? ''));
 
         return $rows;
     }
@@ -250,6 +254,8 @@ class Masraf
                 }
             }
 
+            Audit::log('DELETE', 'MASRAF', $id, $masraf, null, 'Masraf silindi: ' . ($masraf['aciklama'] ?? ''));
+
             $this->db->commit();
             return $rows;
         } catch (\Throwable $e) {
@@ -271,6 +277,7 @@ class Masraf
         }
 
         $rows = $this->db->update('masraflar', $data, ['id' => $id]);
+        Audit::log('UPDATE', 'MASRAF', $id, ['odeme_durumu' => $masraf['odeme_durumu'] ?? null], $data, 'Masraf ödendi olarak işaretlendi: ' . ($masraf['aciklama'] ?? ''));
         if (!empty($masraf['personel_hareket_id'])) {
             $this->db->update('personel_hareketleri', [
                 'odeme_durumu' => 'odendi',
@@ -338,14 +345,18 @@ class Masraf
         if (isset($temiz['parent_id']) && (string)$temiz['parent_id'] === '') {
             $temiz['parent_id'] = null;
         }
-        return $this->db->insert('masraf_kategoriler', $temiz);
+        $id = $this->db->insert('masraf_kategoriler', $temiz);
+        Audit::log('CREATE', 'MASRAF', $id, null, $temiz, 'Masraf kategorisi oluşturuldu: ' . ($temiz['ad'] ?? ''));
+        return $id;
     }
 
     public function kategoriGuncelle(int $id, array $veri): int
     {
         $temiz = array_intersect_key($veri, array_flip($this->katFillable));
         if (empty($temiz)) return 0;
-        return $this->db->update('masraf_kategoriler', $temiz, ['id' => $id]);
+        $sonuc = $this->db->update('masraf_kategoriler', $temiz, ['id' => $id]);
+        Audit::log('UPDATE', 'MASRAF', $id, null, $temiz, 'Masraf kategorisi güncellendi: ' . ($temiz['ad'] ?? ''));
+        return $sonuc;
     }
 
     public function kategoriSil(int $id): bool
@@ -367,6 +378,7 @@ class Masraf
             throw new RuntimeException('Bu kategoriye kayıtlı masraflar var, silinemez.');
         }
         $this->db->update('masraf_kategoriler', ['silindi_mi' => 1], ['id' => $id]);
+        Audit::log('DELETE', 'MASRAF', $id, null, null, 'Masraf kategorisi silindi.');
         return true;
     }
 

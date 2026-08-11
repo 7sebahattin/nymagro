@@ -84,6 +84,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
 
 <!-- Action Bar -->
 <div class="action-bar">
+  <?php if (Rbac::currentUserCan('URUN_CREATE')): ?>
   <div class="btn-add-wrap">
     <a href="<?= BASE_URL ?>/urun/ekle" class="btn-add-main">
       <i class="fa-solid fa-plus"></i> Yeni Ürün/Hizmet Ekle
@@ -96,6 +97,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
       <a href="javascript:void(0)" class="dd-item" onclick="openCopyModal()">Mevcut bir üründen kopyala</a>
     </div>
   </div>
+  <?php endif; ?>
 
   <!-- Mevcut Üründen Kopyala Modalı -->
   <div class="modal-overlay" id="copyProductModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:9999;">
@@ -249,8 +251,12 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
                 </a>
 
                 <div class="row-actions">
-                  <a href="<?= BASE_URL ?>/urun/duzenle/<?= $u['id'] ?>" class="btn-edit-row"><i class="fa-solid fa-pen"></i></a>
-                  <a href="<?= BASE_URL ?>/urun/sil/<?= $u['id'] ?>" class="btn-del-row" onclick="return confirm('Emin misiniz?')"><i class="fa-solid fa-trash-can"></i></a>
+                  <?php if (Rbac::currentUserCan('URUN_UPDATE')): ?>
+                    <a href="<?= BASE_URL ?>/urun/duzenle/<?= $u['id'] ?>" class="btn-edit-row"><i class="fa-solid fa-pen"></i></a>
+                  <?php endif; ?>
+                  <?php if (Rbac::currentUserCan('URUN_DELETE')): ?>
+                    <a href="#" class="btn-del-row" onclick="return nymPost('<?= BASE_URL ?>/urun/sil/<?= $u['id'] ?>', 'Emin misiniz?')"><i class="fa-solid fa-trash-can"></i></a>
+                  <?php endif; ?>
                 </div>
               </div>
             </td>

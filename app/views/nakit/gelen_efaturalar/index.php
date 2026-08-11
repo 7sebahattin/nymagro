@@ -75,10 +75,12 @@ $buildUrl = function(array $extra = []) use ($filters) {
 <?php endif; ?>
 
 <div class="gef-actions">
+  <?php if (Rbac::currentUserCan('NAKIT_CREATE')): ?>
   <a class="gef-btn green" href="<?= BASE_URL ?>/nakit/gelen-e-faturalar/yeni"><i class="fa-solid fa-plus"></i> Yeni Gelen Fatura Ekle</a>
   <a class="gef-btn blue" href="<?= BASE_URL ?>/nakit/gelen-e-faturalar/toplu-yukle"><i class="fa-solid fa-file-excel"></i> Excel ile Toplu Yükle</a>
   <button class="gef-btn orange" type="button" onclick="topluOdemeAc()"><i class="fa-solid fa-money-bill"></i> Toplu Ödeme</button>
   <button class="gef-btn gray" type="button" onclick="submitBulk('not')"><i class="fa-solid fa-note-sticky"></i> Toplu Not</button>
+  <?php endif; ?>
   <a class="gef-btn gray" href="<?= $buildUrl(['quick'=>'pdf_eksik']) ?>"><i class="fa-solid fa-file-circle-exclamation"></i> PDF Eksik Faturalar</a>
   <a class="gef-btn red" href="<?= $buildUrl(['quick'=>'vadesi_gecen']) ?>"><i class="fa-solid fa-triangle-exclamation"></i> Vadesi Geçenler</a>
   <a class="gef-btn gray" href="<?= BASE_URL ?>/nakit/gelen-e-faturalar/export?<?= http_build_query(array_filter($filters)) ?>"><i class="fa-solid fa-download"></i> Excel'e Aktar</a>

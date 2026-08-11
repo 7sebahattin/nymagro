@@ -41,6 +41,18 @@ final class AuditAdmin
             $conds[] = 'user_id = :uid';
             $params[':uid'] = (int)$filters['user_id'];
         }
+        if (!empty($filters['company_id'])) {
+            $conds[] = 'company_id = :company_id';
+            $params[':company_id'] = (int)$filters['company_id'];
+        }
+        if (!empty($filters['period_id'])) {
+            $conds[] = 'period_id = :period_id';
+            $params[':period_id'] = (int)$filters['period_id'];
+        }
+        if (!empty($filters['record_id'])) {
+            $conds[] = 'record_id = :record_id';
+            $params[':record_id'] = trim((string)$filters['record_id']);
+        }
         if (!empty($filters['module'])) {
             $conds[] = 'module = :module';
             $params[':module'] = $filters['module'];

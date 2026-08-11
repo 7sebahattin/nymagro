@@ -5,10 +5,13 @@
  * Public landing page (Nymagro) içerik yönetimi.
  *
  * /site            → ayarlar (ana sayfa içerik yönetimi — varsayılan)
- * /site/urun-kaydet  POST AJAX
- * /site/urun-sil/{id} GET AJAX
+ * /site/urun-kaydet   POST AJAX
+ * /site/urun-sil/{id} POST AJAX
  * /site/galeri-kaydet POST AJAX
- * /site/galeri-sil/{id} GET AJAX
+ * /site/galeri-sil/{id} POST AJAX
+ *
+ * NOT: Tüm mutasyon uç noktaları POST zorunludur (Faz 1.5-A). Eskiden bazıları
+ * GET ile de çalışıyordu — CSRF sertleştirmesiyle POST'a taşındı.
  */
 require_once MODELS_PATH . '/SiteIcerik.php';
 require_once MODELS_PATH . '/ContactMessage.php';
@@ -51,10 +54,18 @@ class SiteController extends Controller
     public function mesajDurum(int $id = 0): void
     {
         header('Content-Type: application/json; charset=UTF-8');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['ok' => false, 'msg' => 'Bu işlem sadece POST ile yapılabilir.']);
+            return;
+        }
         try {
             if ($id <= 0) throw new Exception('Geçersiz ID.');
-            $status = trim((string)($_POST['status'] ?? $_GET['status'] ?? 'read'));
-            (new ContactMessage())->durumGuncelle($id, $status);
+            $status = trim((string)($_POST['status'] ?? 'read'));
+            $mesaj = new ContactMessage();
+            $before = $mesaj->bul($id);
+            $mesaj->durumGuncelle($id, $status);
+            Audit::log('UPDATE', 'SITE', $id, $before, ['durum' => $status], 'İletişim mesajı durumu güncellendi.');
             echo json_encode(['ok' => true]);
         } catch (Exception $e) {
             echo json_encode(['ok' => false, 'msg' => $e->getMessage()]);
@@ -64,9 +75,17 @@ class SiteController extends Controller
     public function mesajSil(int $id = 0): void
     {
         header('Content-Type: application/json; charset=UTF-8');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['ok' => false, 'msg' => 'Bu işlem sadece POST ile yapılabilir.']);
+            return;
+        }
         try {
             if ($id <= 0) throw new Exception('Geçersiz ID.');
-            (new ContactMessage())->sil($id);
+            $mesaj = new ContactMessage();
+            $before = $mesaj->bul($id);
+            $mesaj->sil($id);
+            Audit::log('DELETE', 'SITE', $id, $before, null, 'İletişim mesajı silindi.');
             echo json_encode(['ok' => true]);
         } catch (Exception $e) {
             echo json_encode(['ok' => false, 'msg' => $e->getMessage()]);
@@ -133,6 +152,7 @@ class SiteController extends Controller
             }
 
             $this->model->topluAyarKaydet($payload);
+            Audit::log('SETTINGS_CHANGE', 'SITE', null, null, ['fields' => array_keys($payload)], 'Site ayarları güncellendi.');
             $this->setFlash('success', 'Site ayarları kaydedildi.');
         } catch (Exception $e) {
             $this->setFlash('error', 'Kaydedilemedi: ' . $e->getMessage());
@@ -143,7 +163,11 @@ class SiteController extends Controller
 
     public function logoSil(): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('site');
+        }
         $this->model->ayarKaydet('logo_path', '');
+        Audit::log('SETTINGS_CHANGE', 'SITE', null, null, ['logo_path' => ''], 'Site logosu kaldırıldı.');
         $this->setFlash('success', 'Logo kaldırıldı. Varsayılan logoya dönüldü.');
         $this->redirect('site#tab-genel');
     }
@@ -189,16 +213,16 @@ class SiteController extends Controller
             }
 
             if ($id > 0) {
-                if (!isset($veri['gorsel'])) {
-                    $mevcut = $this->model->urunGetir($id);
-                    if (!$mevcut) throw new Exception('Ürün bulunamadı.');
-                }
+                $before = $this->model->urunGetir($id);
+                if (!$before) throw new Exception('Ürün bulunamadı.');
                 $this->model->urunGuncelle($id, $veri);
+                Audit::log('UPDATE', 'SITE', $id, $before, $veri, "Site ürünü güncellendi: {$veri['ad_tr']}");
                 $this->panelUrununeSenkronla($id);
                 echo json_encode(['ok' => true, 'msg' => 'Ürün güncellendi.', 'id' => $id]);
             } else {
                 if (empty($veri['gorsel'])) throw new Exception('Yeni ürün için görsel zorunludur.');
                 $newId = $this->model->urunEkle($veri);
+                Audit::log('CREATE', 'SITE', $newId, null, $veri, "Site ürünü eklendi: {$veri['ad_tr']}");
                 $this->panelUrununeSenkronla($newId);
                 echo json_encode(['ok' => true, 'msg' => 'Ürün eklendi.', 'id' => $newId]);
             }
@@ -210,9 +234,16 @@ class SiteController extends Controller
     public function urunSil(int $id = 0): void
     {
         header('Content-Type: application/json; charset=UTF-8');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['ok' => false, 'msg' => 'Bu işlem sadece POST ile yapılabilir.']);
+            return;
+        }
         try {
             if ($id <= 0) throw new Exception('Geçersiz ID.');
+            $before = $this->model->urunGetir($id);
             $this->model->urunSil($id);
+            Audit::log('DELETE', 'SITE', $id, $before, null, 'Site ürünü silindi: ' . ($before['ad_tr'] ?? ''));
             echo json_encode(['ok' => true, 'msg' => 'Ürün silindi.']);
         } catch (Exception $e) {
             echo json_encode(['ok' => false, 'msg' => $e->getMessage()]);
@@ -262,14 +293,16 @@ class SiteController extends Controller
                 ? $this->dosyaYukle($_FILES['gorsel'], 'galeri')
                 : trim((string)$_POST['gorsel_url']);
 
-            $id = $this->model->galeriEkle([
+            $veri = [
                 'sira'      => (int)($_POST['sira'] ?? 0),
                 'gorsel'    => $gorsel,
                 'etiket_tr' => trim($_POST['etiket_tr'] ?? ''),
                 'etiket_en' => trim($_POST['etiket_en'] ?? ''),
                 'etiket_ru' => trim($_POST['etiket_ru'] ?? ''),
                 'aktif_mi'  => !empty($_POST['aktif_mi']),
-            ]);
+            ];
+            $id = $this->model->galeriEkle($veri);
+            Audit::log('CREATE', 'SITE', $id, null, $veri, 'Galeri öğesi eklendi.');
             echo json_encode(['ok' => true, 'msg' => 'Galeri öğesi eklendi.', 'id' => $id]);
         } catch (Exception $e) {
             echo json_encode(['ok' => false, 'msg' => $e->getMessage()]);
@@ -279,9 +312,15 @@ class SiteController extends Controller
     public function galeriSil(int $id = 0): void
     {
         header('Content-Type: application/json; charset=UTF-8');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['ok' => false, 'msg' => 'Bu işlem sadece POST ile yapılabilir.']);
+            return;
+        }
         try {
             if ($id <= 0) throw new Exception('Geçersiz ID.');
             $this->model->galeriSil($id);
+            Audit::log('DELETE', 'SITE', $id, null, null, 'Galeri öğesi silindi.');
             echo json_encode(['ok' => true, 'msg' => 'Galeri öğesi silindi.']);
         } catch (Exception $e) {
             echo json_encode(['ok' => false, 'msg' => $e->getMessage()]);

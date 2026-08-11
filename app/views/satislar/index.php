@@ -158,6 +158,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 <?php endif; ?>
 
 <!-- Action Buttons -->
+<?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>
 <div class="action-btns">
   <a href="<?= BASE_URL ?>/satis/perakende" class="btn-action" style="background:#5cb85c; color:#fff;">
     <i class="fa-solid fa-plus"></i> Perakende Satış Gir
@@ -172,6 +173,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
     <i class="fa-solid fa-file-invoice"></i> Serbest Meslek Makbuzları
   </a>
 </div>
+<?php endif; ?>
 
 <!-- Özet Kartlar -->
 <div class="ozet-row">
@@ -314,18 +316,20 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                   <a href="<?= BASE_URL ?>/satis/fatura/<?= $f['id'] ?>/print" target="_blank" rel="noopener" class="btn-det" style="background:#efa341;">
                     <i class="fa-solid fa-print"></i> Yazdır
                   </a>
-                  <?php if ($f['durum'] !== 'iptal'): ?>
-                    <a href="<?= BASE_URL ?>/satis/iptal/<?= $f['id'] ?>"
+                  <?php if ($f['durum'] !== 'iptal' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
+                    <a href="#"
                        class="btn-det red"
-                       onclick="return confirm('Fatura iptal edilsin mi?')">
+                       onclick="return nymPost('<?= BASE_URL ?>/satis/iptal/<?= $f['id'] ?>', 'Fatura iptal edilsin mi?')">
                       <i class="fa-solid fa-ban"></i> İptal Et
                     </a>
                   <?php endif; ?>
-                  <a href="<?= BASE_URL ?>/satis/sil/<?= $f['id'] ?>"
+                  <?php if (Rbac::currentUserCan('SATIS_DELETE')): ?>
+                  <a href="#"
                      class="btn-det slate"
-                     onclick="return confirm('Fatura silinsin mi?')">
+                     onclick="return nymPost('<?= BASE_URL ?>/satis/sil/<?= $f['id'] ?>', 'Fatura silinsin mi?')">
                     <i class="fa-solid fa-trash-can"></i> Sil
                   </a>
+                  <?php endif; ?>
                 </div>
                 <div style="font-size:12px; color:var(--muted);">
                   Vade: <?= $fmtTar($f['vade_tarihi']) ?> &nbsp;|&nbsp;

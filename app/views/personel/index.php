@@ -39,6 +39,7 @@ $money = fn($v) => number_format((float)$v, 2, ',', '.') . ' TL';
     Personel kayıtları <strong>personeller</strong>, maaş/prim/avans/kesinti hareketleri <strong>personel_hareketleri</strong> tablosunda tutulur. Bu sayfa mevcut kayıtları listeler; finansal toplamlar Çalışan Raporu'na yansır.
   </div>
 
+  <?php if (Rbac::currentUserCan('PERSONEL_CREATE')): ?>
   <div class="p-heading">Yeni Personel Ekle</div>
   <form class="p-form" method="post" action="<?= BASE_URL ?>/personel/ekle">
     <div class="p-grid">
@@ -51,7 +52,9 @@ $money = fn($v) => number_format((float)$v, 2, ',', '.') . ' TL';
       <button class="p-btn green" type="submit"><i class="fa-solid fa-plus"></i> Personel Ekle</button>
     </div>
   </form>
+  <?php endif; ?>
 
+  <?php if (Rbac::currentUserCan('PERSONEL_CREATE')): ?>
   <div class="p-heading">Personel Gideri / Hareketi Ekle</div>
   <form class="p-form" method="post" action="<?= BASE_URL ?>/personel/hareket_ekle">
     <div class="p-grid">
@@ -103,6 +106,7 @@ $money = fn($v) => number_format((float)$v, 2, ',', '.') . ' TL';
       <button class="p-btn green" type="submit"><i class="fa-solid fa-receipt"></i> Hareket Ekle</button>
     </div>
   </form>
+  <?php endif; ?>
 
   <div class="p-heading">Personel Listesi</div>
   <div class="p-table-wrap">
@@ -134,7 +138,7 @@ $money = fn($v) => number_format((float)$v, 2, ',', '.') . ' TL';
               <td><?= $money($p['toplam_kesinti_avans']) ?></td>
               <td><?= $e($p['son_odeme_tarihi'] ?: '-') ?></td>
               <td><?= ((int)$p['aktif_mi'] === 1) ? 'Aktif' : 'Pasif' ?></td>
-              <td><a class="p-btn red" href="<?= BASE_URL ?>/personel/sil/<?= (int)$p['id'] ?>" onclick="return confirm('Personel silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a></td>
+              <td><?php if (Rbac::currentUserCan('PERSONEL_DELETE')): ?><a class="p-btn red" href="#" onclick="return nymPost('<?= BASE_URL ?>/personel/sil/<?= (int)$p['id'] ?>', 'Personel silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a><?php endif; ?></td>
             </tr>
           <?php endforeach; ?>
         <?php endif; ?>
@@ -170,7 +174,7 @@ $money = fn($v) => number_format((float)$v, 2, ',', '.') . ' TL';
               <td><?= $e($h['odeme_durumu']) ?></td>
               <td><?= $e($h['hesap_adi'] ?: '-') ?></td>
               <td><?= $e($h['aciklama'] ?: '-') ?></td>
-              <td><a class="p-btn red" href="<?= BASE_URL ?>/personel/hareket_sil/<?= (int)$h['id'] ?>" onclick="return confirm('Hareket silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a></td>
+              <td><?php if (Rbac::currentUserCan('PERSONEL_DELETE')): ?><a class="p-btn red" href="#" onclick="return nymPost('<?= BASE_URL ?>/personel/hareket_sil/<?= (int)$h['id'] ?>', 'Hareket silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a><?php endif; ?></td>
             </tr>
           <?php endforeach; ?>
         <?php endif; ?>

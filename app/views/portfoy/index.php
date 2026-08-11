@@ -15,6 +15,7 @@ $durumlar = ['bekliyor' => 'Bekliyor', 'tahsil' => 'Tahsil', 'odendi' => 'Ödend
 </style>
 <div class="pf-page">
   <?php if (!empty($flash)): ?><div class="pf-alert <?= $h($flash['tip'] ?? 'success') ?>"><?= $h($flash['mesaj'] ?? '') ?></div><?php endif; ?>
+  <?php if (Rbac::currentUserCan('PORTFOY_CREATE')): ?>
   <section class="pf-card">
     <div class="pf-head"><h2><i class="fa-solid <?= $tip === 'cek' ? 'fa-money-check' : 'fa-file-invoice-dollar' ?>"></i> Yeni <?= $h($tip === 'cek' ? 'Çek' : 'Senet') ?></h2><p>Vade tarihleri takvim ekranına otomatik düşer.</p></div>
     <form class="pf-form" method="post" action="<?= BASE_URL ?>/<?= $base ?>/kaydet">
@@ -27,17 +28,22 @@ $durumlar = ['bekliyor' => 'Bekliyor', 'tahsil' => 'Tahsil', 'odendi' => 'Ödend
       <div class="pf-field wide"><label>Açıklama</label><textarea name="aciklama"></textarea></div>
     </form>
   </section>
+  <?php endif; ?>
   <section class="pf-card">
     <div class="pf-head"><h2><?= $h($label) ?></h2><p><?= count($kayitlar) ?> kayıt</p></div>
     <?php if (empty($kayitlar)): ?><div class="pf-empty"><i class="fa-solid fa-circle-info"></i> Henüz kayıt yok.</div>
     <?php else: ?><div class="pf-table-wrap"><table class="pf-table"><thead><tr><th>Belge</th><th>Cari</th><th>Vade</th><th>Tutar</th><th>Durum</th><th></th></tr></thead><tbody>
       <?php foreach ($kayitlar as $row): ?><tr><td><b><?= $h($row['belge_no']) ?></b><br><?= $h($row['aciklama']) ?></td><td><?= $h($row['cari_unvan'] ?: '-') ?></td><td><?= $h($row['vade_tarihi']) ?></td><td><?= $money($row['tutar']) ?> TL</td><td>
+        <?php if (Rbac::currentUserCan('PORTFOY_UPDATE')): ?>
         <form method="post" action="<?= BASE_URL ?>/<?= $base ?>/durum/<?= (int)$row['id'] ?>" onchange="this.submit()">
           <select name="durum" class="pf-status" style="border:0;cursor:pointer">
             <?php foreach ($durumlar as $key => $text): ?><option value="<?= $h($key) ?>" <?= $row['durum'] === $key ? 'selected' : '' ?>><?= $h($text) ?></option><?php endforeach; ?>
           </select>
         </form>
-      </td><td><a class="pf-btn danger" href="<?= BASE_URL ?>/<?= $base ?>/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Kayıt silinsin mi?')"><i class="fa-solid fa-trash"></i></a></td></tr><?php endforeach; ?>
+        <?php else: ?>
+          <span class="pf-status"><?= $h($durumlar[$row['durum']] ?? $row['durum']) ?></span>
+        <?php endif; ?>
+      </td><td><?php if (Rbac::currentUserCan('PORTFOY_DELETE')): ?><a class="pf-btn danger" href="#" onclick="return nymPost('<?= BASE_URL ?>/<?= $base ?>/sil/<?= (int)$row['id'] ?>', 'Kayıt silinsin mi?')"><i class="fa-solid fa-trash"></i></a><?php endif; ?></td></tr><?php endforeach; ?>
     </tbody></table></div><?php endif; ?>
   </section>
 </div>

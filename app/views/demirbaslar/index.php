@@ -10,6 +10,7 @@ $kayitlar = $kayitlar ?? [];
 </style>
 <div class="asset-page">
   <?php if (!empty($flash)): ?><div class="asset-alert <?= $h($flash['tip'] ?? 'success') ?>"><?= $h($flash['mesaj'] ?? '') ?></div><?php endif; ?>
+  <?php if (Rbac::currentUserCan('DEMIRBAS_CREATE')): ?>
   <section class="asset-card">
     <div class="asset-head"><h2><i class="fa-solid fa-chair"></i> Yeni Demirbaş</h2><p>Araç, cihaz, ekipman ve garanti bilgilerini takip edin.</p></div>
     <form class="asset-form" method="post" action="<?= BASE_URL ?>/demirbas/kaydet">
@@ -21,11 +22,12 @@ $kayitlar = $kayitlar ?? [];
       <div class="asset-field wide"><label>Açıklama</label><textarea name="aciklama"></textarea></div>
     </form>
   </section>
+  <?php endif; ?>
   <section class="asset-card">
     <div class="asset-head"><h2>Demirbaş Listesi</h2><p><?= count($kayitlar) ?> kayıt</p></div>
     <?php if (empty($kayitlar)): ?><div class="asset-empty"><i class="fa-solid fa-circle-info"></i> Henüz demirbaş kaydı yok.</div>
     <?php else: ?><div class="asset-table-wrap"><table class="asset-table"><thead><tr><th>Demirbaş</th><th>Seri No</th><th>Alış Tarihi</th><th>Fiyat</th><th></th></tr></thead><tbody>
-      <?php foreach ($kayitlar as $row): ?><tr><td><b><?= $h($row['ad']) ?></b><br><?= $h($row['aciklama']) ?></td><td><?= $h($row['seri_no']) ?></td><td><?= $h($row['alis_tarihi'] ?: '-') ?></td><td><?= $money($row['fiyat']) ?> TL</td><td><a class="asset-btn danger" href="<?= BASE_URL ?>/demirbas/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Demirbaş silinsin mi?')"><i class="fa-solid fa-trash"></i></a></td></tr><?php endforeach; ?>
+      <?php foreach ($kayitlar as $row): ?><tr><td><b><?= $h($row['ad']) ?></b><br><?= $h($row['aciklama']) ?></td><td><?= $h($row['seri_no']) ?></td><td><?= $h($row['alis_tarihi'] ?: '-') ?></td><td><?= $money($row['fiyat']) ?> TL</td><td><?php if (Rbac::currentUserCan('DEMIRBAS_DELETE')): ?><a class="asset-btn danger" href="#" onclick="return nymPost('<?= BASE_URL ?>/demirbas/sil/<?= (int)$row['id'] ?>', 'Demirbaş silinsin mi?')"><i class="fa-solid fa-trash"></i></a><?php endif; ?></td></tr><?php endforeach; ?>
     </tbody></table></div><?php endif; ?>
   </section>
 </div>

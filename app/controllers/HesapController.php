@@ -126,6 +126,9 @@ class HesapController extends Controller
 
     public function hesapSil(int $id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('hesap');
+        }
         if ($id > 0) {
             $this->model->sil($id);
             $this->setFlash('success', 'Hesap silindi.');
@@ -211,6 +214,10 @@ class HesapController extends Controller
     public function hareketSil(int $id = 0): void
     {
         header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz istek.']);
+            return;
+        }
         try {
             $result = $this->model->hareketSil($id);
             echo json_encode([

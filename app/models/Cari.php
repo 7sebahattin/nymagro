@@ -300,13 +300,15 @@ class Cari
         }
 
         $temiz['tip']      = $temiz['tip']      ?? 'musteri';
-        
+
         // Boş veya set edilmemiş cari_kodu → NULL (UNIQUE constraint çakışmasını önler)
         if (!isset($temiz['cari_kodu']) || trim((string)$temiz['cari_kodu']) === '') {
             $temiz['cari_kodu'] = null;
         }
 
-        return $this->db->insert('cariler', $temiz);
+        $id = $this->db->insert('cariler', $temiz);
+        Audit::log('CREATE', $this->moduleForTip($temiz['tip']), $id, null, $temiz, "Cari oluşturuldu: {$temiz['unvan']}");
+        return $id;
     }
 
     // ──────────────────────────────────────────────────────
@@ -321,7 +323,11 @@ class Cari
             return 0;
         }
 
-        return $this->db->update('cariler', $temiz, ['id' => $id]);
+        $before = $this->getir($id);
+        $result = $this->db->update('cariler', $temiz, ['id' => $id]);
+        $modul = $this->moduleForTip((string)($temiz['tip'] ?? $before['tip'] ?? 'musteri'));
+        Audit::log('UPDATE', $modul, $id, $before, $temiz, 'Cari güncellendi: ' . ($before['unvan'] ?? $temiz['unvan'] ?? ''));
+        return $result;
     }
 
     // ──────────────────────────────────────────────────────
@@ -330,7 +336,16 @@ class Cari
 
     public function sil(int $id): int
     {
-        return $this->db->softDelete('cariler', $id);
+        $before = $this->getir($id);
+        $result = $this->db->softDelete('cariler', $id);
+        Audit::log('DELETE', $this->moduleForTip((string)($before['tip'] ?? 'musteri')), $id, $before, null, 'Cari silindi: ' . ($before['unvan'] ?? ''));
+        return $result;
+    }
+
+    /** cariler.tip → Rbac modül kodu (musteri/tedarikci ayrımı; 'her_ikisi' MUSTERI'ye sayılır). */
+    private function moduleForTip(string $tip): string
+    {
+        return $tip === 'tedarikci' ? 'TEDARIKCI' : 'MUSTERI';
     }
 
     // ──────────────────────────────────────────────────────

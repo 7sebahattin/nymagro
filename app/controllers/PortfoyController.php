@@ -45,6 +45,9 @@ class PortfoyController extends Controller
     public function sil(int $id = 0): void
     {
         $tip = $this->currentTip();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect($tip);
+        }
         if ($id > 0) {
             $this->model->portfoySil($id);
             $this->setFlash('success', 'Kayıt silindi.');

@@ -76,12 +76,14 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
   </div>
 
   <div class="btn-row">
+    <?php if (Rbac::currentUserCan('DEPO_UPDATE')): ?>
     <button class="btn-d btn-cyan" onclick="openModal('editModal')">
       <i class="fa-solid fa-pen"></i> Güncelle
     </button>
     <a href="<?= BASE_URL ?>/depo/sayim/<?= $depo['id'] ?>" class="btn-d btn-green">
       <i class="fa-solid fa-calculator"></i> Stok Sayımı Yap
     </a>
+    <?php endif; ?>
   </div>
 
   <div class="stok-section">
@@ -157,8 +159,8 @@ $fmt = fn($n) => number_format((float)$n, 2, ',', '.');
         </div>
       </div>
       <div class="modal-footer">
-        <?php if ($depo['id'] != 1 && $toplamDeger <= 0): ?>
-          <a href="<?= BASE_URL ?>/depo/sil/<?= $depo['id'] ?>" class="btn-delete" onclick="return confirm('Bu depoyu silmek istediğinize emin misiniz?')">Depoyu Sil</a>
+        <?php if ($depo['id'] != 1 && $toplamDeger <= 0 && Rbac::currentUserCan('DEPO_DELETE')): ?>
+          <a href="#" class="btn-delete" onclick="return nymPost('<?= BASE_URL ?>/depo/sil/<?= $depo['id'] ?>', 'Bu depoyu silmek istediğinize emin misiniz?')">Depoyu Sil</a>
         <?php else: ?>
            <span style="font-size:11px; color:var(--muted);">
              <?php if ($depo['id'] == 1): ?>Ana depo silinemez.<?php else: ?>İçinde stok olan depo silinemez.<?php endif; ?>

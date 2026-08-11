@@ -161,8 +161,10 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
                 $type = $eventTypes[$event['type']] ?? $eventTypes['other'];
                 $content = '<i class="fa-solid ' . $h($type['icon']) . '"></i><span>' . $h($event['title']) . '</span>';
               ?>
-                <?php if ($event['type'] === 'note' && !empty($event['note_id'])): ?>
-                  <a class="cal-event event-<?= $h($type['class']) ?>" href="<?= BASE_URL ?>/takvim/not_sil/<?= (int)$event['note_id'] ?>" onclick="return confirm('Bu not silinsin mi?')" title="<?= $h(($event['title'] ?? '') . ' ' . ($event['meta'] ?? '') . ' — silmek için tıklayın') ?>"><?= $content ?></a>
+                <?php if ($event['type'] === 'note' && !empty($event['note_id']) && Rbac::currentUserCan('TAKVIM_DELETE')): ?>
+                  <a class="cal-event event-<?= $h($type['class']) ?>" href="#" onclick="return nymPost('<?= BASE_URL ?>/takvim/not_sil/<?= (int)$event['note_id'] ?>', 'Bu not silinsin mi?')" title="<?= $h(($event['title'] ?? '') . ' ' . ($event['meta'] ?? '') . ' — silmek için tıklayın') ?>"><?= $content ?></a>
+                <?php elseif ($event['type'] === 'note' && !empty($event['note_id'])): ?>
+                  <span class="cal-event event-<?= $h($type['class']) ?>" title="<?= $h(($event['title'] ?? '') . ' ' . ($event['meta'] ?? '')) ?>"><?= $content ?></span>
                 <?php elseif (!empty($event['url'])): ?>
                   <a class="cal-event event-<?= $h($type['class']) ?>" href="<?= $h($event['url']) ?>" title="<?= $h(($event['title'] ?? '') . ' ' . ($event['meta'] ?? '')) ?>"><?= $content ?></a>
                 <?php else: ?>
@@ -205,10 +207,11 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
         <?php endif; ?>
         <?php foreach ($upcomingEvents as $event):
           $dt = new DateTimeImmutable($event['date']);
-          $isNote = $event['type'] === 'note' && !empty($event['note_id']);
-          $href = $isNote ? (BASE_URL . '/takvim/not_sil/' . (int)$event['note_id']) : (!empty($event['url']) ? $event['url'] : '#');
+          $isNote = $event['type'] === 'note' && !empty($event['note_id']) && Rbac::currentUserCan('TAKVIM_DELETE');
+          $href = $isNote ? '#' : (!empty($event['url']) ? $event['url'] : '#');
+          $noteDeleteUrl = BASE_URL . '/takvim/not_sil/' . (int)($event['note_id'] ?? 0);
         ?>
-          <a class="upcoming-item" href="<?= $h($href) ?>" <?= $isNote ? 'onclick="return confirm(\'Bu not silinsin mi?\')"' : '' ?>>
+          <a class="upcoming-item" href="<?= $h($href) ?>" <?= $isNote ? ('onclick="return nymPost(\'' . $h($noteDeleteUrl) . '\', \'Bu not silinsin mi?\')"') : '' ?>>
             <div class="upcoming-date"><b><?= $h($dt->format('j')) ?></b><span><?= $h($monthNames[(int)$dt->format('n')]) ?></span></div>
             <div style="min-width:0;">
               <div class="upcoming-title"><?= $h($event['title']) ?></div>
@@ -221,6 +224,8 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
   </aside>
 </div>
 
+<?php $canTakvimCreate = Rbac::currentUserCan('TAKVIM_CREATE'); ?>
+<?php if ($canTakvimCreate): ?>
 <div class="note-modal" id="noteModal" aria-hidden="true">
   <div class="note-dialog">
     <div class="note-head">
@@ -247,9 +252,12 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
     </form>
   </div>
 </div>
+<?php endif; ?>
 
 <script>
+const CAN_TAKVIM_CREATE = <?= $canTakvimCreate ? 'true' : 'false' ?>;
 (function(){
+  if (!CAN_TAKVIM_CREATE) return;
   const modal = document.getElementById('noteModal');
   const dateInput = document.getElementById('noteDate');
   const titleInput = document.getElementById('noteTitle');

@@ -195,9 +195,12 @@ $tipLabel = [
 
 <!-- AKSİYON BUTONLARI -->
 <div class="h-action-row">
+  <?php if (Rbac::currentUserCan('HESAP_UPDATE')): ?>
   <button class="bt-guncelle" onclick="openModal('mUpdate')">
     <i class="fa-solid fa-pen"></i> Güncelle
   </button>
+  <?php endif; ?>
+  <?php if (Rbac::currentUserCan('HESAP_CREATE')): ?>
   <button class="bt-paragir" onclick="openModal('mGiris')">
     <i class="fa-solid fa-arrow-down"></i> Para Girişi Yap
   </button>
@@ -214,9 +217,12 @@ $tipLabel = [
       </a></li>
     </ul>
   </div>
+  <?php endif; ?>
+  <?php if (Rbac::currentUserCan('HESAP_DELETE')): ?>
   <button class="bt-sil" onclick="hesapSilOnayla()">
     <i class="fa-solid fa-trash"></i> Hesabı Sil
   </button>
+  <?php endif; ?>
 </div>
 
 <!-- HAREKET TABLOSU -->
@@ -300,6 +306,7 @@ $tipLabel = [
             <?= ($runBakiye < 0 ? '-' : '') . number_format(abs($runBakiye), 2, ',', '.') ?>
           </td>
           <td>
+            <?php if (Rbac::currentUserCan('HESAP_DELETE')): ?>
             <div class="dropdown">
               <button class="btn-islem dropdown-toggle" data-bs-toggle="dropdown">İşlem</button>
               <ul class="dropdown-menu shadow">
@@ -309,6 +316,7 @@ $tipLabel = [
                 </a></li>
               </ul>
             </div>
+            <?php endif; ?>
           </td>
         </tr>
         <?php endforeach; endif; ?>
@@ -655,7 +663,7 @@ function transferKaydet() {
 function hareketSil(id, el) {
   if (!confirm('Bu hareketi silmek istediğinizden emin misiniz?\nBakiye otomatik güncellenir.')) return;
 
-  fetch(BASE + '/hesap/hareketSil/' + id)
+  fetch(BASE + '/hesap/hareketSil/' + id, { method: 'POST' })
     .then(r => r.json())
     .then(res => {
       if (res.success) {
@@ -674,7 +682,7 @@ function hareketSil(id, el) {
 function hesapSilOnayla() {
   const hesapAdi = '<?= addslashes($hesap['hesap_adi']) ?>';
   if (!confirm(`"${hesapAdi}" hesabını silmek istediğinizden emin misiniz?\nBu işlem geri alınamaz.`)) return;
-  window.location.href = BASE + '/hesap/hesapSil/' + HESAP_ID;
+  nymPost(BASE + '/hesap/hesapSil/' + HESAP_ID);
 }
 
 /* ── TOAST ──────────────────────────────────── */

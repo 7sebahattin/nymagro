@@ -2,6 +2,7 @@
 $items = $tedarikciler ?? [];
 $cariListConfig = [
     'route' => 'tedarikci',
+    'module' => 'TEDARIKCI',
     'entityPlural' => 'Tedarikçiler',
     'entitySingular' => 'Tedarikçi',
     'nameHeader' => 'Tedarikçi Adı / Ünvanı',

@@ -93,9 +93,11 @@ final class NakitController extends Controller
                 Csrf::verifyOrDeny('NakitController', 'gelen_e_faturalar_create');
             }
         } elseif (in_array($action, $mutatingDelete, true)) {
-            // 'iptal' GET ile tetiklenen GERÇEK bir mutasyondur (bkz. Csrf::EXPLICIT_GET_MUTATIONS).
+            // 'iptal' artık yalnızca POST ile tetiklenir; CSRF de yalnızca POST'ta doğrulanır.
             Rbac::authorizeOrDeny('NakitController', 'gelen_e_faturalar_delete');
-            Csrf::verifyOrDeny('NakitController', 'gelen_e_faturalar_delete');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                Csrf::verifyOrDeny('NakitController', 'gelen_e_faturalar_delete');
+            }
         }
 
         try {
@@ -338,6 +340,9 @@ final class NakitController extends Controller
 
     private function gelenEFaturaIptal(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('nakit/gelen-e-faturalar/detay/' . $id);
+        }
         $this->gelenEFatura->pasifYap($id);
         $this->setFlash('success', 'Fatura iptal/pasif yapıldı.');
         $this->redirect('nakit/gelen-e-faturalar');

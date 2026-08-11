@@ -6,6 +6,8 @@ $filters = $filters ?? [];
 $moduller = $moduller ?? [];
 $islemler = $islemler ?? [];
 $moduleLabels = $moduleLabels ?? [];
+$sirketler = $sirketler ?? [];
+$donemler = $donemler ?? [];
 ?>
 <?php if (!empty($flash)): ?>
   <div class="alert alert-<?= $h($flash['tip'] === 'danger' || $flash['tip'] === 'error' ? 'danger' : 'success') ?>"><?= $h($flash['mesaj'] ?? '') ?></div>
@@ -18,6 +20,19 @@ $moduleLabels = $moduleLabels ?? [];
 
 <form class="row g-2 mb-3" method="get">
   <div class="col-auto"><input type="text" name="q" class="form-control form-control-sm" placeholder="Açıklama / kayıt ara" value="<?= $h($filters['q'] ?? '') ?>" style="min-width:200px"></div>
+  <div class="col-auto"><input type="text" name="record_id" class="form-control form-control-sm" placeholder="Kayıt ID" value="<?= $h($filters['record_id'] ?? '') ?>" style="width:110px"></div>
+  <div class="col-auto">
+    <select name="company_id" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">Tüm şirketler</option>
+      <?php foreach ($sirketler as $s): ?><option value="<?= (int)$s['id'] ?>" <?= (int)($filters['company_id'] ?? 0) === (int)$s['id'] ? 'selected' : '' ?>><?= $h($s['company_name']) ?></option><?php endforeach; ?>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="period_id" class="form-select form-select-sm">
+      <option value="">Tüm dönemler</option>
+      <?php foreach ($donemler as $d): ?><option value="<?= (int)$d['id'] ?>" <?= (int)($filters['period_id'] ?? 0) === (int)$d['id'] ? 'selected' : '' ?>><?= $h($d['fiscal_year'] ?? $d['id']) ?></option><?php endforeach; ?>
+    </select>
+  </div>
   <div class="col-auto">
     <select name="module" class="form-select form-select-sm">
       <option value="">Tüm modüller</option>

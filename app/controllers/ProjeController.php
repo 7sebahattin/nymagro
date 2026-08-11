@@ -38,6 +38,9 @@ class ProjeController extends Controller
 
     public function sil(int $id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('proje');
+        }
         if ($id > 0) {
             $this->model->projeSil($id);
             $this->setFlash('success', 'Proje silindi.');

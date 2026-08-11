@@ -125,6 +125,7 @@ final class CompanyController extends Controller
                 $data['logo_path'] = $logoPath;
             }
             $id = $this->company->create($data);
+            Audit::log('CREATE', 'COMPANY', $id, null, ['company_name' => $data['company_name'] ?? ''], 'Şirket oluşturuldu.');
             $this->setFlash('success', 'Şirket oluşturuldu.');
             $this->redirect('companies/periods/' . $id);
         } catch (Throwable $e) {
@@ -165,12 +166,14 @@ final class CompanyController extends Controller
         }
 
         try {
+            $before = $this->company->find($id);
             $data = $_POST;
-            $logoPath = $this->handleLogoUpload($this->company->find($id)['logo_path'] ?? null);
+            $logoPath = $this->handleLogoUpload($before['logo_path'] ?? null);
             if ($logoPath !== null) {
                 $data['logo_path'] = $logoPath;
             }
             $this->company->updateCompany($id, $data);
+            Audit::log('UPDATE', 'COMPANY', $id, $before, ['company_name' => $data['company_name'] ?? ''], 'Şirket bilgileri güncellendi.');
             $this->setFlash('success', 'Şirket bilgileri güncellendi.');
         } catch (Throwable $e) {
             $this->setFlash('error', $e->getMessage());
@@ -180,12 +183,20 @@ final class CompanyController extends Controller
 
     public function delete(int $id): void
     {
+        // Faz 1.5-A: arşivleme kalıcı ve önemli bir işlem — artık sadece POST + CSRF ile yapılabilir.
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('companies');
+        }
         if (!TenantContext::canManageCompany($id)) {
             http_response_code(403);
             die('Şirket yönetim yetkiniz yok.');
         }
 
+        $before = $this->company->find($id);
         $result = $this->company->archive($id);
+        // archive() durumu HER ZAMAN 'passive' yapar (fiziksel silme yok) — sayaç
+        // sadece kullanıcıya gösterilecek uyarı/başarı mesajını belirler.
+        Audit::log('DELETE', 'COMPANY', $id, $before, ['status' => 'passive'], 'Şirket pasife alındı (arşivlendi).');
         if (array_sum($result['counts']) > 0) {
             $this->setFlash('warning', 'Bu şirkete ait işlem kayıtları bulunduğu için şirket silinemez, pasife alınabilir.');
         } else {

@@ -246,6 +246,9 @@ class TedarikciController extends Controller
 
     public function sil(int $id): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('tedarikci');
+        }
         if ($this->cariModel->sil($id) > 0) {
             $this->setFlash('success', 'Tedarikçi silindi.');
         } else {

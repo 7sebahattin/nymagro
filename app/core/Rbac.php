@@ -69,9 +69,14 @@ final class Rbac
     ];
 
     private const MODULE_TITLES = [
-        'USER'  => 'Kullanıcı Yönetimi',
-        'ROLE'  => 'Rol Yönetimi',
-        'AUDIT' => 'Audit / Güvenlik',
+        'USER'    => 'Kullanıcı Yönetimi',
+        'ROLE'    => 'Rol Yönetimi',
+        'AUDIT'   => 'Audit / Güvenlik',
+        // Aşağıdaki ikisi CONTROLLER_MODULE/permission kataloğunda YOK (Company/Period
+        // TenantContext ile yönetiliyor, Rbac izin gerektirmiyor) — sadece audit_logs'ta
+        // okunabilir bir etiket görünsün diye burada tanımlı.
+        'COMPANY' => 'Şirket Yönetimi',
+        'PERIOD'  => 'Dönem Yönetimi',
     ];
 
     // ─── Bootstrap ──────────────────────────────────────────
@@ -188,6 +193,12 @@ final class Rbac
             KEY idx_audit_company (company_id),
             KEY idx_audit_record (module, record_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_turkish_ci");
+
+        if (!self::hasColumn('audit_logs', 'period_id')) {
+            $db->query("ALTER TABLE audit_logs ADD COLUMN period_id INT UNSIGNED NULL AFTER company_id");
+            self::$columnCache['audit_logs.period_id'] = true;
+            $db->query("ALTER TABLE audit_logs ADD KEY idx_audit_period (period_id)");
+        }
 
         $db->query("CREATE TABLE IF NOT EXISTS login_history (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -520,9 +531,28 @@ final class Rbac
         'UserController::sifre_sifirla' => 'PASSWORD_RESET',
     ];
 
+    /** Katalogda (CONTROLLER_MODULE veya UNMANAGED_CONTROLLERS) olmayan bir controller'a erişilmeye çalışıldığında dönen sabit — hiçbir rolde (Süper Yönetici dahil) bu kodun karşılığı YOKTUR, dolayısıyla erişim FAIL-CLOSED reddedilir. */
+    private const UNCATALOGUED_SENTINEL = '__RBAC_UNCATALOGUED__';
+
+    /**
+     * Bir controller'ın RBAC kataloğunda (CONTROLLER_MODULE ya da UNMANAGED_CONTROLLERS)
+     * tanımlı olup olmadığını döner. Geliştirme/test ortamında yeni bir controller
+     * bu iki listeden birine eklenmeden kullanılırsa fail-closed reddedilir (bkz.
+     * requiredPermissionFor() / authorizeOrDeny()) — "kataloglanmamış = izinli"
+     * değil, "kataloglanmamış = reddedildi" ilkesi.
+     */
+    public static function isCatalogued(string $controllerName): bool
+    {
+        return in_array($controllerName, self::UNMANAGED_CONTROLLERS, true)
+            || isset(self::CONTROLLER_MODULE[$controllerName]);
+    }
+
     /**
      * Controller+method için gerekli izin kodunu döndürür.
-     * null dönerse: bu controller RBAC kapsamı dışıdır (sadece login yeterli).
+     * null dönerse: bu controller AÇIKÇA (UNMANAGED_CONTROLLERS'da) RBAC kapsamı
+     * dışıdır (sadece login yeterli — herkese açık ya da kendi erişim modeli var).
+     * self::UNCATALOGUED_SENTINEL dönerse: bu controller HİÇBİR listede kayıtlı
+     * değil — fail-closed, kimseye (Süper Yönetici dahil) izin verilmez.
      */
     public static function requiredPermissionFor(string $controllerName, string $methodName): ?string
     {
@@ -531,9 +561,10 @@ final class Rbac
         }
         $module = self::CONTROLLER_MODULE[$controllerName] ?? null;
         if ($module === null) {
-            // Kayıt altına alınmamış (kataloglanmamış) bir controller — mevcut davranışı
-            // bozmamak için sert red uygulamıyoruz, sadece login şartı geçerli kalır.
-            return null;
+            // Kayıt altına alınmamış (kataloglanmamış) bir controller — fail-closed:
+            // yeni eklenen bir controller RBAC listesine kaydedilmeden sessizce
+            // "sadece login yeterli" moduna düşmesin diye erişim REDDEDİLİR.
+            return self::UNCATALOGUED_SENTINEL;
         }
 
         if (in_array($controllerName, self::FORCE_VIEW_CONTROLLERS, true)) {
@@ -579,6 +610,25 @@ final class Rbac
         if ($permissionCode === null) {
             return;
         }
+
+        // Fail-closed: kataloglanmamış bir controller — Süper Yönetici DAHİL kimseye
+        // izin verilmez (permissionCatalogue()'da hiçbir zaman karşılığı olmayan bir
+        // sentinel koddur). Geliştirici geri bildirimi için dev/test'te error_log'a
+        // açık bir uyarı yazılır; production'da kullanıcıya sadece genel 403 gösterilir.
+        if ($permissionCode === self::UNCATALOGUED_SENTINEL) {
+            $isDev = !defined('APP_ENV') || APP_ENV !== 'production';
+            if ($isDev) {
+                error_log("[RBAC YAPILANDIRMA HATASI] '{$controllerName}' Rbac::CONTROLLER_MODULE veya "
+                    . "UNMANAGED_CONTROLLERS listesinde tanımlı değil — fail-closed olarak reddedildi. "
+                    . "Bu controller'ı kataloğa ekleyin (bkz. app/core/Rbac.php).");
+            }
+            if (class_exists('AuthGuard') && AuthGuard::isLoggedIn() && class_exists('Audit')) {
+                Audit::log('UNAUTHORIZED_ACCESS_ATTEMPT', null, null, null, null,
+                    "{$controllerName}::{$methodName} → RBAC kataloğunda tanımsız controller, fail-closed reddedildi.", false);
+            }
+            self::renderForbidden($isDev ? "'{$controllerName}' RBAC kataloğunda tanımlı değil (yapılandırma hatası)." : null);
+        }
+
         if (!class_exists('AuthGuard') || !AuthGuard::isLoggedIn()) {
             return; // AuthGuard::requireLogin() zaten bu isteği login'e yönlendirmiş olmalı.
         }
@@ -597,20 +647,25 @@ final class Rbac
         self::renderForbidden();
     }
 
-    private static function renderForbidden(): void
+    private static function renderForbidden(?string $devDetail = null): void
     {
         http_response_code(403);
+        $detail = $devDetail !== null
+            ? '<p style="background:#fff3cd;border:1px solid #ffe08a;border-radius:8px;padding:10px 12px;font-size:13px;color:#7a5b00;text-align:left;">'
+                . '<strong>Geliştirici notu (sadece dev/test):</strong> ' . htmlspecialchars($devDetail) . '</p>'
+            : '';
         echo '<!doctype html><html lang="tr"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
             . '<title>Yetkisiz İşlem</title>'
             . '<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f6f8;'
             . 'display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
             . '.box{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:40px;'
-            . 'max-width:420px;text-align:center}h1{font-size:20px;color:#c0392b;margin:0 0 12px}'
+            . 'max-width:460px;text-align:center}h1{font-size:20px;color:#c0392b;margin:0 0 12px}'
             . 'p{color:#444;line-height:1.5}a{display:inline-block;margin-top:16px;color:#0D623A;'
             . 'text-decoration:none;font-weight:600}</style></head><body>'
             . '<div class="box"><h1>Yetkisiz İşlem</h1>'
             . '<p>Bu işlemi gerçekleştirmek için yetkiniz bulunmuyor.</p>'
+            . $detail
             . '<a href="' . htmlspecialchars(BASE_URL) . '/dashboard">Ana sayfaya dön</a></div>'
             . '</body></html>';
         exit;

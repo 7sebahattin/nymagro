@@ -409,10 +409,12 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           </div>
           <div style="flex:1;">
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+              <?php if (Rbac::currentUserCan('SITE_UPDATE')): ?>
               <input type="file" name="logo" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none" onchange="smLogoPreview(this)">
               <button type="button" class="sm-btn sm-btn-ghost sm-btn-sm" onclick="document.getElementById('logoFile').click()"><i class="fa-solid fa-upload"></i> Logo Seç</button>
               <?php if (!empty($ayarlar['logo_path'])): ?>
-                <a href="<?= BASE_URL ?>/site/logoSil" class="sm-btn sm-btn-danger sm-btn-sm" onclick="return confirm('Logo kaldırılsın mı?')"><i class="fa-solid fa-trash"></i> Kaldır</a>
+                <a href="#" class="sm-btn sm-btn-danger sm-btn-sm" onclick="return nymPost('<?= BASE_URL ?>/site/logoSil', 'Logo kaldırılsın mı?')"><i class="fa-solid fa-trash"></i> Kaldır</a>
+              <?php endif; ?>
               <?php endif; ?>
             </div>
             <p style="font-size:11.5px;color:var(--muted);">PNG, JPG, SVG veya WebP — max 5 MB. Kare format önerilir (256×256 px).</p>
@@ -514,7 +516,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
     </div>
 
     <div class="sm-save-bar">
+      <?php if (Rbac::currentUserCan('SITE_UPDATE')): ?>
       <button type="submit" class="sm-btn sm-btn-primary"><i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet</button>
+      <?php endif; ?>
       <a href="<?= BASE_URL ?>/tr" target="_blank" class="sm-btn sm-btn-ghost"><i class="fa-solid fa-eye"></i> Önizle</a>
     </div>
   </form>
@@ -652,7 +656,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
     <?php endforeach; ?>
 
     <div class="sm-save-bar">
+      <?php if (Rbac::currentUserCan('SITE_UPDATE')): ?>
       <button type="submit" class="sm-btn sm-btn-primary"><i class="fa-solid fa-floppy-disk"></i> İçerikleri Kaydet</button>
+      <?php endif; ?>
       <a href="<?= BASE_URL ?>/tr" target="_blank" class="sm-btn sm-btn-ghost"><i class="fa-solid fa-eye"></i> Önizle</a>
     </div>
   </form>
@@ -665,7 +671,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
       <h3 style="font-size:14px;font-weight:800;color:var(--text);">Ürün Listesi</h3>
       <p style="font-size:12px;color:var(--muted);">Siteye eklenen ürünler — sıra numarası küçükten büyüğe gösterilir.</p>
     </div>
+    <?php if (Rbac::currentUserCan('SITE_CREATE')): ?>
     <button class="sm-btn sm-btn-primary" onclick="smModalAc('modalUrun');smFormSifirla()"><i class="fa-solid fa-plus"></i> Yeni Ürün</button>
+    <?php endif; ?>
   </div>
 
   <?php $aktifUrunler = array_filter($urunler, fn($u) => empty($u['silindi_mi'])); ?>
@@ -687,8 +695,8 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           <p><?= htmlspecialchars($u['aciklama_tr'] ?? '') ?></p>
         </div>
         <div class="pr-card-foot">
-          <button class="pr-edit" onclick="smUrunDuzenle(<?= (int)$u['id'] ?>)"><i class="fa-solid fa-pen"></i> Düzenle</button>
-          <button class="pr-del"  onclick="smUrunSil(<?= (int)$u['id'] ?>, '<?= addslashes((string)($u['ad_tr'] ?? '')) ?>')"><i class="fa-solid fa-trash"></i></button>
+          <?php if (Rbac::currentUserCan('SITE_UPDATE')): ?><button class="pr-edit" onclick="smUrunDuzenle(<?= (int)$u['id'] ?>)"><i class="fa-solid fa-pen"></i> Düzenle</button><?php endif; ?>
+          <?php if (Rbac::currentUserCan('SITE_DELETE')): ?><button class="pr-del"  onclick="smUrunSil(<?= (int)$u['id'] ?>, '<?= addslashes((string)($u['ad_tr'] ?? '')) ?>')"><i class="fa-solid fa-trash"></i></button><?php endif; ?>
         </div>
       </div>
       <?php endforeach; ?>
@@ -703,7 +711,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
       <h3 style="font-size:14px;font-weight:800;color:var(--text);">Galeri Görselleri</h3>
       <p style="font-size:12px;color:var(--muted);">Üretim, paketleme ve sevkiyat fotoğrafları.</p>
     </div>
+    <?php if (Rbac::currentUserCan('SITE_CREATE')): ?>
     <button class="sm-btn sm-btn-primary" onclick="smModalAc('modalGaleri')"><i class="fa-solid fa-plus"></i> Görsel Ekle</button>
+    <?php endif; ?>
   </div>
 
   <?php $aktifGaleri = array_filter($galeri, fn($g) => empty($g['silindi_mi'])); ?>
@@ -718,7 +728,7 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
         </div>
         <div class="gal-card-body">
           <span><?= htmlspecialchars($g['etiket_tr'] ?: '—') ?></span>
-          <button class="gal-del" onclick="smGaleriSil(<?= (int)$g['id'] ?>)"><i class="fa-solid fa-trash"></i></button>
+          <?php if (Rbac::currentUserCan('SITE_DELETE')): ?><button class="gal-del" onclick="smGaleriSil(<?= (int)$g['id'] ?>)"><i class="fa-solid fa-trash"></i></button><?php endif; ?>
         </div>
       </div>
       <?php endforeach; ?>
@@ -780,9 +790,9 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
                 <td style="white-space:nowrap;font-size:11.5px"><?= date('d.m.y H:i', strtotime($m['created_at'])) ?></td>
                 <td>
                   <div class="msg-acts">
-                    <?php if (($m['status'] ?? '') !== 'read'): ?><button class="msg-read-btn" onclick="smMesajDurum(<?= (int)$m['id'] ?>,'read')">Okundu</button><?php endif; ?>
-                    <?php if (($m['status'] ?? '') !== 'replied'): ?><button class="msg-replied-btn" onclick="smMesajDurum(<?= (int)$m['id'] ?>,'replied')">Yanıtlandı</button><?php endif; ?>
-                    <button class="msg-del-btn" onclick="smMesajSil(<?= (int)$m['id'] ?>)"><i class="fa-solid fa-trash"></i></button>
+                    <?php if (($m['status'] ?? '') !== 'read' && Rbac::currentUserCan('SITE_UPDATE')): ?><button class="msg-read-btn" onclick="smMesajDurum(<?= (int)$m['id'] ?>,'read')">Okundu</button><?php endif; ?>
+                    <?php if (($m['status'] ?? '') !== 'replied' && Rbac::currentUserCan('SITE_UPDATE')): ?><button class="msg-replied-btn" onclick="smMesajDurum(<?= (int)$m['id'] ?>,'replied')">Yanıtlandı</button><?php endif; ?>
+                    <?php if (Rbac::currentUserCan('SITE_DELETE')): ?><button class="msg-del-btn" onclick="smMesajSil(<?= (int)$m['id'] ?>)"><i class="fa-solid fa-trash"></i></button><?php endif; ?>
                   </div>
                 </td>
               </tr>
@@ -1119,7 +1129,7 @@ function smUrunKaydet(e) {
 }
 function smUrunSil(id, ad) {
   if (!confirm('"' + ad + '" silinsin mi?')) return;
-  fetch(SM_BASE + '/site/urunSil/' + id)
+  fetch(SM_BASE + '/site/urunSil/' + id, { method: 'POST', body: new FormData() })
     .then(r => r.json())
     .then(res => {
       if (res.ok) { smToast(res.msg); document.getElementById('urun-' + id)?.remove(); }
@@ -1141,7 +1151,7 @@ function smGaleriKaydet(e) {
 }
 function smGaleriSil(id) {
   if (!confirm('Bu görsel silinsin mi?')) return;
-  fetch(SM_BASE + '/site/galeriSil/' + id)
+  fetch(SM_BASE + '/site/galeriSil/' + id, { method: 'POST', body: new FormData() })
     .then(r => r.json())
     .then(res => {
       if (res.ok) { smToast('Görsel silindi.'); document.getElementById('galeri-' + id)?.remove(); }
@@ -1176,7 +1186,7 @@ function smMesajDurum(id, status) {
 }
 function smMesajSil(id) {
   if (!confirm('Bu mesaj silinsin mi?')) return;
-  fetch(SM_BASE + '/site/mesajSil/' + id)
+  fetch(SM_BASE + '/site/mesajSil/' + id, { method: 'POST', body: new FormData() })
     .then(r => r.json())
     .then(res => {
       if (res.ok) { document.getElementById('msg-' + id)?.remove(); smToast('Mesaj silindi.'); }

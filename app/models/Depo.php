@@ -26,12 +26,17 @@ class Depo
 
     public function ekle(array $veri): int
     {
-        return $this->db->insert('depolar', $veri);
+        $id = $this->db->insert('depolar', $veri);
+        Audit::log('CREATE', 'DEPO', $id, null, $veri, 'Depo oluşturuldu: ' . ($veri['ad'] ?? ''));
+        return $id;
     }
 
     public function guncelle(int $id, array $veri): int
     {
-        return $this->db->update('depolar', $veri, ['id' => $id]);
+        $before = $this->getir($id);
+        $sonuc = $this->db->update('depolar', $veri, ['id' => $id]);
+        Audit::log('UPDATE', 'DEPO', $id, $before, $veri, 'Depo güncellendi: ' . ($veri['ad'] ?? ''));
+        return $sonuc;
     }
 
     /** Depoyu siler — içinde stok değeri olan bir depo silinemez. */
@@ -40,7 +45,10 @@ class Depo
         if ($this->depoDegeri($id) > 0) {
             throw new RuntimeException('İçinde stok olan depo silinemez.');
         }
-        return $this->db->softDelete('depolar', $id);
+        $before = $this->getir($id);
+        $sonuc = $this->db->softDelete('depolar', $id);
+        Audit::log('DELETE', 'DEPO', $id, $before, null, 'Depo silindi: ' . ($before['ad'] ?? ''));
+        return $sonuc;
     }
 
     /** Depodaki ürün stok durumunu ve değerlerini getirir */

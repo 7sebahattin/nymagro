@@ -16,6 +16,7 @@ $flash = $flash ?? [];
 
 $cfg = array_merge([
     'route' => 'musteri',
+    'module' => 'MUSTERI',
     'activeMenu' => 'musteriler',
     'entityPlural' => 'Müşteriler',
     'entitySingular' => 'Müşteri',
@@ -120,8 +121,10 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
   </div>
 
   <div class="cari-action-bar">
-    <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/ekle" class="cari-btn-add"><i class="fa-solid fa-plus"></i> <?= $h($cfg['addText']) ?></a>
-    <button class="cari-btn-excel" type="button" onclick="alert('Excelden toplu yükleme özelliği yakında eklenecek.')"><i class="fa-solid fa-file-excel"></i> <?= $h($cfg['excelText']) ?></button>
+    <?php if (Rbac::currentUserCan($cfg['module'] . '_CREATE')): ?>
+      <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/ekle" class="cari-btn-add"><i class="fa-solid fa-plus"></i> <?= $h($cfg['addText']) ?></a>
+      <button class="cari-btn-excel" type="button" onclick="alert('Excelden toplu yükleme özelliği yakında eklenecek.')"><i class="fa-solid fa-file-excel"></i> <?= $h($cfg['excelText']) ?></button>
+    <?php endif; ?>
     <div class="cari-badge-total"><i class="fa-solid <?= $h($cfg['icon']) ?>"></i><span><?= number_format($toplam) ?></span> <?= $h($cfg['totalLabel']) ?></div>
   </div>
 
@@ -165,7 +168,7 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
               <td colspan="6" class="cari-table-empty">
                 <i class="fa-solid fa-inbox" style="font-size:32px;margin-bottom:10px;display:block;opacity:.4"></i>
                 <?= $arama !== '' ? $h($cfg['emptySearchText']) : $h($cfg['emptyText']) ?>
-                <?php if ($arama === ''): ?>
+                <?php if ($arama === '' && Rbac::currentUserCan($cfg['module'] . '_CREATE')): ?>
                   <div style="margin-top:12px">
                     <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/ekle" class="cari-btn-add" style="display:inline-flex"><i class="fa-solid fa-plus"></i> <?= $h($cfg['firstAddText']) ?></a>
                   </div>
@@ -208,7 +211,9 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
                 <td class="td-right" style="color:var(--muted);font-size:13px"><?= $h($telefon ?: '—') ?></td>
                 <td class="td-right">
                   <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/detay/<?= (int)$item['id'] ?>" class="cari-action-btn cari-action-view" title="Görüntüle"><i class="fa-solid fa-eye"></i></a>
-                  <a href="<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/sil/<?= (int)$item['id'] ?>" class="cari-action-btn cari-action-delete" title="Sil" onclick="return confirm('<?= $h(addslashes($item['unvan'] ?? 'Kayıt')) ?> silinsin mi?\n\nBu işlem geri alınamaz.')"><i class="fa-solid fa-trash-can"></i></a>
+                  <?php if (Rbac::currentUserCan($cfg['module'] . '_DELETE')): ?>
+                    <a href="#" class="cari-action-btn cari-action-delete" title="Sil" onclick="return nymPost('<?= BASE_URL ?>/<?= $h($cfg['route']) ?>/sil/<?= (int)$item['id'] ?>', '<?= $h(addslashes($item['unvan'] ?? 'Kayıt')) ?> silinsin mi?\n\nBu işlem geri alınamaz.')"><i class="fa-solid fa-trash-can"></i></a>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php endforeach; ?>

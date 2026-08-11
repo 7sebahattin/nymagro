@@ -18,14 +18,17 @@
  *   GET  /kullanicilar/{id}/giris-gecmisi → giris_gecmisi()
  */
 require_once MODELS_PATH . '/UserAdmin.php';
+require_once MODELS_PATH . '/Company.php';
 
 final class UserController extends Controller
 {
     private UserAdmin $users;
+    private Company $company;
 
     public function __construct()
     {
         $this->users = new UserAdmin();
+        $this->company = new Company();
     }
 
     public function index(): void
@@ -173,10 +176,13 @@ final class UserController extends Controller
         }
 
         $filters = [
-            'module' => trim((string)($_GET['module'] ?? '')),
-            'action' => trim((string)($_GET['action'] ?? '')),
-            'start'  => trim((string)($_GET['start'] ?? '')),
-            'end'    => trim((string)($_GET['end'] ?? '')),
+            'company_id' => (int)($_GET['company_id'] ?? 0),
+            'period_id'  => (int)($_GET['period_id'] ?? 0),
+            'record_id'  => trim((string)($_GET['record_id'] ?? '')),
+            'module'     => trim((string)($_GET['module'] ?? '')),
+            'action'     => trim((string)($_GET['action'] ?? '')),
+            'start'      => trim((string)($_GET['start'] ?? '')),
+            'end'        => trim((string)($_GET['end'] ?? '')),
         ];
         $sayfa  = max(1, (int)($_GET['sayfa'] ?? 1));
         $limit  = 30;
@@ -195,6 +201,8 @@ final class UserController extends Controller
             'sayfa'       => $sayfa,
             'sayfaSayisi' => (int)ceil($toplam / $limit),
             'moduleLabels' => Rbac::moduleLabels(),
+            'sirketler'   => $this->company->all(),
+            'donemler'    => !empty($filters['company_id']) ? $this->company->periods((int)$filters['company_id']) : [],
             'flash'       => $this->getFlash(),
         ]);
     }

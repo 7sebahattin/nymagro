@@ -38,6 +38,9 @@ class DemirbasController extends Controller
 
     public function sil(int $id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('demirbas');
+        }
         if ($id > 0) {
             $this->model->demirbasSil($id);
             $this->setFlash('success', 'Demirbaş silindi.');

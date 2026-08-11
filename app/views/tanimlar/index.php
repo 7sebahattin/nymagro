@@ -62,6 +62,7 @@ $badgeClass = fn($renk) => [
   <div class="tn-alert <?= $e($flash['tip'] ?? '') ?>"><?= $e($flash['mesaj'] ?? '') ?></div>
 <?php endif; ?>
 
+<?php if (Rbac::currentUserCan('TANIM_CREATE')): ?>
 <div style="margin-bottom:20px;">
   <div class="dropdown" style="display:inline-block;">
     <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight:600; padding:6px 12px; background:#5cb85c; border:none;">
@@ -77,6 +78,7 @@ $badgeClass = fn($renk) => [
     </ul>
   </div>
 </div>
+<?php endif; ?>
 
 <?php
 $renderCard = function (string $type, string $title, string $bodyClass = '') use ($e, $grouped, $badgeClass) {
@@ -84,18 +86,25 @@ $renderCard = function (string $type, string $title, string $bodyClass = '') use
   <div class="tn-card">
     <div class="tn-header">
       <span><?= $e($title) ?></span>
+      <?php if (Rbac::currentUserCan('TANIM_CREATE')): ?>
       <button class="tn-add" type="button" onclick="openTanimModal('<?= $e($type) ?>')" title="Yeni ekle"><i class="fa-solid fa-plus"></i></button>
+      <?php endif; ?>
     </div>
     <div class="tn-body <?= $e($bodyClass) ?>">
       <?php if (empty($grouped[$type])): ?>
         <span class="tn-empty">Henüz tanım yok.</span>
       <?php else: ?>
+        <?php $canUpdate = Rbac::currentUserCan('TANIM_UPDATE'); ?>
         <?php foreach ($grouped[$type] as $item): ?>
+          <?php if ($canUpdate): ?>
           <span class="tn-badge <?= $e($badgeClass($item['renk'])) ?>"
                 onclick="openTanimModal('<?= $e($item['tur']) ?>', '<?= (int)$item['id'] ?>', '<?= $e($item['ad']) ?>', '<?= $e($item['renk']) ?>')">
             <?= $e($item['ad']) ?>
             <i class="fa-solid fa-pen-to-square"></i>
           </span>
+          <?php else: ?>
+          <span class="tn-badge <?= $e($badgeClass($item['renk'])) ?>"><?= $e($item['ad']) ?></span>
+          <?php endif; ?>
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
@@ -144,7 +153,7 @@ $renderCard = function (string $type, string $title, string $bodyClass = '') use
       </div>
     </div>
     <div class="tn-modal-footer">
-      <a href="#" id="deleteLink" class="tn-btn red" style="visibility:hidden;" onclick="return confirm('Bu tanım silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a>
+      <a href="#" id="deleteLink" class="tn-btn red" style="visibility:hidden;" onclick="return nymPost(this.dataset.url, 'Bu tanım silinsin mi?')"><i class="fa-solid fa-trash"></i> Sil</a>
       <div style="display:flex; gap:8px;">
         <button type="button" class="tn-btn grey" onclick="closeTanimModal()">Vazgeç</button>
         <button class="tn-btn green" type="submit"><i class="fa-solid fa-check"></i> Kaydet</button>
@@ -156,6 +165,7 @@ $renderCard = function (string $type, string $title, string $bodyClass = '') use
 <script>
 const TANIM_TYPES = <?= json_encode($types, JSON_UNESCAPED_UNICODE) ?>;
 const BASE_URL_TANIM = '<?= BASE_URL ?>';
+const CAN_TANIM_DELETE = <?= Rbac::currentUserCan('TANIM_DELETE') ? 'true' : 'false' ?>;
 
 function openTanimModal(type, id = '', name = '', color = 'green') {
   document.getElementById('tanimId').value = id;
@@ -164,11 +174,11 @@ function openTanimModal(type, id = '', name = '', color = 'green') {
   document.getElementById('tanimRenk').value = color || 'green';
   document.getElementById('modalTitle').textContent = id ? 'Tanımı Düzenle' : ((TANIM_TYPES[type] || 'Tanım') + ' Ekle');
   const del = document.getElementById('deleteLink');
-  if (id) {
-    del.href = BASE_URL_TANIM + '/tanim/sil/' + id;
+  if (id && CAN_TANIM_DELETE) {
+    del.dataset.url = BASE_URL_TANIM + '/tanim/sil/' + id;
     del.style.visibility = 'visible';
   } else {
-    del.href = '#';
+    del.dataset.url = '';
     del.style.visibility = 'hidden';
   }
   document.getElementById('tanimModal').classList.add('open');

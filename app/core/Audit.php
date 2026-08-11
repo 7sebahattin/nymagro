@@ -15,7 +15,8 @@ final class Audit
 {
     private const SENSITIVE_KEYS = [
         'password', 'password_hash', 'sifre', 'confirm_password', 'current_password',
-        'new_password', 'token', 'api_key', 'secret', 'session_id', 'csrf_token',
+        'new_password', 'token', 'api_key', 'apikey', 'secret', 'session_id', 'csrf_token',
+        'credential', 'authorization', 'bearer', 'private_key', 'secret_key', 'access_key',
     ];
 
     /**
@@ -51,6 +52,7 @@ final class Audit
         }
 
         $companyId = (class_exists('TenantContext') && TenantContext::activeCompanyId()) ? TenantContext::activeCompanyId() : null;
+        $periodId  = (class_exists('TenantContext') && TenantContext::activePeriodId()) ? TenantContext::activePeriodId() : null;
 
         try {
             $db->insert('audit_logs', [
@@ -60,6 +62,7 @@ final class Audit
                 'module'        => $module,
                 'record_id'     => $recordId !== null ? (string)$recordId : null,
                 'company_id'    => $companyId,
+                'period_id'     => $periodId,
                 'before_json'   => $before !== null ? json_encode(self::maskSensitive($before), JSON_UNESCAPED_UNICODE) : null,
                 'after_json'    => $after !== null ? json_encode(self::maskSensitive($after), JSON_UNESCAPED_UNICODE) : null,
                 'description'   => $description !== null ? mb_substr($description, 0, 500) : null,
@@ -117,15 +120,22 @@ final class Audit
         return $out;
     }
 
+    /** İç içe (nested) dizileri de tarar — sadece üst seviye alanlarla sınırlı değildir. */
     public static function maskSensitive(array $data): array
     {
         foreach ($data as $key => $value) {
             $lower = strtolower((string)$key);
+            $isSensitive = false;
             foreach (self::SENSITIVE_KEYS as $sensitive) {
                 if (str_contains($lower, $sensitive)) {
-                    $data[$key] = '***';
+                    $isSensitive = true;
                     break;
                 }
+            }
+            if ($isSensitive) {
+                $data[$key] = '***';
+            } elseif (is_array($value)) {
+                $data[$key] = self::maskSensitive($value);
             }
         }
         return $data;

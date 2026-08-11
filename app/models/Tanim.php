@@ -58,7 +58,9 @@ class Tanim
         }
 
         if ($id > 0) {
+            $before = $this->db->selectOne("SELECT * FROM tanimlar WHERE id = :id AND company_id = :cid", [':id' => $id, ':cid' => TenantContext::activeCompanyId()]);
             $this->db->update('tanimlar', ['tur' => $type, 'ad' => $name, 'renk' => $color], ['id' => $id]);
+            Audit::log('UPDATE', 'TANIM', $id, $before, ['tur' => $type, 'ad' => $name, 'renk' => $color], "Tanım güncellendi: {$name}");
             return $id;
         }
 
@@ -70,12 +72,17 @@ class Tanim
             throw new RuntimeException('Bu tanım zaten mevcut.');
         }
 
-        return $this->db->insert('tanimlar', ['tur' => $type, 'ad' => $name, 'renk' => $color, 'sira' => 0]);
+        $newId = $this->db->insert('tanimlar', ['tur' => $type, 'ad' => $name, 'renk' => $color, 'sira' => 0]);
+        Audit::log('CREATE', 'TANIM', $newId, null, ['tur' => $type, 'ad' => $name, 'renk' => $color], "Tanım eklendi: {$name}");
+        return $newId;
     }
 
     public function sil(int $id): int
     {
-        return $this->db->update('tanimlar', ['silindi_mi' => 1], ['id' => $id]);
+        $before = $this->db->selectOne("SELECT * FROM tanimlar WHERE id = :id AND company_id = :cid", [':id' => $id, ':cid' => TenantContext::activeCompanyId()]);
+        $result = $this->db->update('tanimlar', ['silindi_mi' => 1], ['id' => $id]);
+        Audit::log('DELETE', 'TANIM', $id, $before, null, 'Tanım silindi: ' . ($before['ad'] ?? ''));
+        return $result;
     }
 
     private function ensureTable(): void

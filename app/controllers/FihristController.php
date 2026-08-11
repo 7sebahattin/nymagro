@@ -42,6 +42,9 @@ class FihristController extends Controller
 
     public function sil(int $id = 0): void
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('fihrist');
+        }
         if ($id > 0) {
             $this->fihrist->sil($id);
             $this->setFlash('success', 'Kart silindi.');

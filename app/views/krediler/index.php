@@ -16,6 +16,7 @@ $hesaplar = $hesaplar ?? [];
 <div class="nm-page">
   <?php if (!empty($flash)): ?><div class="nm-alert <?= $h($flash['tip'] ?? 'success') ?>"><?= $h($flash['mesaj'] ?? '') ?></div><?php endif; ?>
 
+  <?php if (Rbac::currentUserCan('KREDI_CREATE')): ?>
   <section class="nm-panel">
     <div class="nm-head">
       <div><h2><i class="fa-solid fa-building-columns"></i> Yeni Kredi</h2><p>Kredi kaydı oluşturunca ödeme planı otomatik takvime bağlanır.</p></div>
@@ -31,6 +32,7 @@ $hesaplar = $hesaplar ?? [];
       <div class="nm-actions"><button class="nm-btn primary"><i class="fa-solid fa-check"></i> Kaydet</button></div>
     </form>
   </section>
+  <?php endif; ?>
 
   <section class="nm-panel">
     <div class="nm-head"><div><h2>Kredi Listesi</h2><p><?= count($kayitlar) ?> kayıt</p></div></div>
@@ -47,7 +49,9 @@ $hesaplar = $hesaplar ?? [];
           <td><?= $h($row['odeme_takvimi']) ?></td>
           <td style="display:flex;gap:8px">
             <a class="nm-btn primary" href="<?= BASE_URL ?>/kredi/detay/<?= (int)$row['id'] ?>"><i class="fa-solid fa-list-check"></i> Taksitler</a>
-            <a class="nm-btn danger" href="<?= BASE_URL ?>/kredi/sil/<?= (int)$row['id'] ?>" onclick="return confirm('Kredi silinsin mi?')"><i class="fa-solid fa-trash"></i></a>
+            <?php if (Rbac::currentUserCan('KREDI_DELETE')): ?>
+            <a class="nm-btn danger" href="#" onclick="return nymPost('<?= BASE_URL ?>/kredi/sil/<?= (int)$row['id'] ?>', 'Kredi silinsin mi?')"><i class="fa-solid fa-trash"></i></a>
+            <?php endif; ?>
           </td>
         </tr><?php endforeach; ?></tbody>
       </table></div>

@@ -75,13 +75,13 @@ final class Csrf
      * açık bir liste kullanılıyor (yanlışlıkla bir form sayfasını CSRF
      * hatasıyla kilitlememek için).
      */
-    private const EXPLICIT_GET_MUTATIONS = [
-        'SatisController::iptal',
-        'AlisController::iptal',
-        'KrediController::taksitOde',
-        'MasrafController::kopyala',
-        'NakitController::gelen_e_faturalar_delete', // inline override (bkz. NakitController)
-    ];
+    /**
+     * Faz 1.5 kapsamında bu listedeki TÜM uç noktalar POST-only'e çevrildi
+     * (artık GET ile hiçbiri mutasyon yapmıyor) — bu yüzden liste boş.
+     * Yeni bir GET-mutasyonu kesinlikle EKLENMEMELİ; bunun yerine ilgili
+     * controller metodu POST-only yapılmalı (bkz. nymPost() deseni).
+     */
+    private const EXPLICIT_GET_MUTATIONS = [];
 
     /**
      * Bu isteğin CSRF doğrulaması gerektirip gerektirmediğini belirler.

@@ -108,6 +108,31 @@
     }, true);
   })();
 
+  /* ── nymPost(): GET linkleriyle state-changing işlem yapmayı önlemek için
+     ────────────────────────────────────────────────────────────────────
+     Eski kod tabanında "Sil"/"İptal Et"/"Taksit Öde" gibi linkler basit
+     <a href="..."> idi (GET). Bunları görsel/CSS'i bozmadan POST'a çevirmek
+     için: <a href="#" onclick="return nymPost('URL','Emin misiniz?')">
+     Görünüşte aynı link/buton kalır, ama tıklanınca gizli bir <form
+     method="post"> oluşturup CSRF token'ıyla submit eder. */
+  window.nymPost = function (url, confirmMessage) {
+    if (confirmMessage && !window.confirm(confirmMessage)) {
+      return false;
+    }
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    form.style.display = 'none';
+    var csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrf_token';
+    csrf.value = window.NYM_CSRF_TOKEN || '';
+    form.appendChild(csrf);
+    document.body.appendChild(form);
+    form.submit();
+    return false;
+  };
+
   /* ── Tema geçişi ────────────────────────────────────────────────────
      Tercih hem localStorage'a hem çereze yazılır. Çerez sayesinde PHP
      tarafı <body data-theme> değerini sunucuda basar; böylece sayfa

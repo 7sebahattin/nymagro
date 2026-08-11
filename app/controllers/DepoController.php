@@ -29,7 +29,10 @@ class DepoController extends Controller
 
     public function kaydet()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('depo');
+        }
+        {
             $ad = trim($_POST['ad'] ?? '');
             if ($ad !== '') {
                 $this->depo->ekle([
@@ -48,6 +51,9 @@ class DepoController extends Controller
 
     public function sil(int $id)
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('depo');
+        }
         // Ana Depo (ID: 1) silinemesin
         if ($id === 1) {
             $this->setFlash('error', 'Ana Depo silinemez.');
@@ -86,7 +92,10 @@ class DepoController extends Controller
 
     public function guncelle(int $id)
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('depo/detay/' . $id);
+        }
+        {
             $this->depo->guncelle($id, [
                 'ad'      => trim($_POST['ad']),
                 'adres'   => trim($_POST['adres']),
@@ -127,7 +136,10 @@ class DepoController extends Controller
             $this->redirect('depo');
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('depo/detay/' . $id);
+        }
+        {
             $sayimlar = $_POST['sayim'] ?? []; // [urun_id => miktar]
 
             require_once MODELS_PATH . '/Urun.php';

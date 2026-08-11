@@ -13,14 +13,17 @@
  *   GET /audit/export             → export()          filtrelenmiş audit log CSV
  */
 require_once MODELS_PATH . '/AuditAdmin.php';
+require_once MODELS_PATH . '/Company.php';
 
 final class AuditController extends Controller
 {
     private AuditAdmin $audit;
+    private Company $company;
 
     public function __construct()
     {
         $this->audit = new AuditAdmin();
+        $this->company = new Company();
     }
 
     public function index(): void
@@ -44,6 +47,8 @@ final class AuditController extends Controller
             'moduller'    => $this->audit->distinctModules(),
             'islemler'    => $this->audit->distinctActions(),
             'moduleLabels' => Rbac::moduleLabels(),
+            'sirketler'   => $this->company->all(),
+            'donemler'    => !empty($filters['company_id']) ? $this->company->periods((int)$filters['company_id']) : [],
             'flash'       => $this->getFlash(),
         ]);
     }
@@ -101,14 +106,17 @@ final class AuditController extends Controller
     private function readFilters(): array
     {
         return [
-            'user_id' => (int)($_GET['user_id'] ?? 0),
-            'module'  => trim((string)($_GET['module'] ?? '')),
-            'action'  => trim((string)($_GET['action'] ?? '')),
-            'success' => $_GET['success'] ?? '',
-            'ip'      => trim((string)($_GET['ip'] ?? '')),
-            'q'       => trim((string)($_GET['q'] ?? '')),
-            'start'   => trim((string)($_GET['start'] ?? '')),
-            'end'     => trim((string)($_GET['end'] ?? '')),
+            'user_id'    => (int)($_GET['user_id'] ?? 0),
+            'company_id' => (int)($_GET['company_id'] ?? 0),
+            'period_id'  => (int)($_GET['period_id'] ?? 0),
+            'record_id'  => trim((string)($_GET['record_id'] ?? '')),
+            'module'     => trim((string)($_GET['module'] ?? '')),
+            'action'     => trim((string)($_GET['action'] ?? '')),
+            'success'    => $_GET['success'] ?? '',
+            'ip'         => trim((string)($_GET['ip'] ?? '')),
+            'q'          => trim((string)($_GET['q'] ?? '')),
+            'start'      => trim((string)($_GET['start'] ?? '')),
+            'end'        => trim((string)($_GET['end'] ?? '')),
         ];
     }
 }
