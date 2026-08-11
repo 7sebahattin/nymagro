@@ -684,7 +684,19 @@ final class UrunController extends Controller
     {
         $kayit = $this->urun->getir($id);
         if ($kayit) {
-            // Siteyle bağlıysa önce bağı kopar; site ürünü yayında kalır ama
+            // Önce silmeyi dene (stok kontrolü burada yapılır). Ancak
+            // silme reddedilirse siteyle bağlantı koparılmamalı — aksi
+            // halde ürün panelde kalmaya devam ederken vitrin senkronundan
+            // sessizce kopmuş olurdu.
+            try {
+                $this->urun->sil($id);
+            } catch (RuntimeException $e) {
+                $this->setFlash('error', $e->getMessage());
+                $this->redirect('urun');
+                return;
+            }
+
+            // Siteyle bağlıysa bağı kopar; site ürünü yayında kalır ama
             // artık silinmiş panel kaydını referans etmez.
             if (!empty($kayit['site_urun_id'])) {
                 try {
@@ -695,12 +707,7 @@ final class UrunController extends Controller
                 }
             }
 
-            try {
-                $this->urun->sil($id);
-                $this->setFlash('success', '"' . htmlspecialchars($kayit['ad']) . '" silindi.');
-            } catch (RuntimeException $e) {
-                $this->setFlash('error', $e->getMessage());
-            }
+            $this->setFlash('success', '"' . htmlspecialchars($kayit['ad']) . '" silindi.');
         } else {
             $this->setFlash('error', 'Kayıt bulunamadı.');
         }
