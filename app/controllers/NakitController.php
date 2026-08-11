@@ -71,8 +71,24 @@ final class NakitController extends Controller
      * /nakit/gelen-e-faturalar/toplu-yukle
      * /nakit/gelen-e-faturalar/detay/{id}
      */
+    /**
+     * Bu metot /nakit/gelen-e-faturalar/{action} altındaki TÜM alt işlemleri
+     * ($action ile) kendi içinde yönlendirir; Router seviyesindeki merkezi
+     * RBAC haritası (Rbac::requiredPermissionFor) bu iç dallanmayı GÖREMEZ —
+     * bu yüzden VIEW'i aşan alt işlemler için burada AYRICA yetki kontrolü
+     * yapılır (bkz. Rbac::METHOD_OVERRIDES → bu metot router'da sadece
+     * NAKIT_VIEW ister; create/delete niteliğindeki dallar burada korunur).
+     */
     public function gelen_e_faturalar(string $action = '', ?string $id = null): void
     {
+        $mutatingCreate = ['yeni', 'toplu-yukle', 'onizleme', 'kaydet', 'pdf-yukle', 'odeme-ekle', 'not-ekle', 'toplu-odeme', 'toplu-not'];
+        $mutatingDelete = ['iptal'];
+        if (in_array($action, $mutatingCreate, true)) {
+            Rbac::authorizeOrDeny('NakitController', 'gelen_e_faturalar_create');
+        } elseif (in_array($action, $mutatingDelete, true)) {
+            Rbac::authorizeOrDeny('NakitController', 'gelen_e_faturalar_delete');
+        }
+
         try {
             match ($action) {
                 'yeni' => $this->gelenEFaturaYeni(),

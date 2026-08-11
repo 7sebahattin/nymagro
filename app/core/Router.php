@@ -43,6 +43,9 @@ final class Router
         'takvim'     => 'TakvimController',
         'cek'        => 'PortfoyController',
         'senet'      => 'PortfoyController',
+        'kullanicilar' => 'UserController',
+        'roller'     => 'RoleController',
+        'audit'      => 'AuditController',
     ];
 
     private array $segmentMethodMap = [
@@ -56,6 +59,7 @@ final class Router
 
         // 1) Auth ve tenant şemasını ayağa kaldır
         AuthGuard::bootstrap();
+        Rbac::bootstrap();
         TenantContext::bootstrap();
 
         // 2) Özel SEO dosyaları
@@ -131,6 +135,11 @@ final class Router
             http_response_code(404);
             die("404 — Metot bulunamadı: {$controllerName}::{$method}");
         }
+
+        // ─── RBAC: backend yetki kontrolü (frontend'deki menü/buton gizleme
+        //     ile YETİNİLMEZ — her kritik endpoint burada da kontrol edilir) ──
+        Rbac::authorizeOrDeny($controllerName, $method);
+
         if ($numericResourceId !== null) {
             array_unshift($url, $numericResourceId);
         } else {

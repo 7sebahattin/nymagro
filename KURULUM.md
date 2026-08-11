@@ -170,6 +170,68 @@ Yayına almadan önce tarayıcıdan doğrulayın:
 
 ---
 
+## RBAC, Kullanıcı Yönetimi ve Audit Log
+
+Panele kapalı sistem mantığında bir kullanıcı yönetimi, rol tabanlı yetkilendirme
+(RBAC) ve gizli audit log sistemi eklendi. Herhangi bir manuel migration
+komutu YOKTUR — yeni tablolar (`roles`, `permissions`, `role_permissions`,
+`audit_logs`, `login_history`) ve `users` tablosundaki yeni sütunlar
+(`role_id`, `failed_login_count`, `locked_until`, `status_changed_at`),
+uygulamanın kendi idempotent şema-bootstrap konvansiyonuyla (bu depodaki
+diğer tüm tablolar gibi) **ilk istekte otomatik** oluşturulur/eklenir.
+
+### Yapmanız gerekenler
+
+1. **Backup alın** (her zamanki gibi, bu depodaki genel kural):
+   ```bash
+   mysqldump -u KULLANICI -p VERITABANI > yedek_$(date +%F).sql
+   ```
+2. Dosyaları sunucuya kopyalayın (`app/` ve `public/`), her zamanki gibi.
+3. Panele giriş yapın (mevcut Super Admin hesabınızla — şifresi değişmedi).
+   İlk istekte şema otomatik kurulur; mevcut kullanıcılarınızın hepsi otomatik
+   olarak birer role eşlenir (aşağıya bakın), **hiçbir mevcut yetkiniz
+   otomatik olarak kısıtlanmaz.**
+4. Süper Yönetici menüsünde yeni "Yönetim" grubu görünür: **Kullanıcılar**,
+   **Roller**, **Audit Log**. Normal kullanıcılar bu grubu göremez.
+
+### Mevcut kullanıcılarınıza ne olur?
+
+Eski `users.role` değeriniz (`admin` / `accountant` / `user` / `super_admin`)
+otomatik olarak aynı isimli bir role eşlenir. Bu "miras" roller, migrasyon
+öncesi zaten hiçbir yetki kontrolü olmadığı için, **tüm iş modüllerinde tam
+CRUD (silme dahil) yetkisi** ile oluşturulur — sadece Kullanıcı/Rol/Audit
+yönetimi Süper Yönetici'ye özeldir. Yani mevcut personeliniz migrasyondan
+hemen sonra hiçbir şeyin kısıtlandığını FARK ETMEZ.
+
+Yeni personel için daha kısıtlı roller de hazır gelir: **Veri Giriş**
+(görüntüle/ekle/düzenle, silme yok), **Görüntüleme** (sadece görüntüleme),
+**Muhasebe** (finans modüllerinde görüntüle/ekle/düzenle). Süper Yönetici
+isterse mevcut personelini de zamanla bu daha dar rollere geçirebilir —
+bunu otomatik yapmadık, bilinçli bir yönetici kararı olması gerekiyor.
+
+### Güvenlik notları
+
+- Başarısız girişlerde 5 denemeden sonra hesap 15 dakika otomatik kilitlenir.
+- Bir kullanıcı pasifleştirildiğinde/kilitlendiğinde veya rolü değiştiğinde,
+  o kullanıcının **açık oturumu bir sonraki isteğinde anında sonlanır**
+  (eski yetkilerle devam edemez).
+- Audit Log ve Giriş Geçmişi sadece Süper Yönetici'ye açıktır; şifreler asla
+  loglanmaz.
+- Bilinen ve KURULUM.md'de yukarıda zaten belirtilen `admin`/`admin123`
+  varsayılan şifresini henüz değiştirmediyseniz **şimdi değiştirin**
+  (Kullanıcılar → admin → Şifre Sıfırla).
+
+### Bilinen sınırlamalar (bu sürümde YOK, bilinçli olarak ertelendi)
+
+- 2FA/TOTP, CSRF token'ları (mevcut formlarda zaten yoktu, bu değişiklikle
+  de eklenmedi — ayrı bir iş olarak planlanmalı), her modülde optimistic
+  locking (version numarası), audit log için PDF/gelişmiş export.
+- Modül görünümlerinde (ör. Müşteriler listesi) Ekle/Düzenle/Sil butonları
+  şu an SADECE backend'de zorunlu kılınıyor; buton bazlı frontend gizleme
+  yalnız yeni eklenen Kullanıcılar/Roller/Audit ekranlarında var, ~20 mevcut
+  modülün kendi view'lerine henüz yayılmadı (backend zaten reddettiği için
+  güvenlik açığı değil, sadece "yetkisiz" hata sayfasına düşme UX'i).
+
 ## Marka varlıkları
 
 `brand/` klasöründe:

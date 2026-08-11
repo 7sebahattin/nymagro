@@ -157,7 +157,24 @@ final class DashboardController extends Controller
             'urunStokToplam'   => $urunStokToplam,
             // Grafik verisi
             'aylikTrend'       => $aylikTrend,
+            // Süper Yönetici özel özet (§19/§70) — normal kullanıcıya gösterilmez
+            'superAdminSummary' => $this->superAdminSummary(),
         ]);
+    }
+
+    /** Sadece Süper Yönetici için: kullanıcı/güvenlik/aktivite özetleri. */
+    private function superAdminSummary(): ?array
+    {
+        if (!AuthGuard::isSuperAdmin()) {
+            return null;
+        }
+        require_once MODELS_PATH . '/AuditAdmin.php';
+        $audit = new AuditAdmin();
+        return [
+            'ozet'            => $audit->securitySummary(),
+            'kritikIslemler'  => $audit->recentCriticalActions(8),
+            'aktifKullanicilar' => $audit->recentActiveUsers(6),
+        ];
     }
 
     private function formatTrDate(string $date): string

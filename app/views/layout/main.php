@@ -100,6 +100,46 @@ $menu = [
     ]],
 ];
 
+/* ── RBAC: yalnızca VIEW izni olan modüller menüde görünür ────────────
+   Frontend'de gizlemek TEK BAŞINA güvenlik değildir — backend (Router +
+   Rbac::authorizeOrDeny) her endpoint'i AYRICA reddeder. Bu sadece UX. */
+$menuModulePermission = [
+    'musteriler' => 'MUSTERI_VIEW', 'tedarikciler' => 'TEDARIKCI_VIEW', 'personel' => 'PERSONEL_VIEW',
+    'urunler' => 'URUN_VIEW', 'depolar' => 'DEPO_VIEW', 'urun_varyantlari' => 'URUN_VIEW',
+    'satislar' => 'SATIS_VIEW', 'alislar' => 'ALIS_VIEW', 'teklifler' => 'TEKLIF_VIEW',
+    'hesaplar' => 'HESAP_VIEW', 'masraflar' => 'MASRAF_VIEW', 'gelen_efaturalar' => 'NAKIT_VIEW',
+    'krediler' => 'KREDI_VIEW', 'demirbaslar' => 'DEMIRBAS_VIEW', 'projeler' => 'PROJE_VIEW',
+    'cek_portfoyu' => 'PORTFOY_VIEW', 'senet_portfoyu' => 'PORTFOY_VIEW',
+    'rapor_satis_alis' => 'RAPOR_VIEW', 'rapor_finansal' => 'RAPOR_VIEW',
+    'rapor_stok' => 'RAPOR_VIEW', 'rapor_musteri' => 'RAPOR_VIEW',
+    'takvim' => 'TAKVIM_VIEW', 'fihrist' => 'FIHRIST_VIEW',
+    'tanimlar' => 'TANIM_VIEW', 'site' => 'SITE_VIEW',
+];
+$menuCanSee = function (string $menuKey) use ($menuModulePermission): bool {
+    if (!isset($menuModulePermission[$menuKey])) return true;
+    if (!class_exists('Rbac') || !class_exists('AuthGuard') || !AuthGuard::isLoggedIn()) return true;
+    return Rbac::currentUserCan($menuModulePermission[$menuKey]);
+};
+foreach ($menu as $mi => $mItem) {
+    if ($mItem['tip'] === 'link') {
+        if (!$menuCanSee($mItem['key'])) unset($menu[$mi]);
+    } elseif ($mItem['tip'] === 'group') {
+        $menu[$mi]['alt'] = array_values(array_filter($mItem['alt'], fn($alt) => $menuCanSee($alt['key'])));
+        if (empty($menu[$mi]['alt'])) unset($menu[$mi]);
+    }
+}
+$menu = array_values($menu);
+
+/* ── Süper Yönetici özel menüsü (Kullanıcılar / Roller / Audit Log) ── */
+if (class_exists('AuthGuard') && AuthGuard::isSuperAdmin()) {
+    $menu[] = ['tip' => 'divider'];
+    $menu[] = ['tip' => 'group', 'key' => 'yonetim_grup', 'ad' => 'Yönetim', 'ikon' => 'fa-user-shield', 'id' => 'grpYonetim', 'alt' => [
+        ['key' => 'kullanicilar', 'ad' => 'Kullanıcılar', 'url' => '/kullanicilar', 'ikon' => 'fa-users-gear'],
+        ['key' => 'roller', 'ad' => 'Roller', 'url' => '/roller', 'ikon' => 'fa-user-shield'],
+        ['key' => 'audit', 'ad' => 'Audit Log', 'url' => '/audit', 'ikon' => 'fa-shield-halved'],
+    ]];
+}
+
 /** Alt menü anahtarı → gerçek rota bölümü eşlemesi (aktiflik tespiti için) */
 $altAktifMi = function (array $alt) use ($activeMenu, $currentSection, $currentAction): bool {
     if ($activeMenu === $alt['key']) return true;

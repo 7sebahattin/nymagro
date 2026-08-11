@@ -346,3 +346,90 @@ $durumBadge = function(string $d): string {
   </div>
 
 </div><!-- /dash-grid6 -->
+
+<?php if (!empty($superAdminSummary)): $sas = $superAdminSummary; $ozet = $sas['ozet']; ?>
+<div class="mt-4">
+  <h5 class="mb-3"><i class="fa-solid fa-user-shield me-2"></i>Süper Yönetici Özeti</h5>
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-3 text-center">
+        <div class="fs-4 fw-bold"><?= (int)$ozet['users_total'] ?></div>
+        <div class="text-muted small">Toplam Kullanıcı</div>
+        <div class="small mt-1">
+          <span class="badge bg-success"><?= (int)$ozet['users_active'] ?> aktif</span>
+          <span class="badge bg-secondary"><?= (int)$ozet['users_passive'] ?> pasif</span>
+          <?php if ($ozet['users_locked'] > 0): ?><span class="badge bg-danger"><?= (int)$ozet['users_locked'] ?> kilitli</span><?php endif; ?>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-3 text-center">
+        <div class="fs-4 fw-bold"><?= (int)$ozet['actions_today'] ?></div>
+        <div class="text-muted small">Bugünkü İşlemler</div>
+        <div class="small mt-1 text-muted">Son 24s: <?= (int)$ozet['actions_24h'] ?> · Son 7g: <?= (int)$ozet['actions_7d'] ?></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-3 text-center">
+        <div class="fs-4 fw-bold <?= $ozet['failed_logins_24h'] > 5 ? 'text-danger' : '' ?>"><?= (int)$ozet['failed_logins_24h'] ?></div>
+        <div class="text-muted small">Başarısız Giriş (24s)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm p-3 text-center">
+        <div class="fs-4 fw-bold <?= $ozet['unauthorized_24h'] > 0 ? 'text-danger' : '' ?>"><?= (int)$ozet['unauthorized_24h'] ?></div>
+        <div class="text-muted small">Yetkisiz Erişim Denemesi (24s)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-7">
+      <div class="card border-0 shadow-sm p-0" style="overflow:hidden;">
+        <div class="phead phead-dark d-flex justify-content-between align-items-center">
+          <span><i class="fa-solid fa-triangle-exclamation me-1"></i> KRİTİK İŞLEMLER</span>
+          <a href="<?= BASE_URL ?>/audit" style="color:rgba(255,255,255,.7); font-size:11px; text-decoration:none;">tümü »</a>
+        </div>
+        <?php if (empty($sas['kritikIslemler'])): ?>
+          <div class="no-data">Henüz kritik işlem yok</div>
+        <?php else: ?>
+          <table class="mini-table">
+            <thead><tr><th>Tarih</th><th>Kullanıcı</th><th>İşlem</th></tr></thead>
+            <tbody>
+              <?php foreach ($sas['kritikIslemler'] as $k): ?>
+                <tr>
+                  <td><?= htmlspecialchars(date('d.m.Y H:i', strtotime($k['created_at']))) ?></td>
+                  <td><?= htmlspecialchars($k['user_snapshot'] ?: 'Sistem') ?></td>
+                  <td><?= htmlspecialchars($k['action']) ?> <span class="text-muted"><?= htmlspecialchars($k['module'] ?? '') ?></span></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="card border-0 shadow-sm p-0" style="overflow:hidden;">
+        <div class="phead phead-cyan">
+          <i class="fa-solid fa-users me-1"></i> SON 7 GÜNDE EN AKTİF KULLANICILAR
+        </div>
+        <?php if (empty($sas['aktifKullanicilar'])): ?>
+          <div class="no-data">Aktivite yok</div>
+        <?php else: ?>
+          <table class="mini-table">
+            <thead><tr><th>Kullanıcı</th><th style="text-align:right;">İşlem</th></tr></thead>
+            <tbody>
+              <?php foreach ($sas['aktifKullanicilar'] as $a): ?>
+                <tr>
+                  <td><?= htmlspecialchars($a['user_snapshot'] ?: '-') ?></td>
+                  <td style="text-align:right; font-weight:700;"><?= (int)$a['islem_sayisi'] ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
