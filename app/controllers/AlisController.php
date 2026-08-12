@@ -62,7 +62,7 @@ final class AlisController extends Controller
 
         $this->view('alislar/ekle', [
             'faturaNo'    => $faturaNo,
-            'bugun'       => date('d.m.Y'),
+            'bugun'       => date('Y-m-d'),
             'hatalar'     => [],
             'eski'        => [],
             'cari'        => $cari,
@@ -129,7 +129,7 @@ final class AlisController extends Controller
         if (!empty($hatalar)) {
             $this->view('alislar/ekle', [
                 'faturaNo' => $faturaNo,
-                'bugun'    => date('d.m.Y'),
+                'bugun'    => date('Y-m-d'),
                 'hatalar'  => $hatalar,
                 'eski'     => $_POST,
                 'depolar'  => $this->depoModel->listele(),
@@ -194,7 +194,7 @@ final class AlisController extends Controller
         }
 
         $eski = $f;
-        $eski['fatura_tarihi'] = $this->tarihGoster($f['fatura_tarihi']);
+        $eski['fatura_tarihi'] = $f['fatura_tarihi'] ? substr((string)$f['fatura_tarihi'], 0, 10) : '';
 
         $cari = !empty($f['cari_id']) ? $this->cariModel->getir((int)$f['cari_id']) : null;
 
@@ -276,7 +276,7 @@ final class AlisController extends Controller
                 'fatura'      => $mevcut,
                 'kalemler'    => $this->fatura->kalemleriGetir($id),
                 'faturaNo'    => $faturaNo,
-                'bugun'       => $this->tarihGoster($mevcut['fatura_tarihi']),
+                'bugun'       => $mevcut['fatura_tarihi'] ? substr((string)$mevcut['fatura_tarihi'], 0, 10) : '',
                 'hatalar'     => $hatalar,
                 'eski'        => $_POST,
                 'cari'        => $cariId ? $this->cariModel->getir($cariId) : null,

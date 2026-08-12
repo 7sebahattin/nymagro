@@ -85,7 +85,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
 
       <div class="fg">
         <label>Tarihi</label>
-        <input type="text" name="fatura_tarihi" class="fi" value="<?= $val('fatura_tarihi', $bugun) ?>">
+        <input type="date" name="fatura_tarihi" class="fi" value="<?= $val('fatura_tarihi', $bugun) ?>">
       </div>
 
       <div class="fg">
