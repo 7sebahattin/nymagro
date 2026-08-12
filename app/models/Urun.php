@@ -174,12 +174,15 @@ class Urun
         }
         // Genel toplam sıfır görünse bile depo bazlı satırlarda (depo_id
         // verilmeden yapılan hareketler yüzünden) sıfırdan farklı miktar
-        // kalmış olabilir — onu da kontrol et.
+        // kalmış olabilir — onu da kontrol et. İmzalı toplam alınır (ABS
+        // içeride değil dışarıda): birden fazla depoya dağılmış ama net
+        // toplamı sıfır olan (ör. bir depo düzeltmesiyle dengelenmiş) stok,
+        // her depoyu ayrı ayrı pozitif sayıp yanlışlıkla engellenmesin.
         $depoStok = $this->db->selectOne(
-            "SELECT SUM(ABS(miktar)) AS toplam FROM urun_stok_depo WHERE urun_id = :id AND company_id = :cid",
+            "SELECT SUM(miktar) AS toplam FROM urun_stok_depo WHERE urun_id = :id AND company_id = :cid",
             [':id' => $id, ':cid' => TenantContext::activeCompanyId()]
         );
-        if ($depoStok && (float)($depoStok['toplam'] ?? 0) > 0.0001) {
+        if ($depoStok && abs((float)($depoStok['toplam'] ?? 0)) > 0.0001) {
             throw new RuntimeException('Stokta miktarı olan ürün silinemez. Önce stoğu sıfırlayın.');
         }
         $result = $this->db->softDelete('urunler_hizmetler', $id);
@@ -312,15 +315,18 @@ class Urun
             ]);
 
             // Depo bazlı stok güncelle
+            // NOT: işaret PHP tarafında uygulanır (ilgili depo için ilk hareket
+            // olduğunda INSERT dalı çalışır — SQL'de "{$op}" sadece UPDATE dalına
+            // uygulanırsa ilk çıkışlar yanlışlıkla pozitif kaydedilir).
             if ($depoId) {
-                $op = $islemTipi === 'giris' ? '+' : '-';
-                $sqlDepo = "INSERT INTO urun_stok_depo (urun_id, depo_id, miktar, company_id) 
+                $isaretliMiktar = $islemTipi === 'giris' ? $miktar : -$miktar;
+                $sqlDepo = "INSERT INTO urun_stok_depo (urun_id, depo_id, miktar, company_id)
                             VALUES (:uid, :did, :miktar, :company_id)
-                            ON DUPLICATE KEY UPDATE miktar = miktar {$op} VALUES(miktar)";
+                            ON DUPLICATE KEY UPDATE miktar = miktar + VALUES(miktar)";
                 $this->db->query($sqlDepo, [
-                    ':uid'    => $urunId, 
-                    ':did'    => $depoId, 
-                    ':miktar' => $miktar,
+                    ':uid'    => $urunId,
+                    ':did'    => $depoId,
+                    ':miktar' => $isaretliMiktar,
                     ':company_id' => TenantContext::activeCompanyId(),
                 ]);
             }
