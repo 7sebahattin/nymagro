@@ -87,7 +87,7 @@ final class SatisController extends Controller
 
         $this->view('satislar/ekle', [
             'faturaNo'    => $faturaNo,
-            'bugun'       => date('d.m.Y'),
+            'bugun'       => date('Y-m-d'),
             'hatalar'     => [],
             'eski'        => [],
             'cari'        => $cari,
@@ -110,8 +110,8 @@ final class SatisController extends Controller
         }
 
         $eski = $f;
-        $eski['fatura_tarihi'] = $this->tarihGoster($f['fatura_tarihi']);
-        $eski['vade_tarihi']   = $f['vade_tarihi'] ? $this->tarihGoster($f['vade_tarihi']) : '';
+        $eski['fatura_tarihi'] = $f['fatura_tarihi'] ? substr((string)$f['fatura_tarihi'], 0, 10) : '';
+        $eski['vade_tarihi']   = $f['vade_tarihi'] ? substr((string)$f['vade_tarihi'], 0, 10) : '';
 
         $cari = !empty($f['cari_id']) ? $this->cariModel->getir((int)$f['cari_id']) : null;
 
@@ -395,7 +395,7 @@ final class SatisController extends Controller
         if (!empty($hatalar)) {
             $this->view('satislar/ekle', [
                 'faturaNo'    => $faturaNo ?: $this->fatura->faturaNoUret('satis'),
-                'bugun'       => date('d.m.Y'),
+                'bugun'       => date('Y-m-d'),
                 'hatalar'     => $hatalar,
                 'eski'        => $eski,
                 'depolar'     => $this->depoModel->listele(),

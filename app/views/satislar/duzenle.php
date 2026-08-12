@@ -9,7 +9,7 @@
  *   $cari      array|null
  */
 $faturaNo = $fatura['fatura_no'] ?? '';
-$bugun = $eski['fatura_tarihi'] ?? date('d.m.Y');
+$bugun = $eski['fatura_tarihi'] ?? date('Y-m-d');
 $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_QUOTES);
 $err = function(string $k) use ($hatalar): string {
     if (empty($hatalar[$k])) return '';
@@ -163,9 +163,8 @@ $err = function(string $k) use ($hatalar): string {
       <div class="fg <?= !empty($hatalar['fatura_tarihi']) ? 'is-err' : '' ?>">
         <label>Tarihi</label>
         <div class="fg-inp-wrap">
-          <input type="text" name="fatura_tarihi" class="fi"
-                 value="<?= $val('fatura_tarihi', $bugun) ?>"
-                 placeholder="gg.aa.yyyy" />
+          <input type="date" name="fatura_tarihi" class="fi"
+                 value="<?= $val('fatura_tarihi', $bugun) ?>" />
         </div>
       </div>
 
@@ -173,9 +172,8 @@ $err = function(string $k) use ($hatalar): string {
       <div class="fg">
         <label>Vadesi</label>
         <div class="fg-inp-wrap">
-          <input type="text" name="vade_tarihi" class="fi"
-                 value="<?= $val('vade_tarihi', $bugun) ?>"
-                 placeholder="gg.aa.yyyy" />
+          <input type="date" name="vade_tarihi" class="fi"
+                 value="<?= $val('vade_tarihi', $bugun) ?>" />
         </div>
       </div>
 
