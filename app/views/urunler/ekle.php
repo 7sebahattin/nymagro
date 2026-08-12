@@ -131,7 +131,7 @@ if (!empty($hatalar)) {
 
 <!-- Action bar (outside form — submit via JS) -->
 <div class="action-bar">
-  <button class="btn-save" type="button" onclick="document.getElementById('urunForm').submit()">
+  <button class="btn-save" type="button" onclick="document.getElementById('urunForm').requestSubmit()">
     <i class="fa-solid fa-floppy-disk"></i> Kaydet
   </button>
   <a href="<?= BASE_URL ?>/urun" class="btn-back">

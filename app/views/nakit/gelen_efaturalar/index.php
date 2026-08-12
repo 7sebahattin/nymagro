@@ -397,7 +397,7 @@ function topluOdemeKaydet() {
 
   form.action = BASE_URL_GEF + '/nakit/gelen-e-faturalar/toplu-odeme';
   form.method = 'post';
-  form.submit();
+  form.requestSubmit();
 }
 
 /* ── TOPLU NOT ─────────────────────────────────────── */
@@ -413,7 +413,7 @@ function submitBulk(type) {
   inp.type='hidden'; inp.name='not_metni'; inp.value=note; inp.className='tp-hidden';
   form.appendChild(inp);
   form.action = BASE_URL_GEF + '/nakit/gelen-e-faturalar/toplu-not';
-  form.submit(); // Toplu not için checkboxlar zaten ids[] gönderiyor, hidden input yok
+  form.requestSubmit(); // Toplu not için checkboxlar zaten ids[] gönderiyor, hidden input yok
 }
 
 /* ── YARDIMCILAR ────────────────────────────────────── */

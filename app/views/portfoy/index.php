@@ -35,7 +35,7 @@ $durumlar = ['bekliyor' => 'Bekliyor', 'tahsil' => 'Tahsil', 'odendi' => 'Ödend
     <?php else: ?><div class="pf-table-wrap"><table class="pf-table"><thead><tr><th>Belge</th><th>Cari</th><th>Vade</th><th>Tutar</th><th>Durum</th><th></th></tr></thead><tbody>
       <?php foreach ($kayitlar as $row): ?><tr><td><b><?= $h($row['belge_no']) ?></b><br><?= $h($row['aciklama']) ?></td><td><?= $h($row['cari_unvan'] ?: '-') ?></td><td><?= $h($row['vade_tarihi']) ?></td><td><?= $money($row['tutar']) ?> TL</td><td>
         <?php if (Rbac::currentUserCan('PORTFOY_UPDATE')): ?>
-        <form method="post" action="<?= BASE_URL ?>/<?= $base ?>/durum/<?= (int)$row['id'] ?>" onchange="this.submit()">
+        <form method="post" action="<?= BASE_URL ?>/<?= $base ?>/durum/<?= (int)$row['id'] ?>" onchange="this.requestSubmit()">
           <select name="durum" class="pf-status" style="border:0;cursor:pointer">
             <?php foreach ($durumlar as $key => $text): ?><option value="<?= $h($key) ?>" <?= $row['durum'] === $key ? 'selected' : '' ?>><?= $h($text) ?></option><?php endforeach; ?>
           </select>
