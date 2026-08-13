@@ -635,7 +635,7 @@ class Rapor
         $params = $purchaseDateParams + $salesDateParams;
         $params[':tenant_company_id'] = TenantContext::activeCompanyId();
         $params[':tenant_period_id'] = TenantContext::activePeriodId();
-        $extra = ['u.company_id = :tenant_company_id'];
+        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0'];
         if (!empty($filters['product_id'])) {
             $extra[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -861,7 +861,7 @@ class Rapor
         }
         $params[':tenant_company_id'] = TenantContext::activeCompanyId();
         $params[':tenant_period_id'] = TenantContext::activePeriodId();
-        $extra = ['u.company_id = :tenant_company_id'];
+        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0'];
         if (!empty($filters['product_id'])) {
             $extra[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -932,7 +932,7 @@ class Rapor
             $dateSql = " AND f.fatura_tarihi >= DATE_SUB(CURDATE(), INTERVAL {$days} DAY)";
         }
         $params[':tenant_company_id'] = TenantContext::activeCompanyId();
-        $extra = ['u.company_id = :tenant_company_id'];
+        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0'];
         if (!empty($filters['product_id'])) {
             $extra[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
