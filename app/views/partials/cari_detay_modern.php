@@ -19,6 +19,7 @@ $basePath = $isMusteri ? 'musteri' : 'tedarikci';
 $entityLabel = $isMusteri ? 'müşteri' : 'tedarikçi';
 $entityTitle = $isMusteri ? 'Müşteri' : 'Tedarikçi';
 $invoiceTitle = $isMusteri ? 'Önceki Satışlar' : 'Önceki Ürün/Hizmet Alışları';
+$invoiceDetailBase = $isMusteri ? 'satis' : 'alis';
 $paymentTitle = $isMusteri ? 'Önceki Ödemeleri' : 'Önceki Ödemeler';
 $emptyInvoiceText = $isMusteri ? 'Bu müşterinin daha önceden kayıtlı satışı yok.' : 'Bu tedarikçinin daha önceden kayıtlı alış kaydı yok.';
 $emptyReturnText = $isMusteri ? 'Bu müşterinin daha önceden kayıtlı iadesi yok.' : 'Bu tedarikçinin daha önceden kayıtlı iadesi yok.';
@@ -82,15 +83,16 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 
 <style>
 .cd-page{display:flex;flex-direction:column;gap:18px}
-.cd-hero-row{display:grid;grid-template-columns:minmax(320px,1fr) minmax(280px,420px);gap:22px;align-items:center}
-.cd-profile{min-height:118px;border-radius:4px;background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--accent);box-shadow:0 10px 25px rgba(15,23,42,.18);display:flex;align-items:center;gap:24px;padding:20px 28px}
+.cd-hero-row{display:grid;grid-template-columns:1fr;gap:22px}
+.cd-profile{border-radius:4px;background:var(--card-bg);border:1px solid var(--border);border-left:4px solid var(--accent);box-shadow:0 10px 25px rgba(15,23,42,.18);padding:20px 28px}
+.cd-profile-main{display:flex;align-items:center;gap:24px}
 .cd-avatar{width:76px;height:76px;border-radius:50%;background:var(--accent);border:4px solid var(--border2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;font-weight:900;flex:0 0 auto}
 .cd-profile h2{margin:0;color:var(--text);font-size:24px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;line-height:1.2}
 .cd-profile small{display:block;margin-top:7px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
-.cd-note{position:relative;background:rgba(243,156,18,.13);border:7px solid #666;border-radius:28px;min-height:96px;padding:18px 22px;color:#43c27f;box-shadow:0 8px 22px rgba(15,23,42,.08)}
-.cd-note::before{content:"";position:absolute;left:-37px;top:32px;border-width:18px 37px 18px 0;border-style:solid;border-color:transparent var(--muted) transparent transparent}
-.cd-note::after{content:"";position:absolute;left:-24px;top:40px;border-width:10px 24px 10px 0;border-style:solid;border-color:transparent rgba(243,156,18,.22) transparent transparent}
-.cd-note textarea{width:100%;min-height:50px;border:0;background:transparent;color:#2aa86a;resize:vertical;outline:0;font-size:13.5px}
+.cd-note-inline{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.cd-note-inline label{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.cd-note-inline textarea{width:100%;min-height:44px;border:1px solid var(--border2);border-radius:6px;background:var(--surface-2);color:var(--text);resize:vertical;outline:0;font-size:13.5px;padding:8px 10px}
+.cd-note-inline textarea:focus{border-color:var(--accent)}
 .cd-note-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
 .cd-note-actions button{border:0;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:800}
 .cd-note-save{background:#22c55e;color:#fff}
@@ -140,9 +142,7 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 .cd-alert.success{background:rgba(46,204,113,.15);color:var(--success)}.cd-alert.error{background:rgba(231,76,60,.15);color:var(--danger)}
 @media(max-width:1180px){.cd-summary{grid-template-columns:repeat(2,minmax(180px,1fr))}.cd-panels{grid-template-columns:1fr}}
 @media(max-width:760px){
-  .cd-hero-row{grid-template-columns:1fr}
-  .cd-profile{padding:18px;gap:14px}.cd-profile h2{font-size:19px}.cd-avatar{width:60px;height:60px;font-size:24px}
-  .cd-note::before,.cd-note::after{display:none}.cd-note{border-width:4px;border-radius:18px}
+  .cd-profile{padding:18px}.cd-profile-main{gap:14px}.cd-profile h2{font-size:19px}.cd-avatar{width:60px;height:60px;font-size:24px}
   .cd-summary{grid-template-columns:1fr}.cd-stat{grid-template-columns:64px 1fr}
   .cd-actions{display:grid;grid-template-columns:1fr 1fr}.cd-btn{justify-content:center}
   .cd-actions .dropdown{width:100%}.cd-actions .dropdown .cd-btn{width:100%}.cd-more .dropdown-menu{min-width:100%}
@@ -158,24 +158,27 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 
   <div class="cd-hero-row">
     <div class="cd-profile">
-      <div class="cd-avatar"><?= htmlspecialchars($initials) ?></div>
-      <div>
-        <h2><?= htmlspecialchars($cari['unvan'] ?? '-') ?></h2>
-        <small><?= htmlspecialchars($entityTitle) ?> kartı</small>
-        <div class="cd-info-grid">
-          <span><strong>Telefon:</strong> <?= htmlspecialchars(($cari['telefon'] ?? '') !== '' ? $cari['telefon'] : ($cari['cep_telefon'] ?? '-')) ?></span>
-          <span><strong>E-posta:</strong> <?= htmlspecialchars($cari['eposta'] ?? '-') ?></span>
-          <span><strong>Adres:</strong> <?= htmlspecialchars($cari['adres'] ?? '-') ?></span>
-          <span><strong>Vergi No:</strong> <?= htmlspecialchars($cari['vergi_no'] ?? '-') ?></span>
+      <div class="cd-profile-main">
+        <div class="cd-avatar"><?= htmlspecialchars($initials) ?></div>
+        <div>
+          <h2><?= htmlspecialchars($cari['unvan'] ?? '-') ?></h2>
+          <small><?= htmlspecialchars($entityTitle) ?> kartı</small>
+          <div class="cd-info-grid">
+            <span><strong>Telefon:</strong> <?= htmlspecialchars(($cari['telefon'] ?? '') !== '' ? $cari['telefon'] : ($cari['cep_telefon'] ?? '-')) ?></span>
+            <span><strong>E-posta:</strong> <?= htmlspecialchars($cari['eposta'] ?? '-') ?></span>
+            <span><strong>Adres:</strong> <?= htmlspecialchars($cari['adres'] ?? '-') ?></span>
+            <span><strong>Vergi No:</strong> <?= htmlspecialchars($cari['vergi_no'] ?? '-') ?></span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="cd-note">
-      <textarea id="cdNote" placeholder="Bu <?= htmlspecialchars($entityLabel) ?> ile ilgili not kaydetmek için tıklayın."><?= htmlspecialchars($cari['notlar'] ?? '') ?></textarea>
-      <div class="cd-note-actions">
-        <button type="button" class="cd-note-clear" onclick="document.getElementById('cdNote').value=''">Temizle</button>
-        <button type="button" class="cd-note-save" onclick="cdSaveNote()">Notu Kaydet</button>
+      <div class="cd-note-inline">
+        <label for="cdNote">Not</label>
+        <textarea id="cdNote" placeholder="Bu <?= htmlspecialchars($entityLabel) ?> ile ilgili not kaydetmek için tıklayın."><?= htmlspecialchars($cari['notlar'] ?? '') ?></textarea>
+        <div class="cd-note-actions">
+          <button type="button" class="cd-note-clear" onclick="document.getElementById('cdNote').value=''">Temizle</button>
+          <button type="button" class="cd-note-save" onclick="cdSaveNote()">Notu Kaydet</button>
+        </div>
       </div>
     </div>
   </div>
@@ -292,7 +295,7 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
             <tbody>
             <?php foreach ($faturaGecmisi as $row): ?>
               <tr>
-                <td><span class="cd-plus"><i class="fa-solid fa-plus"></i></span></td>
+                <td><a class="cd-plus" href="<?= BASE_URL ?>/<?= $invoiceDetailBase ?>/detay/<?= (int)($row['id'] ?? 0) ?>" title="Fatura detayını görüntüle"><i class="fa-solid fa-plus"></i></a></td>
                 <td><?= htmlspecialchars($fmtDate($row['fatura_tarihi'] ?? '')) ?></td>
                 <td><?= htmlspecialchars($row['fatura_no'] ?? '-') ?></td>
                 <td class="cd-status"><?= htmlspecialchars($statusText((string)($row['durum'] ?? ''))) ?></td>

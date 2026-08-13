@@ -318,7 +318,10 @@ final class SatisController extends Controller
         if (!in_array($belgeTipi, ['siparis', 'irsaliye', 'proforma', 'satis'])) {
             $belgeTipi = 'satis';
         }
-        $durum       = $_POST['durum'] ?? 'taslak';
+        // 'satis' (Fatura Kaydet) gerçek/nihai bir belgedir — proforma/irsaliye/sipariş
+        // gibi ön belgelerden farklı olarak varsayılan olarak onaylı kaydedilir
+        // (aksi halde durumu değiştirecek hiçbir kontrol olmadığından süresiz "taslak" kalır).
+        $durum       = $_POST['durum'] ?? ($belgeTipi === 'satis' ? 'onaylandi' : 'taslak');
         $cariId      = !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null;
         $odemeSekli  = trim($_POST['odeme_sekli'] ?? '');
         $aciklama    = trim($_POST['aciklama']    ?? '');
@@ -563,6 +566,23 @@ final class SatisController extends Controller
             'topbarTitle' => 'Fatura Detayı — ' . htmlspecialchars($f['fatura_no']),
             'topbarIcon'  => 'fa-file-invoice-dollar',
         ]);
+    }
+
+    // ─── durum (onayla) ─────────────────────────────────────────────────
+
+    public function durum(int $id): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('satis');
+        }
+        $f = $this->fatura->getir($id);
+        if ($f) {
+            $this->fatura->onaylaEt($id);
+            $this->setFlash('success', "Fatura #{$f['fatura_no']} onaylandı.");
+        } else {
+            $this->setFlash('error', 'Fatura bulunamadı.');
+        }
+        $this->redirect('satis');
     }
 
     // ─── iptal ──────────────────────────────────────────────────────────
