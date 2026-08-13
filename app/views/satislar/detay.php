@@ -83,6 +83,12 @@ $printUrl = BASE_URL . '/satis/fatura/' . (int)$fatura['id'] . '/print';
         <i class="fa-solid fa-pen"></i> Duzenle
     </a>
     <?php endif; ?>
+    <?php if (($fatura['durum'] ?? '') === 'taslak' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
+    <a href="#" class="btn-action" style="background:#3b82f6;color:#fff;"
+       onclick="return nymPost('<?= BASE_URL ?>/satis/durum/<?= (int)$fatura['id'] ?>', 'Fatura onaylansın mı?')">
+        <i class="fa-solid fa-check"></i> Onayla
+    </a>
+    <?php endif; ?>
     <button type="button" onclick="window.open('<?= htmlspecialchars($printUrl) ?>', '_blank', 'noopener')" class="btn-action btn-print">
         <i class="fa-solid fa-print"></i> Yazdir
     </button>

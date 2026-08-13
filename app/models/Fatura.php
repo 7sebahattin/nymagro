@@ -515,6 +515,32 @@ class Fatura
         }
     }
 
+    /** Taslak faturayı onaylar (stok/bakiye zaten kayıt anında işlendiği için burada tekrar dokunulmaz). */
+    public function onaylaEt(int $id): int
+    {
+        $this->db->begin();
+        try {
+            $fatura = $this->getir($id);
+            if (!$fatura) {
+                $this->db->rollBack();
+                return 0;
+            }
+            if ($fatura['durum'] !== 'taslak') {
+                $this->db->commit();
+                return 0;
+            }
+            $sonuc = $this->db->update('faturalar', ['durum' => 'onaylandi'], ['id' => $id]);
+            Audit::log('UPDATE', $this->moduleForBelgeTipi($fatura['belge_tipi']), $id, ['durum' => 'taslak'], ['durum' => 'onaylandi'], "Fatura onaylandı: " . ($fatura['fatura_no'] ?? ''));
+            $this->db->commit();
+            return $sonuc;
+        } catch (\Throwable $e) {
+            if ($this->db->pdo()->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
+    }
+
     public function onayla(int $id): int
     {
         return $this->db->update('faturalar', ['durum' => 'onaylandi'], ['id' => $id]);

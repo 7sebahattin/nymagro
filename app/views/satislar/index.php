@@ -316,6 +316,14 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                   <a href="<?= BASE_URL ?>/satis/fatura/<?= $f['id'] ?>/print" target="_blank" rel="noopener" class="btn-det" style="background:#efa341;">
                     <i class="fa-solid fa-print"></i> Yazdır
                   </a>
+                  <?php if ($f['durum'] === 'taslak' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
+                    <a href="#"
+                       class="btn-det"
+                       style="background:#3b82f6;"
+                       onclick="return nymPost('<?= BASE_URL ?>/satis/durum/<?= $f['id'] ?>', 'Fatura onaylansın mı?')">
+                      <i class="fa-solid fa-check"></i> Onayla
+                    </a>
+                  <?php endif; ?>
                   <?php if ($f['durum'] !== 'iptal' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
                     <a href="#"
                        class="btn-det red"
