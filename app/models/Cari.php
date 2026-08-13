@@ -334,12 +334,57 @@ class Cari
     // SOFT DELETE
     // ──────────────────────────────────────────────────────
 
+    /**
+     * Cariyi siler. İlişkili AKTİF (silinmemiş) hiçbir kritik kayıt (fatura,
+     * kasa hareketi, çek/senet, döküman) yoksa kalıcı olarak siler; herhangi
+     * biri varsa geçmiş bozulmasın diye mevcut soft-delete davranışı korunur.
+     * İlişkili kayıt daha sonra silinirse (silindi_mi=1 olursa) cari bir
+     * sonraki silme denemesinde kalıcı olarak silinebilir hale gelir.
+     */
     public function sil(int $id): int
     {
-        $before = $this->getir($id);
+        // getir() sadece aktif (silindi_mi=0) kayıtları döndürür — burada
+        // silindi_mi durumuna bakılmaksızın kaydı bulmamız gerekir, çünkü
+        // zaten Pasif işaretli bir cari, ilişkili kayıtları da silindiğinde
+        // kalıcı silmeye uygun hale gelebilir (bkz. yukarıdaki açıklama).
+        $before = $this->db->selectOne(
+            "SELECT * FROM cariler WHERE id = :id AND company_id = :cid",
+            [':id' => $id, ':cid' => TenantContext::activeCompanyId()]
+        );
+        if (!$before) {
+            return 0;
+        }
+
+        if (!$this->iliskiliKritikKayitVarMi($id)) {
+            $this->db->query("DELETE FROM cariler WHERE id = :id", [':id' => $id]);
+            Audit::log('DELETE', $this->moduleForTip((string)($before['tip'] ?? 'musteri')), $id, $before, null,
+                'Cari kalıcı olarak silindi (ilişkili kayıt yok): ' . ($before['unvan'] ?? ''));
+            return 1;
+        }
+
         $result = $this->db->softDelete('cariler', $id);
         Audit::log('DELETE', $this->moduleForTip((string)($before['tip'] ?? 'musteri')), $id, $before, null, 'Cari silindi: ' . ($before['unvan'] ?? ''));
         return $result;
+    }
+
+    /** cari_id referans eden herhangi bir tabloda AKTİF (silindi_mi=0) kayıt var mı? */
+    private function iliskiliKritikKayitVarMi(int $id): bool
+    {
+        $tablolar = ['faturalar', 'kasa_hareketleri', 'cek_senet_portfoyu', 'cari_dokumanlar'];
+        $parcalar = [];
+        $params = [];
+        foreach ($tablolar as $i => $tablo) {
+            if (!TenantContext::tableExists($tablo)) {
+                continue;
+            }
+            $parcalar[] = "SELECT 1 AS var FROM {$tablo} WHERE cari_id = :id{$i} AND silindi_mi = 0";
+            $params[":id{$i}"] = $id;
+        }
+        if (empty($parcalar)) {
+            return false;
+        }
+        $sql = implode(' UNION ALL ', $parcalar) . ' LIMIT 1';
+        return $this->db->selectOne($sql, $params) !== null;
     }
 
     /** cariler.tip → Rbac modül kodu (musteri/tedarikci ayrımı; 'her_ikisi' MUSTERI'ye sayılır). */
