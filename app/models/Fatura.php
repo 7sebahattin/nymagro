@@ -270,7 +270,9 @@ class Fatura
                COUNT(*) AS adet,
                COALESCE(SUM(genel_toplam),0) AS toplam_tutar,
                COALESCE(SUM(kalan_tutar),0)  AS bekleyen_tutar,
-               COALESCE(SUM(CASE WHEN durum='iptal' THEN 1 ELSE 0 END),0) AS iptal_adet
+               COALESCE(SUM(CASE WHEN durum='iptal' THEN 1 ELSE 0 END),0) AS iptal_adet,
+               COALESCE(SUM(CASE WHEN COALESCE(sevk_turu,'musteri') <> 'depolar_arasi' AND irsaliye_kullanildi = 1 THEN 1 ELSE 0 END),0) AS faturalandirilan_adet,
+               COALESCE(SUM(CASE WHEN COALESCE(sevk_turu,'musteri') <> 'depolar_arasi' AND durum <> 'iptal' AND irsaliye_kullanildi = 0 THEN 1 ELSE 0 END),0) AS faturalandirilmayan_adet
              FROM faturalar f
              LEFT JOIN cariler c ON c.id = f.cari_id
              WHERE {$where}",

@@ -194,17 +194,28 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 <!-- Özet Kartlar -->
 <div class="ozet-row">
   <div class="ozet-kart">
-    <div class="ok-label">Toplam Belge</div>
+    <div class="ok-label"><?= $belgeTipi === 'irsaliye' ? 'Toplam İrsaliye' : 'Toplam Belge' ?></div>
     <div class="ok-value"><?= number_format((int)($ozetler['adet'] ?? 0)) ?></div>
   </div>
   <div class="ozet-kart">
     <div class="ok-label">Toplam Tutar</div>
     <div class="ok-value green"><?= $fmt($ozetler['toplam_tutar'] ?? 0) ?></div>
   </div>
+  <?php if ($belgeTipi === 'irsaliye'): ?>
+  <div class="ozet-kart">
+    <div class="ok-label">Faturalandırılan</div>
+    <div class="ok-value green"><?= number_format((int)($ozetler['faturalandirilan_adet'] ?? 0)) ?></div>
+  </div>
+  <div class="ozet-kart">
+    <div class="ok-label">Faturalandırılmayan</div>
+    <div class="ok-value amber"><?= number_format((int)($ozetler['faturalandirilmayan_adet'] ?? 0)) ?></div>
+  </div>
+  <?php else: ?>
   <div class="ozet-kart">
     <div class="ok-label">Bekleyen Tahsilat</div>
     <div class="ok-value amber"><?= $fmt($ozetler['bekleyen_tutar'] ?? 0) ?></div>
   </div>
+  <?php endif; ?>
 </div>
 
 <!-- Filter Panel -->
