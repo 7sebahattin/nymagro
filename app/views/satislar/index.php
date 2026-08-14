@@ -34,8 +34,9 @@ $durumRenk = [
     'iptal'        => ['#64748b','#fff','İptal'],
 ];
 
+$belgeTipi = $belgeTipi ?? 'satis';
 $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
-    ['ara'=>$arama,'durum'=>$durum,'donem'=>$donem,'sayfa'=>$sayfa,'iptalleri'=>$iptalleri?'1':''],
+    ['ara'=>$arama,'durum'=>$durum,'donem'=>$donem,'sayfa'=>$sayfa,'iptalleri'=>$iptalleri?'1':'','tip'=>$belgeTipi==='irsaliye'?'irsaliye':''],
     $extra
 ), fn($v)=>$v!==''&&$v!==null&&$v!==false));
 ?>
@@ -157,8 +158,19 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   </div>
 <?php endif; ?>
 
+<!-- Belge Tipi Sekmeleri: "Yeni Fatura" ekranındaki Fatura/İrsaliye Kaydet
+     butonlarıyla kaydedilen belgeler burada ayrı sekmelerde gözlemlenebilir. -->
+<div style="display:flex; gap:6px; margin-bottom:14px; border-bottom:1px solid var(--border);">
+  <a href="<?= BASE_URL ?>/satis" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'satis' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'satis' ? 'var(--text)' : 'var(--muted)' ?>;">
+    <i class="fa-solid fa-file-invoice-dollar"></i> Faturalar
+  </a>
+  <a href="<?= BASE_URL ?>/satis?tip=irsaliye" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'irsaliye' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'irsaliye' ? 'var(--text)' : 'var(--muted)' ?>;">
+    <i class="fa-solid fa-truck"></i> İrsaliyeler
+  </a>
+</div>
+
 <!-- Action Buttons -->
-<?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>
+<?php if ($belgeTipi === 'satis' && Rbac::currentUserCan('SATIS_CREATE')): ?>
 <div class="action-btns">
   <a href="<?= BASE_URL ?>/satis/perakende" class="btn-action" style="background:#5cb85c; color:#fff;">
     <i class="fa-solid fa-plus"></i> Perakende Satış Gir
@@ -225,6 +237,9 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
       <input type="hidden" name="donem"  value="<?= htmlspecialchars($donem) ?>">
       <input type="hidden" name="sayfa"  value="1">
+      <?php if ($belgeTipi === 'irsaliye'): ?>
+        <input type="hidden" name="tip" value="irsaliye">
+      <?php endif; ?>
 
       <!-- İptalleri toggle -->
       <div class="iptalli-wrap">
@@ -262,7 +277,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
           <th style="width:40px;"></th>
           <th>Tarih</th>
           <th>Müşteri</th>
-          <th>Fatura No</th>
+          <th><?= $belgeTipi === 'irsaliye' ? 'İrsaliye No' : 'Fatura No' ?></th>
           <th style="text-align:right;">Tutar</th>
           <th>Durum</th>
         </tr>
@@ -272,7 +287,13 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
         <tr>
           <td colspan="6" class="empty-state">
             <i class="fa-solid fa-file-invoice"></i>
-            <?= $arama !== '' ? 'Arama sonucu bulunamadı.' : 'Bu dönemde satış faturası yok.' ?>
+            <?php if ($arama !== ''): ?>
+              Arama sonucu bulunamadı.
+            <?php elseif ($belgeTipi === 'irsaliye'): ?>
+              Bu dönemde irsaliye yok.
+            <?php else: ?>
+              Bu dönemde satış faturası yok.
+            <?php endif; ?>
           </td>
         </tr>
       <?php else: ?>
@@ -362,7 +383,8 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
       <?php
         $bas = $toplam > 0 ? (($sayfa - 1) * $limit + 1) : 0;
         $bit = min($sayfa * $limit, $toplam);
-        echo "{$toplam} faturadan {$bas}–{$bit} gösteriliyor";
+        $kayitAdi = $belgeTipi === 'irsaliye' ? 'irsaliyeden' : 'faturadan';
+        echo "{$toplam} {$kayitAdi} {$bas}–{$bit} gösteriliyor";
       ?>
     </span>
     <?php if ($sayfaSayisi > 1): ?>

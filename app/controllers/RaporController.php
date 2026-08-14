@@ -196,6 +196,14 @@ class RaporController extends Controller
         ], ['date', 'customer', 'status', 'converted']);
     }
 
+    public function irsaliyeler(): void
+    {
+        $this->renderReport('getWaybillReport', 'İrsaliyeler Raporu', [
+            'tarih' => 'Tarih', 'irsaliye_no' => 'İrsaliye No', 'musteri' => 'Müşteri',
+            'toplam_tutar' => 'Toplam tutar', 'durum' => 'Durum', 'aciklama' => 'Açıklama',
+        ], ['date', 'customer', 'status']);
+    }
+
     public function _6_aylik_satislar(): void
     {
         $this->renderReport('getSixMonthSalesReport', '6 Aylık Satışlar Raporu', [

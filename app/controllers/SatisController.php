@@ -46,16 +46,21 @@ final class SatisController extends Controller
         $durum     = trim($_GET['durum']            ?? '');
         $donem     = trim($_GET['donem']            ?? '1ay');
         $iptalleri = !empty($_GET['iptalleri']);
+        // "İrsaliye Kaydet" ile oluşturulan belgeler (belge_tipi='irsaliye') satış
+        // faturalarıyla aynı ekrandan girildiği için, gözlemlenebilmeleri adına aynı
+        // listede bir sekme/filtre olarak sunulur (proforma'nın Teklifler sayfasında
+        // ayrı listelenmesine benzer şekilde, ama irsaliye için ayrı bir modül yok).
+        $belgeTipi = ($_GET['tip'] ?? '') === 'irsaliye' ? 'irsaliye' : 'satis';
 
         if (mb_strlen($arama) > 0 && mb_strlen($arama) < 3) {
             $arama = '';
         }
 
         $offset      = ($sayfa - 1) * $limit;
-        $toplam      = $this->fatura->say('satis', $arama, $durum, $donem, $iptalleri);
+        $toplam      = $this->fatura->say($belgeTipi, $arama, $durum, $donem, $iptalleri);
         $sayfaSayisi = (int)ceil($toplam / $limit);
-        $faturalar   = $this->fatura->listele('satis', $arama, $durum, $donem, $iptalleri, $limit, $offset);
-        $ozetler     = $this->fatura->ozetToplamlar('satis', $donem);
+        $faturalar   = $this->fatura->listele($belgeTipi, $arama, $durum, $donem, $iptalleri, $limit, $offset);
+        $ozetler     = $this->fatura->ozetToplamlar($belgeTipi, $donem);
 
         $this->view('satislar/index', [
             'faturalar'   => $faturalar,
@@ -65,12 +70,13 @@ final class SatisController extends Controller
             'durum'       => $durum,
             'donem'       => $donem,
             'iptalleri'   => $iptalleri,
+            'belgeTipi'   => $belgeTipi,
             'sayfa'       => $sayfa,
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,
             'flash'       => $this->getFlash(),
-            'topbarTitle' => 'Satışlar',
-            'topbarIcon'  => 'fa-shopping-cart',
+            'topbarTitle' => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : 'Satışlar',
+            'topbarIcon'  => $belgeTipi === 'irsaliye' ? 'fa-truck' : 'fa-shopping-cart',
         ]);
     }
 
