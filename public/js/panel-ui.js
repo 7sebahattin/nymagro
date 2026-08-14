@@ -108,6 +108,54 @@
     }, true);
   })();
 
+  /* ── Büyük harf: metin kutuları yazarken otomatik büyük harfe çevrilir ──
+     ────────────────────────────────────────────────────────────────────
+     Panelde girilen ünvan/isim/adres gibi serbest metinler resmi belgelerde
+     zaten BÜYÜK HARFLE tutuluyor — kullanıcı yazarken kutunun içeriği anlık
+     olarak büyük harfe çevrilir (kaydedilen gerçek değer de böyle olur).
+     Türkçe'ye özgü büyük/küçük harf kuralı (i↔İ, ı↔I) doğru uygulansın diye
+     toLocaleUpperCase('tr') kullanılıyor — düz toUpperCase() "izmir"i
+     "IZMIR" yapardı (yanlış), bu ise doğru şekilde "İZMİR" üretir.
+     Şifre/e-posta/URL/arama/sayı gibi büyük/küçük harf duyarlı veya bu
+     dönüşümden zarar görecek alanlar hariç tutulur. Bu dosya sadece panel
+     sayfalarında yüklendiği için giriş (login) ekranını hiç etkilemez. */
+  (function setupAutoUppercase() {
+    var EXCLUDED_TYPES = {
+      password: 1, email: 1, url: 1, search: 1, number: 1, tel: 1,
+      date: 1, time: 1, 'datetime-local': 1, month: 1, week: 1, color: 1,
+      file: 1, hidden: 1, checkbox: 1, radio: 1, range: 1,
+      submit: 1, button: 1, reset: 1, image: 1
+    };
+    // Kod/URL/e-posta/şifre gibi büyük/küçük harfin anlamlı olduğu alanlar
+    // type="text" olsa bile isim/kimliğine göre ayrıca hariç tutulur.
+    var EXCLUDED_NAME_RE = /kod|barkod|url|eposta|e_posta|email|sifre|password|username|slug/i;
+
+    function shouldSkip(el) {
+      if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return true;
+      if (el.tagName === 'INPUT') {
+        var type = (el.getAttribute('type') || 'text').toLowerCase();
+        if (EXCLUDED_TYPES[type]) return true;
+      }
+      if (el.hasAttribute('data-no-uppercase') || (el.className && /\bno-uppercase\b/.test(el.className))) return true;
+      var ident = (el.getAttribute('name') || '') + ' ' + (el.id || '');
+      if (EXCLUDED_NAME_RE.test(ident)) return true;
+      return false;
+    }
+
+    document.addEventListener('input', function (e) {
+      var el = e.target;
+      if (shouldSkip(el)) return;
+      var upper = el.value.toLocaleUpperCase('tr');
+      if (upper === el.value) return;
+      var start = el.selectionStart;
+      var end = el.selectionEnd;
+      el.value = upper;
+      if (start !== null && end !== null && typeof el.setSelectionRange === 'function') {
+        try { el.setSelectionRange(start, end); } catch (ignore) {}
+      }
+    }, true);
+  })();
+
   /* ── nymPost(): GET linkleriyle state-changing işlem yapmayı önlemek için
      ────────────────────────────────────────────────────────────────────
      Eski kod tabanında "Sil"/"İptal Et"/"Taksit Öde" gibi linkler basit
