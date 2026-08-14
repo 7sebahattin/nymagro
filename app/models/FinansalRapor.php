@@ -59,7 +59,7 @@ class FinansalRapor
                     kb.hesap_adi,
                     CASE WHEN c.tip = 'musteri' THEN 'Müşteri' WHEN c.tip = 'tedarikci' THEN 'Tedarikçi' WHEN c.tip = 'her_ikisi' THEN 'Müşteri/Tedarikçi' ELSE 'Diğer' END AS cari_turu,
                     COALESCE(c.unvan, '-') AS cari_adi,
-                    kh.aciklama, '' AS belge_no,
+                    kh.aciklama,
                     CASE WHEN kh.islem_tipi = 'giris' THEN kh.tutar ELSE 0 END AS gelir_tutari,
                     CASE WHEN kh.islem_tipi = 'cikis' THEN kh.tutar ELSE 0 END AS gider_tutari,
                     0 AS bakiye,
@@ -97,9 +97,14 @@ class FinansalRapor
 
         [$dateSql, $params] = $this->dateWhere($filters, 'ph.tarih');
         $joinFilter = ($dateSql ? $dateSql : '') . ' AND ph.company_id = :tenant_company_id AND ph.period_id = :tenant_period_id';
-        if (!empty($filters['payment_status'])) {
+        // Paylaşılan "Ödeme durumu" filtresi paid/partial/unpaid (İngilizce, fatura
+        // ödeme durumu için) gönderir; personel_hareketleri.odeme_durumu ise
+        // bekliyor/odendi/iptal (Türkçe, "kısmi" durumu yok) kullanır — birebir
+        // eşleştirmek her zaman 0 satır dönerdi.
+        $personelDurum = ['paid' => 'odendi', 'unpaid' => 'bekliyor'][$filters['payment_status'] ?? ''] ?? null;
+        if ($personelDurum !== null) {
             $joinFilter .= ' AND ph.odeme_durumu = :payment_status';
-            $params[':payment_status'] = $filters['payment_status'];
+            $params[':payment_status'] = $personelDurum;
         }
 
         $where = ['p.silindi_mi = 0', 'p.company_id = :tenant_company_id'];
@@ -163,13 +168,13 @@ class FinansalRapor
             $where[] = 'f.cari_id = :customer_id';
             $params[':customer_id'] = (int)$filters['customer_id'];
         }
-        if (!empty($filters['start_date'])) {
-            $where[] = 'f.vade_tarihi >= :start_date';
-            $params[':start_date'] = $filters['start_date'];
-        }
-        if (!empty($filters['end_date'])) {
-            $where[] = 'f.vade_tarihi <= :end_date';
-            $params[':end_date'] = $filters['end_date'];
+        // "Bugün / Son 7 gün / Bu ay …" gibi dönem ön ayarları burada uygulanmıyordu —
+        // yalnızca elle girilen başlangıç/bitiş tarihi çalışıyordu. dateWhere() her
+        // ikisini de (ön ayar + elle giriş) tutarlı biçimde ele alır.
+        [$dateSql, $dateParams] = $this->dateWhere($filters, 'f.vade_tarihi');
+        if ($dateSql) {
+            $where[] = $this->stripLeadingAnd($dateSql);
+            $params += $dateParams;
         }
         if (($filters['min_days'] ?? '') !== '') {
             $where[] = 'DATEDIFF(CURDATE(), f.vade_tarihi) >= :min_days';
@@ -333,9 +338,13 @@ class FinansalRapor
             $where[] = 'm.kategori_id = :expense_category_id';
             $params[':expense_category_id'] = (int)$filters['expense_category_id'];
         }
-        if (!empty($filters['payment_status'])) {
+        // Paylaşılan "Ödeme durumu" filtresi paid/partial/unpaid (İngilizce) gönderir;
+        // masraflar.odeme_durumu ise bekliyor/odendi/gecikti (Türkçe, "kısmi" yok)
+        // kullanır — birebir eşleştirmek her zaman 0 satır dönerdi.
+        $masrafDurum = ['paid' => 'odendi', 'unpaid' => 'bekliyor'][$filters['payment_status'] ?? ''] ?? null;
+        if ($masrafDurum !== null) {
             $where[] = 'm.odeme_durumu = :payment_status';
-            $params[':payment_status'] = $filters['payment_status'];
+            $params[':payment_status'] = $masrafDurum;
         }
         if (!empty($filters['account_id'])) {
             $where[] = 'm.kasa_id = :account_id';
@@ -420,7 +429,7 @@ class FinansalRapor
         if (!$this->tableExists('cek_senet_portfoyu')) {
             return $this->missing('Senet raporu için senet/veri yapısı bulunamadı.', 'Öneri: cek_senet_portfoyu tablosu tip=senet kayıtlarını, belge_no, cari_id, tutar, kesim_tarihi, vade_tarihi, durum alanlarıyla tutmalı.');
         }
-        return $this->getPortfolioReport('senet');
+        return $this->getPortfolioReport('senet', $filters);
     }
 
     public function getBaBsReport(array $filters): array
@@ -448,8 +457,14 @@ class FinansalRapor
         } else {
             $where[] = "f.belge_tipi IN ('alis','satis','perakende')";
         }
+        $havingParts = [];
         if (($filters['min_amount'] ?? '') !== '') {
+            $havingParts[] = 'genel_toplam >= :min_amount';
             $params[':min_amount'] = (float)$filters['min_amount'];
+        }
+        if (($filters['max_amount'] ?? '') !== '') {
+            $havingParts[] = 'genel_toplam <= :max_amount';
+            $params[':max_amount'] = (float)$filters['max_amount'];
         }
         if (!empty($filters['cari_search'])) {
             $where[] = 'c.unvan LIKE :cari_search';
@@ -459,7 +474,7 @@ class FinansalRapor
             $where[] = '(c.vergi_no LIKE :tax_no OR c.tc_kimlik_no LIKE :tax_no)';
             $params[':tax_no'] = '%' . $filters['tax_no'] . '%';
         }
-        $having = ($filters['min_amount'] ?? '') !== '' ? 'HAVING genel_toplam >= :min_amount' : '';
+        $having = $havingParts ? 'HAVING ' . implode(' AND ', $havingParts) : '';
         $rows = $this->db->select(
             "SELECT COALESCE(c.unvan, 'Cari yok') AS cari_unvan, COALESCE(NULLIF(c.vergi_no,''), c.tc_kimlik_no, '-') AS vergi_no,
                     COUNT(f.id) AS belge_sayisi, SUM(f.ara_toplam - f.iskonto_tutari) AS toplam_matrah,
@@ -637,7 +652,7 @@ class FinansalRapor
         if (!$this->tableExists('cek_senet_portfoyu')) {
             return $this->missing('Çek raporu için çek/veri yapısı bulunamadı.', 'Öneri: cek_senet_portfoyu tablosu tip=cek kayıtlarını, belge_no, banka, cari_id, tutar, vade_tarihi, durum alanlarıyla tutmalı.');
         }
-        return $this->getPortfolioReport('cek');
+        return $this->getPortfolioReport('cek', $filters);
     }
 
     public function getCreditReport(array $filters): array
@@ -650,6 +665,31 @@ class FinansalRapor
             ':tenant_company_id' => TenantContext::activeCompanyId(),
             ':tenant_period_id'  => TenantContext::activePeriodId(),
         ];
+        $where = ['k.silindi_mi = 0', 'k.company_id = :tenant_company_id', 'k.period_id = :tenant_period_id'];
+        // Tarih filtresi taksit ödeme tarihine uygulanır — WHERE yerine JOIN'in ON
+        // koşuluna eklenir, aksi halde bu dönemde ödemesi olmayan (ama halen borcu
+        // devam eden) krediler LEFT JOIN'e rağmen listeden tamamen düşerdi.
+        [$dateSql, $dateParams] = $this->dateWhere($filters, 'p.odeme_tarihi');
+        $paymentJoinExtra = $dateSql ? ' AND ' . $this->stripLeadingAnd($dateSql) : '';
+        if ($dateSql) {
+            $params += $dateParams;
+        }
+        if (!empty($filters['bank'])) {
+            $where[] = 'hb.hesap_adi LIKE :bank';
+            $params[':bank'] = '%' . $filters['bank'] . '%';
+        }
+        $havingParts = [];
+        if (!empty($filters['payment_status'])) {
+            if ($filters['payment_status'] === 'paid') {
+                $havingParts[] = 'k.kalan_borc <= 0';
+            } elseif ($filters['payment_status'] === 'unpaid') {
+                $havingParts[] = 'odenen_tutar <= 0';
+            } elseif ($filters['payment_status'] === 'partial') {
+                $havingParts[] = 'odenen_tutar > 0 AND k.kalan_borc > 0';
+            }
+        }
+        $having = $havingParts ? 'HAVING ' . implode(' AND ', $havingParts) : '';
+
         $rows = $this->db->select(
             "SELECT k.ad AS kredi_adi,
                     COALESCE(hb.hesap_adi, '-') AS banka,
@@ -661,10 +701,11 @@ class FinansalRapor
                     MAX(p.odeme_tarihi) AS son_odeme_tarihi,
                     CASE WHEN k.kalan_borc <= 0 OR k.kalan_taksit_sayisi <= 0 THEN 'Kapandı' ELSE 'Aktif' END AS durum
              FROM krediler k
-             LEFT JOIN kredi_odeme_plani p ON p.kredi_id = k.id AND p.silindi_mi = 0 AND p.company_id = k.company_id AND p.period_id = k.period_id
+             LEFT JOIN kredi_odeme_plani p ON p.kredi_id = k.id AND p.silindi_mi = 0 AND p.company_id = k.company_id AND p.period_id = k.period_id{$paymentJoinExtra}
              LEFT JOIN kasa_banka hb ON hb.id = k.hesap_id AND hb.company_id = k.company_id
-             WHERE k.silindi_mi = 0 AND k.company_id = :tenant_company_id AND k.period_id = :tenant_period_id
+             WHERE " . implode(' AND ', $where) . "
              GROUP BY k.id
+             {$having}
              ORDER BY k.kalan_borc DESC",
             $params
         );
@@ -700,11 +741,97 @@ class FinansalRapor
 
     public function getUserSalesCollectionReport(array $filters): array
     {
-        return $this->missing('Kullanıcı satış-tahsilat raporu için kullanıcı ID bilgisi bulunamadı.', 'Öneri: faturalar.created_by/kullanici_id ve kasa_hareketleri.created_by/kullanici_id alanları ile kullanicilar tablosu eklenmeli.');
+        // faturalar.created_by kullanıcı bazında satış faturalarını izlemek için
+        // yeterli (bkz. Fatura::listele() — aynı kolonla users'a JOIN edilir).
+        // kasa_hareketleri ise HANGİ KULLANICI tarafından tahsilat yapıldığını
+        // tutmuyor (kolon yok) — bu yüzden "tahsilat sayısı" bu raporda
+        // izlenemez; "toplam/bekleyen tahsilat" ise ilgili faturaların
+        // odenen_tutar alanından (fatura bazlı, kullanıcı bazlı değil) hesaplanır.
+        $conds = [
+            "f.silindi_mi = 0", "f.belge_tipi IN ('satis','perakende')", "f.durum <> 'iptal'",
+            'f.company_id = :tenant_company_id', 'f.period_id = :tenant_period_id',
+        ];
+        $params = [
+            ':tenant_company_id' => TenantContext::activeCompanyId(),
+            ':tenant_period_id' => TenantContext::activePeriodId(),
+        ];
+        [$dateSql, $dateParams] = $this->dateWhere($filters, 'f.fatura_tarihi');
+        if ($dateSql) {
+            $conds[] = $this->stripLeadingAnd($dateSql);
+            $params += $dateParams;
+        }
+        if (!empty($filters['user_id'])) {
+            $conds[] = 'f.created_by = :user_id';
+            $params[':user_id'] = (int)$filters['user_id'];
+        }
+        if (!empty($filters['customer_id'])) {
+            $conds[] = 'f.cari_id = :customer_id';
+            $params[':customer_id'] = (int)$filters['customer_id'];
+        }
+        if (!empty($filters['payment_status'])) {
+            if ($filters['payment_status'] === 'paid') {
+                $conds[] = 'f.genel_toplam <= COALESCE(f.odenen_tutar, 0) + 0.005';
+            } elseif ($filters['payment_status'] === 'unpaid') {
+                $conds[] = 'COALESCE(f.odenen_tutar, 0) <= 0';
+            } elseif ($filters['payment_status'] === 'partial') {
+                $conds[] = 'COALESCE(f.odenen_tutar, 0) > 0 AND COALESCE(f.odenen_tutar, 0) + 0.005 < f.genel_toplam';
+            }
+        }
+
+        $rows = $this->db->select(
+            "SELECT COALESCE(u.full_name, 'Kullanıcı atanmamış') AS kullanici_adi,
+                    COUNT(*) AS satis_faturasi_sayisi,
+                    COALESCE(SUM(f.genel_toplam), 0) AS toplam_satis_tutari,
+                    COALESCE(SUM(COALESCE(f.odenen_tutar, 0)), 0) AS toplam_tahsilat,
+                    COALESCE(SUM(GREATEST(f.genel_toplam - COALESCE(f.odenen_tutar, 0), 0)), 0) AS bekleyen_tahsilat,
+                    CASE WHEN COUNT(*) > 0 THEN SUM(f.genel_toplam) / COUNT(*) ELSE 0 END AS ortalama_satis_tutari,
+                    MAX(f.fatura_tarihi) AS son_islem_tarihi
+             FROM faturalar f
+             LEFT JOIN users u ON u.id = f.created_by
+             WHERE " . implode(' AND ', $conds) . "
+             GROUP BY f.created_by, u.full_name
+             ORDER BY toplam_satis_tutari DESC",
+            $params
+        );
+        foreach ($rows as &$row) {
+            $row['tahsilat_sayisi'] = '—';
+        }
+        unset($row);
+
+        return $this->withSummary($rows, [
+            'Toplam satış tutarı' => $this->money($this->sum($rows, 'toplam_satis_tutari')),
+            'Kullanıcı sayısı' => count($rows),
+        ], 'Bu rapor faturalar.created_by üzerinden kullanıcı bazında satış faturalarını gösterir. Tahsilat işlemlerinin hangi kullanıcı tarafından yapıldığı kasa_hareketleri tablosunda tutulmadığı için "Tahsilat sayısı" izlenmemektedir; toplam/bekleyen tahsilat ise ilgili faturaların ödenen tutarından (fatura bazlı) hesaplanır.');
     }
 
-    private function getPortfolioReport(string $type): array
+    private function getPortfolioReport(string $type, array $filters = []): array
     {
+        $where = [
+            'p.silindi_mi = 0', 'p.tip = :type',
+            'p.company_id = :tenant_company_id', 'p.period_id = :tenant_period_id',
+        ];
+        $params = [
+            ':type' => $type,
+            ':tenant_company_id' => TenantContext::activeCompanyId(),
+            ':tenant_period_id'  => TenantContext::activePeriodId(),
+        ];
+        [$dateSql, $dateParams] = $this->dateWhere($filters, 'p.vade_tarihi');
+        if ($dateSql) {
+            $where[] = $this->stripLeadingAnd($dateSql);
+            $params += $dateParams;
+        }
+        if (!empty($filters['cari_search'])) {
+            $where[] = 'c.unvan LIKE :cari_search';
+            $params[':cari_search'] = '%' . $filters['cari_search'] . '%';
+        }
+        if (!empty($filters['status'])) {
+            $where[] = 'p.durum = :status';
+            $params[':status'] = $filters['status'];
+        }
+        if (!empty($filters['only_overdue'])) {
+            $where[] = "p.vade_tarihi < CURDATE() AND p.durum NOT IN ('tahsil','odendi','kapandi')";
+        }
+
         $rows = $this->db->select(
             "SELECT belge_no AS cek_senet_no, COALESCE(c.unvan, '-') AS cari_adi,
                     CASE WHEN tip = 'cek' THEN 'Çek' ELSE 'Senet' END AS tur,
@@ -712,14 +839,9 @@ class FinansalRapor
                     GREATEST(DATEDIFF(CURDATE(), vade_tarihi), 0) AS gecikme_gunu, aciklama, banka
              FROM cek_senet_portfoyu p
              LEFT JOIN cariler c ON c.id = p.cari_id AND c.company_id = p.company_id
-             WHERE p.silindi_mi = 0 AND p.tip = :type
-               AND p.company_id = :tenant_company_id AND p.period_id = :tenant_period_id
+             WHERE " . implode(' AND ', $where) . "
              ORDER BY p.vade_tarihi ASC",
-            [
-                ':type' => $type,
-                ':tenant_company_id' => TenantContext::activeCompanyId(),
-                ':tenant_period_id'  => TenantContext::activePeriodId(),
-            ]
+            $params
         );
         return $this->withSummary($rows, ['Toplam tutar' => $this->money($this->sum($rows, 'tutar')), 'Kayıt sayısı' => count($rows)]);
     }

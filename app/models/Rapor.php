@@ -758,7 +758,15 @@ class Rapor
 
     public function getSalesLossReport(array $filters): array
     {
-        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi IN ('satis','perakende')", 'musteri', true);
+        // Bu rapor yapısı gereği yalnızca iptal/taslak kayıtları kapsar. Genel durum
+        // filtresi bunların dışında bir değer taşırsa (onaylandi/odendi/kismi_odendi)
+        // dikkate alınmaz — aksi halde aşağıdaki "durum IN ('iptal','taslak')" ile
+        // çelişen bir WHERE oluşur ve rapor kayıp kayıtlar varken bile hep boş döner.
+        $kayipFilters = $filters;
+        if (!in_array($kayipFilters['status'] ?? '', ['iptal', 'taslak'], true)) {
+            $kayipFilters['status'] = '';
+        }
+        [$where, $params] = $this->invoiceWhere($kayipFilters, "f.belge_tipi IN ('satis','perakende')", 'musteri', true);
         $where .= " AND f.durum IN ('iptal','taslak')";
         $rows = $this->db->select(
             "SELECT f.fatura_tarihi AS tarih, COALESCE(c.unvan, 'Cari yok') AS cari,
@@ -904,74 +912,6 @@ class Rapor
             'Toplam tahsilat' => $this->sum($rows, 'toplam_tahsilat', true),
             'Bekleyen tahsilat' => $this->sum($rows, 'bekleyen_tahsilat', true),
             'Ay sayısı' => count($rows),
-        ]);
-    }
-
-    public function getStockSalesCoverageReport(array $filters): array
-    {
-        [$dateSql, $params] = $this->dateWhere($filters, 'f.fatura_tarihi');
-        if ($dateSql === '') {
-            $dateSql = " AND f.fatura_tarihi >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)";
-        }
-        $params[':tenant_company_id'] = TenantContext::activeCompanyId();
-        $params[':tenant_period_id'] = TenantContext::activePeriodId();
-        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0'];
-        if (!empty($filters['product_id'])) {
-            $extra[] = 'u.id = :product_id';
-            $params[':product_id'] = (int)$filters['product_id'];
-        }
-        if (!empty($filters['category'])) {
-            $extra[] = 'u.kategori = :category';
-            $params[':category'] = $filters['category'];
-        }
-        if (($filters['stock_filter'] ?? '') === 'critical') {
-            $extra[] = 'u.stok_miktari <= u.kritik_stok';
-        } elseif (($filters['stock_filter'] ?? '') === 'out_of_stock') {
-            $extra[] = 'u.stok_miktari <= 0';
-        }
-        $where = $extra ? 'WHERE ' . implode(' AND ', $extra) : '';
-        $rows = $this->db->select(
-            "SELECT u.ad AS urun_adi, u.stok_miktari AS mevcut_stok,
-                    COALESCE(s30.qty, 0) AS son_30_gun_satis,
-                    COALESCE(s90.qty, 0) AS son_90_gun_satis,
-                    COALESCE(s90.qty, 0) / 3 AS ort_aylik_satis,
-                    CASE
-                        WHEN u.stok_miktari <= 0 THEN 'Stok Yok'
-                        WHEN COALESCE(s90.qty, 0) <= 0 THEN 'Satış verisi yok'
-                        ELSE CAST(ROUND(u.stok_miktari / (COALESCE(s90.qty, 0) / 3), 2) AS CHAR)
-                    END AS stok_kac_ay_yeter,
-                    CASE
-                        WHEN u.stok_miktari <= 0 THEN 'Stok Yok'
-                        WHEN u.stok_miktari <= u.kritik_stok THEN 'Kritik stok'
-                        WHEN COALESCE(s90.qty, 0) > 0 AND u.stok_miktari / (COALESCE(s90.qty, 0) / 3) < 1 THEN '1 aydan az'
-                        ELSE 'Normal'
-                    END AS kritik_stok_uyarisi
-             FROM urunler_hizmetler u
-             LEFT JOIN (
-                SELECT fk.urun_id, SUM(fk.miktar) AS qty
-                FROM fatura_kalemleri fk JOIN faturalar f ON f.id = fk.fatura_id
-                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0
-                  AND f.company_id = :tenant_company_id AND f.period_id = :tenant_period_id
-                  AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende') AND f.fatura_tarihi >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                GROUP BY fk.urun_id
-             ) s30 ON s30.urun_id = u.id
-             LEFT JOIN (
-                SELECT fk.urun_id, SUM(fk.miktar) AS qty
-                FROM fatura_kalemleri fk JOIN faturalar f ON f.id = fk.fatura_id
-                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0
-                  AND f.company_id = :tenant_company_id AND f.period_id = :tenant_period_id
-                  AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende') {$dateSql}
-                GROUP BY fk.urun_id
-             ) s90 ON s90.urun_id = u.id
-             {$where}
-             ORDER BY son_90_gun_satis DESC, u.ad",
-            $params
-        );
-
-        return $this->withSummary($rows, [
-            'Ürün sayısı' => count($rows),
-            'Stok yok' => count(array_filter($rows, fn($r) => (float)$r['mevcut_stok'] <= 0)),
-            'Kritik stok' => count(array_filter($rows, fn($r) => $r['kritik_stok_uyarisi'] === 'Kritik stok')),
         ]);
     }
 
@@ -1324,7 +1264,10 @@ class Rapor
             ':tenant_company_id' => TenantContext::activeCompanyId(),
             ':tenant_period_id' => TenantContext::activePeriodId(),
         ];
-        if (!$includeCanceled) {
+        // Kullanıcı özellikle "İptal" durumunu filtrelediğinde bu dışlamayı uygulama —
+        // aksi halde "f.durum <> 'iptal' AND f.durum = 'iptal'" hiçbir zaman eşleşmez ve
+        // rapor iptal faturalar gerçekten var olsa bile hep boş döner.
+        if (!$includeCanceled && ($filters['status'] ?? '') !== 'iptal') {
             $conds[] = "f.durum <> 'iptal'";
         }
         [$dateSql, $dateParams] = $this->dateWhere($filters, 'f.fatura_tarihi');
