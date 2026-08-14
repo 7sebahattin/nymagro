@@ -47,11 +47,13 @@ final class SatisController extends Controller
         $durum     = trim($_GET['durum']            ?? '');
         $donem     = trim($_GET['donem']            ?? '1ay');
         $iptalleri = !empty($_GET['iptalleri']);
-        // "İrsaliye Kaydet" ile oluşturulan belgeler (belge_tipi='irsaliye') satış
-        // faturalarıyla aynı ekrandan girildiği için, gözlemlenebilmeleri adına aynı
-        // listede bir sekme/filtre olarak sunulur (proforma'nın Teklifler sayfasında
-        // ayrı listelenmesine benzer şekilde, ama irsaliye için ayrı bir modül yok).
-        $belgeTipi = ($_GET['tip'] ?? '') === 'irsaliye' ? 'irsaliye' : 'satis';
+        // "İrsaliye Kaydet"/"Perakende Satış Gir" ile oluşturulan belgeler
+        // (belge_tipi='irsaliye'/'perakende') satış faturalarıyla aynı ekrandan
+        // girildiği için, gözlemlenebilmeleri adına aynı listede bir sekme/filtre
+        // olarak sunulur (proforma'nın Teklifler sayfasında ayrı listelenmesine
+        // benzer şekilde, ama irsaliye/perakende için ayrı bir modül yok).
+        $tipParam = $_GET['tip'] ?? '';
+        $belgeTipi = in_array($tipParam, ['irsaliye', 'perakende'], true) ? $tipParam : 'satis';
 
         if (mb_strlen($arama) > 0 && mb_strlen($arama) < 3) {
             $arama = '';
@@ -77,8 +79,8 @@ final class SatisController extends Controller
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,
             'flash'       => $this->getFlash(),
-            'topbarTitle' => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : 'Satışlar',
-            'topbarIcon'  => $belgeTipi === 'irsaliye' ? 'fa-truck' : 'fa-shopping-cart',
+            'topbarTitle' => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : ($belgeTipi === 'perakende' ? 'Perakende Satışlar' : 'Satışlar'),
+            'topbarIcon'  => $belgeTipi === 'irsaliye' ? 'fa-truck' : ($belgeTipi === 'perakende' ? 'fa-cash-register' : 'fa-shopping-cart'),
         ]);
     }
 

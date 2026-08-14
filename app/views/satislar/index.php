@@ -37,7 +37,7 @@ $durumRenk = [
 $belgeTipi = $belgeTipi ?? 'satis';
 $depoAdlari = array_column($depolar ?? [], 'ad', 'id');
 $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
-    ['ara'=>$arama,'durum'=>$durum,'donem'=>$donem,'sayfa'=>$sayfa,'iptalleri'=>$iptalleri?'1':'','tip'=>$belgeTipi==='irsaliye'?'irsaliye':''],
+    ['ara'=>$arama,'durum'=>$durum,'donem'=>$donem,'sayfa'=>$sayfa,'iptalleri'=>$iptalleri?'1':'','tip'=>in_array($belgeTipi,['irsaliye','perakende'],true)?$belgeTipi:''],
     $extra
 ), fn($v)=>$v!==''&&$v!==null&&$v!==false));
 ?>
@@ -168,6 +168,9 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   <a href="<?= BASE_URL ?>/satis?tip=irsaliye" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'irsaliye' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'irsaliye' ? 'var(--text)' : 'var(--muted)' ?>;">
     <i class="fa-solid fa-truck"></i> İrsaliyeler
   </a>
+  <a href="<?= BASE_URL ?>/satis?tip=perakende" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'perakende' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'perakende' ? 'var(--text)' : 'var(--muted)' ?>;">
+    <i class="fa-solid fa-cash-register"></i> Perakende
+  </a>
 </div>
 
 <!-- Action Buttons -->
@@ -238,8 +241,8 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
       <input type="hidden" name="donem"  value="<?= htmlspecialchars($donem) ?>">
       <input type="hidden" name="sayfa"  value="1">
-      <?php if ($belgeTipi === 'irsaliye'): ?>
-        <input type="hidden" name="tip" value="irsaliye">
+      <?php if (in_array($belgeTipi, ['irsaliye', 'perakende'], true)): ?>
+        <input type="hidden" name="tip" value="<?= htmlspecialchars($belgeTipi) ?>">
       <?php endif; ?>
 
       <!-- İptalleri toggle -->
@@ -278,7 +281,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
           <th style="width:40px;"></th>
           <th>Tarih</th>
           <th>Müşteri</th>
-          <th><?= $belgeTipi === 'irsaliye' ? 'İrsaliye No' : 'Fatura No' ?></th>
+          <th><?= $belgeTipi === 'irsaliye' ? 'İrsaliye No' : ($belgeTipi === 'perakende' ? 'Fiş No' : 'Fatura No') ?></th>
           <th style="text-align:right;">Tutar</th>
           <th>Durum</th>
         </tr>
@@ -292,6 +295,8 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
               Arama sonucu bulunamadı.
             <?php elseif ($belgeTipi === 'irsaliye'): ?>
               Bu dönemde irsaliye yok.
+            <?php elseif ($belgeTipi === 'perakende'): ?>
+              Bu dönemde perakende satış yok.
             <?php else: ?>
               Bu dönemde satış faturası yok.
             <?php endif; ?>
@@ -347,7 +352,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                   <a href="<?= BASE_URL ?>/satis/fatura/<?= $f['id'] ?>/print" target="_blank" rel="noopener" class="btn-det" style="background:#efa341;">
                     <i class="fa-solid fa-print"></i> Yazdır
                   </a>
-                  <?php $belgeAdi = $belgeTipi === 'irsaliye' ? 'İrsaliye' : 'Fatura'; ?>
+                  <?php $belgeAdi = $belgeTipi === 'irsaliye' ? 'İrsaliye' : ($belgeTipi === 'perakende' ? 'Perakende satış' : 'Fatura'); ?>
                   <?php if ($f['durum'] === 'taslak' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
                     <a href="#"
                        class="btn-det"
@@ -410,7 +415,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
       <?php
         $bas = $toplam > 0 ? (($sayfa - 1) * $limit + 1) : 0;
         $bit = min($sayfa * $limit, $toplam);
-        $kayitAdi = $belgeTipi === 'irsaliye' ? 'irsaliyeden' : 'faturadan';
+        $kayitAdi = $belgeTipi === 'irsaliye' ? 'irsaliyeden' : ($belgeTipi === 'perakende' ? 'perakende satıştan' : 'faturadan');
         echo "{$toplam} {$kayitAdi} {$bas}–{$bit} gösteriliyor";
       ?>
     </span>
