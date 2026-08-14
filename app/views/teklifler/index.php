@@ -273,6 +273,13 @@ $durumRenk = [
   .nav-link.active:focus { color: #4ade80; outline: none; }
 </style>
 
+<?php if (!empty($flash)): ?>
+  <div style="background:<?= $flash['tip'] === 'success' ? 'rgba(46,204,113,.15)' : 'rgba(231,76,60,.15)' ?>; border:1px solid <?= $flash['tip'] === 'success' ? 'rgba(46,204,113,.28)' : 'rgba(231,76,60,.28)' ?>; color:<?= $flash['tip'] === 'success' ? 'var(--success)' : 'var(--danger)' ?>; padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; display:flex; align-items:center; gap:8px;">
+    <i class="fa-solid fa-<?= $flash['tip'] === 'success' ? 'check-circle' : 'circle-exclamation' ?>"></i>
+    <?= htmlspecialchars($flash['mesaj']) ?>
+  </div>
+<?php endif; ?>
+
 <!-- ── Üst Aksiyon Çubuğu ── -->
     <div class="action-btns" style="display:flex; gap:10px; align-items:center; margin-bottom: 16px; flex-wrap:wrap;">
       <?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>
@@ -324,7 +331,14 @@ $durumRenk = [
               </td>
               <td><strong><?= htmlspecialchars($t['fatura_no']) ?></strong></td>
               <td class="td-amount"><?= $fmt($t['genel_toplam']) ?></td>
-              <td><span class="status-badge" style="background:<?= $dr[0] ?>;color:<?= $dr[1] ?>;"><?= $dr[2] ?></span></td>
+              <td>
+                <span class="status-badge" style="background:<?= $dr[0] ?>;color:<?= $dr[1] ?>;"><?= $dr[2] ?></span>
+                <?php if ((int)($t['teklif_kullanildi'] ?? 0) === 1): ?>
+                  <span class="status-badge" style="background:#16a34a;color:#fff;" title="Bu teklif bir satış faturasına dönüştürüldü.">Satışa Dönüştü</span>
+                <?php else: ?>
+                  <span class="status-badge" style="background:#94a3b8;color:#fff;">Dönüşmedi</span>
+                <?php endif; ?>
+              </td>
             </tr>
             <tr class="detail-row" id="detail-<?= $t['id'] ?>">
               <td colspan="6">
@@ -332,6 +346,9 @@ $durumRenk = [
                   <div class="detail-btns">
                     <a href="<?= BASE_URL ?>/satis/duzenle/<?= $t['id'] ?>" class="btn-det blue"><i class="fa-solid fa-pen"></i> Görüntüle / Düzenle</a>
                     <a href="<?= BASE_URL ?>/satis/fatura/<?= $t['id'] ?>/print" target="_blank" rel="noopener" class="btn-det" style="background:#efa341;"><i class="fa-solid fa-print"></i> Yazdır</a>
+                    <?php if ($t['durum'] !== 'iptal' && (int)($t['teklif_kullanildi'] ?? 0) === 0 && Rbac::currentUserCan('SATIS_CREATE')): ?>
+                      <a href="<?= BASE_URL ?>/satis/ekle?kaynak_teklif_id=<?= $t['id'] ?>" class="btn-det green"><i class="fa-solid fa-file-invoice-dollar"></i> Satışa Dönüştür</a>
+                    <?php endif; ?>
                     <?php if ($t['durum'] !== 'iptal' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
                       <a href="#" class="btn-det red" onclick="return nymPost('<?= BASE_URL ?>/satis/iptal/<?= $t['id'] ?>', 'Teklif iptal edilsin mi?')"><i class="fa-solid fa-ban"></i> İptal Et</a>
                     <?php endif; ?>

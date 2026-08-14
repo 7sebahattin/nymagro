@@ -3,6 +3,7 @@
  * View: alislar/index.php
  * BizimHesap Tasarımı Korunarak Dinamikleştirildi
  */
+$belgeTipi = $belgeTipi ?? 'alis';
 ?>
 <style>
     /* ── ACTION BUTTONS ── */
@@ -101,8 +102,19 @@
 </div>
 <?php endif; ?>
 
+<!-- Belge Tipi Sekmeleri: "Yeni Alış Faturası" ekranındaki Fatura/İrsaliye Kaydet
+     butonlarıyla kaydedilen belgeler burada ayrı sekmelerde gözlemlenebilir. -->
+<div style="display:flex; gap:6px; margin-bottom:14px; border-bottom:1px solid var(--border);">
+  <a href="<?= BASE_URL ?>/alis" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'alis' ? '#5bc0de' : 'transparent' ?>; color:<?= $belgeTipi === 'alis' ? 'var(--text)' : 'var(--muted)' ?>;">
+    <i class="fa-solid fa-file-invoice-dollar"></i> Faturalar
+  </a>
+  <a href="<?= BASE_URL ?>/alis?tip=irsaliye" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'irsaliye' ? '#5bc0de' : 'transparent' ?>; color:<?= $belgeTipi === 'irsaliye' ? 'var(--text)' : 'var(--muted)' ?>;">
+    <i class="fa-solid fa-truck"></i> İrsaliyeler
+  </a>
+</div>
+
 <!-- Action Buttons -->
-<?php if (Rbac::currentUserCan('ALIS_CREATE')): ?>
+<?php if ($belgeTipi === 'alis' && Rbac::currentUserCan('ALIS_CREATE')): ?>
 <div class="action-btns">
   <button class="btn-action btn-kayitli" onclick="document.getElementById('modalKayitli').classList.add('open')">
     <i class="fa-solid fa-plus"></i> Kayıtlı Tedarikçiden Alış Gir
@@ -164,14 +176,14 @@
         <th style="width:40px;"></th>
         <th>Tarih</th>
         <th>İsim/Unvan</th>
-        <th>Belge No</th>
+        <th><?= $belgeTipi === 'irsaliye' ? 'İrsaliye No' : 'Belge No' ?></th>
         <th style="text-align:right;">Tutar</th>
         <th>Durumu</th>
       </tr>
     </thead>
     <tbody>
       <?php if(empty($faturalar)): ?>
-        <tr><td colspan="6" style="text-align:center; padding:40px;">Kayıt bulunamadı.</td></tr>
+        <tr><td colspan="6" style="text-align:center; padding:40px;"><?= $belgeTipi === 'irsaliye' ? 'Bu dönemde irsaliye yok.' : 'Kayıt bulunamadı.' ?></td></tr>
       <?php else: ?>
         <?php foreach($faturalar as $f): ?>
           <tr class="data-row" onclick="toggleRow(<?= $f['id'] ?>)">
@@ -188,14 +200,29 @@
             </td>
             <td><?= htmlspecialchars($f['fatura_no']) ?></td>
             <td style="text-align:right; font-weight:600;"><?= number_format($f['genel_toplam'], 2, ',', '.') ?> TL</td>
-            <td><span class="status-badge status-<?= $f['durum'] ?>"><?= $f['durum'] === 'onaylandi' ? 'Onaylandı' : 'Taslak' ?></span></td>
+            <td>
+              <span class="status-badge status-<?= $f['durum'] ?>"><?= $f['durum'] === 'onaylandi' ? 'Onaylandı' : ($f['durum'] === 'iptal' ? 'İptal' : 'Taslak') ?></span>
+              <?php if ($belgeTipi === 'irsaliye'): ?>
+                <?php if ((int)($f['irsaliye_kullanildi'] ?? 0) === 1): ?>
+                  <span class="status-badge" style="background:#16a34a;color:#fff;" title="Bu irsaliye bir alış faturasına dönüştürüldü.">Faturalandı</span>
+                <?php else: ?>
+                  <span class="status-badge" style="background:#94a3b8;color:#fff;">Faturalandırılmadı</span>
+                <?php endif; ?>
+              <?php endif; ?>
+            </td>
           </tr>
           <tr class="detail-row" id="detail-<?= $f['id'] ?>">
             <td colspan="6">
               <div class="detail-inner">
                 <div style="margin-bottom:10px;">
-                  <a href="<?= BASE_URL ?>/alis/detay/<?= $f['id'] ?>" class="btn-det" style="background:#5bc0de;"><i class="fa-solid fa-eye"></i> Detaya Git</a>
-                  <a href="<?= BASE_URL ?>/alis/detay/<?= $f['id'] ?>?print=1" class="btn-det" style="background:#efa341;"><i class="fa-solid fa-print"></i> Yazdır</a>
+                  <a href="<?= BASE_URL ?>/alis/detay/<?= $f['id'] ?>" class="btn-det" style="background:#5bc0de;" onclick="event.stopPropagation()"><i class="fa-solid fa-eye"></i> Detaya Git</a>
+                  <a href="<?= BASE_URL ?>/alis/detay/<?= $f['id'] ?>?print=1" class="btn-det" style="background:#efa341;" onclick="event.stopPropagation()"><i class="fa-solid fa-print"></i> Yazdır</a>
+                  <?php if ($belgeTipi === 'irsaliye' && $f['durum'] !== 'iptal' && (int)($f['irsaliye_kullanildi'] ?? 0) === 0 && Rbac::currentUserCan('ALIS_CREATE')): ?>
+                    <a href="<?= BASE_URL ?>/alis/ekle?kaynak_irsaliye_id=<?= $f['id'] ?>" class="btn-det" style="background:#16a34a;" onclick="event.stopPropagation()"><i class="fa-solid fa-file-invoice-dollar"></i> Faturalandır</a>
+                  <?php endif; ?>
+                  <?php if ($f['durum'] !== 'iptal' && Rbac::currentUserCan('ALIS_UPDATE')): ?>
+                    <a href="#" class="btn-det" style="background:#ef4444;" onclick="event.stopPropagation(); return nymPost('<?= BASE_URL ?>/alis/iptal/<?= $f['id'] ?>', '<?= $belgeTipi === 'irsaliye' ? 'İrsaliye' : 'Fatura' ?> iptal edilsin mi?')"><i class="fa-solid fa-ban"></i> İptal Et</a>
+                  <?php endif; ?>
                 </div>
                 <div style="font-size:12px; color:var(--muted);">
                   Kullanıcı: <strong><?= htmlspecialchars($f['olusturan_adi'] ?? 'Sistem') ?></strong>

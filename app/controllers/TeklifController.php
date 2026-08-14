@@ -4,7 +4,7 @@
  * --------------------------------------------------------
  * Teklifler (proforma) listesi — Fatura modelindeki belge_tipi='proforma'
  * kayıtlarını gösterir. Ayrı bir "teklif" tablosu/modeli yok; proforma
- * belgeler stok ve cari bakiyesini etkilemez (Fatura::STOK_ETKILEYEN_TIPLER
+ * belgeler stok ve cari bakiyesini etkilemez (Fatura::stokHareketPlani()
  * ve recomputeCariBalance() bu tipi kapsamaz), bu yüzden mevcut fatura
  * altyapısını güvenle yeniden kullanır.
  */
@@ -40,6 +40,7 @@ class TeklifController extends Controller
             'arama'       => $arama,
             'sayfa'       => $sayfa,
             'sayfaSayisi' => $sayfaSayisi,
+            'flash'       => $this->getFlash(),
         ]);
     }
 }

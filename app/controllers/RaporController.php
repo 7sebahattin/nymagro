@@ -4,7 +4,7 @@ class RaporController extends Controller
 {
     private array $financialReports = [
         'kasa-banka' => ['getCashBankMovements', 'Kasa - Banka Hareketleri Raporu',
-            ['tarih' => 'Tarih', 'islem_tipi' => 'İşlem tipi', 'hesap_turu' => 'Hesap türü', 'hesap_adi' => 'Hesap adı', 'cari_turu' => 'Cari türü', 'cari_adi' => 'Cari adı', 'aciklama' => 'Açıklama', 'belge_no' => 'Belge/Fatura no', 'gelir_tutari' => 'Gelir tutarı', 'gider_tutari' => 'Gider tutarı', 'bakiye' => 'Bakiye'],
+            ['tarih' => 'Tarih', 'islem_tipi' => 'İşlem tipi', 'hesap_turu' => 'Hesap türü', 'hesap_adi' => 'Hesap adı', 'cari_turu' => 'Cari türü', 'cari_adi' => 'Cari adı', 'aciklama' => 'Açıklama', 'gelir_tutari' => 'Gelir tutarı', 'gider_tutari' => 'Gider tutarı', 'bakiye' => 'Bakiye'],
             ['date', 'account', 'transaction_type', 'cari_search', 'amount', 'description']],
         'calisanlar' => ['getEmployeeFinanceReport', 'Çalışanlar Raporu',
             ['calisan_adi' => 'Çalışan adı', 'gorev' => 'Görev', 'maas' => 'Maaş', 'prim_ek_odeme' => 'Prim/ek ödeme', 'yan_giderler' => 'SGK/Yemek/Yol', 'avans' => 'Avans', 'kesinti' => 'Kesinti', 'toplam_odeme' => 'Toplam ödeme', 'kalan_borc_alacak' => 'Kalan borç/alacak', 'son_odeme_tarihi' => 'Son ödeme tarihi'],
@@ -17,7 +17,7 @@ class RaporController extends Controller
             ['date', 'month_year', 'vat_rate', 'invoice_type']],
         'masraflar' => ['getExpenseReport', 'Masraflar Raporu',
             ['tarih' => 'Tarih', 'masraf_kategorisi' => 'Masraf kategorisi', 'aciklama' => 'Açıklama', 'tutar' => 'Tutar', 'kdv' => 'KDV', 'toplam' => 'Toplam', 'odeme_yontemi' => 'Ödeme durumu', 'kasa_banka' => 'Kasa/Banka', 'belge_no' => 'Belge no', 'kullanici' => 'Kullanıcı'],
-            ['date', 'expense_category', 'payment', 'account', 'amount', 'user']],
+            ['date', 'expense_category', 'payment', 'account', 'amount']],
         'senetler' => ['getPromissoryNotesReport', 'Senetler Raporu',
             ['cek_senet_no' => 'Senet no', 'cari_adi' => 'Cari adı', 'tur' => 'Senet türü', 'duzenleme_tarihi' => 'Düzenleme tarihi', 'vade_tarihi' => 'Vade tarihi', 'tutar' => 'Tutar', 'durum' => 'Durum', 'gecikme_gunu' => 'Gecikme günü', 'aciklama' => 'Açıklama'],
             ['date', 'cari_search', 'status', 'overdue_flags']],
@@ -26,7 +26,7 @@ class RaporController extends Controller
             ['month_year', 'transaction_group', 'amount', 'cari_search', 'tax_no']],
         'gelir-gider' => ['getIncomeExpenseReport', 'Gelir Gider Durumu Raporu',
             ['donem' => 'Dönem', 'toplam_satis_geliri' => 'Toplam satış geliri', 'diger_gelirler' => 'Diğer gelirler', 'toplam_alis_maliyeti' => 'Toplam alış maliyeti', 'masraflar' => 'Masraflar', 'personel_giderleri' => 'Personel giderleri', 'net_gelir_gider_farki' => 'Net gelir/gider farkı', 'kar_zarar_durumu' => 'Kâr/Zarar durumu'],
-            ['date', 'group_by', 'account']],
+            ['date', 'group_by']],
         'hesap-bakiyeleri' => ['getAccountBalancesReport', 'Hesap Bakiyeleri Raporu',
             ['hesap_turu' => 'Hesap türü', 'hesap_adi' => 'Hesap adı', 'toplam_borc' => 'Toplam borç', 'toplam_alacak' => 'Toplam alacak', 'net_bakiye' => 'Net bakiye', 'bakiye_durumu' => 'Bakiye durumu', 'son_islem_tarihi' => 'Son işlem tarihi'],
             ['account_type', 'cari_search', 'balance_state', 'amount']],
@@ -38,7 +38,7 @@ class RaporController extends Controller
             ['date', 'bank', 'payment']],
         'gunluk-hesap-giris-cikislari' => ['getDailyAccountMovements', 'Günlük Hesap Giriş Çıkışları Raporu',
             ['tarih' => 'Tarih', 'saat' => 'Saat', 'islem_turu' => 'İşlem türü', 'hesap' => 'Hesap', 'cari' => 'Cari', 'aciklama' => 'Açıklama', 'giris' => 'Giriş', 'cikis' => 'Çıkış', 'gun_sonu_bakiye' => 'Gün sonu bakiye'],
-            ['date', 'account', 'transaction_type', 'user']],
+            ['date', 'account', 'transaction_type']],
         'borc-alacak-fisleri' => ['getDebitCreditVoucherReport', 'Borç Alacak Fişleri Raporu',
             ['fis_no' => 'Fiş no', 'tarih' => 'Tarih', 'cari_adi' => 'Cari adı', 'fis_turu' => 'Fiş türü', 'tutar' => 'Tutar', 'aciklama' => 'Açıklama', 'kullanici' => 'Kullanıcı', 'durum' => 'Durum'],
             ['date', 'cari_search', 'voucher_type', 'amount', 'user']],
@@ -103,6 +103,18 @@ class RaporController extends Controller
             ];
         }
 
+        $options = $model->getFilterOptions();
+        // "Durum" filtresinin varsayılan seçenekleri fatura durumu (taslak/onaylandı/…)
+        // içindir — çek/senet portföyünün kendi durum sözlüğü tamamen farklı
+        // (bekliyor/tahsil/ödendi/ciro/iade/kapandı). Aynı fatura seçenekleriyle
+        // filtrelemeye çalışmak hiçbir zaman eşleşmez ve rapor hep boş görünürdü.
+        if (in_array($slug, ['cekler', 'senetler'], true)) {
+            $options['status_options'] = [
+                'bekliyor' => 'Bekliyor', 'tahsil' => 'Tahsil Edildi', 'odendi' => 'Ödendi',
+                'ciro' => 'Ciro Edildi', 'iade' => 'İade', 'kapandi' => 'Kapandı',
+            ];
+        }
+
         $this->view('raporlar/report', [
             'pageTitle' => $title,
             'activeMenu' => 'raporlar',
@@ -113,7 +125,7 @@ class RaporController extends Controller
             'columns' => $columns,
             'filtersEnabled' => $filters,
             'filters' => $cleanFilters,
-            'options' => $model->getFilterOptions(),
+            'options' => $options,
             'rows' => $result['rows'] ?? [],
             'summary' => $result['summary'] ?? [],
             'note' => $result['note'] ?? '',
@@ -193,14 +205,15 @@ class RaporController extends Controller
             'tarih' => 'Tarih', 'teklif_no' => 'Teklif No', 'musteri' => 'Müşteri',
             'toplam_tutar' => 'Toplam tutar', 'durum' => 'Durum', 'satisa_donustu' => 'Satışa dönüştü mü?',
             'gecerlilik_tarihi' => 'Geçerlilik tarihi', 'aciklama' => 'Açıklama',
-        ], ['date', 'customer', 'status', 'converted']);
+        ], ['date', 'customer', 'status']);
     }
 
     public function irsaliyeler(): void
     {
         $this->renderReport('getWaybillReport', 'İrsaliyeler Raporu', [
-            'tarih' => 'Tarih', 'irsaliye_no' => 'İrsaliye No', 'musteri' => 'Müşteri',
-            'toplam_tutar' => 'Toplam tutar', 'durum' => 'Durum', 'aciklama' => 'Açıklama',
+            'tarih' => 'Tarih', 'irsaliye_no' => 'İrsaliye No', 'sevk_turu' => 'Sevk türü',
+            'musteri' => 'Müşteri / Hedef', 'toplam_tutar' => 'Toplam tutar', 'durum' => 'Durum',
+            'faturalandi_mi' => 'Faturalandı mı?', 'aciklama' => 'Açıklama',
         ], ['date', 'customer', 'status']);
     }
 
@@ -275,7 +288,7 @@ class RaporController extends Controller
                 'giris_miktari' => 'Giriş miktarı', 'cikis_miktari' => 'Çıkış miktarı', 'birim' => 'Birim',
                 'birim_maliyet' => 'Birim maliyet', 'toplam_tutar' => 'Toplam tutar', 'kullanici' => 'Kullanıcı',
                 'aciklama' => 'Açıklama',
-            ], ['date', 'product', 'category', 'warehouse', 'movement_type', 'source_type', 'invoice', 'transaction_type']],
+            ], ['date', 'product', 'category', 'warehouse', 'source_type', 'invoice', 'transaction_type']],
             'depo-durumu' => ['getWarehouseStatusReport', 'Depo Durumu Raporu', [
                 'depo_adi' => 'Depo adı', 'urun_adi' => 'Ürün adı', 'kategori' => 'Kategori',
                 'mevcut_stok' => 'Mevcut stok', 'minimum_stok' => 'Minimum stok', 'rezerve_stok' => 'Rezerve stok',
@@ -506,7 +519,7 @@ class RaporController extends Controller
 
     private function filters(): array
     {
-        $allowedStatus = ['taslak', 'onaylandi', 'odendi', 'kismi_odendi', 'iptal', 'bekliyor', 'tahsil', 'ciro', 'protestolu', 'iade', 'portfoy', 'gecikti'];
+        $allowedStatus = ['taslak', 'onaylandi', 'odendi', 'kismi_odendi', 'iptal', 'bekliyor', 'tahsil', 'ciro', 'protestolu', 'iade', 'portfoy', 'gecikti', 'kapandi'];
         $allowedPayment = ['paid', 'unpaid', 'partial', 'bekliyor', 'odendi', 'gecikti'];
         $allowedPeriod = ['today', 'yesterday', 'last_7', 'last_30', 'this_month', 'last_month', 'last_6', 'this_year', 'custom'];
         $date = fn($v) => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$v) ? $v : '';

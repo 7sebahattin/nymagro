@@ -110,24 +110,72 @@ $err = function(string $k) use ($hatalar): string {
   </div>
 <?php endif; ?>
 
+<?php if (!empty($hatalar['kaynak_irsaliye_id'])): ?>
+  <div class="alert-error">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <?= htmlspecialchars($hatalar['kaynak_irsaliye_id']) ?>
+  </div>
+<?php endif; ?>
+
+<?php if (!empty($hatalar['kaynak_teklif_id'])): ?>
+  <div class="alert-error">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <?= htmlspecialchars($hatalar['kaynak_teklif_id']) ?>
+  </div>
+<?php endif; ?>
+
 <form id="faturaForm" method="POST" action="<?= BASE_URL ?>/satis/kaydet">
 
 
 <!-- Action Buttons -->
 <div class="top-action-row">
-  <button type="submit" name="belge_tipi" value="proforma" class="top-btn" style="background:#5cb85c; color:#fff;">
+  <button type="submit" name="belge_tipi" value="proforma" id="btnProforma" class="top-btn" style="background:#5cb85c; color:#fff;">
     <i class="fa-solid fa-cloud-arrow-up"></i> Proforma Kaydet
   </button>
-  <button type="submit" name="belge_tipi" value="irsaliye" class="top-btn" style="background:#5bc0de; color:#fff;">
+  <button type="submit" name="belge_tipi" value="irsaliye" id="btnIrsaliye" class="top-btn" style="background:#5bc0de; color:#fff;">
     <i class="fa-solid fa-truck"></i> İrsaliye Kaydet
   </button>
-  <button type="submit" name="belge_tipi" value="satis" class="top-btn btn-kaydet">
+  <button type="submit" name="belge_tipi" value="satis" id="btnFatura" class="top-btn btn-kaydet">
     <i class="fa-solid fa-bolt"></i> Fatura Kaydet
   </button>
   <a href="<?= BASE_URL ?>/satis" class="top-btn btn-geridon">
     <i class="fa-solid fa-reply"></i> Geri Dön
   </a>
 </div>
+
+<?php if (!empty($acikIrsaliyeler)): ?>
+<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(91,192,222,.12); border:1px solid rgba(91,192,222,.3); border-radius:6px; padding:10px 14px; margin-bottom:16px;">
+  <i class="fa-solid fa-truck-fast" style="color:#5bc0de;"></i>
+  <label for="irsaliyeDoldurSel" style="font-size:12.5px;font-weight:600;color:var(--text2);white-space:nowrap;">Faturalandırılmamış irsaliyeden doldur:</label>
+  <select id="irsaliyeDoldurSel" class="fi" style="max-width:340px;">
+    <option value="">— seçiniz —</option>
+    <?php foreach ($acikIrsaliyeler as $ir): ?>
+      <option value="<?= (int)$ir['id'] ?>" <?= (int)($presetKaynakIrsaliyeId ?? 0) === (int)$ir['id'] ? 'selected' : '' ?>>
+        <?= htmlspecialchars($ir['fatura_no']) ?> — <?= htmlspecialchars($ir['cari_unvan']) ?> (<?= date('d.m.Y', strtotime($ir['fatura_tarihi'])) ?>)
+      </option>
+    <?php endforeach; ?>
+  </select>
+  <span style="font-size:11px;color:var(--muted);">seçilince kalemler ve müşteri otomatik dolar; stok tekrar düşürülmez — yalnızca "Fatura Kaydet" ile kullanın</span>
+</div>
+<?php endif; ?>
+<input type="hidden" name="kaynak_irsaliye_id" id="kaynakIrsaliyeIdHidden" value="<?= (int)($presetKaynakIrsaliyeId ?? 0) ?: '' ?>">
+
+<?php if (!empty($acikTeklifler)): ?>
+<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(93,191,104,.12); border:1px solid rgba(93,191,104,.3); border-radius:6px; padding:10px 14px; margin-bottom:16px;">
+  <i class="fa-solid fa-file-invoice" style="color:#5dbf68;"></i>
+  <label for="teklifDoldurSel" style="font-size:12.5px;font-weight:600;color:var(--text2);white-space:nowrap;">Satışa dönüştürülmemiş tekliften doldur:</label>
+  <select id="teklifDoldurSel" class="fi" style="max-width:340px;">
+    <option value="">— seçiniz —</option>
+    <?php foreach ($acikTeklifler as $tk): ?>
+      <option value="<?= (int)$tk['id'] ?>" <?= (int)($presetKaynakTeklifId ?? 0) === (int)$tk['id'] ? 'selected' : '' ?>>
+        <?= htmlspecialchars($tk['fatura_no']) ?> — <?= htmlspecialchars($tk['cari_unvan']) ?> (<?= date('d.m.Y', strtotime($tk['fatura_tarihi'])) ?>)
+      </option>
+    <?php endforeach; ?>
+  </select>
+  <span style="font-size:11px;color:var(--muted);">seçilince kalemler ve müşteri otomatik dolar — yalnızca "Fatura Kaydet" ile kullanın</span>
+</div>
+<?php endif; ?>
+<input type="hidden" name="kaynak_teklif_id" id="kaynakTeklifIdHidden" value="<?= (int)($presetKaynakTeklifId ?? 0) ?: '' ?>">
 
 <div class="panels-container">
 
@@ -137,7 +185,7 @@ $err = function(string $k) use ($hatalar): string {
     <div class="p-body">
 
       <!-- Müşteri Seçimi -->
-      <div class="fg">
+      <div class="fg" id="musteriAlani">
         <label>Müşteri</label>
         <div class="fg-inp-wrap" style="position:relative; flex:1;">
           <div class="musteri-secim-wrap">
@@ -198,13 +246,38 @@ $err = function(string $k) use ($hatalar): string {
       <div class="fg">
         <label>Depo</label>
         <div class="fg-inp-wrap">
-          <select name="depo_id" class="fi">
+          <select name="depo_id" id="depoSel" class="fi" onchange="if(typeof sevkTuruDegisti==='function')sevkTuruDegisti()">
             <?php foreach (($depolar ?? []) as $d): ?>
               <option value="<?= (int)$d['id'] ?>" <?= (int)($eski['depo_id'] ?? 1) === (int)$d['id'] ? 'selected' : '' ?>><?= htmlspecialchars($d['ad']) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
       </div>
+
+      <!-- Sevk Türü (yalnızca İrsaliye Kaydet için geçerlidir) -->
+      <div class="fg" id="sevkTuruAlani">
+        <label>Sevk Türü</label>
+        <div class="fg-inp-wrap">
+          <select name="sevk_turu" id="sevkTuruSel" class="fi" onchange="sevkTuruDegisti()">
+            <option value="musteri" <?= ($eski['sevk_turu'] ?? 'musteri') === 'musteri' ? 'selected' : '' ?>>Müşteriye Sevk</option>
+            <option value="depolar_arasi" <?= ($eski['sevk_turu'] ?? '') === 'depolar_arasi' ? 'selected' : '' ?>>Depolar Arası Sevk</option>
+          </select>
+        </div>
+      </div>
+      <span style="display:block;font-size:11px;color:var(--muted);margin:-6px 0 0 104px;">yalnızca "İrsaliye Kaydet" için geçerlidir</span>
+
+      <!-- Hedef Depo (depolar arası sevk seçilince görünür) -->
+      <div class="fg <?= !empty($hatalar['hedef_depo_id']) ? 'is-err' : '' ?>" id="hedefDepoAlani" style="display:none;">
+        <label>Hedef Depo</label>
+        <div class="fg-inp-wrap">
+          <select name="hedef_depo_id" id="hedefDepoSel" class="fi">
+            <?php foreach (($depolar ?? []) as $d): ?>
+              <option value="<?= (int)$d['id'] ?>" <?= (int)($eski['hedef_depo_id'] ?? 0) === (int)$d['id'] ? 'selected' : '' ?>><?= htmlspecialchars($d['ad']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      </div>
+      <?= $err('hedef_depo_id') ?>
 
       <!-- Para Birimi -->
       <div class="fg">
@@ -355,6 +428,47 @@ $err = function(string $k) use ($hatalar): string {
   const cariHid  = document.getElementById('cariIdHidden');
   const phBaslik = document.getElementById('phMusteri');
   let msTimer;
+
+  /* ══════════════════════════════════════
+     SEVK TÜRÜ (yalnızca İrsaliye Kaydet için)
+     Müşteriye Sevk: mal depodan çıkar, cari borcu/gelir faturada oluşur.
+     Depolar Arası Sevk: müşteri yok, kaynak depodan hedef depoya transfer olur.
+  ══════════════════════════════════════ */
+  const sevkTuruSel    = document.getElementById('sevkTuruSel');
+  const hedefDepoAlani = document.getElementById('hedefDepoAlani');
+  const musteriAlani   = document.getElementById('musteriAlani');
+  const depoSel        = document.getElementById('depoSel');
+  const hedefDepoSel   = document.getElementById('hedefDepoSel');
+
+  window.sevkTuruDegisti = function () {
+    const depolarArasi = sevkTuruSel.value === 'depolar_arasi';
+    hedefDepoAlani.style.display = depolarArasi ? '' : 'none';
+    musteriAlani.style.display   = depolarArasi ? 'none' : '';
+    if (depolarArasi) {
+      cariHid.value = '';
+      msInput.value = '';
+      phBaslik.textContent = 'DEPOLAR ARASI SEVK';
+      if (hedefDepoSel.value === depoSel.value) {
+        for (const opt of hedefDepoSel.options) {
+          if (opt.value !== depoSel.value) { hedefDepoSel.value = opt.value; break; }
+        }
+      }
+    } else if (phBaslik.textContent === 'DEPOLAR ARASI SEVK') {
+      phBaslik.textContent = 'PERAKENDE';
+    }
+  };
+
+  const btnProforma = document.getElementById('btnProforma');
+  const btnFatura    = document.getElementById('btnFatura');
+  [btnProforma, btnFatura].forEach(btn => {
+    if (!btn) return;
+    btn.addEventListener('click', function (e) {
+      if (sevkTuruSel.value === 'depolar_arasi') {
+        e.preventDefault();
+        alert('"Depolar Arası Sevk" yalnızca "İrsaliye Kaydet" ile kaydedilebilir. Lütfen sevk türünü "Müşteriye Sevk" olarak değiştirin ya da İrsaliye Kaydet\'e tıklayın.');
+      }
+    });
+  });
 
   msInput.addEventListener('input', function () {
     clearTimeout(msTimer);
@@ -557,6 +671,103 @@ $err = function(string $k) use ($hatalar): string {
     genelHesapla();
   };
 
+  function kalemleriTemizle() {
+    tbody.querySelectorAll('tr:not(#emptyRow)').forEach(tr => tr.remove());
+    emptyRow.style.display = '';
+    totalsBox.style.display = 'none';
+  }
+
+  /* ══════════════════════════════════════
+     İRSALİYEDEN DOLDUR
+     Mal irsaliye kesilirken zaten depodan düşürüldüğü için, buradan
+     doldurulan faturada stok sunucu tarafında (Fatura::stokHareketPlani())
+     bir daha hareket ettirilmez — bu yalnızca kalemleri/müşteriyi kopyalar.
+  ══════════════════════════════════════ */
+  const irsaliyeSel       = document.getElementById('irsaliyeDoldurSel');
+  const kaynakIrsaliyeHid = document.getElementById('kaynakIrsaliyeIdHidden');
+
+  function irsaliyedenDoldur(id) {
+    if (!id) return;
+    fetch(BASE + '/satis/irsaliye-getir/' + encodeURIComponent(id))
+      .then(r => r.json())
+      .then(data => {
+        if (data.status !== 'success') {
+          kaynakIrsaliyeHid.value = '';
+          if (irsaliyeSel) irsaliyeSel.value = '';
+          alert(data.message || 'İrsaliye getirilemedi.');
+          return;
+        }
+        kalemleriTemizle();
+        if (data.cari_id) {
+          cariHid.value = data.cari_id;
+          msInput.value = data.cari_unvan || '';
+          phBaslik.textContent = (data.cari_unvan || 'PERAKENDE').toUpperCase();
+        }
+        (data.kalemler || []).forEach(k => {
+          kalemEkle(k);
+          const tr = emptyRow.previousElementSibling;
+          if (!tr) return;
+          const miktarInput = tr.querySelector('[name="kalem_miktar[]"]');
+          if (miktarInput) miktarInput.value = k.miktar || 1;
+          const iskInput = tr.querySelector('[name="kalem_iskonto_orani[]"]');
+          if (iskInput) iskInput.value = k.iskonto_orani || 0;
+          const m = tr.id.match(/^kalem-(\d+)$/);
+          if (m) window.satirHesapla(m[1]);
+        });
+        kaynakIrsaliyeHid.value = id;
+      })
+      .catch(() => alert('İrsaliye getirilirken ağ hatası oluştu.'));
+  }
+
+  if (irsaliyeSel) {
+    irsaliyeSel.addEventListener('change', function () { irsaliyedenDoldur(this.value); });
+  }
+
+  /* ══════════════════════════════════════
+     TEKLİFTEN DOLDUR
+     Yalnızca "Fatura Kaydet" ile kullanılmalıdır; kalemleri/müşteriyi
+     seçilen teklif (proforma) belgesinden kopyalar.
+  ══════════════════════════════════════ */
+  const teklifSel       = document.getElementById('teklifDoldurSel');
+  const kaynakTeklifHid = document.getElementById('kaynakTeklifIdHidden');
+
+  function teklifdenDoldur(id) {
+    if (!id) return;
+    fetch(BASE + '/satis/teklif-getir/' + encodeURIComponent(id))
+      .then(r => r.json())
+      .then(data => {
+        if (data.status !== 'success') {
+          kaynakTeklifHid.value = '';
+          if (teklifSel) teklifSel.value = '';
+          alert(data.message || 'Teklif getirilemedi.');
+          return;
+        }
+        kalemleriTemizle();
+        if (data.cari_id) {
+          cariHid.value = data.cari_id;
+          msInput.value = data.cari_unvan || '';
+          phBaslik.textContent = (data.cari_unvan || 'PERAKENDE').toUpperCase();
+        }
+        (data.kalemler || []).forEach(k => {
+          kalemEkle(k);
+          const tr = emptyRow.previousElementSibling;
+          if (!tr) return;
+          const miktarInput = tr.querySelector('[name="kalem_miktar[]"]');
+          if (miktarInput) miktarInput.value = k.miktar || 1;
+          const iskInput = tr.querySelector('[name="kalem_iskonto_orani[]"]');
+          if (iskInput) iskInput.value = k.iskonto_orani || 0;
+          const m = tr.id.match(/^kalem-(\d+)$/);
+          if (m) window.satirHesapla(m[1]);
+        });
+        kaynakTeklifHid.value = id;
+      })
+      .catch(() => alert('Teklif getirilirken ağ hatası oluştu.'));
+  }
+
+  if (teklifSel) {
+    teklifSel.addEventListener('change', function () { teklifdenDoldur(this.value); });
+  }
+
   function genelHesapla() {
     let araToplam = 0, iskontoT = 0, kdvT = 0;
     tbody.querySelectorAll('tr:not(#emptyRow)').forEach(tr => {
@@ -600,6 +811,15 @@ $err = function(string $k) use ($hatalar): string {
   }
 
   paraBirimiDegisti();
+  sevkTuruDegisti();
+
+  <?php if (!empty($presetKaynakIrsaliyeId)): ?>
+  irsaliyedenDoldur('<?= (int)$presetKaynakIrsaliyeId ?>');
+  <?php endif; ?>
+
+  <?php if (!empty($presetKaynakTeklifId)): ?>
+  teklifdenDoldur('<?= (int)$presetKaynakTeklifId ?>');
+  <?php endif; ?>
 })();
 </script>
 

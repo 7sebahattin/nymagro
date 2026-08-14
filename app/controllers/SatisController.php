@@ -11,6 +11,7 @@
  *   GET  /satis/sil/{id}       → sil($id)
  *   GET  /satis/musteriBul     → musteriBul()  [JSON AJAX]
  *   GET  /satis/urunBul        → urunBul()     [JSON AJAX]
+ *   GET  /satis/irsaliye-getir/{id} → irsaliye_getir($id) [JSON AJAX]
  */
 
 require_once MODELS_PATH . '/Fatura.php';
@@ -46,11 +47,13 @@ final class SatisController extends Controller
         $durum     = trim($_GET['durum']            ?? '');
         $donem     = trim($_GET['donem']            ?? '1ay');
         $iptalleri = !empty($_GET['iptalleri']);
-        // "İrsaliye Kaydet" ile oluşturulan belgeler (belge_tipi='irsaliye') satış
-        // faturalarıyla aynı ekrandan girildiği için, gözlemlenebilmeleri adına aynı
-        // listede bir sekme/filtre olarak sunulur (proforma'nın Teklifler sayfasında
-        // ayrı listelenmesine benzer şekilde, ama irsaliye için ayrı bir modül yok).
-        $belgeTipi = ($_GET['tip'] ?? '') === 'irsaliye' ? 'irsaliye' : 'satis';
+        // "İrsaliye Kaydet"/"Perakende Satış Gir" ile oluşturulan belgeler
+        // (belge_tipi='irsaliye'/'perakende') satış faturalarıyla aynı ekrandan
+        // girildiği için, gözlemlenebilmeleri adına aynı listede bir sekme/filtre
+        // olarak sunulur (proforma'nın Teklifler sayfasında ayrı listelenmesine
+        // benzer şekilde, ama irsaliye/perakende için ayrı bir modül yok).
+        $tipParam = $_GET['tip'] ?? '';
+        $belgeTipi = in_array($tipParam, ['irsaliye', 'perakende'], true) ? $tipParam : 'satis';
 
         if (mb_strlen($arama) > 0 && mb_strlen($arama) < 3) {
             $arama = '';
@@ -71,12 +74,13 @@ final class SatisController extends Controller
             'donem'       => $donem,
             'iptalleri'   => $iptalleri,
             'belgeTipi'   => $belgeTipi,
+            'depolar'     => $this->depoModel->listele(),
             'sayfa'       => $sayfa,
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,
             'flash'       => $this->getFlash(),
-            'topbarTitle' => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : 'Satışlar',
-            'topbarIcon'  => $belgeTipi === 'irsaliye' ? 'fa-truck' : 'fa-shopping-cart',
+            'topbarTitle' => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : ($belgeTipi === 'perakende' ? 'Perakende Satışlar' : 'Satışlar'),
+            'topbarIcon'  => $belgeTipi === 'irsaliye' ? 'fa-truck' : ($belgeTipi === 'perakende' ? 'fa-cash-register' : 'fa-shopping-cart'),
         ]);
     }
 
@@ -91,6 +95,12 @@ final class SatisController extends Controller
             $cari = $this->cariModel->getir($cariId);
         }
 
+        // İrsaliyeler/Teklifler sekmesindeki "Faturalandır"/"Satışa Dönüştür"
+        // bağlantısıyla gelindiyse, o belgeyi sayfa yüklenir yüklenmez form JS'i
+        // otomatik dolduracak.
+        $presetKaynakIrsaliyeId = isset($_GET['kaynak_irsaliye_id']) ? (int)$_GET['kaynak_irsaliye_id'] : null;
+        $presetKaynakTeklifId  = isset($_GET['kaynak_teklif_id']) ? (int)$_GET['kaynak_teklif_id'] : null;
+
         $this->view('satislar/ekle', [
             'faturaNo'    => $faturaNo,
             'bugun'       => date('Y-m-d'),
@@ -98,6 +108,10 @@ final class SatisController extends Controller
             'eski'        => [],
             'cari'        => $cari,
             'depolar'     => $this->depoModel->listele(),
+            'acikIrsaliyeler' => $this->fatura->faturalandirilmamisIrsaliyeler($cariId),
+            'presetKaynakIrsaliyeId' => $presetKaynakIrsaliyeId,
+            'acikTeklifler' => $this->fatura->faturalandirilmamisTeklifler($cariId),
+            'presetKaynakTeklifId' => $presetKaynakTeklifId,
             'topbarTitle' => 'Yeni Satış Faturası',
             'topbarIcon'  => 'fa-file-invoice-dollar',
         ]);
@@ -272,6 +286,12 @@ final class SatisController extends Controller
             'durum'          => $durum === 'taslak' ? 'taslak' : ($mevcut['durum'] === 'taslak' ? 'onaylandi' : $mevcut['durum']),
             'odeme_sekli'    => $odemeSekli ?: null,
             'aciklama'       => $aciklama   ?: null,
+            // Düzenleme ekranında bu alanlar için UI yok — oluşturulduğu haliyle
+            // korunur (sevk türü/hedef depo/irsaliye-teklif bağlantısı burada değiştirilemez).
+            'sevk_turu'          => $mevcut['sevk_turu'] ?? null,
+            'hedef_depo_id'      => $mevcut['hedef_depo_id'] ?? null,
+            'kaynak_irsaliye_id' => $mevcut['kaynak_irsaliye_id'] ?? null,
+            'kaynak_teklif_id'   => $mevcut['kaynak_teklif_id'] ?? null,
         ];
 
         $depoId = !empty($_POST['depo_id']) ? (int)$_POST['depo_id'] : (int)($mevcut['depo_id'] ?: 1);
@@ -363,6 +383,60 @@ final class SatisController extends Controller
             $vadeTarihi = $this->tarihCevir($vadeTarihi);
         }
 
+        $depoId = !empty($_POST['depo_id']) ? (int)$_POST['depo_id'] : 1;
+
+        // ── Sevk türü (yalnızca İrsaliye Kaydet için anlamlıdır) ─────────
+        // Müşteriye sevk: mal fiilen depodan çıkar, cari borcu/gelir faturada oluşur.
+        // Depolar arası sevk: müşteri yoktur, kaynak depodan hedef depoya transfer olur.
+        $sevkTuru = null;
+        $hedefDepoId = null;
+        if ($belgeTipi === 'irsaliye') {
+            $sevkTuru = ($_POST['sevk_turu'] ?? 'musteri') === 'depolar_arasi' ? 'depolar_arasi' : 'musteri';
+            if ($sevkTuru === 'depolar_arasi') {
+                $cariId = null;
+                $hedefDepoId = !empty($_POST['hedef_depo_id']) ? (int)$_POST['hedef_depo_id'] : null;
+                if (!$hedefDepoId) {
+                    $hatalar['hedef_depo_id'] = 'Depolar arası sevkte hedef depo seçilmesi zorunludur.';
+                } elseif ($hedefDepoId === $depoId) {
+                    $hatalar['hedef_depo_id'] = 'Hedef depo, kaynak depodan farklı olmalıdır.';
+                }
+            }
+        }
+
+        // ── İrsaliyeden doldurma (yalnızca Fatura Kaydet için anlamlıdır) ─
+        // Mal irsaliye kesilirken zaten depodan düşürüldüğü için, bu irsaliyeden
+        // doldurulan faturada stok bir daha hareket ettirilmez (bkz. Fatura::stokHareketPlani()).
+        $kaynakIrsaliyeId = null;
+        if ($belgeTipi === 'satis' && !empty($_POST['kaynak_irsaliye_id'])) {
+            $adayId = (int)$_POST['kaynak_irsaliye_id'];
+            $aday = $this->fatura->getir($adayId);
+            $gecerli = $aday
+                && $aday['belge_tipi'] === 'irsaliye'
+                && (int)($aday['irsaliye_kullanildi'] ?? 0) === 0
+                && $aday['durum'] !== 'iptal';
+            if ($gecerli) {
+                $kaynakIrsaliyeId = $adayId;
+            } else {
+                $hatalar['kaynak_irsaliye_id'] = 'Seçilen irsaliye artık faturalandırılamıyor (bulunamadı, iptal edilmiş ya da zaten faturalandırılmış olabilir).';
+            }
+        }
+
+        // ── Tekliften doldurma (yalnızca Fatura Kaydet için anlamlıdır) ───
+        $kaynakTeklifId = null;
+        if ($belgeTipi === 'satis' && !empty($_POST['kaynak_teklif_id'])) {
+            $adayId = (int)$_POST['kaynak_teklif_id'];
+            $aday = $this->fatura->getir($adayId);
+            $gecerli = $aday
+                && $aday['belge_tipi'] === 'proforma'
+                && (int)($aday['teklif_kullanildi'] ?? 0) === 0
+                && $aday['durum'] !== 'iptal';
+            if ($gecerli) {
+                $kaynakTeklifId = $adayId;
+            } else {
+                $hatalar['kaynak_teklif_id'] = 'Seçilen teklif artık satışa dönüştürülemiyor (bulunamadı, iptal edilmiş ya da zaten dönüştürülmüş olabilir).';
+            }
+        }
+
         // ── Kalemler ───────────────────────────────────
         $kalemAdlari    = $_POST['kalem_urun_adi']      ?? [];
         $kalemUrunId    = $_POST['kalem_urun_id']       ?? [];
@@ -408,6 +482,10 @@ final class SatisController extends Controller
                 'hatalar'     => $hatalar,
                 'eski'        => $eski,
                 'depolar'     => $this->depoModel->listele(),
+                'acikIrsaliyeler' => $this->fatura->faturalandirilmamisIrsaliyeler($cariId),
+                'presetKaynakIrsaliyeId' => $kaynakIrsaliyeId,
+                'acikTeklifler' => $this->fatura->faturalandirilmamisTeklifler($cariId),
+                'presetKaynakTeklifId' => $kaynakTeklifId,
                 'topbarTitle' => 'Yeni Satış Faturası',
                 'topbarIcon'  => 'fa-file-invoice-dollar',
             ]);
@@ -462,13 +540,27 @@ final class SatisController extends Controller
             'odeme_sekli'    => $odemeSekli ?: null,
             'aciklama'       => $aciklama   ?: null,
             'created_by'     => class_exists('TenantContext') ? TenantContext::userId() : null,
+            'sevk_turu'          => $sevkTuru,
+            'hedef_depo_id'      => $hedefDepoId,
+            'kaynak_irsaliye_id' => $kaynakIrsaliyeId,
+            'kaynak_teklif_id'   => $kaynakTeklifId,
         ];
 
-        $depoId = !empty($_POST['depo_id']) ? (int)$_POST['depo_id'] : 1;
-        $yeniFaturaId = $this->fatura->ekle($faturaVeri, $kalemler, $depoId);
+        try {
+            $this->fatura->ekle($faturaVeri, $kalemler, $depoId);
+        } catch (\Throwable $e) {
+            $this->setFlash('error', $e->getMessage());
+            $this->redirect('satis/ekle');
+        }
 
-        $this->setFlash('success', "Fatura #{$faturaNo} başarıyla kaydedildi.");
-        $this->redirect('satis');
+        $belgeEtiketi = ['irsaliye' => 'İrsaliye', 'proforma' => 'Teklif'][$belgeTipi] ?? 'Fatura';
+        $this->setFlash('success', "{$belgeEtiketi} #{$faturaNo} başarıyla kaydedildi.");
+        $hedefUrl = match ($belgeTipi) {
+            'irsaliye' => 'satis?tip=irsaliye',
+            'proforma' => 'teklif',
+            default    => 'satis',
+        };
+        $this->redirect($hedefUrl);
     }
 
         // ─── perakende ──────────────────────────────────────────────────────
@@ -588,7 +680,7 @@ final class SatisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('satis');
+        $this->redirect('satis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
     }
 
     // ─── iptal ──────────────────────────────────────────────────────────
@@ -605,7 +697,7 @@ final class SatisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('satis');
+        $this->redirect('satis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
     }
 
     // ─── sil ────────────────────────────────────────────────────────────
@@ -622,7 +714,77 @@ final class SatisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('satis');
+        $this->redirect('satis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
+    }
+
+    // ─── AJAX: İrsaliye Getir (irsaliyeden fatura doldurmak için) ────────
+
+    /** Faturalandırılmamış bir irsaliyenin cari/kalem bilgisini JSON döner. */
+    public function irsaliye_getir(int $id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $f = $this->fatura->getir($id);
+        if (!$f || $f['belge_tipi'] !== 'irsaliye' || (int)($f['irsaliye_kullanildi'] ?? 0) === 1 || $f['durum'] === 'iptal') {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'İrsaliye bulunamadı veya artık faturalandırılamıyor.']);
+            exit;
+        }
+        $kalemler = array_map(function ($k) {
+            return [
+                'id'            => $k['urun_id'],
+                'ad'            => $k['urun_adi'],
+                'birim'         => $k['birim'],
+                'miktar'        => (float)$k['miktar'],
+                'satis_fiyati'  => (float)$k['birim_fiyat'],
+                'kdv_orani'     => (float)$k['kdv_orani'],
+                'iskonto_orani' => (float)$k['iskonto_orani'],
+            ];
+        }, $this->fatura->kalemleriGetir($id));
+
+        echo json_encode([
+            'status'    => 'success',
+            'id'        => $f['id'],
+            'fatura_no' => $f['fatura_no'],
+            'cari_id'   => $f['cari_id'],
+            'cari_unvan'=> $f['cari_unvan'] ?? '',
+            'kalemler'  => $kalemler,
+        ]);
+        exit;
+    }
+
+    // ─── AJAX: Teklif Getir (tekliften fatura doldurmak için) ────────────
+
+    /** Satışa dönüştürülmemiş bir teklifin cari/kalem bilgisini JSON döner. */
+    public function teklif_getir(int $id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $f = $this->fatura->getir($id);
+        if (!$f || $f['belge_tipi'] !== 'proforma' || (int)($f['teklif_kullanildi'] ?? 0) === 1 || $f['durum'] === 'iptal') {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'Teklif bulunamadı veya artık satışa dönüştürülemiyor.']);
+            exit;
+        }
+        $kalemler = array_map(function ($k) {
+            return [
+                'id'            => $k['urun_id'],
+                'ad'            => $k['urun_adi'],
+                'birim'         => $k['birim'],
+                'miktar'        => (float)$k['miktar'],
+                'satis_fiyati'  => (float)$k['birim_fiyat'],
+                'kdv_orani'     => (float)$k['kdv_orani'],
+                'iskonto_orani' => (float)$k['iskonto_orani'],
+            ];
+        }, $this->fatura->kalemleriGetir($id));
+
+        echo json_encode([
+            'status'    => 'success',
+            'id'        => $f['id'],
+            'fatura_no' => $f['fatura_no'],
+            'cari_id'   => $f['cari_id'],
+            'cari_unvan'=> $f['cari_unvan'] ?? '',
+            'kalemler'  => $kalemler,
+        ]);
+        exit;
     }
 
     // ─── AJAX: Müşteri Ara ───────────────────────────────────────────────

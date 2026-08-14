@@ -28,12 +28,15 @@ final class AlisController extends Controller
         $arama     = trim($_GET['ara']              ?? '');
         $durum     = trim($_GET['durum']            ?? '');
         $donem     = trim($_GET['donem']            ?? '1ay');
+        // "İrsaliye Kaydet" ile oluşturulan belgeler (belge_tipi='irsaliye', sevk_turu='tedarikci')
+        // aynı ekrandan girildiği için, gözlemlenebilmeleri adına aynı listede bir sekme olarak sunulur.
+        $belgeTipi = ($_GET['tip'] ?? '') === 'irsaliye' ? 'irsaliye' : 'alis';
 
         $offset      = ($sayfa - 1) * $limit;
-        $toplam      = $this->fatura->say('alis', $arama, $durum, $donem);
+        $toplam      = $this->fatura->say($belgeTipi, $arama, $durum, $donem);
         $sayfaSayisi = (int)ceil($toplam / $limit);
-        $faturalar   = $this->fatura->listele('alis', $arama, $durum, $donem, false, $limit, $offset);
-        $ozetler     = $this->fatura->ozetToplamlar('alis', $donem);
+        $faturalar   = $this->fatura->listele($belgeTipi, $arama, $durum, $donem, false, $limit, $offset);
+        $ozetler     = $this->fatura->ozetToplamlar($belgeTipi, $donem);
 
         $this->view('alislar/index', [
             'faturalar'   => $faturalar,
@@ -42,12 +45,13 @@ final class AlisController extends Controller
             'arama'       => $arama,
             'durum'       => $durum,
             'donem'       => $donem,
+            'belgeTipi'   => $belgeTipi,
             'sayfa'       => $sayfa,
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,
             'flash'       => $this->getFlash(),
-            'pageTitle'   => 'Alışlar',
-            'topbarTitle' => 'Alışlar',
+            'pageTitle'   => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : 'Alışlar',
+            'topbarTitle' => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : 'Alışlar',
             'topbarIcon'  => 'fa-solid fa-truck',
             'activeMenu'  => 'alislar'
         ]);
@@ -60,6 +64,10 @@ final class AlisController extends Controller
         $cari = $cariId ? $this->cariModel->getir($cariId) : null;
         $tedarikciAdi = $_GET['tedarikci'] ?? '';
 
+        // İrsaliyeler sekmesindeki "Faturalandır" bağlantısıyla gelindiyse, o
+        // irsaliyeyi sayfa yüklenir yüklenmez form JS'i otomatik dolduracak.
+        $presetKaynakIrsaliyeId = isset($_GET['kaynak_irsaliye_id']) ? (int)$_GET['kaynak_irsaliye_id'] : null;
+
         $this->view('alislar/ekle', [
             'faturaNo'    => $faturaNo,
             'bugun'       => date('Y-m-d'),
@@ -68,6 +76,8 @@ final class AlisController extends Controller
             'cari'        => $cari,
             'tedarikciAdi' => $tedarikciAdi,
             'depolar'     => $this->depoModel->listele(),
+            'acikIrsaliyeler' => $this->fatura->faturalandirilmamisIrsaliyeler($cariId, 100, 'tedarikci'),
+            'presetKaynakIrsaliyeId' => $presetKaynakIrsaliyeId,
             'topbarTitle' => 'Yeni Alış Faturası',
             'topbarIcon'  => 'fa-solid fa-truck',
             'activeMenu'  => 'alislar'
@@ -86,6 +96,22 @@ final class AlisController extends Controller
         $cariId   = !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null;
         $depoId   = !empty($_POST['depo_id']) ? (int)$_POST['depo_id'] : 1;
 
+        // ── Belge tipi ────────────────────────────────────
+        // Önceden bu satır her zaman 'alis' idi — hangi butona (Proforma/Sipariş,
+        // İrsaliye, Fatura) basılırsa basılsın "İrsaliye Kaydet" fiilen çalışmıyordu.
+        $belgeTipi = $_POST['belge_tipi'] ?? 'alis';
+        if (!in_array($belgeTipi, ['siparis', 'irsaliye', 'alis'], true)) {
+            $belgeTipi = 'alis';
+        }
+        $durum = $belgeTipi === 'alis' ? 'onaylandi' : 'taslak';
+
+        // EĞER numara otomatik üretilen formatta gelmişse ve belge tipi farklıysa,
+        // o tip için yeni bir numara üret (çakışmayı önlemek için).
+        $defaultPrefix = 'ALI-' . date('Y');
+        if (strpos($faturaNo, $defaultPrefix) === 0 && $belgeTipi !== 'alis') {
+            $faturaNo = $this->fatura->faturaNoUret($belgeTipi);
+        }
+
         if ($faturaNo === '') $hatalar['fatura_no'] = 'Fatura no zorunludur.';
         if ($faturaT === '')  $hatalar['fatura_tarihi'] = 'Tarih zorunludur.';
 
@@ -97,6 +123,31 @@ final class AlisController extends Controller
         $kur = $paraBirimi === 'TRY' ? 1.0 : (float)str_replace(',', '.', $_POST['kur'] ?? '0');
         if ($paraBirimi !== 'TRY' && $kur <= 0) {
             $hatalar['kur'] = 'Döviz seçildiğinde kur girilmesi zorunludur.';
+        }
+
+        // İrsaliye Kaydet her zaman "tedarikçiden alım" yönündedir — mal fiilen
+        // depoya girer, cari borcu/gider henüz oluşmaz (o, alış faturasında oluşur).
+        // Kendi depolarınız arası transfer bu ekrandan değil Satışlar ekranındaki
+        // "Depolar Arası Sevk" seçeneğinden yapılır.
+        $sevkTuru = $belgeTipi === 'irsaliye' ? 'tedarikci' : null;
+
+        // ── İrsaliyeden doldurma (yalnızca Fatura Kaydet için anlamlıdır) ─
+        // Mal irsaliye ile teslim alınırken zaten depoya girdiği için, bu
+        // irsaliyeden doldurulan faturada stok bir daha hareket ettirilmez.
+        $kaynakIrsaliyeId = null;
+        if ($belgeTipi === 'alis' && !empty($_POST['kaynak_irsaliye_id'])) {
+            $adayId = (int)$_POST['kaynak_irsaliye_id'];
+            $aday = $this->fatura->getir($adayId);
+            $gecerli = $aday
+                && $aday['belge_tipi'] === 'irsaliye'
+                && ($aday['sevk_turu'] ?? '') === 'tedarikci'
+                && (int)($aday['irsaliye_kullanildi'] ?? 0) === 0
+                && $aday['durum'] !== 'iptal';
+            if ($gecerli) {
+                $kaynakIrsaliyeId = $adayId;
+            } else {
+                $hatalar['kaynak_irsaliye_id'] = 'Seçilen irsaliye artık faturalandırılamıyor (bulunamadı, iptal edilmiş ya da zaten faturalandırılmış olabilir).';
+            }
         }
 
         $kalemAdlari = $_POST['kalem_urun_adi'] ?? [];
@@ -133,6 +184,8 @@ final class AlisController extends Controller
                 'hatalar'  => $hatalar,
                 'eski'     => $_POST,
                 'depolar'  => $this->depoModel->listele(),
+                'acikIrsaliyeler' => $this->fatura->faturalandirilmamisIrsaliyeler($cariId, 100, 'tedarikci'),
+                'presetKaynakIrsaliyeId' => $kaynakIrsaliyeId,
                 'activeMenu' => 'alislar'
             ]);
             return;
@@ -157,7 +210,7 @@ final class AlisController extends Controller
         }
 
         $faturaVeri = [
-            'belge_tipi'          => 'alis',
+            'belge_tipi'          => $belgeTipi,
             'fatura_no'           => $faturaNo,
             'cari_id'             => $cariId,
             'fatura_tarihi'       => $this->tarihCevir($faturaT),
@@ -171,14 +224,22 @@ final class AlisController extends Controller
             'iskonto_tutari_doviz' => $iskontoTutarDoviz,
             'kdv_tutari_doviz'     => $kdvTutarDoviz,
             'genel_toplam_doviz'   => $genelToplamDoviz,
-            'durum'          => 'onaylandi',
+            'durum'          => $durum,
             'created_by'     => class_exists('TenantContext') ? TenantContext::userId() : null,
+            'sevk_turu'          => $sevkTuru,
+            'kaynak_irsaliye_id' => $kaynakIrsaliyeId,
         ];
 
-        $this->fatura->ekle($faturaVeri, $kalemler, $depoId);
+        try {
+            $this->fatura->ekle($faturaVeri, $kalemler, $depoId);
+        } catch (\Throwable $e) {
+            $this->setFlash('error', $e->getMessage());
+            $this->redirect('alis/ekle');
+        }
 
-        $this->setFlash('success', "Alış faturası #{$faturaNo} kaydedildi.");
-        $this->redirect('alis');
+        $belgeEtiketi = ['irsaliye' => 'İrsaliye', 'siparis' => 'Sipariş'][$belgeTipi] ?? 'Alış faturası';
+        $this->setFlash('success', "{$belgeEtiketi} #{$faturaNo} kaydedildi.");
+        $this->redirect('alis' . ($belgeTipi === 'irsaliye' ? '?tip=irsaliye' : ''));
     }
 
     public function duzenle(int $id): void
@@ -322,6 +383,10 @@ final class AlisController extends Controller
             'kdv_tutari_doviz'     => $kdvTutarDoviz,
             'genel_toplam_doviz'   => $genelToplamDoviz,
             'durum'          => $mevcut['durum'],
+            // Düzenleme ekranında bu alanlar için UI yok — oluşturulduğu haliyle korunur.
+            'sevk_turu'          => $mevcut['sevk_turu'] ?? null,
+            'hedef_depo_id'      => $mevcut['hedef_depo_id'] ?? null,
+            'kaynak_irsaliye_id' => $mevcut['kaynak_irsaliye_id'] ?? null,
         ];
 
         try {
@@ -361,7 +426,7 @@ final class AlisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('alis');
+        $this->redirect('alis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
     }
 
     public function sil(int $id): void
@@ -376,7 +441,43 @@ final class AlisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('alis');
+        $this->redirect('alis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
+    }
+
+    // ─── AJAX: İrsaliye Getir (irsaliyeden fatura doldurmak için) ────────
+
+    /** Faturalandırılmamış bir tedarikçi irsaliyesinin cari/kalem bilgisini JSON döner. */
+    public function irsaliye_getir(int $id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $f = $this->fatura->getir($id);
+        if (!$f || $f['belge_tipi'] !== 'irsaliye' || ($f['sevk_turu'] ?? '') !== 'tedarikci'
+            || (int)($f['irsaliye_kullanildi'] ?? 0) === 1 || $f['durum'] === 'iptal') {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'İrsaliye bulunamadı veya artık faturalandırılamıyor.']);
+            exit;
+        }
+        $kalemler = array_map(function ($k) {
+            return [
+                'id'            => $k['urun_id'],
+                'ad'            => $k['urun_adi'],
+                'birim'         => $k['birim'],
+                'miktar'        => (float)$k['miktar'],
+                'alis_fiyati'   => (float)$k['birim_fiyat'],
+                'kdv_orani'     => (float)$k['kdv_orani'],
+                'iskonto_orani' => (float)$k['iskonto_orani'],
+            ];
+        }, $this->fatura->kalemleriGetir($id));
+
+        echo json_encode([
+            'status'    => 'success',
+            'id'        => $f['id'],
+            'fatura_no' => $f['fatura_no'],
+            'cari_id'   => $f['cari_id'],
+            'cari_unvan'=> $f['cari_unvan'] ?? '',
+            'kalemler'  => $kalemler,
+        ]);
+        exit;
     }
 
     private function tarihCevir(string $t): string

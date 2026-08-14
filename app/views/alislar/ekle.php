@@ -61,6 +61,29 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
   <a href="<?= BASE_URL ?>/alis" class="top-btn btn-geridon"><i class="fa-solid fa-reply"></i> Geri Dön</a>
 </div>
 
+<?php if (!empty($hatalar['kaynak_irsaliye_id'])): ?>
+  <div style="background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.28);color:var(--danger);padding:12px 18px;border-radius:8px;margin-bottom:14px;font-size:13px;">
+    <i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($hatalar['kaynak_irsaliye_id']) ?>
+  </div>
+<?php endif; ?>
+
+<?php if (!empty($acikIrsaliyeler)): ?>
+<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(76,162,218,.12); border:1px solid rgba(76,162,218,.3); border-radius:6px; padding:10px 14px; margin-bottom:14px;">
+  <i class="fa-solid fa-truck-fast" style="color:#4ca2da;"></i>
+  <label for="irsaliyeDoldurSel" style="font-size:12.5px;font-weight:600;color:var(--text2);white-space:nowrap;">Faturalandırılmamış irsaliyeden doldur:</label>
+  <select id="irsaliyeDoldurSel" class="fi" style="max-width:340px;flex:none;">
+    <option value="">— seçiniz —</option>
+    <?php foreach ($acikIrsaliyeler as $ir): ?>
+      <option value="<?= (int)$ir['id'] ?>" <?= (int)($presetKaynakIrsaliyeId ?? 0) === (int)$ir['id'] ? 'selected' : '' ?>>
+        <?= htmlspecialchars($ir['fatura_no']) ?> — <?= htmlspecialchars($ir['cari_unvan']) ?> (<?= date('d.m.Y', strtotime($ir['fatura_tarihi'])) ?>)
+      </option>
+    <?php endforeach; ?>
+  </select>
+  <span style="font-size:11px;color:var(--muted);">seçilince kalemler ve tedarikçi otomatik dolar; stok tekrar hareket ettirilmez — yalnızca "Fatura Kaydet" ile kullanın</span>
+</div>
+<?php endif; ?>
+<input type="hidden" name="kaynak_irsaliye_id" id="kaynakIrsaliyeIdHidden" value="<?= (int)($presetKaynakIrsaliyeId ?? 0) ?: '' ?>">
+
 <div class="panels-container">
   <!-- Left Panel -->
   <div class="panel panel-left">
@@ -253,6 +276,60 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     `;
     tbody.appendChild(tr);
     hesapla();
+  }
+
+  /* ══════════════════════════════════════
+     İRSALİYEDEN DOLDUR
+     Mal irsaliye ile teslim alınırken zaten depoya girdiği için, buradan
+     doldurulan faturada stok sunucu tarafında (Fatura::stokHareketPlani())
+     bir daha hareket ettirilmez — bu yalnızca kalemleri/tedarikçiyi kopyalar.
+  ══════════════════════════════════════ */
+  const irsaliyeSel = document.getElementById('irsaliyeDoldurSel');
+  const kaynakIrsaliyeHid = document.getElementById('kaynakIrsaliyeIdHidden');
+  const cariIdHidden = document.getElementById('cariIdHidden');
+  const phMusteri = document.getElementById('phMusteri');
+
+  function kalemleriTemizle() {
+    tbody.querySelectorAll('tr:not(#emptyRow)').forEach(tr => tr.remove());
+    emptyRow.style.display = '';
+    document.getElementById('totalsBox').style.display = 'none';
+  }
+
+  function irsaliyedenDoldur(id) {
+    if (!id) return;
+    fetch(BASE + '/alis/irsaliye-getir/' + encodeURIComponent(id))
+      .then(r => r.json())
+      .then(data => {
+        if (data.status !== 'success') {
+          kaynakIrsaliyeHid.value = '';
+          if (irsaliyeSel) irsaliyeSel.value = '';
+          alert(data.message || 'İrsaliye getirilemedi.');
+          return;
+        }
+        kalemleriTemizle();
+        if (data.cari_id) {
+          cariIdHidden.value = data.cari_id;
+          msInput.value = data.cari_unvan || '';
+          phMusteri.textContent = (data.cari_unvan || 'TEDARİKÇİ SEÇİN').toUpperCase();
+        }
+        (data.kalemler || []).forEach(k => {
+          kalemEkle(k);
+          const tr = tbody.lastElementChild;
+          if (!tr) return;
+          const miktarInput = tr.querySelector('[name="kalem_miktar[]"]');
+          if (miktarInput) miktarInput.value = k.miktar || 1;
+        });
+        hesapla();
+        kaynakIrsaliyeHid.value = id;
+      })
+      .catch(() => alert('İrsaliye getirilirken ağ hatası oluştu.'));
+  }
+
+  if (irsaliyeSel) {
+    irsaliyeSel.addEventListener('change', function () { irsaliyedenDoldur(this.value); });
+    <?php if (!empty($presetKaynakIrsaliyeId)): ?>
+    irsaliyedenDoldur('<?= (int)$presetKaynakIrsaliyeId ?>');
+    <?php endif; ?>
   }
 
   window.hesapla = function() {

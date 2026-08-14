@@ -136,11 +136,36 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
             <?php if ($has('category')): ?>
                 <div class="filter-field"><label>Kategori</label><select name="category"><option value="">Tümü</option><?php foreach (($options['categories'] ?? []) as $cat): ?><option value="<?= $e($cat['ad']) ?>" <?= ($filters['category'] ?? '') === $cat['ad'] ? 'selected' : '' ?>><?= $e($cat['ad']) ?></option><?php endforeach; ?></select></div>
             <?php endif; ?>
+            <?php if ($has('product_search')): ?><div class="filter-field"><label>Ürün adı/kodu/barkod</label><input name="product_search" value="<?= $e($filters['product_search'] ?? '') ?>"></div><?php endif; ?>
             <?php if ($has('status')): ?>
-                <div class="filter-field"><label>Durum</label><select name="status"><option value="">Tümü</option><?php foreach (['taslak','onaylandi','odendi','kismi_odendi','iptal'] as $s): ?><option value="<?= $s ?>" <?= ($filters['status'] ?? '') === $s ? 'selected' : '' ?>><?= $e($s) ?></option><?php endforeach; ?></select></div>
+                <?php
+                    // Bazı raporların (ör. çek/senet) kendi durum sözlüğü fatura
+                    // durumundan tamamen farklıdır; o raporlar $options['status_options']
+                    // ile kendi seçeneklerini sağlar, aksi halde varsayılan fatura
+                    // durumları kullanılır.
+                    $statusOpts = $options['status_options'] ?? array_combine(
+                        ['taslak', 'onaylandi', 'odendi', 'kismi_odendi', 'iptal'],
+                        ['taslak', 'onaylandi', 'odendi', 'kismi_odendi', 'iptal']
+                    );
+                ?>
+                <div class="filter-field"><label>Durum</label><select name="status"><option value="">Tümü</option><?php foreach ($statusOpts as $sVal => $sLabel): ?><option value="<?= $e($sVal) ?>" <?= ($filters['status'] ?? '') === $sVal ? 'selected' : '' ?>><?= $e($sLabel) ?></option><?php endforeach; ?></select></div>
             <?php endif; ?>
             <?php if ($has('warehouse')): ?>
                 <div class="filter-field"><label>Depo</label><select name="warehouse_id"><option value="">Tümü</option><?php foreach (($options['warehouses'] ?? []) as $w): ?><option value="<?= (int)$w['id'] ?>" <?= (int)($filters['warehouse_id'] ?? 0) === (int)$w['id'] ? 'selected' : '' ?>><?= $e($w['depo_adi']) ?></option><?php endforeach; ?></select></div>
+            <?php endif; ?>
+            <?php if ($has('source_type')): ?>
+                <div class="filter-field"><label>Kaynak türü</label><select name="source_type"><option value="">Tümü</option><?php foreach (['alis_faturasi' => 'Alış faturası', 'satis_faturasi' => 'Satış faturası', 'satis_iadesi' => 'Satış iadesi', 'alis_iadesi' => 'Alış iadesi', 'manuel' => 'Manuel'] as $sv => $sl): ?><option value="<?= $e($sv) ?>" <?= ($filters['source_type'] ?? '') === $sv ? 'selected' : '' ?>><?= $e($sl) ?></option><?php endforeach; ?></select></div>
+            <?php endif; ?>
+            <?php if ($has('qty_range')): ?>
+                <div class="filter-field"><label>Minimum miktar</label><input type="number" step="0.001" name="min_qty" value="<?= $e($filters['min_qty'] ?? '') ?>"></div>
+                <div class="filter-field"><label>Maksimum miktar</label><input type="number" step="0.001" name="max_qty" value="<?= $e($filters['max_qty'] ?? '') ?>"></div>
+            <?php endif; ?>
+            <?php if ($has('price_range')): ?>
+                <div class="filter-field"><label>Minimum fiyat</label><input type="number" step="0.01" name="min_price" value="<?= $e($filters['min_price'] ?? '') ?>"></div>
+                <div class="filter-field"><label>Maksimum fiyat</label><input type="number" step="0.01" name="max_price" value="<?= $e($filters['max_price'] ?? '') ?>"></div>
+            <?php endif; ?>
+            <?php if ($has('inactive_days')): ?>
+                <div class="filter-field"><label>Hareketsizlik eşiği</label><select name="inactive_days"><?php foreach ([30,60,90,180,365] as $d): ?><option value="<?= $d ?>" <?= (int)($filters['inactive_days'] ?? 90) === $d ? 'selected' : '' ?>><?= $d ?> gün</option><?php endforeach; ?></select></div>
             <?php endif; ?>
             <?php if ($has('payment')): ?>
                 <div class="filter-field"><label>Ödeme durumu</label><select name="payment_status"><option value="">Tümü</option><option value="paid" <?= ($filters['payment_status'] ?? '') === 'paid' ? 'selected' : '' ?>>Ödendi</option><option value="partial" <?= ($filters['payment_status'] ?? '') === 'partial' ? 'selected' : '' ?>>Kısmi</option><option value="unpaid" <?= ($filters['payment_status'] ?? '') === 'unpaid' ? 'selected' : '' ?>>Ödenmedi</option></select></div>

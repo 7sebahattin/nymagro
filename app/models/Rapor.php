@@ -758,7 +758,15 @@ class Rapor
 
     public function getSalesLossReport(array $filters): array
     {
-        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi IN ('satis','perakende')", 'musteri', true);
+        // Bu rapor yapısı gereği yalnızca iptal/taslak kayıtları kapsar. Genel durum
+        // filtresi bunların dışında bir değer taşırsa (onaylandi/odendi/kismi_odendi)
+        // dikkate alınmaz — aksi halde aşağıdaki "durum IN ('iptal','taslak')" ile
+        // çelişen bir WHERE oluşur ve rapor kayıp kayıtlar varken bile hep boş döner.
+        $kayipFilters = $filters;
+        if (!in_array($kayipFilters['status'] ?? '', ['iptal', 'taslak'], true)) {
+            $kayipFilters['status'] = '';
+        }
+        [$where, $params] = $this->invoiceWhere($kayipFilters, "f.belge_tipi IN ('satis','perakende')", 'musteri', true);
         $where .= " AND f.durum IN ('iptal','taslak')";
         $rows = $this->db->select(
             "SELECT f.fatura_tarihi AS tarih, COALESCE(c.unvan, 'Cari yok') AS cari,
@@ -821,7 +829,8 @@ class Rapor
             "SELECT f.fatura_tarihi AS tarih, f.fatura_no AS teklif_no,
                     COALESCE(c.unvan, 'Cari yok') AS musteri,
                     f.genel_toplam AS toplam_tutar, f.durum,
-                    f.vade_tarihi AS gecerlilik_tarihi, f.aciklama
+                    f.vade_tarihi AS gecerlilik_tarihi, f.aciklama,
+                    f.teklif_kullanildi
              FROM faturalar f
              LEFT JOIN cariler c ON c.id = f.cari_id
              WHERE {$where}
@@ -829,32 +838,44 @@ class Rapor
             $params
         );
         foreach ($rows as &$row) {
-            // Bir proformanın kesin satışa dönüşüp dönüşmediğini izleyen bir bağlantı
-            // (fatura_id/kaynak_teklif_id vb.) şu anda şemada yok; yanıltıcı bir tahmin
-            // yapmak yerine bunu açıkça belirtiyoruz.
-            $row['satisa_donustu'] = 'İzlenmiyor';
+            $row['satisa_donustu'] = ((int)($row['teklif_kullanildi'] ?? 0) === 1) ? 'Evet' : 'Hayır';
         }
         unset($row);
 
         return $this->withSummary($rows, [
             'Toplam teklif tutarı' => $this->sum($rows, 'toplam_tutar', true),
             'Teklif sayısı' => count($rows),
-        ], 'Teklif (proforma) kayıtları faturalar tablosundaki belge_tipi=\'proforma\' satırlarından üretilir. Bir teklifin nihai satışa dönüşüp dönüşmediğine dair bağlantı şemada tutulmadığı için "Satışa dönüştü mü?" bilgisi izlenmemektedir.');
+            'Satışa dönüşen' => count(array_filter($rows, fn($r) => $r['satisa_donustu'] === 'Evet')),
+        ], 'Teklif (proforma) kayıtları faturalar tablosundaki belge_tipi=\'proforma\' satırlarından üretilir. "Satışa dönüştü mü?" bilgisi faturalar.teklif_kullanildi alanından okunur.');
     }
 
     public function getWaybillReport(array $filters): array
     {
         // "İrsaliye Kaydet" ile oluşturulan belgeler de ayrı bir tabloda değil,
-        // faturalar tablosunda belge_tipi='irsaliye' olarak tutulur. İrsaliye
-        // stok/cari bakiyesini etkilemez (Fatura::STOK_ETKILEYEN_TIPLER bu tipi
-        // kapsamaz) — bu rapor yalnızca belgeleri gözlemlenebilir kılar.
-        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi = 'irsaliye'", 'musteri');
+        // faturalar tablosunda belge_tipi='irsaliye' olarak tutulur (sevk_turu:
+        // 'musteri' → Satışlar ekranından müşteriye sevk, stok o an çıkar;
+        // 'tedarikci' → Alışlar ekranından tedarikçiden teslim alım, stok o an
+        // girer; 'depolar_arasi' → kaynak depodan hedef depoya transfer).
+        // Bkz. Fatura::stokHareketPlani(). Cari türü satış/alış tarafına göre
+        // değiştiği için burada 'musteri'/'tedarikci' ile kısıtlanmaz — her ikisi
+        // de tek listede gösterilir.
+        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi = 'irsaliye'", '');
         $rows = $this->db->select(
             "SELECT f.fatura_tarihi AS tarih, f.fatura_no AS irsaliye_no,
-                    COALESCE(c.unvan, 'Cari yok') AS musteri,
-                    f.genel_toplam AS toplam_tutar, f.durum, f.aciklama
+                    CASE WHEN f.sevk_turu = 'depolar_arasi' THEN 'Depolar Arası'
+                         WHEN f.sevk_turu = 'tedarikci' THEN 'Tedarikçiden Alım'
+                         ELSE 'Müşteriye Sevk' END AS sevk_turu,
+                    CASE WHEN f.sevk_turu = 'depolar_arasi'
+                         THEN CONCAT(COALESCE(dk.ad, '?'), ' → ', COALESCE(dh.ad, '?'))
+                         ELSE COALESCE(c.unvan, 'Cari yok') END AS musteri,
+                    f.genel_toplam AS toplam_tutar, f.durum,
+                    CASE WHEN f.sevk_turu = 'depolar_arasi' THEN '—'
+                         WHEN f.irsaliye_kullanildi = 1 THEN 'Evet' ELSE 'Hayır' END AS faturalandi_mi,
+                    f.aciklama
              FROM faturalar f
              LEFT JOIN cariler c ON c.id = f.cari_id
+             LEFT JOIN depolar dk ON dk.id = f.depo_id
+             LEFT JOIN depolar dh ON dh.id = f.hedef_depo_id
              WHERE {$where}
              ORDER BY f.fatura_tarihi DESC, f.id DESC",
             $params
@@ -863,7 +884,7 @@ class Rapor
         return $this->withSummary($rows, [
             'Toplam irsaliye tutarı' => $this->sum($rows, 'toplam_tutar', true),
             'İrsaliye sayısı' => count($rows),
-        ], 'İrsaliye kayıtları faturalar tablosundaki belge_tipi=\'irsaliye\' satırlarından üretilir. İrsaliye onaylansa dahi stok ve cari bakiyesini etkilemez; sevkiyatın stoktan düşülmesi gerekiyorsa ilgili satış faturasının ayrıca kesilmesi gerekir.');
+        ], 'Müşteriye sevk irsaliyesi onaylandığı an malı depodan düşürür; cari borcu/geliri henüz oluşturmaz — bu, "Faturalandır" ile o irsaliyeden doldurulan satış faturası kesildiğinde oluşur (o faturada stok ikinci kez düşürülmez). Depolar arası sevk irsaliyesi ise yalnızca kaynak/hedef depo stoğunu değiştirir; müşteri veya fatura bağlantısı yoktur.');
     }
 
     public function getSixMonthSalesReport(array $filters): array
@@ -896,74 +917,6 @@ class Rapor
             'Toplam tahsilat' => $this->sum($rows, 'toplam_tahsilat', true),
             'Bekleyen tahsilat' => $this->sum($rows, 'bekleyen_tahsilat', true),
             'Ay sayısı' => count($rows),
-        ]);
-    }
-
-    public function getStockSalesCoverageReport(array $filters): array
-    {
-        [$dateSql, $params] = $this->dateWhere($filters, 'f.fatura_tarihi');
-        if ($dateSql === '') {
-            $dateSql = " AND f.fatura_tarihi >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)";
-        }
-        $params[':tenant_company_id'] = TenantContext::activeCompanyId();
-        $params[':tenant_period_id'] = TenantContext::activePeriodId();
-        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0'];
-        if (!empty($filters['product_id'])) {
-            $extra[] = 'u.id = :product_id';
-            $params[':product_id'] = (int)$filters['product_id'];
-        }
-        if (!empty($filters['category'])) {
-            $extra[] = 'u.kategori = :category';
-            $params[':category'] = $filters['category'];
-        }
-        if (($filters['stock_filter'] ?? '') === 'critical') {
-            $extra[] = 'u.stok_miktari <= u.kritik_stok';
-        } elseif (($filters['stock_filter'] ?? '') === 'out_of_stock') {
-            $extra[] = 'u.stok_miktari <= 0';
-        }
-        $where = $extra ? 'WHERE ' . implode(' AND ', $extra) : '';
-        $rows = $this->db->select(
-            "SELECT u.ad AS urun_adi, u.stok_miktari AS mevcut_stok,
-                    COALESCE(s30.qty, 0) AS son_30_gun_satis,
-                    COALESCE(s90.qty, 0) AS son_90_gun_satis,
-                    COALESCE(s90.qty, 0) / 3 AS ort_aylik_satis,
-                    CASE
-                        WHEN u.stok_miktari <= 0 THEN 'Stok Yok'
-                        WHEN COALESCE(s90.qty, 0) <= 0 THEN 'Satış verisi yok'
-                        ELSE CAST(ROUND(u.stok_miktari / (COALESCE(s90.qty, 0) / 3), 2) AS CHAR)
-                    END AS stok_kac_ay_yeter,
-                    CASE
-                        WHEN u.stok_miktari <= 0 THEN 'Stok Yok'
-                        WHEN u.stok_miktari <= u.kritik_stok THEN 'Kritik stok'
-                        WHEN COALESCE(s90.qty, 0) > 0 AND u.stok_miktari / (COALESCE(s90.qty, 0) / 3) < 1 THEN '1 aydan az'
-                        ELSE 'Normal'
-                    END AS kritik_stok_uyarisi
-             FROM urunler_hizmetler u
-             LEFT JOIN (
-                SELECT fk.urun_id, SUM(fk.miktar) AS qty
-                FROM fatura_kalemleri fk JOIN faturalar f ON f.id = fk.fatura_id
-                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0
-                  AND f.company_id = :tenant_company_id AND f.period_id = :tenant_period_id
-                  AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende') AND f.fatura_tarihi >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                GROUP BY fk.urun_id
-             ) s30 ON s30.urun_id = u.id
-             LEFT JOIN (
-                SELECT fk.urun_id, SUM(fk.miktar) AS qty
-                FROM fatura_kalemleri fk JOIN faturalar f ON f.id = fk.fatura_id
-                WHERE fk.silindi_mi = 0 AND f.silindi_mi = 0
-                  AND f.company_id = :tenant_company_id AND f.period_id = :tenant_period_id
-                  AND f.durum <> 'iptal' AND f.belge_tipi IN ('satis','perakende') {$dateSql}
-                GROUP BY fk.urun_id
-             ) s90 ON s90.urun_id = u.id
-             {$where}
-             ORDER BY son_90_gun_satis DESC, u.ad",
-            $params
-        );
-
-        return $this->withSummary($rows, [
-            'Ürün sayısı' => count($rows),
-            'Stok yok' => count(array_filter($rows, fn($r) => (float)$r['mevcut_stok'] <= 0)),
-            'Kritik stok' => count(array_filter($rows, fn($r) => $r['kritik_stok_uyarisi'] === 'Kritik stok')),
         ]);
     }
 
@@ -1316,7 +1269,10 @@ class Rapor
             ':tenant_company_id' => TenantContext::activeCompanyId(),
             ':tenant_period_id' => TenantContext::activePeriodId(),
         ];
-        if (!$includeCanceled) {
+        // Kullanıcı özellikle "İptal" durumunu filtrelediğinde bu dışlamayı uygulama —
+        // aksi halde "f.durum <> 'iptal' AND f.durum = 'iptal'" hiçbir zaman eşleşmez ve
+        // rapor iptal faturalar gerçekten var olsa bile hep boş döner.
+        if (!$includeCanceled && ($filters['status'] ?? '') !== 'iptal') {
             $conds[] = "f.durum <> 'iptal'";
         }
         [$dateSql, $dateParams] = $this->dateWhere($filters, 'f.fatura_tarihi');
