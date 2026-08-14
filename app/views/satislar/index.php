@@ -35,6 +35,7 @@ $durumRenk = [
 ];
 
 $belgeTipi = $belgeTipi ?? 'satis';
+$depoAdlari = array_column($depolar ?? [], 'ad', 'id');
 $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
     ['ara'=>$arama,'durum'=>$durum,'donem'=>$donem,'sayfa'=>$sayfa,'iptalleri'=>$iptalleri?'1':'','tip'=>$belgeTipi==='irsaliye'?'irsaliye':''],
     $extra
@@ -309,7 +310,9 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
             </td>
             <td><?= $fmtTar($f['fatura_tarihi']) ?></td>
             <td>
-              <?php if ($f['cari_unvan']): ?>
+              <?php if (($f['sevk_turu'] ?? '') === 'depolar_arasi'): ?>
+                <span style="color:var(--text2);"><i class="fa-solid fa-right-left" style="color:var(--muted);"></i> <?= htmlspecialchars($depoAdlari[(int)($f['hedef_depo_id'] ?? 0)] ?? 'Depolar arası') ?></span>
+              <?php elseif ($f['cari_unvan']): ?>
                 <a href="<?= BASE_URL ?>/musteri/detay/<?= $f['cari_id'] ?>"
                    class="cust-link"><?= htmlspecialchars($f['cari_unvan']) ?></a>
               <?php else: ?>
@@ -323,6 +326,13 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                     style="background:<?= $dr[0] ?>;color:<?= $dr[1] ?>;">
                 <?= $dr[2] ?>
               </span>
+              <?php if ($belgeTipi === 'irsaliye' && ($f['sevk_turu'] ?? 'musteri') !== 'depolar_arasi'): ?>
+                <?php if ((int)($f['irsaliye_kullanildi'] ?? 0) === 1): ?>
+                  <span class="status-badge" style="background:#16a34a;color:#fff;" title="Bu irsaliye bir satış faturasına dönüştürüldü.">Faturalandı</span>
+                <?php else: ?>
+                  <span class="status-badge" style="background:#94a3b8;color:#fff;">Faturalandırılmadı</span>
+                <?php endif; ?>
+              <?php endif; ?>
             </td>
           </tr>
 
@@ -337,30 +347,47 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                   <a href="<?= BASE_URL ?>/satis/fatura/<?= $f['id'] ?>/print" target="_blank" rel="noopener" class="btn-det" style="background:#efa341;">
                     <i class="fa-solid fa-print"></i> Yazdır
                   </a>
+                  <?php $belgeAdi = $belgeTipi === 'irsaliye' ? 'İrsaliye' : 'Fatura'; ?>
                   <?php if ($f['durum'] === 'taslak' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
                     <a href="#"
                        class="btn-det"
                        style="background:#3b82f6;"
-                       onclick="return nymPost('<?= BASE_URL ?>/satis/durum/<?= $f['id'] ?>', 'Fatura onaylansın mı?')">
+                       onclick="return nymPost('<?= BASE_URL ?>/satis/durum/<?= $f['id'] ?>', '<?= $belgeAdi ?> onaylansın mı?')">
                       <i class="fa-solid fa-check"></i> Onayla
+                    </a>
+                  <?php endif; ?>
+                  <?php if ($belgeTipi === 'irsaliye' && $f['durum'] !== 'iptal' && ($f['sevk_turu'] ?? 'musteri') !== 'depolar_arasi' && (int)($f['irsaliye_kullanildi'] ?? 0) === 0 && Rbac::currentUserCan('SATIS_CREATE')): ?>
+                    <a href="<?= BASE_URL ?>/satis/ekle?kaynak_irsaliye_id=<?= $f['id'] ?>" class="btn-det" style="background:#16a34a;">
+                      <i class="fa-solid fa-file-invoice-dollar"></i> Faturalandır
                     </a>
                   <?php endif; ?>
                   <?php if ($f['durum'] !== 'iptal' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
                     <a href="#"
                        class="btn-det red"
-                       onclick="return nymPost('<?= BASE_URL ?>/satis/iptal/<?= $f['id'] ?>', 'Fatura iptal edilsin mi?')">
+                       onclick="return nymPost('<?= BASE_URL ?>/satis/iptal/<?= $f['id'] ?>', '<?= $belgeAdi ?> iptal edilsin mi?')">
                       <i class="fa-solid fa-ban"></i> İptal Et
                     </a>
                   <?php endif; ?>
                   <?php if (Rbac::currentUserCan('SATIS_DELETE')): ?>
                   <a href="#"
                      class="btn-det slate"
-                     onclick="return nymPost('<?= BASE_URL ?>/satis/sil/<?= $f['id'] ?>', 'Fatura silinsin mi?')">
+                     onclick="return nymPost('<?= BASE_URL ?>/satis/sil/<?= $f['id'] ?>', '<?= $belgeAdi ?> silinsin mi?')">
                     <i class="fa-solid fa-trash-can"></i> Sil
                   </a>
                   <?php endif; ?>
                 </div>
                 <div style="font-size:12px; color:var(--muted);">
+                  <?php if ($belgeTipi === 'irsaliye'): ?>
+                    <?php if (($f['sevk_turu'] ?? 'musteri') === 'depolar_arasi'): ?>
+                      Sevk türü: <strong style="color:var(--text2);">Depolar Arası</strong> —
+                      <?= htmlspecialchars($depoAdlari[(int)($f['depo_id'] ?? 0)] ?? '?') ?>
+                      <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                      <?= htmlspecialchars($depoAdlari[(int)($f['hedef_depo_id'] ?? 0)] ?? '?') ?>
+                    <?php else: ?>
+                      Sevk türü: <strong style="color:var(--text2);">Müşteriye Sevk</strong> — çıkış deposu: <?= htmlspecialchars($depoAdlari[(int)($f['depo_id'] ?? 0)] ?? '?') ?>
+                    <?php endif; ?>
+                    &nbsp;|&nbsp;
+                  <?php endif; ?>
                   Vade: <?= $fmtTar($f['vade_tarihi']) ?> &nbsp;|&nbsp;
                   KDV: <?= $fmt($f['kdv_tutari']) ?> &nbsp;|&nbsp;
                   Kalan: <strong style="color:#d97706;"><?= $fmt($f['kalan_tutar']) ?></strong>

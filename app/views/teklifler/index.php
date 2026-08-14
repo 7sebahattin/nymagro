@@ -273,6 +273,13 @@ $durumRenk = [
   .nav-link.active:focus { color: #4ade80; outline: none; }
 </style>
 
+<?php if (!empty($flash)): ?>
+  <div style="background:<?= $flash['tip'] === 'success' ? 'rgba(46,204,113,.15)' : 'rgba(231,76,60,.15)' ?>; border:1px solid <?= $flash['tip'] === 'success' ? 'rgba(46,204,113,.28)' : 'rgba(231,76,60,.28)' ?>; color:<?= $flash['tip'] === 'success' ? 'var(--success)' : 'var(--danger)' ?>; padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; display:flex; align-items:center; gap:8px;">
+    <i class="fa-solid fa-<?= $flash['tip'] === 'success' ? 'check-circle' : 'circle-exclamation' ?>"></i>
+    <?= htmlspecialchars($flash['mesaj']) ?>
+  </div>
+<?php endif; ?>
+
 <!-- ── Üst Aksiyon Çubuğu ── -->
     <div class="action-btns" style="display:flex; gap:10px; align-items:center; margin-bottom: 16px; flex-wrap:wrap;">
       <?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>

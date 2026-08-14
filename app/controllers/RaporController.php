@@ -199,8 +199,9 @@ class RaporController extends Controller
     public function irsaliyeler(): void
     {
         $this->renderReport('getWaybillReport', 'İrsaliyeler Raporu', [
-            'tarih' => 'Tarih', 'irsaliye_no' => 'İrsaliye No', 'musteri' => 'Müşteri',
-            'toplam_tutar' => 'Toplam tutar', 'durum' => 'Durum', 'aciklama' => 'Açıklama',
+            'tarih' => 'Tarih', 'irsaliye_no' => 'İrsaliye No', 'sevk_turu' => 'Sevk türü',
+            'musteri' => 'Müşteri / Hedef', 'toplam_tutar' => 'Toplam tutar', 'durum' => 'Durum',
+            'faturalandi_mi' => 'Faturalandı mı?', 'aciklama' => 'Açıklama',
         ], ['date', 'customer', 'status']);
     }
 

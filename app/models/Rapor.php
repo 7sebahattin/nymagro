@@ -845,16 +845,24 @@ class Rapor
     public function getWaybillReport(array $filters): array
     {
         // "İrsaliye Kaydet" ile oluşturulan belgeler de ayrı bir tabloda değil,
-        // faturalar tablosunda belge_tipi='irsaliye' olarak tutulur. İrsaliye
-        // stok/cari bakiyesini etkilemez (Fatura::STOK_ETKILEYEN_TIPLER bu tipi
-        // kapsamaz) — bu rapor yalnızca belgeleri gözlemlenebilir kılar.
+        // faturalar tablosunda belge_tipi='irsaliye' olarak tutulur (sevk_turu:
+        // 'musteri' → müşteriye sevk, stok o an çıkar; 'depolar_arasi' → kaynak
+        // depodan hedef depoya transfer). Bkz. Fatura::stokHareketPlani().
         [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi = 'irsaliye'", 'musteri');
         $rows = $this->db->select(
             "SELECT f.fatura_tarihi AS tarih, f.fatura_no AS irsaliye_no,
-                    COALESCE(c.unvan, 'Cari yok') AS musteri,
-                    f.genel_toplam AS toplam_tutar, f.durum, f.aciklama
+                    CASE WHEN f.sevk_turu = 'depolar_arasi' THEN 'Depolar Arası' ELSE 'Müşteriye Sevk' END AS sevk_turu,
+                    CASE WHEN f.sevk_turu = 'depolar_arasi'
+                         THEN CONCAT(COALESCE(dk.ad, '?'), ' → ', COALESCE(dh.ad, '?'))
+                         ELSE COALESCE(c.unvan, 'Cari yok') END AS musteri,
+                    f.genel_toplam AS toplam_tutar, f.durum,
+                    CASE WHEN f.sevk_turu = 'depolar_arasi' THEN '—'
+                         WHEN f.irsaliye_kullanildi = 1 THEN 'Evet' ELSE 'Hayır' END AS faturalandi_mi,
+                    f.aciklama
              FROM faturalar f
              LEFT JOIN cariler c ON c.id = f.cari_id
+             LEFT JOIN depolar dk ON dk.id = f.depo_id
+             LEFT JOIN depolar dh ON dh.id = f.hedef_depo_id
              WHERE {$where}
              ORDER BY f.fatura_tarihi DESC, f.id DESC",
             $params
@@ -863,7 +871,7 @@ class Rapor
         return $this->withSummary($rows, [
             'Toplam irsaliye tutarı' => $this->sum($rows, 'toplam_tutar', true),
             'İrsaliye sayısı' => count($rows),
-        ], 'İrsaliye kayıtları faturalar tablosundaki belge_tipi=\'irsaliye\' satırlarından üretilir. İrsaliye onaylansa dahi stok ve cari bakiyesini etkilemez; sevkiyatın stoktan düşülmesi gerekiyorsa ilgili satış faturasının ayrıca kesilmesi gerekir.');
+        ], 'Müşteriye sevk irsaliyesi onaylandığı an malı depodan düşürür; cari borcu/geliri henüz oluşturmaz — bu, "Faturalandır" ile o irsaliyeden doldurulan satış faturası kesildiğinde oluşur (o faturada stok ikinci kez düşürülmez). Depolar arası sevk irsaliyesi ise yalnızca kaynak/hedef depo stoğunu değiştirir; müşteri veya fatura bağlantısı yoktur.');
     }
 
     public function getSixMonthSalesReport(array $filters): array
