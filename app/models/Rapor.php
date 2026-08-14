@@ -813,11 +813,57 @@ class Rapor
 
     public function getOffersReport(array $filters): array
     {
-        if (!$this->tableExists('teklifler')) {
-            return $this->withSummary([], [], 'Teklifler raporu için veritabanında teklifler tablosu bulunamadı. Raporun çalışması için teklif kayıtlarının tutulması gerekir.');
+        // Ayrı bir "teklifler" tablosu yok — teklif (proforma) kayıtları da diğer
+        // belgeler gibi faturalar tablosunda belge_tipi='proforma' olarak tutulur
+        // (bkz. TeklifController). Bu yüzden aynı kaynaktan okunur.
+        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi = 'proforma'", 'musteri');
+        $rows = $this->db->select(
+            "SELECT f.fatura_tarihi AS tarih, f.fatura_no AS teklif_no,
+                    COALESCE(c.unvan, 'Cari yok') AS musteri,
+                    f.genel_toplam AS toplam_tutar, f.durum,
+                    f.vade_tarihi AS gecerlilik_tarihi, f.aciklama
+             FROM faturalar f
+             LEFT JOIN cariler c ON c.id = f.cari_id
+             WHERE {$where}
+             ORDER BY f.fatura_tarihi DESC, f.id DESC",
+            $params
+        );
+        foreach ($rows as &$row) {
+            // Bir proformanın kesin satışa dönüşüp dönüşmediğini izleyen bir bağlantı
+            // (fatura_id/kaynak_teklif_id vb.) şu anda şemada yok; yanıltıcı bir tahmin
+            // yapmak yerine bunu açıkça belirtiyoruz.
+            $row['satisa_donustu'] = 'İzlenmiyor';
         }
+        unset($row);
 
-        return $this->withSummary([], [], 'Teklifler tablosu bulundu ancak kolon sözleşmesi bu kurulumda standart değil; kolonlar eşleştirildikten sonra rapor sorgusu güvenle açılmalı.');
+        return $this->withSummary($rows, [
+            'Toplam teklif tutarı' => $this->sum($rows, 'toplam_tutar', true),
+            'Teklif sayısı' => count($rows),
+        ], 'Teklif (proforma) kayıtları faturalar tablosundaki belge_tipi=\'proforma\' satırlarından üretilir. Bir teklifin nihai satışa dönüşüp dönüşmediğine dair bağlantı şemada tutulmadığı için "Satışa dönüştü mü?" bilgisi izlenmemektedir.');
+    }
+
+    public function getWaybillReport(array $filters): array
+    {
+        // "İrsaliye Kaydet" ile oluşturulan belgeler de ayrı bir tabloda değil,
+        // faturalar tablosunda belge_tipi='irsaliye' olarak tutulur. İrsaliye
+        // stok/cari bakiyesini etkilemez (Fatura::STOK_ETKILEYEN_TIPLER bu tipi
+        // kapsamaz) — bu rapor yalnızca belgeleri gözlemlenebilir kılar.
+        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi = 'irsaliye'", 'musteri');
+        $rows = $this->db->select(
+            "SELECT f.fatura_tarihi AS tarih, f.fatura_no AS irsaliye_no,
+                    COALESCE(c.unvan, 'Cari yok') AS musteri,
+                    f.genel_toplam AS toplam_tutar, f.durum, f.aciklama
+             FROM faturalar f
+             LEFT JOIN cariler c ON c.id = f.cari_id
+             WHERE {$where}
+             ORDER BY f.fatura_tarihi DESC, f.id DESC",
+            $params
+        );
+
+        return $this->withSummary($rows, [
+            'Toplam irsaliye tutarı' => $this->sum($rows, 'toplam_tutar', true),
+            'İrsaliye sayısı' => count($rows),
+        ], 'İrsaliye kayıtları faturalar tablosundaki belge_tipi=\'irsaliye\' satırlarından üretilir. İrsaliye onaylansa dahi stok ve cari bakiyesini etkilemez; sevkiyatın stoktan düşülmesi gerekiyorsa ilgili satış faturasının ayrıca kesilmesi gerekir.');
     }
 
     public function getSixMonthSalesReport(array $filters): array

@@ -265,6 +265,10 @@
       <a href="<?= BASE_URL ?>/raporlar/kategori-bazli-satis" class="report-btn col-span-3 bg-brown2">
         <span class="text-lg" style="margin-top:auto;margin-bottom:auto;text-transform:none;">Kategori Bazlı Satış<br>Raporu</span>
       </a>
+      <a href="<?= BASE_URL ?>/raporlar/irsaliyeler" class="report-btn col-span-4 bg-blue" style="background-color:#5bc0de;">
+        <i class="fa-solid fa-truck"></i>
+        <span class="text-lg">İRSALİYELER</span>
+      </a>
     </div>
 
 <script>
