@@ -854,12 +854,18 @@ class Rapor
     {
         // "İrsaliye Kaydet" ile oluşturulan belgeler de ayrı bir tabloda değil,
         // faturalar tablosunda belge_tipi='irsaliye' olarak tutulur (sevk_turu:
-        // 'musteri' → müşteriye sevk, stok o an çıkar; 'depolar_arasi' → kaynak
-        // depodan hedef depoya transfer). Bkz. Fatura::stokHareketPlani().
-        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi = 'irsaliye'", 'musteri');
+        // 'musteri' → Satışlar ekranından müşteriye sevk, stok o an çıkar;
+        // 'tedarikci' → Alışlar ekranından tedarikçiden teslim alım, stok o an
+        // girer; 'depolar_arasi' → kaynak depodan hedef depoya transfer).
+        // Bkz. Fatura::stokHareketPlani(). Cari türü satış/alış tarafına göre
+        // değiştiği için burada 'musteri'/'tedarikci' ile kısıtlanmaz — her ikisi
+        // de tek listede gösterilir.
+        [$where, $params] = $this->invoiceWhere($filters, "f.belge_tipi = 'irsaliye'", '');
         $rows = $this->db->select(
             "SELECT f.fatura_tarihi AS tarih, f.fatura_no AS irsaliye_no,
-                    CASE WHEN f.sevk_turu = 'depolar_arasi' THEN 'Depolar Arası' ELSE 'Müşteriye Sevk' END AS sevk_turu,
+                    CASE WHEN f.sevk_turu = 'depolar_arasi' THEN 'Depolar Arası'
+                         WHEN f.sevk_turu = 'tedarikci' THEN 'Tedarikçiden Alım'
+                         ELSE 'Müşteriye Sevk' END AS sevk_turu,
                     CASE WHEN f.sevk_turu = 'depolar_arasi'
                          THEN CONCAT(COALESCE(dk.ad, '?'), ' → ', COALESCE(dh.ad, '?'))
                          ELSE COALESCE(c.unvan, 'Cari yok') END AS musteri,

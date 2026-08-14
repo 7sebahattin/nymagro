@@ -272,10 +272,21 @@ class Fatura
         );
     }
 
-    /** belge_tipi'ne göre ilgili Rbac/Audit modülünü döner (alış tarafı → ALIS, diğerleri → SATIS). */
-    private function moduleForBelgeTipi(string $belgeTipi): string
+    /**
+     * Belgenin tam satırına göre ilgili Rbac/Audit modülünü döner. irsaliye her iki
+     * taraftan da (Satışlar/Alışlar ekranı) aynı belge_tipi ile kaydedildiği için
+     * yalnızca belge_tipi yetmez — sevk_turu='tedarikci' ise alış tarafı sayılır.
+     */
+    private function moduleForBelgeTipi(array $fatura): string
     {
-        return in_array($belgeTipi, ['alis', 'iade_alis'], true) ? 'ALIS' : 'SATIS';
+        $belgeTipi = $fatura['belge_tipi'] ?? '';
+        if (in_array($belgeTipi, ['alis', 'iade_alis'], true)) {
+            return 'ALIS';
+        }
+        if ($belgeTipi === 'irsaliye' && ($fatura['sevk_turu'] ?? '') === 'tedarikci') {
+            return 'ALIS';
+        }
+        return 'SATIS';
     }
 
     /**
@@ -289,23 +300,26 @@ class Fatura
      *  - satış / alış iadesi / perakende → çıkış (mal işletmeden çıkar)
      *  - irsaliye (müşteriye sevk)    → çıkış — mal fiilen depodan sevk edilir;
      *    cari borcu/gelir henüz oluşmaz, o faturada oluşur.
+     *  - irsaliye (tedarikçiden alım)  → giriş — mal tedarikçiden fiilen teslim
+     *    alınır; cari borcu/gider henüz oluşmaz, o alış faturasında oluşur.
      *  - irsaliye (depolar arası sevk) → kaynak depoda çıkış + hedef depoda giriş
      *    (toplam şirket stoğu değişmez, yalnızca depo dağılımı değişir).
-     *  - bir irsaliyeden doldurularak oluşturulan satış faturası (kaynak_irsaliye_id
-     *    dolu) → HİÇ stok hareketi yaratmaz; mal irsaliye kesilirken zaten
-     *    depodan düşürülmüştü, aksi halde aynı sevkiyat iki kez stoktan düşer.
+     *  - bir irsaliyeden doldurularak oluşturulan satış/alış faturası
+     *    (kaynak_irsaliye_id dolu) → HİÇ stok hareketi yaratmaz; mal irsaliye
+     *    kesilirken zaten depodan düşürülmüş/depoya girmişti, aksi halde aynı
+     *    sevkiyat iki kez stok hareketi yaratır.
      *  - proforma / sipariş           → hiç etkilemez (henüz bağlayıcı belge değil).
      */
     private function stokHareketPlani(array $fatura, int $depoId): array
     {
         $belgeTipi = $fatura['belge_tipi'] ?? '';
 
-        if ($belgeTipi === 'satis' && !empty($fatura['kaynak_irsaliye_id'])) {
+        if (in_array($belgeTipi, ['satis', 'alis'], true) && !empty($fatura['kaynak_irsaliye_id'])) {
             return [];
         }
 
         if ($belgeTipi === 'irsaliye') {
-            $sevkTuru = ($fatura['sevk_turu'] ?? '') === 'depolar_arasi' ? 'depolar_arasi' : 'musteri';
+            $sevkTuru = $fatura['sevk_turu'] ?? 'musteri';
             if ($sevkTuru === 'depolar_arasi') {
                 $hedefDepoId = !empty($fatura['hedef_depo_id']) ? (int)$fatura['hedef_depo_id'] : null;
                 // Geçersiz/eksik hedef depo (veya kaynakla aynı depo) durumunda hiç
@@ -319,6 +333,9 @@ class Fatura
                     ['tip' => 'cikis', 'depo_id' => $depoId],
                     ['tip' => 'giris', 'depo_id' => $hedefDepoId],
                 ];
+            }
+            if ($sevkTuru === 'tedarikci') {
+                return [['tip' => 'giris', 'depo_id' => $depoId]];
             }
             return [['tip' => 'cikis', 'depo_id' => $depoId]];
         }
@@ -435,7 +452,7 @@ class Fatura
             }
 
             $this->db->commit();
-            Audit::log('CREATE', $this->moduleForBelgeTipi($temizFatura['belge_tipi']), $faturaId, null, $temizFatura, "Fatura oluşturuldu: " . ($temizFatura['fatura_no'] ?? ''));
+            Audit::log('CREATE', $this->moduleForBelgeTipi($temizFatura), $faturaId, null, $temizFatura, "Fatura oluşturuldu: " . ($temizFatura['fatura_no'] ?? ''));
             return $faturaId;
         } catch (\Throwable $e) {
             if ($this->db->pdo()->inTransaction()) {
@@ -476,7 +493,7 @@ class Fatura
             $temizFatura['depo_id'] = $depoId;
             $this->assertCariBelongsToCompany($temizFatura['cari_id'] ?? null);
             $this->db->update('faturalar', $temizFatura, ['id' => $id]);
-            Audit::log('UPDATE', $this->moduleForBelgeTipi($mevcut['belge_tipi']), $id, $mevcut, $temizFatura, "Fatura güncellendi: " . ($temizFatura['fatura_no'] ?? $mevcut['fatura_no']));
+            Audit::log('UPDATE', $this->moduleForBelgeTipi($mevcut), $id, $mevcut, $temizFatura, "Fatura güncellendi: " . ($temizFatura['fatura_no'] ?? $mevcut['fatura_no']));
 
             // reverseStockAndBalance() yukarıda kaynak irsaliyeyi "kullanılmadı"
             // durumuna geri almıştı (iptal/silme senaryosu için) — bu fatura hâlâ
@@ -655,7 +672,7 @@ class Fatura
             }
             $sonuc = $this->db->update('faturalar', ['durum' => 'iptal'], ['id' => $id]);
             $this->reverseStockAndBalance($fatura);
-            Audit::log('UPDATE', $this->moduleForBelgeTipi($fatura['belge_tipi']), $id, ['durum' => $fatura['durum']], ['durum' => 'iptal'], "Fatura iptal edildi: " . ($fatura['fatura_no'] ?? ''));
+            Audit::log('UPDATE', $this->moduleForBelgeTipi($fatura), $id, ['durum' => $fatura['durum']], ['durum' => 'iptal'], "Fatura iptal edildi: " . ($fatura['fatura_no'] ?? ''));
             $this->db->commit();
             return $sonuc;
         } catch (\Throwable $e) {
@@ -681,7 +698,7 @@ class Fatura
                 return 0;
             }
             $sonuc = $this->db->update('faturalar', ['durum' => 'onaylandi'], ['id' => $id]);
-            Audit::log('UPDATE', $this->moduleForBelgeTipi($fatura['belge_tipi']), $id, ['durum' => 'taslak'], ['durum' => 'onaylandi'], "Fatura onaylandı: " . ($fatura['fatura_no'] ?? ''));
+            Audit::log('UPDATE', $this->moduleForBelgeTipi($fatura), $id, ['durum' => 'taslak'], ['durum' => 'onaylandi'], "Fatura onaylandı: " . ($fatura['fatura_no'] ?? ''));
             $this->db->commit();
             return $sonuc;
         } catch (\Throwable $e) {
@@ -711,7 +728,7 @@ class Fatura
                 $this->reverseStockAndBalance($fatura);
             }
             $sonuc = $this->db->softDelete('faturalar', $id);
-            Audit::log('DELETE', $this->moduleForBelgeTipi($fatura['belge_tipi']), $id, $fatura, null, "Fatura silindi: " . ($fatura['fatura_no'] ?? ''));
+            Audit::log('DELETE', $this->moduleForBelgeTipi($fatura), $id, $fatura, null, "Fatura silindi: " . ($fatura['fatura_no'] ?? ''));
             $this->db->commit();
             return $sonuc;
         } catch (\Throwable $e) {
@@ -772,8 +789,14 @@ class Fatura
      * ("Yeni Fatura" ekranındaki "İrsaliyeden Doldur" seçimi için). İptal edilmiş
      * ve depolar arası (müşterisiz) irsaliyeler listeye girmez.
      */
-    public function faturalandirilmamisIrsaliyeler(?int $cariId = null, int $limit = 100): array
+    /**
+     * @param string $sevkTuru 'musteri' (Satışlar ekranı — müşteriye sevk edilen,
+     *   henüz faturalandırılmamış irsaliyeler) veya 'tedarikci' (Alışlar ekranı —
+     *   tedarikçiden teslim alınan, henüz faturalandırılmamış irsaliyeler).
+     */
+    public function faturalandirilmamisIrsaliyeler(?int $cariId = null, int $limit = 100, string $sevkTuru = 'musteri'): array
     {
+        $sevkTuru = $sevkTuru === 'tedarikci' ? 'tedarikci' : 'musteri';
         $params = [
             ':company_id' => TenantContext::activeCompanyId(),
             ':period_id' => TenantContext::activePeriodId(),
@@ -784,13 +807,16 @@ class Fatura
             $cariSql = ' AND f.cari_id = :cari_id';
             $params[':cari_id'] = $cariId;
         }
+        // 'musteri' değerinin yanı sıra NULL da tarihsel olarak "müşteriye sevk"
+        // anlamına gelir (sevk_turu kolonu sonradan eklendi — bkz. ensureIrsaliyeSevkColumns).
+        $sevkTuruSql = $sevkTuru === 'tedarikci' ? "f.sevk_turu = 'tedarikci'" : "(f.sevk_turu IS NULL OR f.sevk_turu = 'musteri')";
         return $this->db->select(
             "SELECT f.id, f.fatura_no, f.fatura_tarihi, f.cari_id, f.genel_toplam,
                     COALESCE(c.unvan, 'Cari yok') AS cari_unvan
              FROM faturalar f
              LEFT JOIN cariler c ON c.id = f.cari_id
              WHERE f.silindi_mi = 0 AND f.belge_tipi = 'irsaliye'
-               AND (f.sevk_turu IS NULL OR f.sevk_turu = 'musteri')
+               AND {$sevkTuruSql}
                AND f.irsaliye_kullanildi = 0 AND f.durum <> 'iptal'
                AND f.company_id = :company_id AND f.period_id = :period_id
                {$cariSql}
