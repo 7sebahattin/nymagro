@@ -829,7 +829,8 @@ class Rapor
             "SELECT f.fatura_tarihi AS tarih, f.fatura_no AS teklif_no,
                     COALESCE(c.unvan, 'Cari yok') AS musteri,
                     f.genel_toplam AS toplam_tutar, f.durum,
-                    f.vade_tarihi AS gecerlilik_tarihi, f.aciklama
+                    f.vade_tarihi AS gecerlilik_tarihi, f.aciklama,
+                    f.teklif_kullanildi
              FROM faturalar f
              LEFT JOIN cariler c ON c.id = f.cari_id
              WHERE {$where}
@@ -837,17 +838,15 @@ class Rapor
             $params
         );
         foreach ($rows as &$row) {
-            // Bir proformanın kesin satışa dönüşüp dönüşmediğini izleyen bir bağlantı
-            // (fatura_id/kaynak_teklif_id vb.) şu anda şemada yok; yanıltıcı bir tahmin
-            // yapmak yerine bunu açıkça belirtiyoruz.
-            $row['satisa_donustu'] = 'İzlenmiyor';
+            $row['satisa_donustu'] = ((int)($row['teklif_kullanildi'] ?? 0) === 1) ? 'Evet' : 'Hayır';
         }
         unset($row);
 
         return $this->withSummary($rows, [
             'Toplam teklif tutarı' => $this->sum($rows, 'toplam_tutar', true),
             'Teklif sayısı' => count($rows),
-        ], 'Teklif (proforma) kayıtları faturalar tablosundaki belge_tipi=\'proforma\' satırlarından üretilir. Bir teklifin nihai satışa dönüşüp dönüşmediğine dair bağlantı şemada tutulmadığı için "Satışa dönüştü mü?" bilgisi izlenmemektedir.');
+            'Satışa dönüşen' => count(array_filter($rows, fn($r) => $r['satisa_donustu'] === 'Evet')),
+        ], 'Teklif (proforma) kayıtları faturalar tablosundaki belge_tipi=\'proforma\' satırlarından üretilir. "Satışa dönüştü mü?" bilgisi faturalar.teklif_kullanildi alanından okunur.');
     }
 
     public function getWaybillReport(array $filters): array

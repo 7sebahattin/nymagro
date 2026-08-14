@@ -117,6 +117,13 @@ $err = function(string $k) use ($hatalar): string {
   </div>
 <?php endif; ?>
 
+<?php if (!empty($hatalar['kaynak_teklif_id'])): ?>
+  <div class="alert-error">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <?= htmlspecialchars($hatalar['kaynak_teklif_id']) ?>
+  </div>
+<?php endif; ?>
+
 <form id="faturaForm" method="POST" action="<?= BASE_URL ?>/satis/kaydet">
 
 
@@ -152,6 +159,23 @@ $err = function(string $k) use ($hatalar): string {
 </div>
 <?php endif; ?>
 <input type="hidden" name="kaynak_irsaliye_id" id="kaynakIrsaliyeIdHidden" value="<?= (int)($presetKaynakIrsaliyeId ?? 0) ?: '' ?>">
+
+<?php if (!empty($acikTeklifler)): ?>
+<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(93,191,104,.12); border:1px solid rgba(93,191,104,.3); border-radius:6px; padding:10px 14px; margin-bottom:16px;">
+  <i class="fa-solid fa-file-invoice" style="color:#5dbf68;"></i>
+  <label for="teklifDoldurSel" style="font-size:12.5px;font-weight:600;color:var(--text2);white-space:nowrap;">Satışa dönüştürülmemiş tekliften doldur:</label>
+  <select id="teklifDoldurSel" class="fi" style="max-width:340px;">
+    <option value="">— seçiniz —</option>
+    <?php foreach ($acikTeklifler as $tk): ?>
+      <option value="<?= (int)$tk['id'] ?>" <?= (int)($presetKaynakTeklifId ?? 0) === (int)$tk['id'] ? 'selected' : '' ?>>
+        <?= htmlspecialchars($tk['fatura_no']) ?> — <?= htmlspecialchars($tk['cari_unvan']) ?> (<?= date('d.m.Y', strtotime($tk['fatura_tarihi'])) ?>)
+      </option>
+    <?php endforeach; ?>
+  </select>
+  <span style="font-size:11px;color:var(--muted);">seçilince kalemler ve müşteri otomatik dolar — yalnızca "Fatura Kaydet" ile kullanın</span>
+</div>
+<?php endif; ?>
+<input type="hidden" name="kaynak_teklif_id" id="kaynakTeklifIdHidden" value="<?= (int)($presetKaynakTeklifId ?? 0) ?: '' ?>">
 
 <div class="panels-container">
 
@@ -699,6 +723,51 @@ $err = function(string $k) use ($hatalar): string {
     irsaliyeSel.addEventListener('change', function () { irsaliyedenDoldur(this.value); });
   }
 
+  /* ══════════════════════════════════════
+     TEKLİFTEN DOLDUR
+     Yalnızca "Fatura Kaydet" ile kullanılmalıdır; kalemleri/müşteriyi
+     seçilen teklif (proforma) belgesinden kopyalar.
+  ══════════════════════════════════════ */
+  const teklifSel       = document.getElementById('teklifDoldurSel');
+  const kaynakTeklifHid = document.getElementById('kaynakTeklifIdHidden');
+
+  function teklifdenDoldur(id) {
+    if (!id) return;
+    fetch(BASE + '/satis/teklif-getir/' + encodeURIComponent(id))
+      .then(r => r.json())
+      .then(data => {
+        if (data.status !== 'success') {
+          kaynakTeklifHid.value = '';
+          if (teklifSel) teklifSel.value = '';
+          alert(data.message || 'Teklif getirilemedi.');
+          return;
+        }
+        kalemleriTemizle();
+        if (data.cari_id) {
+          cariHid.value = data.cari_id;
+          msInput.value = data.cari_unvan || '';
+          phBaslik.textContent = (data.cari_unvan || 'PERAKENDE').toUpperCase();
+        }
+        (data.kalemler || []).forEach(k => {
+          kalemEkle(k);
+          const tr = emptyRow.previousElementSibling;
+          if (!tr) return;
+          const miktarInput = tr.querySelector('[name="kalem_miktar[]"]');
+          if (miktarInput) miktarInput.value = k.miktar || 1;
+          const iskInput = tr.querySelector('[name="kalem_iskonto_orani[]"]');
+          if (iskInput) iskInput.value = k.iskonto_orani || 0;
+          const m = tr.id.match(/^kalem-(\d+)$/);
+          if (m) window.satirHesapla(m[1]);
+        });
+        kaynakTeklifHid.value = id;
+      })
+      .catch(() => alert('Teklif getirilirken ağ hatası oluştu.'));
+  }
+
+  if (teklifSel) {
+    teklifSel.addEventListener('change', function () { teklifdenDoldur(this.value); });
+  }
+
   function genelHesapla() {
     let araToplam = 0, iskontoT = 0, kdvT = 0;
     tbody.querySelectorAll('tr:not(#emptyRow)').forEach(tr => {
@@ -746,6 +815,10 @@ $err = function(string $k) use ($hatalar): string {
 
   <?php if (!empty($presetKaynakIrsaliyeId)): ?>
   irsaliyedenDoldur('<?= (int)$presetKaynakIrsaliyeId ?>');
+  <?php endif; ?>
+
+  <?php if (!empty($presetKaynakTeklifId)): ?>
+  teklifdenDoldur('<?= (int)$presetKaynakTeklifId ?>');
   <?php endif; ?>
 })();
 </script>

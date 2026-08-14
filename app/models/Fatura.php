@@ -20,6 +20,8 @@ class Fatura
         'created_by',
         // İrsaliye sevk türü ve irsaliye→fatura dönüştürme alanları (bkz. ensureIrsaliyeSevkColumns).
         'sevk_turu', 'hedef_depo_id', 'kaynak_irsaliye_id', 'irsaliye_kullanildi',
+        // Teklif (proforma)→satış dönüştürme bağlantısı (bkz. ensureTeklifDonusumColumns).
+        'kaynak_teklif_id', 'teklif_kullanildi',
     ];
 
     private array $kalemFillable = [
@@ -44,6 +46,7 @@ class Fatura
             $this->ensureDovizColumns();
             $this->ensureCreatedByColumn();
             $this->ensureIrsaliyeSevkColumns();
+            $this->ensureTeklifDonusumColumns();
             $this->ensurePerformansIndexleri();
         }
     }
@@ -65,6 +68,37 @@ class Fatura
             'hedef_depo_id'       => "INT NULL DEFAULT NULL AFTER sevk_turu",
             'kaynak_irsaliye_id'  => "INT NULL DEFAULT NULL AFTER hedef_depo_id",
             'irsaliye_kullanildi' => "TINYINT(1) NOT NULL DEFAULT 0 AFTER kaynak_irsaliye_id",
+        ];
+        try {
+            foreach ($kolonlar as $ad => $tanim) {
+                $var = $this->db->selectOne(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = :ad",
+                    [':ad' => $ad]
+                );
+                if (!$var) {
+                    $this->db->query("ALTER TABLE faturalar ADD COLUMN {$ad} {$tanim}");
+                }
+            }
+        } catch (\Throwable $e) {
+            // Sessizce geç — tablo henüz yoksa veya yetki yoksa uygulamayı kilitleme.
+        }
+    }
+
+    /**
+     * Bir teklifin (proforma) hangi satış faturasına dönüştüğünü izlemek için
+     * gerekli kolonlar (idempotent).
+     * - kaynak_teklif_id: bir teklifden doldurularak oluşturulan 'satis' faturasında,
+     *   kaynak teklifin id'sini tutar.
+     * - teklif_kullanildi: bir teklifin daha önce bir satışa dönüştürülüp
+     *   dönüştürülmediğini (aynı teklifin iki kez satışa dönüştürülmesini önlemek
+     *   için) tutar; Teklifler Raporu'ndaki "Satışa dönüştü mü?" sütunu buradan okunur.
+     */
+    private function ensureTeklifDonusumColumns(): void
+    {
+        $kolonlar = [
+            'kaynak_teklif_id' => "INT NULL DEFAULT NULL AFTER irsaliye_kullanildi",
+            'teklif_kullanildi' => "TINYINT(1) NOT NULL DEFAULT 0 AFTER kaynak_teklif_id",
         ];
         try {
             foreach ($kolonlar as $ad => $tanim) {
@@ -362,6 +396,33 @@ class Fatura
         };
     }
 
+    /**
+     * Bir kaynak belgeyi (irsaliye/teklif) "kullanıldı" bayrağıyla işaretler
+     * (veya iptal/silme sırasında tersini yapar). Guard'lı UPDATE ile aynı
+     * kaynağın iki kez kullanılması engellenir — işaretleme (kullanildi=true)
+     * sırasında 0 satır etkilenirse (zaten kullanılmış/silinmiş/başka belgeye
+     * bağlanmış) $hataMesaji ile exception fırlatılır; işareti geri alırken
+     * (kullanildi=false) sessizce geçilir.
+     */
+    private function kaynakBelgeIsaretle(int $kaynakId, string $beklenenBelgeTipi, string $kolon, bool $kullanildi, string $hataMesaji = ''): void
+    {
+        $stmt = $this->db->query(
+            "UPDATE faturalar SET {$kolon} = :yeni
+             WHERE id = :kid AND company_id = :cid AND belge_tipi = :btip
+               AND {$kolon} = :eski AND silindi_mi = 0",
+            [
+                ':yeni' => $kullanildi ? 1 : 0,
+                ':kid'  => $kaynakId,
+                ':cid'  => TenantContext::activeCompanyId(),
+                ':btip' => $beklenenBelgeTipi,
+                ':eski' => $kullanildi ? 0 : 1,
+            ]
+        );
+        if ($kullanildi && $stmt->rowCount() === 0) {
+            throw new RuntimeException($hataMesaji);
+        }
+    }
+
     // ─── Kayıt ──────────────────────────────────────────────────────────
 
     /**
@@ -385,20 +446,14 @@ class Fatura
             $this->assertCariBelongsToCompany($temizFatura['cari_id'] ?? null);
             $faturaId    = $this->db->insert('faturalar', $temizFatura);
 
-            // Bir irsaliyeden doldurularak oluşturulan satış faturasıysa, kaynak
-            // irsaliyeyi "kullanıldı" olarak işaretle — aynı irsaliye iki kez
-            // faturalandırılamaz (guarded UPDATE: satır zaten kullanılmışsa 0 satır
-            // etkilenir ve transaction geri alınır).
+            // Bir irsaliyeden/teklifden doldurularak oluşturulan faturaysa, kaynak
+            // belgeyi "kullanıldı" olarak işaretle — aynı kaynak iki kez
+            // kullanılamaz (guarded UPDATE: satır zaten kullanılmışsa exception atar).
             if (!empty($temizFatura['kaynak_irsaliye_id'])) {
-                $etkilenen = $this->db->query(
-                    "UPDATE faturalar SET irsaliye_kullanildi = 1
-                     WHERE id = :iid AND company_id = :cid AND belge_tipi = 'irsaliye'
-                       AND irsaliye_kullanildi = 0 AND silindi_mi = 0",
-                    [':iid' => (int)$temizFatura['kaynak_irsaliye_id'], ':cid' => TenantContext::activeCompanyId()]
-                )->rowCount();
-                if ($etkilenen === 0) {
-                    throw new RuntimeException('Seçilen irsaliye bulunamadı veya zaten faturalandırılmış.');
-                }
+                $this->kaynakBelgeIsaretle((int)$temizFatura['kaynak_irsaliye_id'], 'irsaliye', 'irsaliye_kullanildi', true, 'Seçilen irsaliye bulunamadı veya zaten faturalandırılmış.');
+            }
+            if (!empty($temizFatura['kaynak_teklif_id'])) {
+                $this->kaynakBelgeIsaretle((int)$temizFatura['kaynak_teklif_id'], 'proforma', 'teklif_kullanildi', true, 'Seçilen teklif bulunamadı veya zaten satışa dönüştürülmüş.');
             }
 
             $stokPlani = $this->stokHareketPlani($fatura, $depoId);
@@ -495,21 +550,16 @@ class Fatura
             $this->db->update('faturalar', $temizFatura, ['id' => $id]);
             Audit::log('UPDATE', $this->moduleForBelgeTipi($mevcut), $id, $mevcut, $temizFatura, "Fatura güncellendi: " . ($temizFatura['fatura_no'] ?? $mevcut['fatura_no']));
 
-            // reverseStockAndBalance() yukarıda kaynak irsaliyeyi "kullanılmadı"
+            // reverseStockAndBalance() yukarıda kaynak belgeyi "kullanılmadı"
             // durumuna geri almıştı (iptal/silme senaryosu için) — bu fatura hâlâ
-            // aynı irsaliyeye bağlıysa (düzenleme, bağlantı değişmedi) tekrar
+            // aynı kaynağa bağlıysa (düzenleme, bağlantı değişmedi) tekrar
             // "kullanıldı" olarak işaretle; guard sayesinde başka bir faturaya
             // bu arada bağlanmışsa hata fırlatır.
             if (!empty($temizFatura['kaynak_irsaliye_id'])) {
-                $etkilenen = $this->db->query(
-                    "UPDATE faturalar SET irsaliye_kullanildi = 1
-                     WHERE id = :iid AND company_id = :cid AND belge_tipi = 'irsaliye'
-                       AND irsaliye_kullanildi = 0 AND silindi_mi = 0",
-                    [':iid' => (int)$temizFatura['kaynak_irsaliye_id'], ':cid' => TenantContext::activeCompanyId()]
-                )->rowCount();
-                if ($etkilenen === 0) {
-                    throw new RuntimeException('Kaynak irsaliye bulunamadı veya bu arada başka bir faturaya bağlanmış.');
-                }
+                $this->kaynakBelgeIsaretle((int)$temizFatura['kaynak_irsaliye_id'], 'irsaliye', 'irsaliye_kullanildi', true, 'Kaynak irsaliye bulunamadı veya bu arada başka bir faturaya bağlanmış.');
+            }
+            if (!empty($temizFatura['kaynak_teklif_id'])) {
+                $this->kaynakBelgeIsaretle((int)$temizFatura['kaynak_teklif_id'], 'proforma', 'teklif_kullanildi', true, 'Kaynak teklif bulunamadı veya bu arada başka bir satışa bağlanmış.');
             }
 
             $stokPlani = $this->stokHareketPlani($fatura, $depoId);
@@ -638,14 +688,13 @@ class Fatura
             }
         }
 
-        // İrsaliyeden dönüştürülen bir satış faturası iptal/silinirse, kaynak
-        // irsaliye yeniden "kullanılmadı" durumuna döner ki tekrar faturalandırılabilsin.
+        // İrsaliyeden/teklifden dönüştürülen bir fatura iptal/silinirse, kaynak
+        // belge yeniden "kullanılmadı" durumuna döner ki tekrar kullanılabilsin.
         if (!empty($fatura['kaynak_irsaliye_id'])) {
-            $this->db->query(
-                "UPDATE faturalar SET irsaliye_kullanildi = 0
-                 WHERE id = :iid AND company_id = :cid AND belge_tipi = 'irsaliye'",
-                [':iid' => (int)$fatura['kaynak_irsaliye_id'], ':cid' => TenantContext::activeCompanyId()]
-            );
+            $this->kaynakBelgeIsaretle((int)$fatura['kaynak_irsaliye_id'], 'irsaliye', 'irsaliye_kullanildi', false);
+        }
+        if (!empty($fatura['kaynak_teklif_id'])) {
+            $this->kaynakBelgeIsaretle((int)$fatura['kaynak_teklif_id'], 'proforma', 'teklif_kullanildi', false);
         }
 
         if ((int)$fatura['cari_id'] > 0) {
@@ -818,6 +867,34 @@ class Fatura
              WHERE f.silindi_mi = 0 AND f.belge_tipi = 'irsaliye'
                AND {$sevkTuruSql}
                AND f.irsaliye_kullanildi = 0 AND f.durum <> 'iptal'
+               AND f.company_id = :company_id AND f.period_id = :period_id
+               {$cariSql}
+             ORDER BY f.fatura_tarihi DESC, f.id DESC
+             LIMIT :limit",
+            $params
+        );
+    }
+
+    /** Henüz satışa dönüştürülmemiş teklifleri (proforma) döner ("Yeni Fatura" ekranındaki "Tekliften Doldur" seçimi için). */
+    public function faturalandirilmamisTeklifler(?int $cariId = null, int $limit = 100): array
+    {
+        $params = [
+            ':company_id' => TenantContext::activeCompanyId(),
+            ':period_id' => TenantContext::activePeriodId(),
+            ':limit' => $limit,
+        ];
+        $cariSql = '';
+        if ($cariId) {
+            $cariSql = ' AND f.cari_id = :cari_id';
+            $params[':cari_id'] = $cariId;
+        }
+        return $this->db->select(
+            "SELECT f.id, f.fatura_no, f.fatura_tarihi, f.cari_id, f.genel_toplam,
+                    COALESCE(c.unvan, 'Cari yok') AS cari_unvan
+             FROM faturalar f
+             LEFT JOIN cariler c ON c.id = f.cari_id
+             WHERE f.silindi_mi = 0 AND f.belge_tipi = 'proforma'
+               AND f.teklif_kullanildi = 0 AND f.durum <> 'iptal'
                AND f.company_id = :company_id AND f.period_id = :period_id
                {$cariSql}
              ORDER BY f.fatura_tarihi DESC, f.id DESC
