@@ -135,6 +135,9 @@ $err = function(string $k) use ($hatalar): string {
   <button type="submit" name="belge_tipi" value="irsaliye" id="btnIrsaliye" class="top-btn" style="background:#5bc0de; color:#fff;">
     <i class="fa-solid fa-truck"></i> İrsaliye Kaydet
   </button>
+  <button type="submit" name="belge_tipi" value="numune" id="btnNumune" class="top-btn" style="background:#8e44ad; color:#fff;">
+    <i class="fa-solid fa-flask"></i> Numune Kaydet
+  </button>
   <button type="submit" name="belge_tipi" value="satis" id="btnFatura" class="top-btn btn-kaydet">
     <i class="fa-solid fa-bolt"></i> Fatura Kaydet
   </button>
@@ -460,7 +463,8 @@ $err = function(string $k) use ($hatalar): string {
 
   const btnProforma = document.getElementById('btnProforma');
   const btnFatura    = document.getElementById('btnFatura');
-  [btnProforma, btnFatura].forEach(btn => {
+  const btnNumune    = document.getElementById('btnNumune');
+  [btnProforma, btnFatura, btnNumune].forEach(btn => {
     if (!btn) return;
     btn.addEventListener('click', function (e) {
       if (sevkTuruSel.value === 'depolar_arasi') {

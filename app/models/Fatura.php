@@ -3,7 +3,7 @@
  * Model: Fatura
  * --------------------------------------------------------
  * faturalar + fatura_kalemleri tablolarını yönetir.
- * belge_tipi: 'satis' | 'alis' | 'iade_satis' | 'iade_alis' | 'perakende'
+ * belge_tipi: 'satis' | 'alis' | 'iade_satis' | 'iade_alis' | 'perakende' | 'numune'
  * durum:      'taslak' | 'onaylandi' | 'odendi' | 'kismi_odendi' | 'iptal'
  */
 
@@ -340,6 +340,9 @@ class Fatura
      *    alınır; cari borcu/gider henüz oluşmaz, o alış faturasında oluşur.
      *  - irsaliye (depolar arası sevk) → kaynak depoda çıkış + hedef depoda giriş
      *    (toplam şirket stoğu değişmez, yalnızca depo dağılımı değişir).
+     *  - numune                       → çıkış — mal fiilen depodan çıkar, ama
+     *    satış değildir: cari borcu/gelir hiç oluşmaz (recomputeCariBalance()
+     *    numune'yi saymaz), yalnızca stok ve maliyet açısından izlenir.
      *  - bir irsaliyeden doldurularak oluşturulan satış/alış faturası
      *    (kaynak_irsaliye_id dolu) → HİÇ stok hareketi yaratmaz; mal irsaliye
      *    kesilirken zaten depodan düşürülmüş/depoya girmişti, aksi halde aynı
@@ -379,7 +382,7 @@ class Fatura
         if (in_array($belgeTipi, ['alis', 'iade_satis'], true)) {
             return [['tip' => 'giris', 'depo_id' => $depoId]];
         }
-        if (in_array($belgeTipi, ['satis', 'iade_alis', 'perakende'], true)) {
+        if (in_array($belgeTipi, ['satis', 'iade_alis', 'perakende', 'numune'], true)) {
             return [['tip' => 'cikis', 'depo_id' => $depoId]];
         }
 
@@ -394,6 +397,7 @@ class Fatura
             'irsaliye'  => 'İrsaliye',
             'iade_satis', 'iade_alis' => 'İade Faturası',
             'perakende' => 'Perakende Satış',
+            'numune'    => 'Numune Fişi',
             default     => 'Satış Faturası',
         };
     }
@@ -631,7 +635,9 @@ class Fatura
      *
      * Satış/perakende (+), alış (-), iadeler karşıt yöndeki faturanın
      * işaretiyle (iade_satis -, iade_alis +) katkı yapar; tahsilat bakiyeyi
-     * azaltır (-), ödeme artırır (+).
+     * azaltır (-), ödeme artırır (+). irsaliye/proforma/numune bu CASE'de
+     * yer almadığı için (ELSE 0) cari bakiyeye hiç katkı yapmaz — bunlar
+     * henüz bağlayıcı bir tahsilat/borç doğurmayan ön/yardımcı belgelerdir.
      */
     public function recomputeCariBalance(int $cariId): void
     {
@@ -811,6 +817,7 @@ class Fatura
             'proforma'    => 'PRO',
             'siparis'     => 'SIP',
             'irsaliye'    => 'IRS',
+            'numune'      => 'NUM',
             default       => 'SAT',
         };
         $period = TenantContext::activePeriod();

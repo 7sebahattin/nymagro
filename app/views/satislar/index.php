@@ -36,8 +36,9 @@ $durumRenk = [
 
 $belgeTipi = $belgeTipi ?? 'satis';
 $depoAdlari = array_column($depolar ?? [], 'ad', 'id');
+$belgeTipTabi = in_array($belgeTipi, ['irsaliye', 'perakende', 'numune'], true);
 $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
-    ['ara'=>$arama,'durum'=>$durum,'donem'=>$donem,'sayfa'=>$sayfa,'iptalleri'=>$iptalleri?'1':'','tip'=>in_array($belgeTipi,['irsaliye','perakende'],true)?$belgeTipi:''],
+    ['ara'=>$arama,'durum'=>$durum,'donem'=>$donem,'sayfa'=>$sayfa,'iptalleri'=>$iptalleri?'1':'','tip'=>$belgeTipTabi?$belgeTipi:''],
     $extra
 ), fn($v)=>$v!==''&&$v!==null&&$v!==false));
 ?>
@@ -171,6 +172,9 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   <a href="<?= BASE_URL ?>/satis?tip=perakende" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'perakende' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'perakende' ? 'var(--text)' : 'var(--muted)' ?>;">
     <i class="fa-solid fa-cash-register"></i> Perakende
   </a>
+  <a href="<?= BASE_URL ?>/satis?tip=numune" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'numune' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'numune' ? 'var(--text)' : 'var(--muted)' ?>;">
+    <i class="fa-solid fa-flask"></i> Numuneler
+  </a>
 </div>
 
 <!-- Action Buttons -->
@@ -194,7 +198,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 <!-- Özet Kartlar -->
 <div class="ozet-row">
   <div class="ozet-kart">
-    <div class="ok-label"><?= $belgeTipi === 'irsaliye' ? 'Toplam İrsaliye' : 'Toplam Belge' ?></div>
+    <div class="ok-label"><?= ['irsaliye' => 'Toplam İrsaliye', 'numune' => 'Toplam Numune'][$belgeTipi] ?? 'Toplam Belge' ?></div>
     <div class="ok-value"><?= number_format((int)($ozetler['adet'] ?? 0)) ?></div>
   </div>
   <div class="ozet-kart">
@@ -210,6 +214,9 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
     <div class="ok-label">Faturalandırılmayan</div>
     <div class="ok-value amber"><?= number_format((int)($ozetler['faturalandirilmayan_adet'] ?? 0)) ?></div>
   </div>
+  <?php elseif ($belgeTipi === 'numune'): ?>
+    <!-- Numune belgeleri cari borç/gelir doğurmadığı için "Bekleyen Tahsilat"
+         kartı burada anlamsız — Toplam Tutar kartı (yukarıda) yeterli. -->
   <?php else: ?>
   <div class="ozet-kart">
     <div class="ok-label">Bekleyen Tahsilat</div>
@@ -252,7 +259,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
       <input type="hidden" name="donem"  value="<?= htmlspecialchars($donem) ?>">
       <input type="hidden" name="sayfa"  value="1">
-      <?php if (in_array($belgeTipi, ['irsaliye', 'perakende'], true)): ?>
+      <?php if ($belgeTipTabi): ?>
         <input type="hidden" name="tip" value="<?= htmlspecialchars($belgeTipi) ?>">
       <?php endif; ?>
 
@@ -292,7 +299,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
           <th style="width:40px;"></th>
           <th>Tarih</th>
           <th>Müşteri</th>
-          <th><?= $belgeTipi === 'irsaliye' ? 'İrsaliye No' : ($belgeTipi === 'perakende' ? 'Fiş No' : 'Fatura No') ?></th>
+          <th><?= ['irsaliye' => 'İrsaliye No', 'perakende' => 'Fiş No', 'numune' => 'Numune No'][$belgeTipi] ?? 'Fatura No' ?></th>
           <th style="text-align:right;">Tutar</th>
           <th>Durum</th>
         </tr>
@@ -308,6 +315,8 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
               Bu dönemde irsaliye yok.
             <?php elseif ($belgeTipi === 'perakende'): ?>
               Bu dönemde perakende satış yok.
+            <?php elseif ($belgeTipi === 'numune'): ?>
+              Bu dönemde numune verilmemiş.
             <?php else: ?>
               Bu dönemde satış faturası yok.
             <?php endif; ?>
@@ -363,7 +372,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                   <a href="<?= BASE_URL ?>/satis/fatura/<?= $f['id'] ?>/print" target="_blank" rel="noopener" class="btn-det" style="background:#efa341;">
                     <i class="fa-solid fa-print"></i> Yazdır
                   </a>
-                  <?php $belgeAdi = $belgeTipi === 'irsaliye' ? 'İrsaliye' : ($belgeTipi === 'perakende' ? 'Perakende satış' : 'Fatura'); ?>
+                  <?php $belgeAdi = ['irsaliye' => 'İrsaliye', 'perakende' => 'Perakende satış', 'numune' => 'Numune fişi'][$belgeTipi] ?? 'Fatura'; ?>
                   <?php if ($f['durum'] === 'taslak' && Rbac::currentUserCan('SATIS_UPDATE')): ?>
                     <a href="#"
                        class="btn-det"
@@ -426,7 +435,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
       <?php
         $bas = $toplam > 0 ? (($sayfa - 1) * $limit + 1) : 0;
         $bit = min($sayfa * $limit, $toplam);
-        $kayitAdi = $belgeTipi === 'irsaliye' ? 'irsaliyeden' : ($belgeTipi === 'perakende' ? 'perakende satıştan' : 'faturadan');
+        $kayitAdi = ['irsaliye' => 'irsaliyeden', 'perakende' => 'perakende satıştan', 'numune' => 'numuneden'][$belgeTipi] ?? 'faturadan';
         echo "{$toplam} {$kayitAdi} {$bas}–{$bit} gösteriliyor";
       ?>
     </span>

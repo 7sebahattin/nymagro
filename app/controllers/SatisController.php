@@ -47,13 +47,13 @@ final class SatisController extends Controller
         $durum     = trim($_GET['durum']            ?? '');
         $donem     = trim($_GET['donem']            ?? '1ay');
         $iptalleri = !empty($_GET['iptalleri']);
-        // "İrsaliye Kaydet"/"Perakende Satış Gir" ile oluşturulan belgeler
-        // (belge_tipi='irsaliye'/'perakende') satış faturalarıyla aynı ekrandan
-        // girildiği için, gözlemlenebilmeleri adına aynı listede bir sekme/filtre
-        // olarak sunulur (proforma'nın Teklifler sayfasında ayrı listelenmesine
-        // benzer şekilde, ama irsaliye/perakende için ayrı bir modül yok).
+        // "İrsaliye Kaydet"/"Perakende Satış Gir"/"Numune Kaydet" ile oluşturulan
+        // belgeler (belge_tipi='irsaliye'/'perakende'/'numune') satış faturalarıyla
+        // aynı ekrandan girildiği için, gözlemlenebilmeleri adına aynı listede bir
+        // sekme/filtre olarak sunulur (proforma'nın Teklifler sayfasında ayrı
+        // listelenmesine benzer şekilde, ama bunlar için ayrı bir modül yok).
         $tipParam = $_GET['tip'] ?? '';
-        $belgeTipi = in_array($tipParam, ['irsaliye', 'perakende'], true) ? $tipParam : 'satis';
+        $belgeTipi = in_array($tipParam, ['irsaliye', 'perakende', 'numune'], true) ? $tipParam : 'satis';
 
         if (mb_strlen($arama) > 0 && mb_strlen($arama) < 3) {
             $arama = '';
@@ -79,8 +79,8 @@ final class SatisController extends Controller
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,
             'flash'       => $this->getFlash(),
-            'topbarTitle' => $belgeTipi === 'irsaliye' ? 'İrsaliyeler' : ($belgeTipi === 'perakende' ? 'Perakende Satışlar' : 'Satışlar'),
-            'topbarIcon'  => $belgeTipi === 'irsaliye' ? 'fa-truck' : ($belgeTipi === 'perakende' ? 'fa-cash-register' : 'fa-shopping-cart'),
+            'topbarTitle' => ['irsaliye' => 'İrsaliyeler', 'perakende' => 'Perakende Satışlar', 'numune' => 'Numuneler'][$belgeTipi] ?? 'Satışlar',
+            'topbarIcon'  => ['irsaliye' => 'fa-truck', 'perakende' => 'fa-cash-register', 'numune' => 'fa-flask'][$belgeTipi] ?? 'fa-shopping-cart',
         ]);
     }
 
@@ -165,7 +165,7 @@ final class SatisController extends Controller
         $faturaNo   = trim($_POST['fatura_no']    ?? '');
         $faturaT    = trim($_POST['fatura_tarihi'] ?? '');
         $belgeTipi  = $_POST['belge_tipi'] ?? $mevcut['belge_tipi'];
-        if (!in_array($belgeTipi, ['siparis', 'irsaliye', 'proforma', 'satis'])) {
+        if (!in_array($belgeTipi, ['siparis', 'irsaliye', 'proforma', 'satis', 'numune'])) {
             $belgeTipi = 'satis';
         }
         $durum      = $_POST['durum'] ?? $mevcut['durum'];
@@ -341,7 +341,7 @@ final class SatisController extends Controller
         $faturaNo    = trim($_POST['fatura_no']    ?? '');
         $faturaT     = trim($_POST['fatura_tarihi'] ?? '');
         $belgeTipi = $_POST['belge_tipi'] ?? 'satis';
-        if (!in_array($belgeTipi, ['siparis', 'irsaliye', 'proforma', 'satis'])) {
+        if (!in_array($belgeTipi, ['siparis', 'irsaliye', 'proforma', 'satis', 'numune'])) {
             $belgeTipi = 'satis';
         }
         // 'satis' (Fatura Kaydet) gerçek/nihai bir belgedir — proforma/irsaliye/sipariş
@@ -553,11 +553,12 @@ final class SatisController extends Controller
             $this->redirect('satis/ekle');
         }
 
-        $belgeEtiketi = ['irsaliye' => 'İrsaliye', 'proforma' => 'Teklif'][$belgeTipi] ?? 'Fatura';
+        $belgeEtiketi = ['irsaliye' => 'İrsaliye', 'proforma' => 'Teklif', 'numune' => 'Numune Fişi'][$belgeTipi] ?? 'Fatura';
         $this->setFlash('success', "{$belgeEtiketi} #{$faturaNo} başarıyla kaydedildi.");
         $hedefUrl = match ($belgeTipi) {
             'irsaliye' => 'satis?tip=irsaliye',
             'proforma' => 'teklif',
+            'numune'   => 'satis?tip=numune',
             default    => 'satis',
         };
         $this->redirect($hedefUrl);
@@ -680,7 +681,7 @@ final class SatisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('satis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
+        $this->redirect('satis' . (in_array($f['belge_tipi'] ?? '', ['irsaliye', 'numune'], true) ? '?tip=' . $f['belge_tipi'] : ''));
     }
 
     // ─── iptal ──────────────────────────────────────────────────────────
@@ -697,7 +698,7 @@ final class SatisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('satis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
+        $this->redirect('satis' . (in_array($f['belge_tipi'] ?? '', ['irsaliye', 'numune'], true) ? '?tip=' . $f['belge_tipi'] : ''));
     }
 
     // ─── sil ────────────────────────────────────────────────────────────
@@ -714,7 +715,7 @@ final class SatisController extends Controller
         } else {
             $this->setFlash('error', 'Fatura bulunamadı.');
         }
-        $this->redirect('satis' . (($f['belge_tipi'] ?? '') === 'irsaliye' ? '?tip=irsaliye' : ''));
+        $this->redirect('satis' . (in_array($f['belge_tipi'] ?? '', ['irsaliye', 'numune'], true) ? '?tip=' . $f['belge_tipi'] : ''));
     }
 
     // ─── AJAX: İrsaliye Getir (irsaliyeden fatura doldurmak için) ────────
