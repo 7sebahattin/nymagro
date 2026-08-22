@@ -48,6 +48,7 @@ class Fatura
             $this->ensureIrsaliyeSevkColumns();
             $this->ensureTeklifDonusumColumns();
             $this->ensurePerformansIndexleri();
+            $this->ensureFaturaNoTekilligi();
         }
     }
 
@@ -127,6 +128,65 @@ class Fatura
         $this->ensureIndex('fatura_kalemleri', 'idx_fk_fatura', '(fatura_id, company_id, period_id)');
         $this->ensureIndex('fatura_kalemleri', 'idx_fk_urun', '(urun_id, company_id, period_id)');
         $this->ensureIndex('faturalar', 'idx_faturalar_cari', '(cari_id, company_id, period_id)');
+    }
+
+    /**
+     * Aynı şirket+dönem içinde iki belgenin aynı numarayı taşımasını VERİTABANI
+     * seviyesinde imkânsız kılar. Uygulama tarafındaki numara üretimi doğru
+     * çalışsa bile, eşzamanlı iki kayıt aynı numarayı alabilir; asıl güvence budur.
+     *
+     * NEDEN AYRI BİR İNDEKS: TenantContext::ensureTenantUniqueIndexes() zaten
+     * uq_fatura_company_period_no_tip (company_id, period_id, fatura_no, belge_tipi)
+     * indeksini kuruyor. Ancak anahtarda belge_tipi bulunduğu için, aynı numaranın
+     * FARKLI belge tiplerinde tekrar etmesine izin veriyor — bir numunenin satış
+     * faturası serisinden numara alması tam olarak bu boşluktan geçiyordu. Buradaki
+     * indeks belge_tipi'ni anahtardan çıkararak numarayı şirket+dönem genelinde
+     * tekil kılar; yani mevcut indeksin kapatamadığı çakışmayı kapatır.
+     *
+     * İki indeks bilinçli olarak birlikte durur: bu indeks eski MySQL sürümlerinde
+     * (sanal kolon desteği yoksa) kurulamayabilir ve o durumda mevcut indeks tek
+     * koruma olarak kalır. Bu yüzden eskisi kaldırılmaz.
+     *
+     * Kısıt yalnızca SİLİNMEMİŞ satırlara uygulanır: silindi_mi=1 iken NULL üreten
+     * sanal bir kolon üzerinden UNIQUE kurulur (MySQL/MariaDB'de UNIQUE indeks
+     * birden çok NULL'a izin verir). Böylece silinen bir faturanın numarası bu
+     * indeksi kilitlemez. (Mevcut uq_fatura_company_period_no_tip indeksi silinmiş
+     * satırları da kapsar — bu, buradaki değişiklikten ÖNCE de böyleydi.)
+     *
+     * Mevcut veride mükerrer numara varsa ALTER başarısız olur ve sessizce geçilir —
+     * uygulama çalışmaya devam eder, ancak koruma DEVREYE GİRMEZ. Bu durumda önce
+     * db/fatura_no_mukerrer_kontrol.sql çalıştırılıp mükerrerler temizlenmelidir.
+     */
+    private function ensureFaturaNoTekilligi(): void
+    {
+        try {
+            $indexVar = $this->db->selectOne(
+                "SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar'
+                   AND INDEX_NAME = 'uq_faturalar_no_aktif'"
+            );
+            if ($indexVar) {
+                return;
+            }
+            $kolonVar = $this->db->selectOne(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar'
+                   AND COLUMN_NAME = 'fatura_no_aktif'"
+            );
+            if (!$kolonVar) {
+                $this->db->query(
+                    "ALTER TABLE faturalar ADD COLUMN fatura_no_aktif VARCHAR(80)
+                     AS (IF(silindi_mi = 0, fatura_no, NULL)) VIRTUAL"
+                );
+            }
+            $this->db->query(
+                "ALTER TABLE faturalar
+                 ADD UNIQUE KEY uq_faturalar_no_aktif (company_id, period_id, fatura_no_aktif)"
+            );
+        } catch (\Throwable $e) {
+            // Mükerrer kayıt, eski MySQL sürümü veya yetki eksikliği — uygulamayı kilitleme.
+            error_log('[NYMAGRO] fatura_no tekillik indeksi kurulamadı: ' . $e->getMessage());
+        }
     }
 
     /** Bir index yoksa idempotent olarak ekler (INFORMATION_SCHEMA.STATISTICS kontrolü). */
@@ -389,6 +449,101 @@ class Fatura
         return [];
     }
 
+    /**
+     * Kaydedilmek üzere olan bir kalemin değerlerini son kez doğrular.
+     *
+     * kalemNormalize() ham form/JSON girdisini normalize eder ve controller'lar
+     * bunu kullanır. Bu metot ise DÖNÜŞTÜRMEZ, yalnızca sonuçları denetler:
+     * modele programatik olarak (içe aktarma, betik, başka bir modül) verilen
+     * kalemler controller'lardan geçmediği için son savunma hattıdır.
+     *
+     * @throws InvalidArgumentException
+     */
+    private static function assertKalemGecerli(array $k, int $sira): void
+    {
+        $etiket = trim((string)($k['urun_adi'] ?? '')) ?: ('#' . ($sira + 1) . '. kalem');
+        $miktar = (float)($k['miktar'] ?? 0);
+        if (!is_finite($miktar) || $miktar <= 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde miktar 0'dan büyük olmalıdır.");
+        }
+        $fiyat = (float)($k['birim_fiyat'] ?? 0);
+        if (!is_finite($fiyat) || $fiyat < 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde birim fiyat negatif olamaz.");
+        }
+        $kdv = (float)($k['kdv_orani'] ?? 0);
+        if (!is_finite($kdv) || $kdv < 0 || $kdv > self::KALEM_MAX_ORAN) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde KDV oranı 0 ile 100 arasında olmalıdır.");
+        }
+        $iskonto = (float)($k['iskonto_orani'] ?? 0);
+        if (!is_finite($iskonto) || $iskonto < 0 || $iskonto > self::KALEM_MAX_ORAN) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde iskonto oranı 0 ile 100 arasında olmalıdır.");
+        }
+    }
+
+    /**
+     * Bu belge stoktan ÇIKIŞ yapıyor mu? (Yetersiz stok kontrolü yalnızca çıkışta anlamlıdır;
+     * depolar arası sevkte kaynak depodan çıkış olduğu için o da kapsama girer.)
+     */
+    private function planCikisIceriyorMu(array $stokPlani): bool
+    {
+        foreach ($stokPlani as $hareket) {
+            if (($hareket['tip'] ?? '') === 'cikis') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Stoğu aşan çıkışı engeller — şirket ayarı buna izin vermiyorsa.
+     *
+     * Varsayılan davranış İZİN VERMEKtir (allow_negative_stock = 1): mevcut
+     * kurulumlarda stok halihazırda negatif olabilir ve ayarı zorla kapatmak
+     * günlük işi durdurur. Ayar kapatıldığında bu kontrol devreye girer.
+     *
+     * Kapsam dışı: hizmet kalemleri (stoğu yoktur) ve stok takibi 'yok' olan
+     * ürünler. Kontrol ürünün TOPLAM stoğu üzerinden yapılır; depo bazlı
+     * kontrol, geçmiş veride depo kırılımı bulunmayan ürünlerde hatalı
+     * engellemeye yol açacağı için tercih edilmemiştir.
+     *
+     * @throws RuntimeException Stok yetersizse
+     */
+    private function assertStokYeterli(int $urunId, float $miktar): void
+    {
+        if ($this->settingsCache === null) {
+            $this->belgeOnEki('satis'); // settingsCache'i doldurur
+        }
+        // Kolon henüz eklenmemişse (eski şema) varsayılan: izin ver.
+        if ((int)($this->settingsCache['allow_negative_stock'] ?? 1) === 1) {
+            return;
+        }
+
+        $urun = $this->db->selectOne(
+            "SELECT ad, tip, stok_takibi, stok_miktari FROM urunler_hizmetler
+             WHERE id = :id AND company_id = :cid",
+            [':id' => $urunId, ':cid' => TenantContext::activeCompanyId()]
+        );
+        if (!$urun) {
+            return; // Ürün doğrulaması assertProductBelongsToCompany()'nin işi.
+        }
+        if (($urun['tip'] ?? '') === 'hizmet' || ($urun['stok_takibi'] ?? 'normal') === 'yok') {
+            return;
+        }
+
+        $mevcut = (float)($urun['stok_miktari'] ?? 0);
+        if ($miktar - $mevcut > 0.0001) {
+            $ad = $urun['ad'] ?? ('#' . $urunId);
+            throw new RuntimeException(sprintf(
+                '«%s» için yeterli stok yok: elde %s, istenen %s. '
+                . 'Stoğu aşan satışa izin vermek isterseniz Şirket Ayarları\'ndan '
+                . '"Stoğu aşan satışa izin ver" seçeneğini işaretleyin.',
+                $ad,
+                rtrim(rtrim(number_format($mevcut, 3, ',', '.'), '0'), ','),
+                rtrim(rtrim(number_format($miktar, 3, ',', '.'), '0'), ',')
+            ));
+        }
+    }
+
     /** stokHareketPlani() açıklamasında kullanılacak kısa, insan-okunur belge etiketi. */
     private function stokAciklamaEtiketi(string $belgeTipi): string
     {
@@ -463,8 +618,13 @@ class Fatura
             }
 
             $stokPlani = $this->stokHareketPlani($fatura, $depoId);
+            $cikisVarMi = $this->planCikisIceriyorMu($stokPlani);
 
             foreach ($kalemler as $sira => $k) {
+                // Son savunma hattı — controller'lardan geçmeyen programatik
+                // çağrılar da geçersiz değer kaydedemez (bkz. assertKalemGecerli).
+                self::assertKalemGecerli($k, (int)$sira);
+
                 $miktar      = (float)($k['miktar']       ?? 1);
                 $birimFiyat  = (float)($k['birim_fiyat']  ?? 0);
                 $kdvOrani    = (float)($k['kdv_orani']    ?? 20);
@@ -500,6 +660,11 @@ class Fatura
 
                 // Stok güncelleme (belge tipine ve — irsaliyede — sevk türüne göre; bkz. stokHareketPlani())
                 if ($kalemVeri['urun_id']) {
+                    // Kontrol, önceki kalemlerin etkisi uygulandıktan SONRA yapılır:
+                    // aynı ürün birden çok satırda geçiyorsa toplam çıkış doğru görülür.
+                    if ($cikisVarMi) {
+                        $this->assertStokYeterli((int)$kalemVeri['urun_id'], $miktar);
+                    }
                     $moveDescBase = $this->stokAciklamaEtiketi($fatura['belge_tipi']) . ' #' . $fatura['fatura_no'];
                     foreach ($stokPlani as $hareket) {
                         $uModel->stokHareketiEkle($kalemVeri['urun_id'], $miktar, $hareket['tip'], $moveDescBase, $hareket['depo_id']);
@@ -569,8 +734,13 @@ class Fatura
             }
 
             $stokPlani = $this->stokHareketPlani($fatura, $depoId);
+            $cikisVarMi = $this->planCikisIceriyorMu($stokPlani);
 
             foreach ($kalemler as $sira => $k) {
+                // Son savunma hattı — controller'lardan geçmeyen programatik
+                // çağrılar da geçersiz değer kaydedemez (bkz. assertKalemGecerli).
+                self::assertKalemGecerli($k, (int)$sira);
+
                 $miktar      = (float)($k['miktar']       ?? 1);
                 $birimFiyat  = (float)($k['birim_fiyat']  ?? 0);
                 $kdvOrani    = (float)($k['kdv_orani']    ?? 20);
@@ -605,6 +775,11 @@ class Fatura
                 $this->db->insert('fatura_kalemleri', $kalemVeri);
 
                 if ($kalemVeri['urun_id']) {
+                    // Eski kalemlerin etkisi yukarıda geri alındı; kontrol bu yüzden
+                    // güncel (geri alınmış) stok üzerinden doğru çalışır.
+                    if ($cikisVarMi) {
+                        $this->assertStokYeterli((int)$kalemVeri['urun_id'], $miktar);
+                    }
                     $moveDesc = $this->stokAciklamaEtiketi($fatura['belge_tipi']) . ' #' . ($fatura['fatura_no'] ?? $mevcut['fatura_no']) . ' düzenleme';
                     foreach ($stokPlani as $hareket) {
                         $uModel->stokHareketiEkle($kalemVeri['urun_id'], $miktar, $hareket['tip'], $moveDesc, $hareket['depo_id']);
@@ -798,19 +973,33 @@ class Fatura
 
     // ─── Fatura No Üretimi ───────────────────────────────────────────────
 
+    /** company_settings tek istek içinde birden çok kez okunmasın diye küçük önbellek. */
+    private ?array $settingsCache = null;
+
+    /** Bilinen tüm belge tiplerinin listesi — seri çakışması kontrolünde kullanılır. */
+    private const BELGE_TIPLERI = [
+        'satis', 'alis', 'perakende', 'iade_satis', 'iade_alis',
+        'proforma', 'siparis', 'irsaliye', 'numune',
+    ];
+
     /**
-     * Örn: SAT-2024-00042
-     * belge_tipi: satis → SAT, alis → ALI, perakende → PRK, vb.
+     * Bir belge tipinin numara serisi ön eki. Satış ve alış ön ekleri şirket
+     * ayarlarından gelir (varsayılan SAT/ALI), diğerleri sabittir.
+     *
+     * DİKKAT: Ön ekin sabit 'SAT' olduğunu varsaymayın — şirket kendi ön ekini
+     * tanımlayabilir. Ön eke ihtiyaç duyan her yer bu metottan okumalıdır.
      */
-    public function faturaNoUret(string $belge_tipi = 'satis'): string
+    public function belgeOnEki(string $belgeTipi): string
     {
-        $settings = $this->db->selectOne(
-            "SELECT * FROM company_settings WHERE company_id = :cid",
-            [':cid' => TenantContext::activeCompanyId()]
-        ) ?? [];
-        $prefix = match($belge_tipi) {
-            'alis'        => $settings['purchase_invoice_prefix'] ?? 'ALI',
-            'satis'       => $settings['invoice_prefix'] ?? 'SAT',
+        if ($this->settingsCache === null) {
+            $this->settingsCache = $this->db->selectOne(
+                "SELECT * FROM company_settings WHERE company_id = :cid",
+                [':cid' => TenantContext::activeCompanyId()]
+            ) ?? [];
+        }
+        return match($belgeTipi) {
+            'alis'        => $this->settingsCache['purchase_invoice_prefix'] ?: 'ALI',
+            'satis'       => $this->settingsCache['invoice_prefix'] ?: 'SAT',
             'perakende'   => 'PRK',
             'iade_satis'  => 'IDS',
             'iade_alis'   => 'IDA',
@@ -818,18 +1007,86 @@ class Fatura
             'siparis'     => 'SIP',
             'irsaliye'    => 'IRS',
             'numune'      => 'NUM',
-            default       => 'SAT',
+            default       => $this->settingsCache['invoice_prefix'] ?: 'SAT',
         };
-        $period = TenantContext::activePeriod();
-        $yil = (string)($period['fiscal_year'] ?? date('Y'));
+    }
 
+    /** Aktif dönemin mali yılı (takvim yılı DEĞİL — dönem 2025 iken 2026'da da 2025 döner). */
+    private function aktifMaliYil(): string
+    {
+        $period = TenantContext::activePeriod();
+        return (string)($period['fiscal_year'] ?? date('Y'));
+    }
+
+    /**
+     * Verilen numara, belirtilen belge tipinin otomatik serisinden mi?
+     * (ör. belgeTipi='satis', ön ek 'VAR', mali yıl 2026 → "VAR-2026-000004" → true)
+     */
+    public function otomatikNumaraMi(string $no, string $belgeTipi): bool
+    {
+        $onEk = $this->belgeOnEki($belgeTipi);
+        return str_starts_with(trim($no), $onEk . '-' . $this->aktifMaliYil() . '-');
+    }
+
+    /**
+     * Kaydedilecek NİHAİ belge numarasını belirler.
+     *
+     * Sorun: "Yeni Fatura" formu numarayı her zaman SATIŞ serisinden ön-doldurur.
+     * Kullanıcı "İrsaliye/Numune/Proforma Kaydet" derse, o belge satış serisinden
+     * bir numara götürür; ardından aynı numara gerçek bir satış faturasına ikinci
+     * kez dağıtılır (mükerrer belge no). Bu yüzden numara, istemciden gelen metne
+     * bakarak değil, HER ZAMAN belge tipine göre çözülür.
+     *
+     * @param string $girilen  Formdan gelen fatura_no
+     * @param string $otoNo    Form yüklenirken ön-doldurulan numara (fatura_no_oto)
+     * @param string $belgeTipi Kaydedilen gerçek belge tipi
+     */
+    public function belgeNoCozumle(string $girilen, string $otoNo, string $belgeTipi): string
+    {
+        $girilen = trim($girilen);
+        $otoNo   = trim($otoNo);
+
+        if ($girilen === '') {
+            return $this->faturaNoUret($belgeTipi);
+        }
+        // Zaten doğru serideyse dokunma.
+        if ($this->otomatikNumaraMi($girilen, $belgeTipi)) {
+            return $girilen;
+        }
+        // Form ön-dolgusu hiç değiştirilmeden gönderilmiş → doğru seriden üret.
+        if ($otoNo !== '' && $girilen === $otoNo) {
+            return $this->faturaNoUret($belgeTipi);
+        }
+        // Gizli alan yoksa (eski önbellekli sayfa) yedek kontrol: numara BAŞKA bir
+        // belge tipinin otomatik serisine aitse, o seriyi tüketmesine izin verme.
+        foreach (self::BELGE_TIPLERI as $tip) {
+            if ($tip !== $belgeTipi && $this->otomatikNumaraMi($girilen, $tip)) {
+                return $this->faturaNoUret($belgeTipi);
+            }
+        }
+        // Kullanıcı kendi numarasını yazmış — olduğu gibi kabul et.
+        return $girilen;
+    }
+
+    /**
+     * Örn: SAT-2024-000042
+     * belge_tipi: satis → SAT, alis → ALI, perakende → PRK, vb.
+     */
+    public function faturaNoUret(string $belge_tipi = 'satis'): string
+    {
+        $prefix = $this->belgeOnEki($belge_tipi);
+        $yil = $this->aktifMaliYil();
+
+        // Sıradaki numara SERİ (ön ek) bazında bulunur, belge tipine göre DEĞİL:
+        // geçmişte başka bir belge tipi bu seriden numara almış olabilir ve o
+        // numara ikinci kez dağıtılmamalıdır. Silinmiş kayıtlar da sayılır —
+        // silinen bir faturanın numarası yeniden kullanılmaz.
         $row = $this->db->selectOne(
             "SELECT MAX(CAST(SUBSTRING_INDEX(fatura_no, '-', -1) AS UNSIGNED)) AS maks
              FROM faturalar
-             WHERE belge_tipi = :tip AND fatura_no LIKE :prefix
+             WHERE fatura_no LIKE :prefix
                AND company_id = :company_id AND period_id = :period_id",
             [
-                ':tip' => $belge_tipi,
                 ':prefix' => "{$prefix}-{$yil}-%",
                 ':company_id' => TenantContext::activeCompanyId(),
                 ':period_id' => TenantContext::activePeriodId(),
@@ -1007,6 +1264,133 @@ class Fatura
             return $miktarGirilen * $koliMap[$urunId];
         }
         return $miktarGirilen;
+    }
+
+    /** Kalem alanlarının kabul edilebilir sınırları (bkz. kalemNormalize()). */
+    private const KALEM_MAX_ORAN = 100.0;
+
+    /**
+     * Kullanıcıdan gelen HAM bir fatura kalemini doğrular ve normalize eder.
+     *
+     * Satış, alış ve perakende akışlarının TAMAMI kalemlerini buradan geçirir —
+     * doğrulama kuralı tek yerde durur, akışlar arasında ayrışamaz.
+     *
+     * Neden kırpma değil de reddetme: %500 iskontoyu sessizce %100'e çekmek,
+     * kullanıcının kastetmediği bir faturayı yine de kaydeder. Sınır dışı değer
+     * bir veri giriş hatasıdır; düzeltilmesi gereken yer formdur.
+     *
+     * Tarayıcıdaki `min`/`max` öznitelikleri yalnızca istemci tarafıdır ve
+     * geliştirici konsolu/doğrudan HTTP isteğiyle atlanabilir; bu yüzden asıl
+     * doğrulama burada, sunucuda yapılır.
+     *
+     * @param  array $ham     urun_id, urun_adi, miktar, birim_fiyat, kdv_orani,
+     *                        iskonto_orani, birim, giris_tipi
+     * @param  array $koliMap [urun_id => koli_ici_adet] — "koli" girişini adete çevirmek için
+     * @param  float $kur     Döviz faturalarında birim fiyatı TL'ye çevirmek için (varsayılan 1)
+     * @return array          Fatura::ekle()/guncelle()'ye verilebilir kalem
+     * @throws InvalidArgumentException Geçersiz değerde, kullanıcıya gösterilebilir mesajla
+     */
+    public static function kalemNormalize(array $ham, array $koliMap = [], float $kur = 1.0): array
+    {
+        $urunAdi = trim((string)($ham['urun_adi'] ?? ''));
+        if ($urunAdi === '') {
+            throw new InvalidArgumentException('Ürün/hizmet adı boş olan bir kalem gönderildi.');
+        }
+        // Hata mesajlarında satırı bulunabilir kılmak için ürün adını kullan.
+        $etiket = mb_substr($urunAdi, 0, 60);
+
+        $urunId    = !empty($ham['urun_id']) ? (int)$ham['urun_id'] : null;
+        $girisTipi = ($ham['giris_tipi'] ?? 'adet') === 'koli' ? 'koli' : 'adet';
+
+        $miktarGirilen = self::sayiyaCevir($ham['miktar'] ?? null, "«{$etiket}» kaleminde miktar");
+        $miktar        = self::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap);
+        if ($miktar <= 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde miktar 0'dan büyük olmalıdır.");
+        }
+
+        $birimFiyat = self::sayiyaCevir($ham['birim_fiyat'] ?? null, "«{$etiket}» kaleminde birim fiyat");
+        if ($birimFiyat < 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde birim fiyat negatif olamaz.");
+        }
+
+        $kdvOrani = self::sayiyaCevir($ham['kdv_orani'] ?? null, "«{$etiket}» kaleminde KDV oranı", 20.0);
+        if ($kdvOrani < 0 || $kdvOrani > self::KALEM_MAX_ORAN) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde KDV oranı 0 ile 100 arasında olmalıdır.");
+        }
+
+        $iskontoOrani = self::sayiyaCevir($ham['iskonto_orani'] ?? null, "«{$etiket}» kaleminde iskonto oranı", 0.0);
+        if ($iskontoOrani < 0 || $iskontoOrani > self::KALEM_MAX_ORAN) {
+            // %100 üstü iskonto matrahı negatife çevirir; bu da negatif KDV ve
+            // negatif fatura toplamı üretip cari bakiyeyi ters yönde bozar.
+            throw new InvalidArgumentException("«{$etiket}» kaleminde iskonto oranı 0 ile 100 arasında olmalıdır.");
+        }
+
+        return [
+            'urun_id'       => $urunId,
+            'urun_adi'      => $urunAdi,
+            'miktar'        => $miktar,
+            // Döviz seçiliyse birim fiyat fatura kuruyla TL'ye çevrilir —
+            // fatura_kalemleri her zaman TL tutar.
+            'birim_fiyat'   => $birimFiyat * $kur,
+            'kdv_orani'     => $kdvOrani,
+            'iskonto_orani' => $iskontoOrani,
+            'birim'         => trim((string)($ham['birim'] ?? 'Adet')) ?: 'Adet',
+        ];
+    }
+
+    /**
+     * Normalize edilmiş kalemlerden fatura toplamlarını hesaplar.
+     *
+     * Toplamlar HER ZAMAN kalemlerden üretilmelidir; istemciden gelen toplam
+     * değerine güvenilmez (aksi halde depodan çıkan mal ile kaydedilen ciro
+     * birbirinden kopabilir).
+     *
+     * @param  array $kalemler kalemNormalize() çıktıları
+     * @return array{ara_toplam:float,iskonto_tutari:float,kdv_tutari:float,genel_toplam:float}
+     */
+    public static function kalemToplamlari(array $kalemler): array
+    {
+        $araToplam = 0.0; $iskontoTutar = 0.0; $kdvTutar = 0.0;
+        foreach ($kalemler as $k) {
+            $satir   = (float)$k['miktar'] * (float)$k['birim_fiyat'];
+            $iskonto = $satir * ((float)($k['iskonto_orani'] ?? 0) / 100);
+            $kdv     = ($satir - $iskonto) * ((float)($k['kdv_orani'] ?? 0) / 100);
+            $araToplam    += $satir;
+            $iskontoTutar += $iskonto;
+            $kdvTutar     += $kdv;
+        }
+        return [
+            'ara_toplam'     => round($araToplam, 2),
+            'iskonto_tutari' => round($iskontoTutar, 2),
+            'kdv_tutari'     => round($kdvTutar, 2),
+            'genel_toplam'   => round($araToplam - $iskontoTutar + $kdvTutar, 2),
+        ];
+    }
+
+    /**
+     * Form/JSON'dan gelen sayısal değeri float'a çevirir. Türkçe ondalık virgülü
+     * kabul edilir ("12,5" → 12.5). Boş değer $varsayilan'a düşer; sayı olmayan
+     * bir metin ise sessizce 0'a düşmek yerine hata fırlatır.
+     */
+    private static function sayiyaCevir($deger, string $alanEtiketi, ?float $varsayilan = null): float
+    {
+        if ($deger === null || $deger === '') {
+            if ($varsayilan !== null) {
+                return $varsayilan;
+            }
+            throw new InvalidArgumentException("{$alanEtiketi} boş bırakılamaz.");
+        }
+        if (is_string($deger)) {
+            $deger = str_replace(',', '.', trim($deger));
+        }
+        if (!is_numeric($deger)) {
+            throw new InvalidArgumentException("{$alanEtiketi} geçerli bir sayı değil.");
+        }
+        $sayi = (float)$deger;
+        if (!is_finite($sayi)) {
+            throw new InvalidArgumentException("{$alanEtiketi} geçerli bir sayı değil.");
+        }
+        return $sayi;
     }
 
     // ─── Private Helpers ────────────────────────────────────────────────

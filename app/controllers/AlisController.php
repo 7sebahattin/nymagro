@@ -78,6 +78,7 @@ final class AlisController extends Controller
             'depolar'     => $this->depoModel->listele(),
             'acikIrsaliyeler' => $this->fatura->faturalandirilmamisIrsaliyeler($cariId, 100, 'tedarikci'),
             'presetKaynakIrsaliyeId' => $presetKaynakIrsaliyeId,
+            'flash'       => $this->getFlash(),
             'topbarTitle' => 'Yeni Alış Faturası',
             'topbarIcon'  => 'fa-solid fa-truck',
             'activeMenu'  => 'alislar'
@@ -105,14 +106,9 @@ final class AlisController extends Controller
         }
         $durum = $belgeTipi === 'alis' ? 'onaylandi' : 'taslak';
 
-        // EĞER numara otomatik üretilen formatta gelmişse ve belge tipi farklıysa,
-        // o tip için yeni bir numara üret (çakışmayı önlemek için).
-        $defaultPrefix = 'ALI-' . date('Y');
-        if (strpos($faturaNo, $defaultPrefix) === 0 && $belgeTipi !== 'alis') {
-            $faturaNo = $this->fatura->faturaNoUret($belgeTipi);
-        }
-
-        if ($faturaNo === '') $hatalar['fatura_no'] = 'Fatura no zorunludur.';
+        // Belge numarası HER ZAMAN kaydedilen belge tipinin serisinden çözülür
+        // (bkz. Fatura::belgeNoCozumle) — ön ek sabit değil, şirket ayarından gelir.
+        $faturaNo = $this->fatura->belgeNoCozumle($faturaNo, $_POST['fatura_no_oto'] ?? '', $belgeTipi);
         if ($faturaT === '')  $hatalar['fatura_tarihi'] = 'Tarih zorunludur.';
 
         // ── Döviz ────────────────────────────────────────
@@ -157,25 +153,28 @@ final class AlisController extends Controller
         // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
         $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
 
+        // Kalem doğrulaması satış tarafıyla aynı kapıdan geçer (bkz. Fatura::kalemNormalize).
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
-            if (trim($ad) === '') continue;
-            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
-            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
-            $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
-            $birimFiyatGirilen = (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0');
-            $kalemler[] = [
-                'urun_id'       => $urunId,
-                'urun_adi'      => trim($ad),
-                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => $birimFiyatGirilen * $kur,
-                'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
-                'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),
-                'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
-            ];
+            if (trim((string)$ad) === '') continue;
+            try {
+                $kalemler[] = Fatura::kalemNormalize([
+                    'urun_id'       => $kalemUrunId[$i] ?? null,
+                    'urun_adi'      => $ad,
+                    'miktar'        => $_POST['kalem_miktar'][$i] ?? null,
+                    'birim_fiyat'   => $_POST['kalem_birim_fiyat'][$i] ?? null,
+                    'kdv_orani'     => $_POST['kalem_kdv_orani'][$i] ?? null,
+                    'iskonto_orani' => $_POST['kalem_iskonto_orani'][$i] ?? null,
+                    'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
+                    'giris_tipi'    => $kalemGirisTipi[$i] ?? 'adet',
+                ], $koliMap, $kur);
+            } catch (InvalidArgumentException $e) {
+                $hatalar['kalemler'] = $e->getMessage();
+                break;
+            }
         }
 
-        if (empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
+        if (empty($hatalar['kalemler']) && empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
 
         if (!empty($hatalar)) {
             $this->view('alislar/ekle', [
@@ -191,15 +190,12 @@ final class AlisController extends Controller
             return;
         }
 
-        // Toplamları hesapla
-        $araToplam = 0; $iskontoTutar = 0; $kdvTutar = 0;
-        foreach ($kalemler as $k) {
-            $lineTotal = $k['miktar'] * $k['birim_fiyat'];
-            $lineIsk   = $lineTotal * ($k['iskonto_orani'] / 100);
-            $lineKdv   = ($lineTotal - $lineIsk) * ($k['kdv_orani'] / 100);
-            $araToplam += $lineTotal; $iskontoTutar += $lineIsk; $kdvTutar += $lineKdv;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
 
         $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
         if ($paraBirimi !== 'TRY' && $kur > 0) {
@@ -312,25 +308,28 @@ final class AlisController extends Controller
         // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
         $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
 
+        // Kalem doğrulaması kaydet() ile aynı kapıdan geçer (bkz. Fatura::kalemNormalize).
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
-            if (trim($ad) === '') continue;
-            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
-            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
-            $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
-            $birimFiyatGirilen = (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0');
-            $kalemler[] = [
-                'urun_id'       => $urunId,
-                'urun_adi'      => trim($ad),
-                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => $birimFiyatGirilen * $kur,
-                'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
-                'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),
-                'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
-            ];
+            if (trim((string)$ad) === '') continue;
+            try {
+                $kalemler[] = Fatura::kalemNormalize([
+                    'urun_id'       => $kalemUrunId[$i] ?? null,
+                    'urun_adi'      => $ad,
+                    'miktar'        => $_POST['kalem_miktar'][$i] ?? null,
+                    'birim_fiyat'   => $_POST['kalem_birim_fiyat'][$i] ?? null,
+                    'kdv_orani'     => $_POST['kalem_kdv_orani'][$i] ?? null,
+                    'iskonto_orani' => $_POST['kalem_iskonto_orani'][$i] ?? null,
+                    'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
+                    'giris_tipi'    => $kalemGirisTipi[$i] ?? 'adet',
+                ], $koliMap, $kur);
+            } catch (InvalidArgumentException $e) {
+                $hatalar['kalemler'] = $e->getMessage();
+                break;
+            }
         }
 
-        if (empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
+        if (empty($hatalar['kalemler']) && empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
 
         if (!empty($hatalar)) {
             $this->view('alislar/duzenle', [
@@ -349,14 +348,12 @@ final class AlisController extends Controller
             return;
         }
 
-        $araToplam = 0; $iskontoTutar = 0; $kdvTutar = 0;
-        foreach ($kalemler as $k) {
-            $lineTotal = $k['miktar'] * $k['birim_fiyat'];
-            $lineIsk   = $lineTotal * ($k['iskonto_orani'] / 100);
-            $lineKdv   = ($lineTotal - $lineIsk) * ($k['kdv_orani'] / 100);
-            $araToplam += $lineTotal; $iskontoTutar += $lineIsk; $kdvTutar += $lineKdv;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
 
         $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
         if ($paraBirimi !== 'TRY' && $kur > 0) {

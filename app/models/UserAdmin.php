@@ -111,8 +111,13 @@ final class UserAdmin
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return ['ok' => false, 'message' => 'Geçerli bir e-posta adresi yazın.'];
         }
-        if (strlen($password) < 6) {
-            return ['ok' => false, 'message' => 'Şifre en az 6 karakter olmalı.'];
+        // Yeni kullanıcı oluşturma da aynı şifre politikasına tabidir.
+        require_once MODELS_PATH . '/User.php';
+        if (mb_strlen($password) < User::MIN_PASSWORD_LENGTH) {
+            return ['ok' => false, 'message' => 'Şifre en az ' . User::MIN_PASSWORD_LENGTH . ' karakter olmalı.'];
+        }
+        if (User::yayginSifreMi($password)) {
+            return ['ok' => false, 'message' => 'Bu şifre çok yaygın kullanılıyor; tahmin edilmesi kolaydır. Lütfen başka bir şifre seçin.'];
         }
         if ($password !== $confirm) {
             return ['ok' => false, 'message' => 'Şifre ve tekrar alanı eşleşmiyor.'];
@@ -274,8 +279,14 @@ final class UserAdmin
         if (!$user) {
             return ['ok' => false, 'message' => 'Kullanıcı bulunamadı.'];
         }
-        if (strlen($newPassword) < 6) {
-            return ['ok' => false, 'message' => 'Yeni şifre en az 6 karakter olmalı.'];
+        // Şifre politikası tek yerde tanımlıdır (User::MIN_PASSWORD_LENGTH) —
+        // yönetici sıfırlaması kullanıcının kendi değiştirmesinden daha gevşek olamaz.
+        require_once MODELS_PATH . '/User.php';
+        if (mb_strlen($newPassword) < User::MIN_PASSWORD_LENGTH) {
+            return ['ok' => false, 'message' => 'Yeni şifre en az ' . User::MIN_PASSWORD_LENGTH . ' karakter olmalı.'];
+        }
+        if (User::yayginSifreMi($newPassword)) {
+            return ['ok' => false, 'message' => 'Bu şifre çok yaygın kullanılıyor; tahmin edilmesi kolaydır. Lütfen başka bir şifre seçin.'];
         }
         if ($newPassword !== $confirmPassword) {
             return ['ok' => false, 'message' => 'Şifre ve tekrar alanı eşleşmiyor.'];

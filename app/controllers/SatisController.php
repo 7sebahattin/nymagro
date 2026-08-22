@@ -112,6 +112,7 @@ final class SatisController extends Controller
             'presetKaynakIrsaliyeId' => $presetKaynakIrsaliyeId,
             'acikTeklifler' => $this->fatura->faturalandirilmamisTeklifler($cariId),
             'presetKaynakTeklifId' => $presetKaynakTeklifId,
+            'flash'       => $this->getFlash(),
             'topbarTitle' => 'Yeni Satış Faturası',
             'topbarIcon'  => 'fa-file-invoice-dollar',
         ]);
@@ -208,26 +209,28 @@ final class SatisController extends Controller
         // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
         $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
 
+        // Kalem doğrulaması kaydet() ile aynı kapıdan geçer (bkz. Fatura::kalemNormalize).
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
-            $ad = trim($ad);
-            if ($ad === '') continue;
-            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
-            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
-            $miktarGirilen = max(0.001, (float)str_replace(',', '.', $kalemMiktar[$i] ?? '1'));
-            $birimFiyatGirilen = max(0, (float)str_replace(',', '.', $kalemFiyat[$i] ?? '0'));
-            $kalemler[] = [
-                'urun_id'       => $urunId,
-                'urun_adi'      => $ad,
-                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => $birimFiyatGirilen * $kur,
-                'kdv_orani'     => (float)($kalemKdv[$i] ?? 20),
-                'iskonto_orani' => (float)($kalemIskonto[$i] ?? 0),
-                'birim'         => $kalemBirim[$i] ?? 'Adet',
-            ];
+            if (trim((string)$ad) === '') continue;
+            try {
+                $kalemler[] = Fatura::kalemNormalize([
+                    'urun_id'       => $kalemUrunId[$i] ?? null,
+                    'urun_adi'      => $ad,
+                    'miktar'        => $kalemMiktar[$i] ?? null,
+                    'birim_fiyat'   => $kalemFiyat[$i] ?? null,
+                    'kdv_orani'     => $kalemKdv[$i] ?? null,
+                    'iskonto_orani' => $kalemIskonto[$i] ?? null,
+                    'birim'         => $kalemBirim[$i] ?? 'Adet',
+                    'giris_tipi'    => $kalemGirisTipi[$i] ?? 'adet',
+                ], $koliMap, $kur);
+            } catch (InvalidArgumentException $e) {
+                $hatalar['kalemler'] = $e->getMessage();
+                break;
+            }
         }
 
-        if (empty($kalemler)) {
+        if (empty($hatalar['kalemler']) && empty($kalemler)) {
             $hatalar['kalemler'] = 'En az bir ürün/hizmet kalemi ekleyin.';
         }
 
@@ -245,18 +248,12 @@ final class SatisController extends Controller
             return;
         }
 
-        $araToplam    = 0;
-        $iskontoTutar = 0;
-        $kdvTutar     = 0;
-        foreach ($kalemler as $k) {
-            $at  = $k['miktar'] * $k['birim_fiyat'];
-            $it  = $at * ($k['iskonto_orani'] / 100);
-            $kdt = ($at - $it) * ($k['kdv_orani'] / 100);
-            $araToplam    += $at;
-            $iskontoTutar += $it;
-            $kdvTutar     += $kdt;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
 
         $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
         if ($paraBirimi !== 'TRY' && $kur > 0) {
@@ -347,7 +344,9 @@ final class SatisController extends Controller
         // 'satis' (Fatura Kaydet) gerçek/nihai bir belgedir — proforma/irsaliye/sipariş
         // gibi ön belgelerden farklı olarak varsayılan olarak onaylı kaydedilir
         // (aksi halde durumu değiştirecek hiçbir kontrol olmadığından süresiz "taslak" kalır).
-        $durum       = $_POST['durum'] ?? ($belgeTipi === 'satis' ? 'onaylandi' : 'taslak');
+        // 'numune' de nihai bir belgedir: mal fiilen depodan çıkmıştır ve arkasından
+        // gelecek bir onay/faturalama adımı yoktur (irsaliyedeki "Faturalandır" gibi).
+        $durum       = $_POST['durum'] ?? (in_array($belgeTipi, ['satis', 'numune'], true) ? 'onaylandi' : 'taslak');
         $cariId      = !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null;
         $odemeSekli  = trim($_POST['odeme_sekli'] ?? '');
         $aciklama    = trim($_POST['aciklama']    ?? '');
@@ -363,16 +362,11 @@ final class SatisController extends Controller
             $hatalar['kur'] = 'Döviz seçildiğinde kur girilmesi zorunludur.';
         }
 
-        // EĞER numara otomatik üretilen formatta gelmişse ve belge tipi farklıysa, 
-        // o tip için yeni bir numara üret (çakışmayı önlemek için)
-        $defaultPrefix = 'SAT-' . date('Y');
-        if (strpos($faturaNo, $defaultPrefix) === 0 && $belgeTipi !== 'satis') {
-            $faturaNo = $this->fatura->faturaNoUret($belgeTipi);
-        }
-
-        if ($faturaNo === '') {
-            $hatalar['fatura_no'] = 'Fatura no zorunludur.';
-        }
+        // Belge numarası HER ZAMAN kaydedilen belge tipinin serisinden çözülür.
+        // Form numarayı satış serisinden ön-doldurduğu için, İrsaliye/Numune/Proforma
+        // kaydedilirken bu numara satış serisini tüketip mükerrerliğe yol açıyordu
+        // (bkz. Fatura::belgeNoCozumle).
+        $faturaNo = $this->fatura->belgeNoCozumle($faturaNo, $_POST['fatura_no_oto'] ?? '', $belgeTipi);
         if ($faturaT === '') {
             $hatalar['fatura_tarihi'] = 'Fatura tarihi zorunludur.';
         } else {
@@ -450,28 +444,29 @@ final class SatisController extends Controller
         // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
         $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
 
+        // Kalemlerin doğrulaması TEK kapıdan (Fatura::kalemNormalize) geçer;
+        // negatif miktar / %100 üstü iskonto gibi değerler burada reddedilir.
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
-            $ad = trim($ad);
-            if ($ad === '') continue;
-            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
-            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
-            $miktarGirilen = max(0.001, (float)str_replace(',', '.', $kalemMiktar[$i] ?? '1'));
-            $birimFiyatGirilen = max(0, (float)str_replace(',', '.', $kalemFiyat[$i] ?? '0'));
-            $kalemler[] = [
-                'urun_id'       => $urunId,
-                'urun_adi'      => $ad,
-                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                // Birim fiyat döviz seçiliyse fatura kuruyla TL'ye çevrilir — fatura_kalemleri
-                // her zaman TL tutar; stok maliyeti/kâr marjı hesapları da böylece bozulmaz.
-                'birim_fiyat'   => $birimFiyatGirilen * $kur,
-                'kdv_orani'     => (float)($kalemKdv[$i] ?? 20),
-                'iskonto_orani' => (float)($kalemIskonto[$i] ?? 0),
-                'birim'         => $kalemBirim[$i] ?? 'Adet',
-            ];
+            if (trim((string)$ad) === '') continue;
+            try {
+                $kalemler[] = Fatura::kalemNormalize([
+                    'urun_id'       => $kalemUrunId[$i] ?? null,
+                    'urun_adi'      => $ad,
+                    'miktar'        => $kalemMiktar[$i] ?? null,
+                    'birim_fiyat'   => $kalemFiyat[$i] ?? null,
+                    'kdv_orani'     => $kalemKdv[$i] ?? null,
+                    'iskonto_orani' => $kalemIskonto[$i] ?? null,
+                    'birim'         => $kalemBirim[$i] ?? 'Adet',
+                    'giris_tipi'    => $kalemGirisTipi[$i] ?? 'adet',
+                ], $koliMap, $kur);
+            } catch (InvalidArgumentException $e) {
+                $hatalar['kalemler'] = $e->getMessage();
+                break;
+            }
         }
 
-        if (empty($kalemler)) {
+        if (empty($hatalar['kalemler']) && empty($kalemler)) {
             $hatalar['kalemler'] = 'En az bir ürün/hizmet kalemi ekleyin.';
         }
 
@@ -493,18 +488,12 @@ final class SatisController extends Controller
         }
 
         // ── Toplamları hesapla ─────────────────────────
-        $araToplam    = 0;
-        $iskontoTutar = 0;
-        $kdvTutar     = 0;
-        foreach ($kalemler as $k) {
-            $at  = $k['miktar'] * $k['birim_fiyat'];
-            $it  = $at * ($k['iskonto_orani'] / 100);
-            $kdt = ($at - $it) * ($k['kdv_orani'] / 100);
-            $araToplam    += $at;
-            $iskontoTutar += $it;
-            $kdvTutar     += $kdt;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
         $odenenTutar = 0;
         $kalanTutar  = $genelToplam;
 
@@ -590,29 +579,48 @@ final class SatisController extends Controller
             return;
         }
 
+        // Kalemler satış/alış ile aynı kapıdan doğrulanır — negatif miktar veya
+        // geçersiz oran buradan geçemez (bkz. Fatura::kalemNormalize).
         $kalemler = [];
-        foreach ($data['sepet'] as $item) {
-            $kalemler[] = [
-                'urun_id'       => $item['id'],
-                'urun_adi'      => $item['ad'],
-                'miktar'        => (float)$item['miktar'],
-                'birim_fiyat'   => (float)$item['fiyat'],
-                'kdv_orani'     => (float)$item['kdv'],
-                'iskonto_orani' => 0,
-                'birim'         => $item['birim'] ?? 'Adet',
-            ];
+        try {
+            foreach (($data['sepet'] ?? []) as $item) {
+                $kalemler[] = Fatura::kalemNormalize([
+                    'urun_id'       => $item['id']    ?? null,
+                    'urun_adi'      => $item['ad']    ?? '',
+                    'miktar'        => $item['miktar'] ?? null,
+                    'birim_fiyat'   => $item['fiyat'] ?? null,
+                    'kdv_orani'     => $item['kdv']   ?? null,
+                    'iskonto_orani' => 0,
+                    'birim'         => $item['birim'] ?? 'Adet',
+                ]);
+            }
+        } catch (InvalidArgumentException $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return;
+        }
+        if (empty($kalemler)) {
+            echo json_encode(['status' => 'error', 'message' => 'Sepette en az bir ürün olmalıdır.']);
+            return;
         }
 
+        // Tutarlar İSTEMCİDEN ALINMAZ — kalemlerden yeniden hesaplanır. Aksi halde
+        // tarayıcıya müdahale eden biri, depodan çıkan malla hiç ilgisi olmayan bir
+        // ciro/KDV tutarı kaydettirebilir.
+        $toplamlar   = Fatura::kalemToplamlari($kalemler);
+        $genelToplam = $toplamlar['genel_toplam'];
+
         $faturaNo = $this->fatura->faturaNoUret('perakende');
-        $genelToplam = (float)$data['genelToplam'];
         $faturaVeri = [
             'belge_tipi'     => 'perakende',
             'fatura_no'      => $faturaNo,
             'cari_id'        => null, // Perakende satışta müşteri genelde boştur
             'fatura_tarihi'  => $data['tarih'],
-            'ara_toplam'     => (float)$data['araToplam'],
-            'kdv_tutari'     => (float)$data['kdvToplam'],
+            'ara_toplam'     => $toplamlar['ara_toplam'],
+            'iskonto_tutari' => $toplamlar['iskonto_tutari'],
+            'kdv_tutari'     => $toplamlar['kdv_tutari'],
             'genel_toplam'   => $genelToplam,
+            'odenen_tutar'   => $genelToplam,
+            'kalan_tutar'    => 0,
             'para_birimi'    => 'TRY',
             'durum'          => 'onaylandi',
             'aciklama'       => $data['aciklama'] ?? 'Perakende Satış',

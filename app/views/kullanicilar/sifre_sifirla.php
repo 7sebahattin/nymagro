@@ -17,11 +17,11 @@ $kullanici = $kullanici ?? [];
       <?= Csrf::fieldHtml() ?>
       <div class="mb-3">
         <label class="form-label">Yeni Şifre *</label>
-        <input type="password" name="new_password" class="form-control" required minlength="6" autocomplete="new-password">
+        <input type="password" name="new_password" class="form-control" required minlength="10" autocomplete="new-password">
       </div>
       <div class="mb-3">
         <label class="form-label">Yeni Şifre Tekrar *</label>
-        <input type="password" name="confirm_password" class="form-control" required minlength="6" autocomplete="new-password">
+        <input type="password" name="confirm_password" class="form-control" required minlength="10" autocomplete="new-password">
       </div>
       <button type="submit" class="btn btn-warning"><i class="fa-solid fa-key"></i> Şifreyi Sıfırla</button>
       <a href="<?= BASE_URL ?>/kullanicilar" class="btn btn-outline-secondary">Vazgeç</a>

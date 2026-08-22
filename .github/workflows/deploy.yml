@@ -95,6 +95,24 @@ jobs:
           fi
           echo "Eski marka kalıntısı yok."
 
+      # Denetimde bulunan açıkların (bkz. tests/regression) geri gelmediğini
+      # doğrular. Veritabanı gerektirmezler; yapısal/statik kontrollerdir.
+      - name: Regresyon testleri
+        run: |
+          hata=0
+          for t in tests/security/*.php tests/regression/*.php; do
+            [ -f "$t" ] || continue
+            echo "── $t"
+            if ! php "$t"; then
+              echo "::error file=$t::Regresyon testi başarısız"
+              hata=1
+            fi
+          done
+          if [ "$hata" -ne 0 ]; then
+            echo "Regresyon testi başarısız — dağıtım durduruldu."
+            exit 1
+          fi
+
   # ── 2. FTP ile sunucuya yükle ─────────────────────────────────────
   yukle:
     name: FTP ile yükle

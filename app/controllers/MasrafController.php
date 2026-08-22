@@ -315,7 +315,12 @@ class MasrafController extends Controller
     public function belgeIndir(int $belgeId = 0): void
     {
         try {
-            if ($belgeId <= 0) throw new Exception('Geçersiz belge ID.');
+            // Geçersiz kimlik bir KULLANICI hatasıdır; 500 dönmek gerçek arızaları
+            // izleme araçlarında bu gürültünün içinde kaybeder.
+            if ($belgeId <= 0) {
+                http_response_code(400);
+                die('Geçersiz belge kimliği.');
+            }
             $belge = $this->model->belgeGetir($belgeId);
             if (!$belge) {
                 http_response_code(404);
