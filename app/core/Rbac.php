@@ -525,6 +525,10 @@ final class Rbac
         'DepoController::sayimKaydet'   => 'UPDATE',
         'SiteController::ayarlarKaydet' => 'UPDATE',
         'UrunController::stokGiris'     => 'UPDATE',
+        // classifyAction('eslestir') VIEW döner — oysa bu uç cari/ürün bağlar,
+        // yeni cari/ürün kartı açar ve belge durumunu değiştirir. Override
+        // olmadan yalnızca VIEW izniyle erişilebilirdi.
+        'EBelgeController::eslestir' => 'UPDATE',
         'NakitController::gelen_e_faturalar' => 'VIEW',
         'NakitController::gelen_e_faturalar_create' => 'CREATE',
         'NakitController::gelen_e_faturalar_delete' => 'DELETE',

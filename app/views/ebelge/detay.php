@@ -38,6 +38,9 @@ h5{margin:0 0 10px;font-size:13.5px;font-weight:800;color:var(--text)}
 
 <div class="ebl-actions">
   <a class="ebl-btn gray" href="<?= BASE_URL ?>/ebelge"><i class="fa-solid fa-rotate-left"></i> Listeye Dön</a>
+  <?php if (!$irsaliyeMi && empty($belge['aktarilan_fatura_id'])): ?>
+    <a class="ebl-btn" href="<?= BASE_URL ?>/ebelge/eslestir/<?= (int)$belge['id'] ?>"><i class="fa-solid fa-link"></i> Cari / Ürün Eşleştir</a>
+  <?php endif; ?>
   <a class="ebl-btn" href="<?= BASE_URL ?>/ebelge/indir/<?= (int)$belge['id'] ?>"><i class="fa-solid fa-download"></i> Ham XML indir</a>
   <?php if (empty($belge['aktarilan_fatura_id'])): ?>
     <a class="ebl-btn red" href="#" onclick="return nymPost('<?= BASE_URL ?>/ebelge/iptal/<?= (int)$belge['id'] ?>', 'Bu e-Belge reddedilsin mi? (Ham XML dosyası saklanmaya devam eder)')"><i class="fa-solid fa-ban"></i> Reddet</a>

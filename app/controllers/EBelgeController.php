@@ -22,14 +22,17 @@
 require_once MODELS_PATH . '/EBelgeGuvenlik.php';
 require_once MODELS_PATH . '/EBelgeParser.php';
 require_once MODELS_PATH . '/EBelge.php';
+require_once MODELS_PATH . '/EBelgeEslestirme.php';
 
 final class EBelgeController extends Controller
 {
     private EBelge $model;
+    private EBelgeEslestirme $eslestirme;
 
     public function __construct()
     {
         $this->model = new EBelge();
+        $this->eslestirme = new EBelgeEslestirme();
     }
 
     public function index(): void
@@ -160,6 +163,145 @@ final class EBelgeController extends Controller
         header('X-Content-Type-Options: nosniff');
         readfile($dosya['yol']);
         exit;
+    }
+
+    /**
+     * Cari / ürün eşleştirme ekranı (FAZ 2).
+     *
+     * GET  → eşleştirme ekranını gösterir (adaylar + arama + durum özeti).
+     * POST → $_POST['islem'] ile tek bir eşleştirme kararını uygular.
+     *
+     * YETKİ: Rbac::METHOD_OVERRIDES ile EBELGE_UPDATE'e bağlandı — isim tabanlı
+     * sınıflandırıcı bu metodu VIEW sanardı, oysa cari/ürün kartı açabiliyor.
+     */
+    public function eslestir($id = 0): void
+    {
+        $id = (int)$id;
+        $belge = $this->model->detay($id);
+        if (!$belge) {
+            $this->setFlash('error', 'e-Belge bulunamadı.');
+            $this->redirect('ebelge');
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->eslestirmeUygula($id, $belge);
+            return;
+        }
+
+        // e-İrsaliye ilk fazda yalnızca izlenir; eşleştirme ekranı hiç açılmaz
+        // (POST tarafında da ayrıca reddedilir).
+        if (!in_array((string)$belge['belge_tipi'], EBelge::AKTARILABILIR_TIPLER, true)) {
+            $this->setFlash('error', 'e-İrsaliye belgeleri ilk fazda yalnızca izleme amaçlıdır; eşleştirme yapılmaz.');
+            $this->redirect('ebelge/detay/' . $id);
+            return;
+        }
+
+        $taraflar = $this->model->taraflar($id);
+        $kalemler = $this->eslestirme->kalemleriEslesmeIle($id);
+        $urunAramasi = trim((string)($_GET['urun_ara'] ?? ''));
+
+        // Her kalem için aday listesi: arama yapıldıysa arama sonuçları,
+        // yapılmadıysa ad benzerliğine göre öneri (yalnızca GÖSTERİM amaçlı).
+        $urunAdaylari = [];
+        foreach ($kalemler as $kalem) {
+            if (!empty($kalem['eslesen_urun_id']) || ($kalem['urun_eslesme_tipi'] ?? '') === EBelgeEslestirme::ESLESME_URUNSUZ) {
+                continue;
+            }
+            $urunAdaylari[(int)$kalem['id']] = $this->eslestirme->urunAdaylari($kalem, $urunAramasi);
+        }
+
+        $this->view('ebelge/eslestir', [
+            'flash'         => $this->getFlash(),
+            'belge'         => $belge,
+            'taraflar'      => $taraflar,
+            'kalemler'      => $kalemler,
+            'eslesenCari'   => $this->eslestirme->eslesenCari($id),
+            'cariAdaylari'  => $this->eslestirme->cariAdaylari(
+                $belge + ['gonderen_unvan' => $taraflar['gonderen']['unvan'] ?? ''],
+                trim((string)($_GET['cari_ara'] ?? ''))
+            ),
+            'urunAdaylari'  => $urunAdaylari,
+            'ozet'          => $this->eslestirme->eslestirmeOzeti($id),
+            'cariAramasi'   => trim((string)($_GET['cari_ara'] ?? '')),
+            'urunAramasi'   => $urunAramasi,
+            'birimListesi'  => EBelgeEslestirme::BIRIM_LISTESI,
+            'topbarTitle'   => 'e-Belge Eşleştirme',
+            'topbarIcon'    => 'fa-link',
+        ]);
+    }
+
+    /** eslestir() POST dalı — tek bir eşleştirme kararını uygular. */
+    private function eslestirmeUygula(int $id, array $belge): void
+    {
+        if (!in_array((string)$belge['belge_tipi'], EBelge::AKTARILABILIR_TIPLER, true)) {
+            $this->setFlash('error', 'Bu belge tipi (e-İrsaliye) ilk fazda yalnızca izleme amaçlıdır; eşleştirilemez.');
+            $this->redirect('ebelge/detay/' . $id);
+            return;
+        }
+
+        $kullanici = $this->aktifKullaniciId();
+        $islem = (string)($_POST['islem'] ?? '');
+
+        try {
+            switch ($islem) {
+                case 'otomatik':
+                    $sonuc = $this->eslestirme->otomatikEslestir($id, $kullanici);
+                    $this->setFlash('success', sprintf(
+                        'Otomatik eşleştirme: cari %s, %d/%d kalem eşleşti. (Eşleşme yalnızca VKN/barkod/ürün kodu ile yapılır.)',
+                        $sonuc['cari'] === 'degismedi' ? 'değişmedi' : 'bağlandı',
+                        $sonuc['kalem_eslesen'],
+                        $sonuc['kalem_toplam']
+                    ));
+                    break;
+
+                case 'cari_ata':
+                    $sonuc = $this->eslestirme->cariAta(
+                        $id,
+                        (int)($_POST['cari_id'] ?? 0),
+                        !empty($_POST['ogren']),
+                        $kullanici
+                    );
+                    $this->setFlash(
+                        empty($sonuc['uyarilar']) ? 'success' : 'warning',
+                        'Cari eşleştirildi.' . (empty($sonuc['uyarilar']) ? '' : ' ' . implode(' ', $sonuc['uyarilar']))
+                    );
+                    break;
+
+                case 'cari_yeni':
+                    $this->eslestirme->yeniCariOlustur($id, $_POST, $kullanici);
+                    $this->setFlash('success', 'Yeni cari kartı oluşturuldu ve belgeye bağlandı.');
+                    break;
+
+                case 'kalem':
+                    $this->eslestirme->kalemEslestir($id, (int)($_POST['kalem_id'] ?? 0), $_POST, $kullanici);
+                    $this->setFlash('success', 'Kalem eşleştirildi.');
+                    break;
+
+                case 'kalem_kaldir':
+                    $this->eslestirme->kalemEslesmesiniKaldir($id, (int)($_POST['kalem_id'] ?? 0), $kullanici);
+                    $this->setFlash('success', 'Kalem eşleşmesi kaldırıldı.');
+                    break;
+
+                case 'urun_yeni':
+                    $this->eslestirme->yeniUrunOlustur($id, (int)($_POST['kalem_id'] ?? 0), $_POST, $kullanici);
+                    $this->setFlash('success', 'Yeni ürün/hizmet kartı açıldı ve kaleme bağlandı.');
+                    break;
+
+                case 'toplu_urunsuz':
+                    $sayac = $this->eslestirme->topluUrunsuzIsaretle($id, $kullanici);
+                    $this->setFlash('success', $sayac . ' kalem üründüz gider/hizmet kalemi olarak işaretlendi.');
+                    break;
+
+                default:
+                    $this->setFlash('error', 'Geçersiz eşleştirme işlemi.');
+            }
+        } catch (Throwable $e) {
+            error_log('[NYMAGRO] e-Belge eşleştirme hatası: ' . $e->getMessage());
+            $this->setFlash('error', $e->getMessage());
+        }
+
+        $this->redirect('ebelge/eslestir/' . $id);
     }
 
     /** Belgeyi reddeder/pasife alır. POST-only; ham XML dosyası SİLİNMEZ (VUK). */

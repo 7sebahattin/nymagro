@@ -30,6 +30,9 @@ final class EBelge
     public const DURUM_YENI            = 'yeni';
     public const DURUM_DOGRULANDI      = 'dogrulandi';
     public const DURUM_ESLESME_BEKLIYOR = 'eslesme_bekliyor';
+    public const DURUM_AKTARIMA_HAZIR  = 'aktarima_hazir';
+    public const DURUM_AKTARILIYOR     = 'aktariliyor';  // Faz 3: guarded UPDATE ile geçilir
+    public const DURUM_AKTARILDI       = 'aktarildi';
     public const DURUM_IZLEME          = 'izleme';       // e-İrsaliye: Faz 1'de aktarım kapalı
     public const DURUM_REDDEDILDI      = 'reddedildi';
 

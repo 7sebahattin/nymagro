@@ -162,7 +162,12 @@ $url = function (array $ek = []) use ($filtreler) {
         <td><?= $h($b['para_birimi']) ?></td>
         <td><span class="badge <?= $durumRenk[$b['durum']] ?? 'b-gray' ?>"><?= $h($durumEtiket[$b['durum']] ?? $b['durum']) ?></span></td>
         <td><?= (int)$b['kalem_sayisi'] ?></td>
-        <td><a class="ebl-btn gray" href="<?= BASE_URL ?>/ebelge/detay/<?= (int)$b['id'] ?>">Detay</a></td>
+        <td style="white-space:nowrap">
+          <a class="ebl-btn gray" href="<?= BASE_URL ?>/ebelge/detay/<?= (int)$b['id'] ?>">Detay</a>
+          <?php if ($b['belge_tipi'] !== 'eirsaliye' && empty($b['aktarilan_fatura_id'])): ?>
+            <a class="ebl-btn blue" href="<?= BASE_URL ?>/ebelge/eslestir/<?= (int)$b['id'] ?>">Eşleştir</a>
+          <?php endif; ?>
+        </td>
       </tr>
     <?php endforeach; endif; ?>
     </tbody>
