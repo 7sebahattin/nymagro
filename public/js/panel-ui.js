@@ -199,6 +199,36 @@
     document.cookie = 'nym_theme=' + tema + ';path=/;max-age=31536000;samesite=Lax';
   }
 
+  /* ── Güvenli yazdırma ─────────────────────────────────────────────────
+     Koyu tema varsayılan olduğu için window.print() doğrudan çağrılırsa
+     var(--text) gibi tema değişkenleri koyu temanın açık renkleriyle
+     basılıp beyaz kağıtta okunmaz hale gelir. panel-ui.css'teki @media
+     print bloğu bu değişkenleri CSS seviyesinde zaten print-safe yapıyor
+     (asıl/kalıcı çözüm — tarayıcı @media print'i normal işlerse yeter).
+     Bu fonksiyon ikinci bir güvenlik katmanıdır: yazdırma anında gerçek
+     data-theme özniteliğini de geçici olarak "acik" yapar (bazı tarayıcı/
+     yazdırma sürücüsü kombinasyonlarında @media print içindeki özel
+     özellik geçersiz kılmaları tutarsız uygulanabiliyor). Kullanıcının
+     asıl tema tercihini (localStorage/çerez) DEĞİŞTİRMEZ — yalnızca görsel
+     olarak, print bitene kadar zorlar, sonra eski hâline döner.
+     Kullanım: onclick="nymYazdir()" — window.print() yerine bunu çağırın. */
+  window.nymYazdir = function () {
+    var body = document.body;
+    var oncekiTema = body.getAttribute('data-theme');
+    body.setAttribute('data-theme', 'acik');
+
+    var geriDon = function () {
+      if (oncekiTema === null) body.removeAttribute('data-theme');
+      else body.setAttribute('data-theme', oncekiTema);
+      window.removeEventListener('afterprint', geriDon);
+    };
+    window.addEventListener('afterprint', geriDon);
+    // Safari'de afterprint bazı akışlarda güvenilir tetiklenmeyebilir — yedek.
+    setTimeout(geriDon, 3000);
+
+    window.print();
+  };
+
   document.querySelectorAll('.js-tema').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var simdiki = document.body.getAttribute('data-theme') === 'acik' ? 'acik' : 'koyu';

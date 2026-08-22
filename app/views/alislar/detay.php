@@ -94,7 +94,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($company['id']) ? BASE_URL .
 
 <!-- Action Buttons -->
 <div class="top-action-row no-print">
-  <button class="btn-act b-yazdir" onclick="window.print()"><i class="fa-solid fa-print"></i> Yazdır</button>
+  <button class="btn-act b-yazdir" onclick="nymYazdir()"><i class="fa-solid fa-print"></i> Yazdır</button>
   <?php if (($fatura['durum'] ?? '') !== 'iptal' && Rbac::currentUserCan('ALIS_UPDATE')): ?>
   <a href="<?= BASE_URL ?>/alis/duzenle/<?= (int)$fatura['id'] ?>" class="btn-act b-duzenle"><i class="fa-solid fa-pen"></i> Düzenle</a>
   <?php endif; ?>
@@ -197,7 +197,7 @@ function alisPaylas(btn) {
 <?php if (!empty($_GET['print'])): ?>
 <script>
 window.addEventListener('load', function () {
-  window.print();
+  nymYazdir();
 });
 </script>
 <?php endif; ?>

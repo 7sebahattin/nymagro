@@ -136,7 +136,7 @@ $upcomingEvents = array_slice($upcomingEvents, 0, 6);
         <a href="<?= BASE_URL ?>/takvim?ay=<?= $h(date('Y-m')) ?>"><i class="fa-solid fa-calendar-day"></i> Bugün</a>
         <a href="<?= BASE_URL ?>/takvim?ay=<?= $h($prevMonth) ?>"><i class="fa-solid fa-chevron-left"></i></a>
         <a href="<?= BASE_URL ?>/takvim?ay=<?= $h($nextMonth) ?>"><i class="fa-solid fa-chevron-right"></i></a>
-        <button type="button" onclick="window.print()"><i class="fa-solid fa-print"></i> Yazdır</button>
+        <button type="button" onclick="nymYazdir()"><i class="fa-solid fa-print"></i> Yazdır</button>
       </div>
     </div>
 
