@@ -297,7 +297,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
       <div class="no-print">
         <a href="<?= $h($excelUrl) ?>" class="btn btn-sm btn-light"><i class="fa-solid fa-file-excel"></i> Excel'e Aktar</a>
         <a href="<?= $h($pdfUrl) ?>" class="btn btn-sm btn-light"><i class="fa-solid fa-file-pdf"></i> PDF'e Aktar</a>
-        <button class="btn btn-sm btn-light" onclick="window.print()" type="button"><i class="fa-solid fa-print"></i> Yazdır</button>
+        <button class="btn btn-sm btn-light" onclick="nymYazdir()" type="button"><i class="fa-solid fa-print"></i> Yazdır</button>
       </div>
     </div>
     <div class="customer-report-body">

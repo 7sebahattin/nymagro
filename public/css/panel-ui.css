@@ -723,7 +723,48 @@ body[data-theme="acik"] .btn-close { filter: none; }
 }
 
 /* ── 9. Yazdırma ─────────────────────────────────────────────────────── */
+/*
+ * KÖK NEDEN VE ÇÖZÜM — "koyu temada yazdır" beyaz/okunmaz metin hatası
+ * --------------------------------------------------------------------
+ * Koyu tema VARSAYILANDIR (bu dosyanın en üstündeki :root bloğuna bakın);
+ * açık tema yalnızca body[data-theme="acik"] ile devreye girer. Koyu temada
+ * --text/--text2/--muted neredeyse beyaza yakın renklerdir (kart üzerinde
+ * okunsun diye), --card-bg ise neredeyse saydam bir katmandır (arkasındaki
+ * koyu --surface'i gösterir).
+ *
+ * Uygulamadaki HER "yazdır" ekranı (alış/satış detayı, ekstre, raporlar,
+ * takvim) kendi @media print bloğunda "html,body{background:var(--card-bg)}"
+ * ve içerikte "color:var(--text2)" gibi TEMA DEĞİŞKENLERİNİ kullanıyor.
+ * Bu, ekranda doğru görünse de yazdırmada tam olarak ters teper: kağıt
+ * arka planı efektif olarak beyaza döner (saydam --card-bg kağıdı gösterir)
+ * ve metin de neredeyse-beyaz kalır → beyaz kağıtta beyaz yazı, okunmaz.
+ *
+ * Onlarca dosyadaki her var(--...) kullanımını tek tek "gerçek" renklere
+ * çevirmek yerine, kökten (TEK yerden) çözüm: yazdırma anında bu değişkenlerin
+ * KENDİSİNİ print-safe (koyu metin/açık zemin) değerlere sabitlemek. Özel
+ * ürün/gayret harcanmadan, var(--text) / var(--card-bg) / var(--border) vb.
+ * kullanan HER mevcut ve gelecekteki sayfa otomatik olarak düzelir.
+ *
+ * :root VE body ikisi de hedeflenir: :root (varsayılan/koyu durum) ile
+ * body[data-theme="acik"] (zaten print-safe olsa da tutarlılık için) arasında
+ * özel özellik kademesi elemente göre değişir — ikisini de kapsamak, hangi
+ * tema aktifken yazdırma tetiklenirse tetiklensin aynı sonucu garantiler.
+ */
 @media print {
+  :root, body {
+    --surface: #ffffff !important;
+    --surface-2: #f1f5f9 !important;
+    --ink: #ffffff !important;
+    --card-bg: #ffffff !important;
+    --input-bg: #ffffff !important;
+    --border: #d7dce3 !important;
+    --border2: #c1c8d1 !important;
+    --text: #111827 !important;
+    --text2: #374151 !important;
+    --muted: #64748b !important;
+    --bnav-bg: #ffffff !important;
+  }
+
   .sidebar, .top-bar, .mobile-topbar, .bottom-nav,
   .bnav-more-panel, .bnav-overlay, .modal-overlay,
   .toolbar, .no-print { display: none !important; }

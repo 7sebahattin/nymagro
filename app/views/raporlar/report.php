@@ -105,7 +105,7 @@ $companyLogoUrl = $companyLogoPath !== '' && !empty($activeCompany['id']) ? BASE
 <div class="report-page">
     <div class="report-actions no-print">
         <a class="report-btn-sm report-muted" href="<?= $base ?>/rapor/satis_alis"><i class="fa-solid fa-arrow-left"></i> Geri dön</a>
-        <button class="report-btn-sm report-muted" type="button" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+        <button class="report-btn-sm report-muted" type="button" onclick="nymYazdir()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
         <button class="report-btn-sm report-muted" type="button" onclick="exportReportCsv()"><i class="fa-solid fa-file-excel"></i> Excel</button>
     </div>
 

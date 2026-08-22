@@ -588,17 +588,24 @@ function masrafYazdir(m) {
 
   const fmtTutar = (n) => n.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
 
+  // Bu makbuz window.open('', ...) + document.write() ile TAMAMEN AYRI bir
+  // pencere/belgeye yazılır — panel-ui.css hiç yüklenmez, dolayısıyla
+  // var(--text) gibi tema değişkenleri bu belgede TANIMSIZDIR (ana sayfadan
+  // miras alınmaz; CSS özel özellikleri pencereler arası geçmez). Tanımsız
+  // bir var() şans eseri (inherited/initial fallback) siyaha yakın çıkabilir
+  // ama bu garanti değildir — bu yüzden burada HER ZAMAN sabit, okunaklı
+  // renkler kullanılır; tema sistemine hiç bağlı olunmaz.
   const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">
   <title>Tediye Makbuzu — #${m.id}</title>
   <style>
-    body { font-family:'Segoe UI',sans-serif; padding:30px 50px; color:var(--text); font-size:14px; }
+    body { font-family:'Segoe UI',sans-serif; padding:30px 50px; color:#111827; background:#fff; font-size:14px; }
     h1 { text-align:center; font-size:20px; letter-spacing:2px; margin-bottom:30px; font-weight:700; }
     table { width:100%; border-collapse:collapse; margin-bottom:30px; }
     td { padding:10px 8px; vertical-align:top; }
     td:first-child { font-weight:700; text-transform:uppercase; width:160px; white-space:nowrap; }
-    .imza-row td { padding-top:50px; border-top:1px solid var(--border); font-weight:700; font-size:13px; }
+    .imza-row td { padding-top:50px; border-top:1px solid #cbd5e1; font-weight:700; font-size:13px; }
     .imza-row td:last-child { text-align:right; }
-    .tutar-yazi { font-size:12px; color:var(--text2); margin-top:4px; }
+    .tutar-yazi { font-size:12px; color:#374151; margin-top:4px; }
     @media print {
       body { padding:10px 20px; }
       button { display:none !important; }

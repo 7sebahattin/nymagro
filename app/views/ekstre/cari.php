@@ -111,7 +111,7 @@ $dateTr = static function($value): string {
 
     <div class="ext-tools">
       <a class="ext-tool green" href="<?= htmlspecialchars($excelUrl) ?>"><i class="fa-solid fa-list"></i> Excel</a>
-      <button class="ext-tool orange" type="button" onclick="window.print()"><i class="fa-solid fa-print"></i> PDF</button>
+      <button class="ext-tool orange" type="button" onclick="nymYazdir()"><i class="fa-solid fa-print"></i> PDF</button>
       <a class="ext-tool dark" href="mailto:?subject=Hesap%20Ekstresi&body=Hesap%20ekstresi%20ektedir."><i class="fa-regular fa-envelope"></i> Gönder</a>
     </div>
 
