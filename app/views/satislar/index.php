@@ -177,21 +177,41 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   </a>
 </div>
 
-<!-- Action Buttons -->
-<?php if ($belgeTipi === 'satis' && Rbac::currentUserCan('SATIS_CREATE')): ?>
+<!-- Action Buttons — sekme değiştikçe o belge tipine uygun "ekle" aksiyonu gösterilir.
+     Öncesinde bu blok yalnızca belgeTipi==='satis' için render ediliyordu; İrsaliyeler/
+     Perakende/Numuneler sekmelerinde hiçbir "ekle" butonu yoktu — kullanıcı o sekmeye
+     yalnızca Faturalar sekmesindeki "Yeni Fatura" ekranından, doğru butona basarak
+     ulaşabiliyordu. Diğer belge tipleri de aynı paylaşılan /satis/ekle ekranından
+     (veya perakende'de kendi özel ekranından) kaydedildiği için hedef URL'ler aynı
+     kalıyor; yalnızca giriş noktası her sekmede görünür hale getiriliyor. -->
+<?php if (Rbac::currentUserCan('SATIS_CREATE')): ?>
 <div class="action-btns">
-  <a href="<?= BASE_URL ?>/satis/perakende" class="btn-action" style="background:#5cb85c; color:#fff;">
-    <i class="fa-solid fa-plus"></i> Perakende Satış Gir
-  </a>
-  <button type="button" class="btn-action" style="background:#5bc0de; color:#fff;" data-bs-toggle="modal" data-bs-target="#yeniMusteriModal">
-    <i class="fa-solid fa-plus"></i> Yeni Müşteriye Satış Gir
-  </button>
-  <button type="button" class="btn-action" style="background:#d9534f; color:#fff;" data-bs-toggle="modal" data-bs-target="#kayitliMusteriModal">
-    <i class="fa-solid fa-plus"></i> Kayıtlı Müşteriye Satış Gir
-  </button>
-  <a href="javascript:void(0)" class="btn-action" style="background:#f0ad4e; color:#fff;" onclick="alert('Serbest Meslek Makbuzları özelliği yakında eklenecek.')">
-    <i class="fa-solid fa-file-invoice"></i> Serbest Meslek Makbuzları
-  </a>
+  <?php if ($belgeTipi === 'satis'): ?>
+    <a href="<?= BASE_URL ?>/satis/perakende" class="btn-action" style="background:#5cb85c; color:#fff;">
+      <i class="fa-solid fa-plus"></i> Perakende Satış Gir
+    </a>
+    <button type="button" class="btn-action" style="background:#5bc0de; color:#fff;" data-bs-toggle="modal" data-bs-target="#yeniMusteriModal">
+      <i class="fa-solid fa-plus"></i> Yeni Müşteriye Satış Gir
+    </button>
+    <button type="button" class="btn-action" style="background:#d9534f; color:#fff;" data-bs-toggle="modal" data-bs-target="#kayitliMusteriModal">
+      <i class="fa-solid fa-plus"></i> Kayıtlı Müşteriye Satış Gir
+    </button>
+    <a href="javascript:void(0)" class="btn-action" style="background:#f0ad4e; color:#fff;" onclick="alert('Serbest Meslek Makbuzları özelliği yakında eklenecek.')">
+      <i class="fa-solid fa-file-invoice"></i> Serbest Meslek Makbuzları
+    </a>
+  <?php elseif ($belgeTipi === 'irsaliye'): ?>
+    <a href="<?= BASE_URL ?>/satis/ekle" class="btn-action" style="background:#5bc0de; color:#fff;">
+      <i class="fa-solid fa-plus"></i> Yeni İrsaliye Ekle
+    </a>
+  <?php elseif ($belgeTipi === 'perakende'): ?>
+    <a href="<?= BASE_URL ?>/satis/perakende" class="btn-action" style="background:#5cb85c; color:#fff;">
+      <i class="fa-solid fa-plus"></i> Perakende Satış Gir
+    </a>
+  <?php elseif ($belgeTipi === 'numune'): ?>
+    <a href="<?= BASE_URL ?>/satis/ekle" class="btn-action" style="background:#8e44ad; color:#fff;">
+      <i class="fa-solid fa-plus"></i> Yeni Numune Fişi Kaydet
+    </a>
+  <?php endif; ?>
 </div>
 <?php endif; ?>
 
