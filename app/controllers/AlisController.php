@@ -157,25 +157,28 @@ final class AlisController extends Controller
         // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
         $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
 
+        // Kalem doğrulaması satış tarafıyla aynı kapıdan geçer (bkz. Fatura::kalemNormalize).
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
-            if (trim($ad) === '') continue;
-            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
-            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
-            $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
-            $birimFiyatGirilen = (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0');
-            $kalemler[] = [
-                'urun_id'       => $urunId,
-                'urun_adi'      => trim($ad),
-                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => $birimFiyatGirilen * $kur,
-                'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
-                'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),
-                'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
-            ];
+            if (trim((string)$ad) === '') continue;
+            try {
+                $kalemler[] = Fatura::kalemNormalize([
+                    'urun_id'       => $kalemUrunId[$i] ?? null,
+                    'urun_adi'      => $ad,
+                    'miktar'        => $_POST['kalem_miktar'][$i] ?? null,
+                    'birim_fiyat'   => $_POST['kalem_birim_fiyat'][$i] ?? null,
+                    'kdv_orani'     => $_POST['kalem_kdv_orani'][$i] ?? null,
+                    'iskonto_orani' => $_POST['kalem_iskonto_orani'][$i] ?? null,
+                    'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
+                    'giris_tipi'    => $kalemGirisTipi[$i] ?? 'adet',
+                ], $koliMap, $kur);
+            } catch (InvalidArgumentException $e) {
+                $hatalar['kalemler'] = $e->getMessage();
+                break;
+            }
         }
 
-        if (empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
+        if (empty($hatalar['kalemler']) && empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
 
         if (!empty($hatalar)) {
             $this->view('alislar/ekle', [
@@ -312,25 +315,28 @@ final class AlisController extends Controller
         // "Koli" girişini adete çevirmek için sunucu tarafında yetkili kaynak.
         $koliMap = $this->fatura->koliIciAdetMap($kalemUrunId);
 
+        // Kalem doğrulaması kaydet() ile aynı kapıdan geçer (bkz. Fatura::kalemNormalize).
         $kalemler = [];
         foreach ($kalemAdlari as $i => $ad) {
-            if (trim($ad) === '') continue;
-            $urunId = !empty($kalemUrunId[$i]) ? (int)$kalemUrunId[$i] : null;
-            $girisTipi = ($kalemGirisTipi[$i] ?? 'adet') === 'koli' ? 'koli' : 'adet';
-            $miktarGirilen = (float)str_replace(',', '.', $_POST['kalem_miktar'][$i] ?? '1');
-            $birimFiyatGirilen = (float)str_replace(',', '.', $_POST['kalem_birim_fiyat'][$i] ?? '0');
-            $kalemler[] = [
-                'urun_id'       => $urunId,
-                'urun_adi'      => trim($ad),
-                'miktar'        => Fatura::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap),
-                'birim_fiyat'   => $birimFiyatGirilen * $kur,
-                'kdv_orani'     => (float)($_POST['kalem_kdv_orani'][$i] ?? 20),
-                'iskonto_orani' => (float)($_POST['kalem_iskonto_orani'][$i] ?? 0),
-                'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
-            ];
+            if (trim((string)$ad) === '') continue;
+            try {
+                $kalemler[] = Fatura::kalemNormalize([
+                    'urun_id'       => $kalemUrunId[$i] ?? null,
+                    'urun_adi'      => $ad,
+                    'miktar'        => $_POST['kalem_miktar'][$i] ?? null,
+                    'birim_fiyat'   => $_POST['kalem_birim_fiyat'][$i] ?? null,
+                    'kdv_orani'     => $_POST['kalem_kdv_orani'][$i] ?? null,
+                    'iskonto_orani' => $_POST['kalem_iskonto_orani'][$i] ?? null,
+                    'birim'         => $_POST['kalem_birim'][$i] ?? 'Adet',
+                    'giris_tipi'    => $kalemGirisTipi[$i] ?? 'adet',
+                ], $koliMap, $kur);
+            } catch (InvalidArgumentException $e) {
+                $hatalar['kalemler'] = $e->getMessage();
+                break;
+            }
         }
 
-        if (empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
+        if (empty($hatalar['kalemler']) && empty($kalemler)) $hatalar['kalemler'] = 'En az bir kalem ekleyin.';
 
         if (!empty($hatalar)) {
             $this->view('alislar/duzenle', [

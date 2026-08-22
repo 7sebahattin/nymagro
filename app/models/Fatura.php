@@ -1009,6 +1009,133 @@ class Fatura
         return $miktarGirilen;
     }
 
+    /** Kalem alanlarının kabul edilebilir sınırları (bkz. kalemNormalize()). */
+    private const KALEM_MAX_ORAN = 100.0;
+
+    /**
+     * Kullanıcıdan gelen HAM bir fatura kalemini doğrular ve normalize eder.
+     *
+     * Satış, alış ve perakende akışlarının TAMAMI kalemlerini buradan geçirir —
+     * doğrulama kuralı tek yerde durur, akışlar arasında ayrışamaz.
+     *
+     * Neden kırpma değil de reddetme: %500 iskontoyu sessizce %100'e çekmek,
+     * kullanıcının kastetmediği bir faturayı yine de kaydeder. Sınır dışı değer
+     * bir veri giriş hatasıdır; düzeltilmesi gereken yer formdur.
+     *
+     * Tarayıcıdaki `min`/`max` öznitelikleri yalnızca istemci tarafıdır ve
+     * geliştirici konsolu/doğrudan HTTP isteğiyle atlanabilir; bu yüzden asıl
+     * doğrulama burada, sunucuda yapılır.
+     *
+     * @param  array $ham     urun_id, urun_adi, miktar, birim_fiyat, kdv_orani,
+     *                        iskonto_orani, birim, giris_tipi
+     * @param  array $koliMap [urun_id => koli_ici_adet] — "koli" girişini adete çevirmek için
+     * @param  float $kur     Döviz faturalarında birim fiyatı TL'ye çevirmek için (varsayılan 1)
+     * @return array          Fatura::ekle()/guncelle()'ye verilebilir kalem
+     * @throws InvalidArgumentException Geçersiz değerde, kullanıcıya gösterilebilir mesajla
+     */
+    public static function kalemNormalize(array $ham, array $koliMap = [], float $kur = 1.0): array
+    {
+        $urunAdi = trim((string)($ham['urun_adi'] ?? ''));
+        if ($urunAdi === '') {
+            throw new InvalidArgumentException('Ürün/hizmet adı boş olan bir kalem gönderildi.');
+        }
+        // Hata mesajlarında satırı bulunabilir kılmak için ürün adını kullan.
+        $etiket = mb_substr($urunAdi, 0, 60);
+
+        $urunId    = !empty($ham['urun_id']) ? (int)$ham['urun_id'] : null;
+        $girisTipi = ($ham['giris_tipi'] ?? 'adet') === 'koli' ? 'koli' : 'adet';
+
+        $miktarGirilen = self::sayiyaCevir($ham['miktar'] ?? null, "«{$etiket}» kaleminde miktar");
+        $miktar        = self::kalemMiktarCevir($urunId, $miktarGirilen, $girisTipi, $koliMap);
+        if ($miktar <= 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde miktar 0'dan büyük olmalıdır.");
+        }
+
+        $birimFiyat = self::sayiyaCevir($ham['birim_fiyat'] ?? null, "«{$etiket}» kaleminde birim fiyat");
+        if ($birimFiyat < 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde birim fiyat negatif olamaz.");
+        }
+
+        $kdvOrani = self::sayiyaCevir($ham['kdv_orani'] ?? null, "«{$etiket}» kaleminde KDV oranı", 20.0);
+        if ($kdvOrani < 0 || $kdvOrani > self::KALEM_MAX_ORAN) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde KDV oranı 0 ile 100 arasında olmalıdır.");
+        }
+
+        $iskontoOrani = self::sayiyaCevir($ham['iskonto_orani'] ?? null, "«{$etiket}» kaleminde iskonto oranı", 0.0);
+        if ($iskontoOrani < 0 || $iskontoOrani > self::KALEM_MAX_ORAN) {
+            // %100 üstü iskonto matrahı negatife çevirir; bu da negatif KDV ve
+            // negatif fatura toplamı üretip cari bakiyeyi ters yönde bozar.
+            throw new InvalidArgumentException("«{$etiket}» kaleminde iskonto oranı 0 ile 100 arasında olmalıdır.");
+        }
+
+        return [
+            'urun_id'       => $urunId,
+            'urun_adi'      => $urunAdi,
+            'miktar'        => $miktar,
+            // Döviz seçiliyse birim fiyat fatura kuruyla TL'ye çevrilir —
+            // fatura_kalemleri her zaman TL tutar.
+            'birim_fiyat'   => $birimFiyat * $kur,
+            'kdv_orani'     => $kdvOrani,
+            'iskonto_orani' => $iskontoOrani,
+            'birim'         => trim((string)($ham['birim'] ?? 'Adet')) ?: 'Adet',
+        ];
+    }
+
+    /**
+     * Normalize edilmiş kalemlerden fatura toplamlarını hesaplar.
+     *
+     * Toplamlar HER ZAMAN kalemlerden üretilmelidir; istemciden gelen toplam
+     * değerine güvenilmez (aksi halde depodan çıkan mal ile kaydedilen ciro
+     * birbirinden kopabilir).
+     *
+     * @param  array $kalemler kalemNormalize() çıktıları
+     * @return array{ara_toplam:float,iskonto_tutari:float,kdv_tutari:float,genel_toplam:float}
+     */
+    public static function kalemToplamlari(array $kalemler): array
+    {
+        $araToplam = 0.0; $iskontoTutar = 0.0; $kdvTutar = 0.0;
+        foreach ($kalemler as $k) {
+            $satir   = (float)$k['miktar'] * (float)$k['birim_fiyat'];
+            $iskonto = $satir * ((float)($k['iskonto_orani'] ?? 0) / 100);
+            $kdv     = ($satir - $iskonto) * ((float)($k['kdv_orani'] ?? 0) / 100);
+            $araToplam    += $satir;
+            $iskontoTutar += $iskonto;
+            $kdvTutar     += $kdv;
+        }
+        return [
+            'ara_toplam'     => round($araToplam, 2),
+            'iskonto_tutari' => round($iskontoTutar, 2),
+            'kdv_tutari'     => round($kdvTutar, 2),
+            'genel_toplam'   => round($araToplam - $iskontoTutar + $kdvTutar, 2),
+        ];
+    }
+
+    /**
+     * Form/JSON'dan gelen sayısal değeri float'a çevirir. Türkçe ondalık virgülü
+     * kabul edilir ("12,5" → 12.5). Boş değer $varsayilan'a düşer; sayı olmayan
+     * bir metin ise sessizce 0'a düşmek yerine hata fırlatır.
+     */
+    private static function sayiyaCevir($deger, string $alanEtiketi, ?float $varsayilan = null): float
+    {
+        if ($deger === null || $deger === '') {
+            if ($varsayilan !== null) {
+                return $varsayilan;
+            }
+            throw new InvalidArgumentException("{$alanEtiketi} boş bırakılamaz.");
+        }
+        if (is_string($deger)) {
+            $deger = str_replace(',', '.', trim($deger));
+        }
+        if (!is_numeric($deger)) {
+            throw new InvalidArgumentException("{$alanEtiketi} geçerli bir sayı değil.");
+        }
+        $sayi = (float)$deger;
+        if (!is_finite($sayi)) {
+            throw new InvalidArgumentException("{$alanEtiketi} geçerli bir sayı değil.");
+        }
+        return $sayi;
+    }
+
     // ─── Private Helpers ────────────────────────────────────────────────
 
     private function buildWhere(
