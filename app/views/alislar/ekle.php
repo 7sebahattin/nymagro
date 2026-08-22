@@ -61,6 +61,12 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
   <a href="<?= BASE_URL ?>/alis" class="top-btn btn-geridon"><i class="fa-solid fa-reply"></i> Geri Dön</a>
 </div>
 
+<?php if (!empty($flash)): ?>
+  <div style="background:<?= ($flash['tip'] ?? '') === 'success' ? 'rgba(46,204,113,.15)' : 'rgba(231,76,60,.15)' ?>;border:1px solid <?= ($flash['tip'] ?? '') === 'success' ? 'rgba(46,204,113,.28)' : 'rgba(231,76,60,.28)' ?>;color:var(--<?= ($flash['tip'] ?? '') === 'success' ? 'success' : 'danger' ?>);padding:12px 18px;border-radius:8px;margin-bottom:14px;font-size:13px;">
+    <i class="fa-solid fa-<?= ($flash['tip'] ?? '') === 'success' ? 'check-circle' : 'circle-exclamation' ?>"></i> <?= htmlspecialchars($flash['mesaj'] ?? '') ?>
+  </div>
+<?php endif; ?>
+
 <?php if (!empty($hatalar['kaynak_irsaliye_id'])): ?>
   <div style="background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.28);color:var(--danger);padding:12px 18px;border-radius:8px;margin-bottom:14px;font-size:13px;">
     <i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($hatalar['kaynak_irsaliye_id']) ?>

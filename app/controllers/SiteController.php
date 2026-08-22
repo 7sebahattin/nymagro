@@ -22,7 +22,11 @@ class SiteController extends Controller
 {
     private SiteIcerik $model;
 
-    private const ALLOWED_IMG = ['jpg','jpeg','png','gif','webp','svg'];
+    // SVG BİLİNÇLİ OLARAK YOK: SVG bir XML belgesidir ve <script> barındırabilir.
+    // Aynı origin'den sunulduğu için yüklenen bir SVG, ziyaretçi tarayıcısında kod
+    // çalıştırabilir (kalıcı XSS). Güvenli şekilde kabul etmek sanitizasyon gerektirir;
+    // bunun yerine raster formatlarla sınırlandırıldı (bkz. denetim raporu B7).
+    private const ALLOWED_IMG = ['jpg','jpeg','png','gif','webp'];
     private const MAX_BYTES   = 5 * 1024 * 1024; // 5 MB
 
     public function __construct()
@@ -345,13 +349,13 @@ class SiteController extends Controller
         // MIME doğrulama
         if (function_exists('mime_content_type')) {
             $mime = (string)@mime_content_type($file['tmp_name']);
-            $okMimes = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+            $okMimes = ['image/jpeg','image/png','image/gif','image/webp'];
             if ($mime !== '' && !in_array($mime, $okMimes, true)) {
                 throw new Exception('Dosya içeriği geçerli bir görsel değil.');
             }
         }
 
-        if ($uzanti !== 'svg' && function_exists('getimagesize') && @getimagesize($file['tmp_name']) === false) {
+        if (function_exists('getimagesize') && @getimagesize($file['tmp_name']) === false) {
             throw new Exception('Dosya içeriği okunabilir bir görsel değil.');
         }
 

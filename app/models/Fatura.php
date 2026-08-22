@@ -449,6 +449,70 @@ class Fatura
         return [];
     }
 
+    /**
+     * Bu belge stoktan ÇIKIŞ yapıyor mu? (Yetersiz stok kontrolü yalnızca çıkışta anlamlıdır;
+     * depolar arası sevkte kaynak depodan çıkış olduğu için o da kapsama girer.)
+     */
+    private function planCikisIceriyorMu(array $stokPlani): bool
+    {
+        foreach ($stokPlani as $hareket) {
+            if (($hareket['tip'] ?? '') === 'cikis') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Stoğu aşan çıkışı engeller — şirket ayarı buna izin vermiyorsa.
+     *
+     * Varsayılan davranış İZİN VERMEKtir (allow_negative_stock = 1): mevcut
+     * kurulumlarda stok halihazırda negatif olabilir ve ayarı zorla kapatmak
+     * günlük işi durdurur. Ayar kapatıldığında bu kontrol devreye girer.
+     *
+     * Kapsam dışı: hizmet kalemleri (stoğu yoktur) ve stok takibi 'yok' olan
+     * ürünler. Kontrol ürünün TOPLAM stoğu üzerinden yapılır; depo bazlı
+     * kontrol, geçmiş veride depo kırılımı bulunmayan ürünlerde hatalı
+     * engellemeye yol açacağı için tercih edilmemiştir.
+     *
+     * @throws RuntimeException Stok yetersizse
+     */
+    private function assertStokYeterli(int $urunId, float $miktar): void
+    {
+        if ($this->settingsCache === null) {
+            $this->belgeOnEki('satis'); // settingsCache'i doldurur
+        }
+        // Kolon henüz eklenmemişse (eski şema) varsayılan: izin ver.
+        if ((int)($this->settingsCache['allow_negative_stock'] ?? 1) === 1) {
+            return;
+        }
+
+        $urun = $this->db->selectOne(
+            "SELECT ad, tip, stok_takibi, stok_miktari FROM urunler_hizmetler
+             WHERE id = :id AND company_id = :cid",
+            [':id' => $urunId, ':cid' => TenantContext::activeCompanyId()]
+        );
+        if (!$urun) {
+            return; // Ürün doğrulaması assertProductBelongsToCompany()'nin işi.
+        }
+        if (($urun['tip'] ?? '') === 'hizmet' || ($urun['stok_takibi'] ?? 'normal') === 'yok') {
+            return;
+        }
+
+        $mevcut = (float)($urun['stok_miktari'] ?? 0);
+        if ($miktar - $mevcut > 0.0001) {
+            $ad = $urun['ad'] ?? ('#' . $urunId);
+            throw new RuntimeException(sprintf(
+                '«%s» için yeterli stok yok: elde %s, istenen %s. '
+                . 'Stoğu aşan satışa izin vermek isterseniz Şirket Ayarları\'ndan '
+                . '"Stoğu aşan satışa izin ver" seçeneğini işaretleyin.',
+                $ad,
+                rtrim(rtrim(number_format($mevcut, 3, ',', '.'), '0'), ','),
+                rtrim(rtrim(number_format($miktar, 3, ',', '.'), '0'), ',')
+            ));
+        }
+    }
+
     /** stokHareketPlani() açıklamasında kullanılacak kısa, insan-okunur belge etiketi. */
     private function stokAciklamaEtiketi(string $belgeTipi): string
     {
@@ -523,6 +587,7 @@ class Fatura
             }
 
             $stokPlani = $this->stokHareketPlani($fatura, $depoId);
+            $cikisVarMi = $this->planCikisIceriyorMu($stokPlani);
 
             foreach ($kalemler as $sira => $k) {
                 $miktar      = (float)($k['miktar']       ?? 1);
@@ -560,6 +625,11 @@ class Fatura
 
                 // Stok güncelleme (belge tipine ve — irsaliyede — sevk türüne göre; bkz. stokHareketPlani())
                 if ($kalemVeri['urun_id']) {
+                    // Kontrol, önceki kalemlerin etkisi uygulandıktan SONRA yapılır:
+                    // aynı ürün birden çok satırda geçiyorsa toplam çıkış doğru görülür.
+                    if ($cikisVarMi) {
+                        $this->assertStokYeterli((int)$kalemVeri['urun_id'], $miktar);
+                    }
                     $moveDescBase = $this->stokAciklamaEtiketi($fatura['belge_tipi']) . ' #' . $fatura['fatura_no'];
                     foreach ($stokPlani as $hareket) {
                         $uModel->stokHareketiEkle($kalemVeri['urun_id'], $miktar, $hareket['tip'], $moveDescBase, $hareket['depo_id']);
@@ -629,6 +699,7 @@ class Fatura
             }
 
             $stokPlani = $this->stokHareketPlani($fatura, $depoId);
+            $cikisVarMi = $this->planCikisIceriyorMu($stokPlani);
 
             foreach ($kalemler as $sira => $k) {
                 $miktar      = (float)($k['miktar']       ?? 1);
@@ -665,6 +736,11 @@ class Fatura
                 $this->db->insert('fatura_kalemleri', $kalemVeri);
 
                 if ($kalemVeri['urun_id']) {
+                    // Eski kalemlerin etkisi yukarıda geri alındı; kontrol bu yüzden
+                    // güncel (geri alınmış) stok üzerinden doğru çalışır.
+                    if ($cikisVarMi) {
+                        $this->assertStokYeterli((int)$kalemVeri['urun_id'], $miktar);
+                    }
                     $moveDesc = $this->stokAciklamaEtiketi($fatura['belge_tipi']) . ' #' . ($fatura['fatura_no'] ?? $mevcut['fatura_no']) . ' düzenleme';
                     foreach ($stokPlani as $hareket) {
                         $uModel->stokHareketiEkle($kalemVeri['urun_id'], $miktar, $hareket['tip'], $moveDesc, $hareket['depo_id']);

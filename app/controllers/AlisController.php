@@ -78,6 +78,7 @@ final class AlisController extends Controller
             'depolar'     => $this->depoModel->listele(),
             'acikIrsaliyeler' => $this->fatura->faturalandirilmamisIrsaliyeler($cariId, 100, 'tedarikci'),
             'presetKaynakIrsaliyeId' => $presetKaynakIrsaliyeId,
+            'flash'       => $this->getFlash(),
             'topbarTitle' => 'Yeni Alış Faturası',
             'topbarIcon'  => 'fa-solid fa-truck',
             'activeMenu'  => 'alislar'

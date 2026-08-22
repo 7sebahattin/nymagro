@@ -90,6 +90,7 @@ $err = function(string $k) use ($hatalar): string {
   .odeme-sekli-sel { padding:7px 10px; border:1px solid var(--border2); border-radius:3px; font-size:13px; color:var(--text); outline:none; }
 
   .alert-error { background:rgba(231,76,60,.15); border:1px solid rgba(231,76,60,.28); color:var(--danger); padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; }
+  .alert-success { background:rgba(46,204,113,.15); border:1px solid rgba(46,204,113,.28); color:var(--success); padding:12px 18px; border-radius:8px; margin-bottom:14px; font-size:13px; }
 
   @media (max-width:900px) { .panels-container { flex-direction:column; } .panel-left { max-width:100%; } }
 </style>
@@ -102,6 +103,13 @@ $err = function(string $k) use ($hatalar): string {
   <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
   <span>Yeni Fatura</span>
 </div>
+
+<?php if (!empty($flash)): ?>
+  <div class="alert-<?= ($flash['tip'] ?? '') === 'success' ? 'success' : 'error' ?>">
+    <i class="fa-solid fa-<?= ($flash['tip'] ?? '') === 'success' ? 'check-circle' : 'circle-exclamation' ?>"></i>
+    <?= htmlspecialchars($flash['mesaj'] ?? '') ?>
+  </div>
+<?php endif; ?>
 
 <?php if (!empty($hatalar['kalemler'])): ?>
   <div class="alert-error">

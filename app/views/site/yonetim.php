@@ -410,14 +410,14 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
           <div style="flex:1;">
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
               <?php if (Rbac::currentUserCan('SITE_UPDATE')): ?>
-              <input type="file" name="logo" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none" onchange="smLogoPreview(this)">
+              <input type="file" name="logo" id="logoFile" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="smLogoPreview(this)">
               <button type="button" class="sm-btn sm-btn-ghost sm-btn-sm" onclick="document.getElementById('logoFile').click()"><i class="fa-solid fa-upload"></i> Logo Seç</button>
               <?php if (!empty($ayarlar['logo_path'])): ?>
                 <a href="#" class="sm-btn sm-btn-danger sm-btn-sm" onclick="return nymPost('<?= BASE_URL ?>/site/logoSil', 'Logo kaldırılsın mı?')"><i class="fa-solid fa-trash"></i> Kaldır</a>
               <?php endif; ?>
               <?php endif; ?>
             </div>
-            <p style="font-size:11.5px;color:var(--muted);">PNG, JPG, SVG veya WebP — max 5 MB. Kare format önerilir (256×256 px).</p>
+            <p style="font-size:11.5px;color:var(--muted);">PNG, JPG veya WebP — max 5 MB. Kare format önerilir (256×256 px).</p>
           </div>
         </div>
 

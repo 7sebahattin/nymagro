@@ -13,7 +13,7 @@ class Company
     private array $settingsFillable = [
         'invoice_prefix', 'purchase_invoice_prefix', 'quote_prefix',
         'default_currency', 'default_vat_rate', 'fiscal_year_start_month',
-        'fiscal_year_end_month', 'stock_tracking_enabled', 'e_invoice_enabled',
+        'fiscal_year_end_month', 'stock_tracking_enabled', 'allow_negative_stock', 'e_invoice_enabled',
         'theme_color', 'is_storefront_source',
     ];
 
@@ -287,6 +287,7 @@ class Company
         $settings['fiscal_year_start_month'] = (int)($settings['fiscal_year_start_month'] ?? 1);
         $settings['fiscal_year_end_month'] = (int)($settings['fiscal_year_end_month'] ?? 12);
         $settings['stock_tracking_enabled'] = !empty($settings['stock_tracking_enabled']) ? 1 : 0;
+        $settings['allow_negative_stock'] = !empty($settings['allow_negative_stock']) ? 1 : 0;
         $settings['e_invoice_enabled'] = !empty($settings['e_invoice_enabled']) ? 1 : 0;
         $settings['theme_color'] = $this->normalizeThemeColor((string)($settings['theme_color'] ?? 'emerald'));
         $settings['is_storefront_source'] = !empty($settings['is_storefront_source']) ? 1 : 0;

@@ -360,6 +360,15 @@ final class TenantContext
             self::$columnCache['company_settings.theme_color'] = true;
         }
 
+        // Stoğu aşan satışa izin verilsin mi? Varsayılan 1 = izin ver — mevcut
+        // kurulumların davranışı DEĞİŞMEZ. Kapatmadan önce eldeki stokların
+        // doğruluğu gözden geçirilmelidir; halihazırda negatif stok varsa bu
+        // ayarı kapatmak o ürünlerin satışını anında durdurur.
+        if (!self::hasColumn('company_settings', 'allow_negative_stock')) {
+            $db->query("ALTER TABLE company_settings ADD COLUMN allow_negative_stock TINYINT(1) NOT NULL DEFAULT 1 AFTER stock_tracking_enabled");
+            self::$columnCache['company_settings.allow_negative_stock'] = true;
+        }
+
         if (!self::hasColumn('company_settings', 'is_storefront_source')) {
             $db->query("ALTER TABLE company_settings ADD COLUMN is_storefront_source TINYINT(1) NOT NULL DEFAULT 0 AFTER theme_color");
             self::$columnCache['company_settings.is_storefront_source'] = true;

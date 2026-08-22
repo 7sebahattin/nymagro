@@ -156,6 +156,17 @@ $selectedTheme = $settings['theme_color'] ?? 'emerald';
           <label class="form-check-label" for="stock">Stok takibi aktif</label>
         </div>
         <div class="col-12 form-check ms-2">
+          <input class="form-check-input" type="checkbox" name="allow_negative_stock" value="1" id="negstock" <?= (int)($settings['allow_negative_stock'] ?? 1) === 1 ? 'checked' : '' ?>>
+          <label class="form-check-label" for="negstock">Stoğu aşan satışa izin ver</label>
+          <div class="form-text">
+            İşaretliyken elde olandan fazlası satılabilir ve stok negatife düşebilir.
+            İşareti kaldırırsanız stoğu aşan satış/çıkış engellenir — kapatmadan önce
+            eldeki stokların doğru olduğundan emin olun, halihazırda negatif stoklu
+            ürünler varsa bu ürünlerin satışı anında durur.
+            Hizmet kalemleri ve stok takibi kapalı ürünler bu kontrole tabi değildir.
+          </div>
+        </div>
+        <div class="col-12 form-check ms-2">
           <input class="form-check-input" type="checkbox" name="e_invoice_enabled" value="1" id="einvoice" <?= (int)($settings['e_invoice_enabled'] ?? 0) === 1 ? 'checked' : '' ?>>
           <label class="form-check-label" for="einvoice">E-fatura aktif</label>
         </div>

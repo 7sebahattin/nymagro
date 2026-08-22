@@ -112,6 +112,7 @@ final class SatisController extends Controller
             'presetKaynakIrsaliyeId' => $presetKaynakIrsaliyeId,
             'acikTeklifler' => $this->fatura->faturalandirilmamisTeklifler($cariId),
             'presetKaynakTeklifId' => $presetKaynakTeklifId,
+            'flash'       => $this->getFlash(),
             'topbarTitle' => 'Yeni Satış Faturası',
             'topbarIcon'  => 'fa-file-invoice-dollar',
         ]);
