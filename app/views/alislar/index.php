@@ -113,15 +113,23 @@ $belgeTipi = $belgeTipi ?? 'alis';
   </a>
 </div>
 
-<!-- Action Buttons -->
-<?php if ($belgeTipi === 'alis' && Rbac::currentUserCan('ALIS_CREATE')): ?>
+<!-- Action Buttons — İrsaliyeler sekmesinde önceden hiçbir "ekle" butonu yoktu; kullanıcı
+     o belgeyi yalnızca Faturalar sekmesindeki "Yeni Alış Faturası" ekranından "İrsaliye
+     Kaydet" butonuna basarak oluşturabiliyordu (bkz. satislar/index.php'deki aynı düzeltme). -->
+<?php if (Rbac::currentUserCan('ALIS_CREATE')): ?>
 <div class="action-btns">
-  <button class="btn-action btn-kayitli" onclick="document.getElementById('modalKayitli').classList.add('open')">
-    <i class="fa-solid fa-plus"></i> Kayıtlı Tedarikçiden Alış Gir
-  </button>
-  <button class="btn-action btn-yeni" onclick="document.getElementById('modalYeni').classList.add('open')">
-    <i class="fa-solid fa-plus"></i> Yeni Tedarikçiden Alış Gir
-  </button>
+  <?php if ($belgeTipi === 'alis'): ?>
+    <button class="btn-action btn-kayitli" onclick="document.getElementById('modalKayitli').classList.add('open')">
+      <i class="fa-solid fa-plus"></i> Kayıtlı Tedarikçiden Alış Gir
+    </button>
+    <button class="btn-action btn-yeni" onclick="document.getElementById('modalYeni').classList.add('open')">
+      <i class="fa-solid fa-plus"></i> Yeni Tedarikçiden Alış Gir
+    </button>
+  <?php elseif ($belgeTipi === 'irsaliye'): ?>
+    <a href="<?= BASE_URL ?>/alis/ekle" class="btn-action btn-yeni">
+      <i class="fa-solid fa-plus"></i> Yeni İrsaliye Ekle
+    </a>
+  <?php endif; ?>
 </div>
 <?php endif; ?>
 
@@ -390,12 +398,17 @@ function saveAndGo() {
   });
 }
 
-// Modal açıldığında tedarikçileri yükle
-document.querySelector('.btn-kayitli').addEventListener('click', function() {
-  document.getElementById('kmResults').innerHTML = '<div style="padding:12px; color:var(--muted);">Yükleniyor...</div>';
-  document.getElementById('kmSearch').value = '';
-  loadTedarikci('');
-});
+// Modal açıldığında tedarikçileri yükle. Bu buton yalnızca Faturalar sekmesinde
+// render edilir (bkz. yukarıdaki action-btns bloğu) — İrsaliyeler sekmesinde yoktur,
+// bu yüzden null kontrolü şart.
+var btnKayitli = document.querySelector('.btn-kayitli');
+if (btnKayitli) {
+  btnKayitli.addEventListener('click', function() {
+    document.getElementById('kmResults').innerHTML = '<div style="padding:12px; color:var(--muted);">Yükleniyor...</div>';
+    document.getElementById('kmSearch').value = '';
+    loadTedarikci('');
+  });
+}
 
 function loadTedarikci(q) {
   var url = '<?= BASE_URL ?>/tedarikci/tedarikciBul?q=' + (q === '' ? 'all' : encodeURIComponent(q));
