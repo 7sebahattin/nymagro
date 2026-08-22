@@ -43,11 +43,11 @@ $h = fn($v) => htmlspecialchars((string)($v ?? ''), ENT_QUOTES);
       </div>
       <div class="pass-field">
         <label for="new_password">Yeni Şifre</label>
-        <input class="pass-input" id="new_password" name="new_password" type="password" minlength="6" required>
+        <input class="pass-input" id="new_password" name="new_password" type="password" minlength="10" required>
       </div>
       <div class="pass-field">
         <label for="confirm_password">Yeni Şifre Tekrar</label>
-        <input class="pass-input" id="confirm_password" name="confirm_password" type="password" minlength="6" required>
+        <input class="pass-input" id="confirm_password" name="confirm_password" type="password" minlength="10" required>
       </div>
       <div class="pass-actions">
         <a class="pass-btn ghost" href="<?= BASE_URL ?>/profil">Hesabıma Dön</a>

@@ -76,13 +76,13 @@
         <a href="<?= BASE_URL ?>/depo/detay/<?= $d['id'] ?>" class="depo-name"><?= htmlspecialchars($d['ad']) ?></a>
         
         <div class="depo-info">
-          <i class="fa-solid fa-user"></i> <?= htmlspecialchars($d['yetkili'] ?: 'Yetkili belirtilmemiş') ?>
+          <i class="fa-solid fa-user"></i> <?= htmlspecialchars(($d['yetkili'] ?? '') ?: 'Yetkili belirtilmemiş') ?>
         </div>
         <div class="depo-info">
-          <i class="fa-solid fa-phone"></i> <?= htmlspecialchars($d['telefon'] ?: '-') ?>
+          <i class="fa-solid fa-phone"></i> <?= htmlspecialchars(($d['telefon'] ?? '') ?: '-') ?>
         </div>
         <div class="depo-info">
-          <i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($d['adres'] ?: 'Adres belirtilmemiş') ?>
+          <i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars(($d['adres'] ?? '') ?: 'Adres belirtilmemiş') ?>
         </div>
         
         <div class="depo-actions">

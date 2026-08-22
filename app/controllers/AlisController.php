@@ -190,15 +190,12 @@ final class AlisController extends Controller
             return;
         }
 
-        // Toplamları hesapla
-        $araToplam = 0; $iskontoTutar = 0; $kdvTutar = 0;
-        foreach ($kalemler as $k) {
-            $lineTotal = $k['miktar'] * $k['birim_fiyat'];
-            $lineIsk   = $lineTotal * ($k['iskonto_orani'] / 100);
-            $lineKdv   = ($lineTotal - $lineIsk) * ($k['kdv_orani'] / 100);
-            $araToplam += $lineTotal; $iskontoTutar += $lineIsk; $kdvTutar += $lineKdv;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
 
         $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
         if ($paraBirimi !== 'TRY' && $kur > 0) {
@@ -351,14 +348,12 @@ final class AlisController extends Controller
             return;
         }
 
-        $araToplam = 0; $iskontoTutar = 0; $kdvTutar = 0;
-        foreach ($kalemler as $k) {
-            $lineTotal = $k['miktar'] * $k['birim_fiyat'];
-            $lineIsk   = $lineTotal * ($k['iskonto_orani'] / 100);
-            $lineKdv   = ($lineTotal - $lineIsk) * ($k['kdv_orani'] / 100);
-            $araToplam += $lineTotal; $iskontoTutar += $lineIsk; $kdvTutar += $lineKdv;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
 
         $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
         if ($paraBirimi !== 'TRY' && $kur > 0) {

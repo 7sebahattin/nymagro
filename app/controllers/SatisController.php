@@ -248,18 +248,12 @@ final class SatisController extends Controller
             return;
         }
 
-        $araToplam    = 0;
-        $iskontoTutar = 0;
-        $kdvTutar     = 0;
-        foreach ($kalemler as $k) {
-            $at  = $k['miktar'] * $k['birim_fiyat'];
-            $it  = $at * ($k['iskonto_orani'] / 100);
-            $kdt = ($at - $it) * ($k['kdv_orani'] / 100);
-            $araToplam    += $at;
-            $iskontoTutar += $it;
-            $kdvTutar     += $kdt;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
 
         $araToplamDoviz = $iskontoTutarDoviz = $kdvTutarDoviz = $genelToplamDoviz = null;
         if ($paraBirimi !== 'TRY' && $kur > 0) {
@@ -350,7 +344,9 @@ final class SatisController extends Controller
         // 'satis' (Fatura Kaydet) gerçek/nihai bir belgedir — proforma/irsaliye/sipariş
         // gibi ön belgelerden farklı olarak varsayılan olarak onaylı kaydedilir
         // (aksi halde durumu değiştirecek hiçbir kontrol olmadığından süresiz "taslak" kalır).
-        $durum       = $_POST['durum'] ?? ($belgeTipi === 'satis' ? 'onaylandi' : 'taslak');
+        // 'numune' de nihai bir belgedir: mal fiilen depodan çıkmıştır ve arkasından
+        // gelecek bir onay/faturalama adımı yoktur (irsaliyedeki "Faturalandır" gibi).
+        $durum       = $_POST['durum'] ?? (in_array($belgeTipi, ['satis', 'numune'], true) ? 'onaylandi' : 'taslak');
         $cariId      = !empty($_POST['cari_id']) ? (int)$_POST['cari_id'] : null;
         $odemeSekli  = trim($_POST['odeme_sekli'] ?? '');
         $aciklama    = trim($_POST['aciklama']    ?? '');
@@ -492,18 +488,12 @@ final class SatisController extends Controller
         }
 
         // ── Toplamları hesapla ─────────────────────────
-        $araToplam    = 0;
-        $iskontoTutar = 0;
-        $kdvTutar     = 0;
-        foreach ($kalemler as $k) {
-            $at  = $k['miktar'] * $k['birim_fiyat'];
-            $it  = $at * ($k['iskonto_orani'] / 100);
-            $kdt = ($at - $it) * ($k['kdv_orani'] / 100);
-            $araToplam    += $at;
-            $iskontoTutar += $it;
-            $kdvTutar     += $kdt;
-        }
-        $genelToplam = $araToplam - $iskontoTutar + $kdvTutar;
+        // Toplamlar kalemlerden hesaplanır — formül tek yerde durur (bkz. Fatura::kalemToplamlari).
+        $toplamlar    = Fatura::kalemToplamlari($kalemler);
+        $araToplam    = $toplamlar['ara_toplam'];
+        $iskontoTutar = $toplamlar['iskonto_tutari'];
+        $kdvTutar     = $toplamlar['kdv_tutari'];
+        $genelToplam  = $toplamlar['genel_toplam'];
         $odenenTutar = 0;
         $kalanTutar  = $genelToplam;
 

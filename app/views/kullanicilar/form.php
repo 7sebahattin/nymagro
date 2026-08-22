@@ -62,11 +62,11 @@ $action = $isEdit ? (BASE_URL . '/kullanicilar/' . (int)$kullanici['id'] . '/gun
         </div>
         <div class="col-md-6">
           <label class="form-label">Şifre *</label>
-          <input type="password" name="password" class="form-control" required minlength="6" autocomplete="new-password">
+          <input type="password" name="password" class="form-control" required minlength="10" autocomplete="new-password">
         </div>
         <div class="col-md-6">
           <label class="form-label">Şifre Tekrar *</label>
-          <input type="password" name="password_confirm" class="form-control" required minlength="6" autocomplete="new-password">
+          <input type="password" name="password_confirm" class="form-control" required minlength="10" autocomplete="new-password">
         </div>
         <div class="col-12">
           <label class="form-label">Açıklama</label>

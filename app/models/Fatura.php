@@ -450,6 +450,37 @@ class Fatura
     }
 
     /**
+     * Kaydedilmek üzere olan bir kalemin değerlerini son kez doğrular.
+     *
+     * kalemNormalize() ham form/JSON girdisini normalize eder ve controller'lar
+     * bunu kullanır. Bu metot ise DÖNÜŞTÜRMEZ, yalnızca sonuçları denetler:
+     * modele programatik olarak (içe aktarma, betik, başka bir modül) verilen
+     * kalemler controller'lardan geçmediği için son savunma hattıdır.
+     *
+     * @throws InvalidArgumentException
+     */
+    private static function assertKalemGecerli(array $k, int $sira): void
+    {
+        $etiket = trim((string)($k['urun_adi'] ?? '')) ?: ('#' . ($sira + 1) . '. kalem');
+        $miktar = (float)($k['miktar'] ?? 0);
+        if (!is_finite($miktar) || $miktar <= 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde miktar 0'dan büyük olmalıdır.");
+        }
+        $fiyat = (float)($k['birim_fiyat'] ?? 0);
+        if (!is_finite($fiyat) || $fiyat < 0) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde birim fiyat negatif olamaz.");
+        }
+        $kdv = (float)($k['kdv_orani'] ?? 0);
+        if (!is_finite($kdv) || $kdv < 0 || $kdv > self::KALEM_MAX_ORAN) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde KDV oranı 0 ile 100 arasında olmalıdır.");
+        }
+        $iskonto = (float)($k['iskonto_orani'] ?? 0);
+        if (!is_finite($iskonto) || $iskonto < 0 || $iskonto > self::KALEM_MAX_ORAN) {
+            throw new InvalidArgumentException("«{$etiket}» kaleminde iskonto oranı 0 ile 100 arasında olmalıdır.");
+        }
+    }
+
+    /**
      * Bu belge stoktan ÇIKIŞ yapıyor mu? (Yetersiz stok kontrolü yalnızca çıkışta anlamlıdır;
      * depolar arası sevkte kaynak depodan çıkış olduğu için o da kapsama girer.)
      */
@@ -590,6 +621,10 @@ class Fatura
             $cikisVarMi = $this->planCikisIceriyorMu($stokPlani);
 
             foreach ($kalemler as $sira => $k) {
+                // Son savunma hattı — controller'lardan geçmeyen programatik
+                // çağrılar da geçersiz değer kaydedemez (bkz. assertKalemGecerli).
+                self::assertKalemGecerli($k, (int)$sira);
+
                 $miktar      = (float)($k['miktar']       ?? 1);
                 $birimFiyat  = (float)($k['birim_fiyat']  ?? 0);
                 $kdvOrani    = (float)($k['kdv_orani']    ?? 20);
@@ -702,6 +737,10 @@ class Fatura
             $cikisVarMi = $this->planCikisIceriyorMu($stokPlani);
 
             foreach ($kalemler as $sira => $k) {
+                // Son savunma hattı — controller'lardan geçmeyen programatik
+                // çağrılar da geçersiz değer kaydedemez (bkz. assertKalemGecerli).
+                self::assertKalemGecerli($k, (int)$sira);
+
                 $miktar      = (float)($k['miktar']       ?? 1);
                 $birimFiyat  = (float)($k['birim_fiyat']  ?? 0);
                 $kdvOrani    = (float)($k['kdv_orani']    ?? 20);
