@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE — UYDURMA VERİ (NEGATİF TEST).
+  Sınadığı senaryo: kalem tutarları toplamı (1000.00) belge satır toplamıyla
+  (5000.00) UYUŞMUYOR ve matrah+vergi genel toplamı tutmuyor.
+  Parser bunu hata olarak DEĞİL, doğrulama UYARISI olarak raporlamalıdır —
+  belge yine de saklanmalı ki kullanıcı ne geldiğini görebilsin.
+-->
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:ProfileID>TEMELFATURA</cbc:ProfileID>
+  <cbc:ID>ABC2026000000501</cbc:ID>
+  <cbc:UUID>50505050-1111-2222-3333-444455556666</cbc:UUID>
+  <cbc:IssueDate>2026-01-15</cbc:IssueDate>
+  <cbc:InvoiceTypeCode>SATIS</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>TRY</cbc:DocumentCurrencyCode>
+
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">1112223334</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>TUTARSIZ ÖRNEK TİCARET LTD. ŞTİ.</cbc:Name></cac:PartyName>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">9876543210</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>ALICI TARIM ÜRÜNLERİ LTD. ŞTİ.</cbc:Name></cac:PartyName>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+
+  <cac:TaxTotal><cbc:TaxAmount currencyID="TRY">200.00</cbc:TaxAmount></cac:TaxTotal>
+
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="TRY">5000.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="TRY">5000.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="TRY">6000.00</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="TRY">6000.00</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="C62">10</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="TRY">1000.00</cbc:LineExtensionAmount>
+    <cac:Item><cbc:Name>Eksik Bildirilmiş Kalem</cbc:Name></cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="TRY">100.00</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+</Invoice>

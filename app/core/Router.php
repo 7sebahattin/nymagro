@@ -25,6 +25,10 @@ final class Router
         'satis'      => 'SatisController',
         'alis'       => 'AlisController',
         'nakit'      => 'NakitController',
+        // Açık kayıt ZORUNLU: harita yoksa Router ucfirst('ebelge') = 'Ebelge'
+        // üretir ve büyük/küçük harfe duyarlı dosya sisteminde EBelgeController.php
+        // bulunamaz (404).
+        'ebelge'     => 'EBelgeController',
         'hesap'      => 'HesapController',
         'ekstre'     => 'EkstreController',
         'masraf'     => 'MasrafController',

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE — UYDURMA VERİ.
+  Gerçek bir TÜRMOB/Luca çıktısı DEĞİLDİR; VKN, unvan ve tutarların tamamı
+  test amacıyla üretilmiştir. Gerçek belgelerle doğrulanması gerekir.
+
+  Sınadığı senaryo: geçerli TEMELFATURA, TL, 2 kalem, tek KDV oranı (%20),
+  kalem 1'de tutar bazlı iskonto, kalem 1'de alıcı ürün kodu + barkod
+  (otomatik eşleşme yolu), kalem 2'de yalnızca satıcı kodu (ürünsüz kalem yolu).
+  Tutarlar tutarlıdır -> doğrulama UYARI ÜRETMEMELİDİR.
+-->
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+  <cbc:CustomizationID>TR1.2</cbc:CustomizationID>
+  <cbc:ProfileID>TEMELFATURA</cbc:ProfileID>
+  <cbc:ID>ABC2026000000123</cbc:ID>
+  <cbc:CopyIndicator>false</cbc:CopyIndicator>
+  <cbc:UUID>9f2c1a44-7b3e-4d55-9c10-2f8ab6e51d07</cbc:UUID>
+  <cbc:IssueDate>2026-03-12</cbc:IssueDate>
+  <cbc:IssueTime>10:45:00</cbc:IssueTime>
+  <cbc:InvoiceTypeCode>SATIS</cbc:InvoiceTypeCode>
+  <cbc:Note>Siparis No: SP-2026-0044</cbc:Note>
+  <cbc:DocumentCurrencyCode>TRY</cbc:DocumentCurrencyCode>
+  <cbc:LineCountNumeric>2</cbc:LineCountNumeric>
+
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">1234567890</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>ÖRNEK TARIM ÜRÜNLERİ SANAYİ VE TİCARET A.Ş.</cbc:Name></cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>Organize Sanayi Bölgesi 3. Cadde No:17</cbc:StreetName>
+        <cbc:CitySubdivisionName>Kepez</cbc:CitySubdivisionName>
+        <cbc:CityName>Antalya</cbc:CityName>
+        <cbc:PostalZone>07090</cbc:PostalZone>
+        <cac:Country><cbc:Name>Türkiye</cbc:Name></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme><cac:TaxScheme><cbc:Name>Kepez</cbc:Name></cac:TaxScheme></cac:PartyTaxScheme>
+      <cac:Contact>
+        <cbc:Telephone>+90 242 000 00 00</cbc:Telephone>
+        <cbc:ElectronicMail>muhasebe@ornektarim.example</cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">9876543210</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>ALICI TARIM ÜRÜNLERİ LTD. ŞTİ.</cbc:Name></cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>Çamköy Mahallesi 394. Sokak</cbc:StreetName>
+        <cbc:CitySubdivisionName>Aksu</cbc:CitySubdivisionName>
+        <cbc:CityName>Antalya</cbc:CityName>
+        <cac:Country><cbc:Name>Türkiye</cbc:Name></cac:Country>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme><cac:TaxScheme><cbc:Name>Aksu</cbc:Name></cac:TaxScheme></cac:PartyTaxScheme>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+
+  <cac:PaymentTerms><cbc:PaymentDueDate>2026-04-11</cbc:PaymentDueDate></cac:PaymentTerms>
+
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="TRY">1900.00</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="TRY">9500.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="TRY">1900.00</cbc:TaxAmount>
+      <cbc:Percent>20</cbc:Percent>
+      <cac:TaxCategory>
+        <cac:TaxScheme><cbc:Name>KDV</cbc:Name><cbc:TaxTypeCode>0015</cbc:TaxTypeCode></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="TRY">9500.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="TRY">9500.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="TRY">11400.00</cbc:TaxInclusiveAmount>
+    <cbc:AllowanceTotalAmount currencyID="TRY">500.00</cbc:AllowanceTotalAmount>
+    <cbc:PayableAmount currencyID="TRY">11400.00</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="C62">100</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="TRY">7500.00</cbc:LineExtensionAmount>
+    <cac:AllowanceCharge>
+      <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+      <cbc:MultiplierFactorNumeric>0.0625</cbc:MultiplierFactorNumeric>
+      <cbc:Amount currencyID="TRY">500.00</cbc:Amount>
+      <cbc:BaseAmount currencyID="TRY">8000.00</cbc:BaseAmount>
+    </cac:AllowanceCharge>
+    <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="TRY">1500.00</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="TRY">7500.00</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="TRY">1500.00</cbc:TaxAmount>
+        <cbc:Percent>20</cbc:Percent>
+        <cac:TaxCategory>
+          <cac:TaxScheme><cbc:Name>KDV</cbc:Name><cbc:TaxTypeCode>0015</cbc:TaxTypeCode></cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>
+    </cac:TaxTotal>
+    <cac:Item>
+      <cbc:Name>Şelatlı Mikro Element 1 L</cbc:Name>
+      <cbc:Description>EDTA şelatlı sıvı mikro element karışımı</cbc:Description>
+      <cac:BuyersItemIdentification><cbc:ID>NYM-SLX-1L</cbc:ID></cac:BuyersItemIdentification>
+      <cac:SellersItemIdentification><cbc:ID>ORN-4417</cbc:ID></cac:SellersItemIdentification>
+      <cac:StandardItemIdentification><cbc:ID schemeID="GTIN">8690000111222</cbc:ID></cac:StandardItemIdentification>
+    </cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="TRY">80.00</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+
+  <cac:InvoiceLine>
+    <cbc:ID>2</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="KGM">50</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="TRY">2000.00</cbc:LineExtensionAmount>
+    <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="TRY">400.00</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="TRY">2000.00</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="TRY">400.00</cbc:TaxAmount>
+        <cbc:Percent>20</cbc:Percent>
+        <cac:TaxCategory>
+          <cac:TaxScheme><cbc:Name>KDV</cbc:Name><cbc:TaxTypeCode>0015</cbc:TaxTypeCode></cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>
+    </cac:TaxTotal>
+    <cac:Item>
+      <cbc:Name>Nakliye Hizmeti</cbc:Name>
+      <cac:SellersItemIdentification><cbc:ID>HZM-NAK</cbc:ID></cac:SellersItemIdentification>
+    </cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="TRY">40.00</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+</Invoice>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE — UYDURMA VERİ (NEGATİF TEST).
+  Sınadığı senaryo: DocumentCurrencyCode=USD ama belgede KUR YOK.
+  Beklenen: parse başarılı, ancak "kur bilgisi yok, aktarımdan önce girilmeli"
+  uyarısı üretilmeli (aktarım bu uyarı giderilmeden yapılmamalıdır).
+-->
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:ProfileID>TEMELFATURA</cbc:ProfileID>
+  <cbc:ID>ABC2026000000710</cbc:ID>
+  <cbc:UUID>70707070-1234-5678-9abc-def012345678</cbc:UUID>
+  <cbc:IssueDate>2026-04-02</cbc:IssueDate>
+  <cbc:InvoiceTypeCode>SATIS</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>USD</cbc:DocumentCurrencyCode>
+
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">7778889990</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>ÖRNEK DIŞ TİCARET A.Ş.</cbc:Name></cac:PartyName>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">9876543210</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>ALICI TARIM ÜRÜNLERİ LTD. ŞTİ.</cbc:Name></cac:PartyName>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="USD">0.00</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="USD">1500.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="USD">0.00</cbc:TaxAmount>
+      <cbc:Percent>0</cbc:Percent>
+      <cac:TaxCategory>
+        <cbc:TaxExemptionReasonCode>301</cbc:TaxExemptionReasonCode>
+        <cbc:TaxExemptionReason>Mal ihracatı istisnası</cbc:TaxExemptionReason>
+        <cac:TaxScheme><cbc:Name>KDV</cbc:Name><cbc:TaxTypeCode>0015</cbc:TaxTypeCode></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="USD">1500.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="USD">1500.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="USD">1500.00</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="USD">1500.00</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="KGM">1000</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="USD">1500.00</cbc:LineExtensionAmount>
+    <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="USD">0.00</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="USD">1500.00</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="USD">0.00</cbc:TaxAmount>
+        <cbc:Percent>0</cbc:Percent>
+        <cac:TaxCategory>
+          <cbc:TaxExemptionReasonCode>301</cbc:TaxExemptionReasonCode>
+          <cac:TaxScheme><cbc:Name>KDV</cbc:Name><cbc:TaxTypeCode>0015</cbc:TaxTypeCode></cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>
+    </cac:TaxTotal>
+    <cac:Item><cbc:Name>Kuru İncir (İhracat)</cbc:Name></cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="USD">1.50</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+</Invoice>

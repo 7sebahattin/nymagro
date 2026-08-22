@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE — UYDURMA VERİ.
+  ⚠ Bu dosya UBL-TR bilgisine göre ÜRETİLMİŞTİR; tevkifatlı GERÇEK bir belge
+  ile doğrulanması gerekir (bkz. analiz raporu, "gerçek örnek şart" listesi).
+
+  Sınadığı senaryo: KDV tevkifatı (WithholdingTaxTotal).
+    Matrah 10.000,00 · KDV %20 = 2.000,00 · Tevkifat 2/10 = 400,00
+    Ödenecek = 10.000 + 2.000 - 400 = 11.600,00
+  Beklenen: tevkifat staging'e eksiksiz yazılmalı ve kullanıcıya
+  "çekirdeğe matrah + KDV olarak yansıyacak" uyarısı üretilmelidir.
+-->
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:ProfileID>TICARIFATURA</cbc:ProfileID>
+  <cbc:ID>ABC2026000000610</cbc:ID>
+  <cbc:UUID>60606060-aaaa-bbbb-cccc-dddddddddddd</cbc:UUID>
+  <cbc:IssueDate>2026-02-18</cbc:IssueDate>
+  <cbc:InvoiceTypeCode>TEVKIFAT</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>TRY</cbc:DocumentCurrencyCode>
+
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">4445556667</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>ÖRNEK TEMİZLİK HİZMETLERİ LTD. ŞTİ.</cbc:Name></cac:PartyName>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyIdentification><cbc:ID schemeID="VKN">9876543210</cbc:ID></cac:PartyIdentification>
+      <cac:PartyName><cbc:Name>ALICI TARIM ÜRÜNLERİ LTD. ŞTİ.</cbc:Name></cac:PartyName>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="TRY">2000.00</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="TRY">10000.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="TRY">2000.00</cbc:TaxAmount>
+      <cbc:Percent>20</cbc:Percent>
+      <cac:TaxCategory>
+        <cac:TaxScheme><cbc:Name>KDV</cbc:Name><cbc:TaxTypeCode>0015</cbc:TaxTypeCode></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+
+  <cac:WithholdingTaxTotal>
+    <cbc:TaxAmount currencyID="TRY">400.00</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="TRY">2000.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="TRY">400.00</cbc:TaxAmount>
+      <cbc:Percent>20</cbc:Percent>
+      <cac:TaxCategory>
+        <cac:TaxScheme><cbc:Name>KDV TEVKIFATI</cbc:Name><cbc:TaxTypeCode>9015</cbc:TaxTypeCode></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:WithholdingTaxTotal>
+
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="TRY">10000.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="TRY">10000.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="TRY">12000.00</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="TRY">11600.00</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="C62">1</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="TRY">10000.00</cbc:LineExtensionAmount>
+    <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="TRY">2000.00</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="TRY">10000.00</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="TRY">2000.00</cbc:TaxAmount>
+        <cbc:Percent>20</cbc:Percent>
+        <cac:TaxCategory>
+          <cac:TaxScheme><cbc:Name>KDV</cbc:Name><cbc:TaxTypeCode>0015</cbc:TaxTypeCode></cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>
+    </cac:TaxTotal>
+    <cac:WithholdingTaxTotal>
+      <cbc:TaxAmount currencyID="TRY">400.00</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="TRY">2000.00</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="TRY">400.00</cbc:TaxAmount>
+        <cbc:Percent>20</cbc:Percent>
+        <cac:TaxCategory>
+          <cac:TaxScheme><cbc:Name>KDV TEVKIFATI</cbc:Name><cbc:TaxTypeCode>9015</cbc:TaxTypeCode></cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>
+    </cac:WithholdingTaxTotal>
+    <cac:Item><cbc:Name>Fabrika Genel Temizlik Hizmeti (Şubat 2026)</cbc:Name></cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="TRY">10000.00</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+</Invoice>
