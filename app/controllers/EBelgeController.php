@@ -23,16 +23,33 @@ require_once MODELS_PATH . '/EBelgeGuvenlik.php';
 require_once MODELS_PATH . '/EBelgeParser.php';
 require_once MODELS_PATH . '/EBelge.php';
 require_once MODELS_PATH . '/EBelgeEslestirme.php';
+require_once MODELS_PATH . '/EBelgeAktarim.php';
 
 final class EBelgeController extends Controller
 {
     private EBelge $model;
     private EBelgeEslestirme $eslestirme;
+    private EBelgeAktarim $aktarim;
 
     public function __construct()
     {
         $this->model = new EBelge();
         $this->eslestirme = new EBelgeEslestirme();
+        $this->aktarim = new EBelgeAktarim();
+    }
+
+    /**
+     * Aktarım ucu için ÇİFT İZİN kontrolü.
+     *
+     * Router zaten EBELGE_UPDATE'i doğruluyor (Rbac::METHOD_OVERRIDES). Ancak
+     * aktarım gerçek bir ALIŞ FATURASI oluşturuyor: bu yüzden kullanıcının
+     * alış faturası kesme yetkisi de aranır. Aynı desen NakitController'daki
+     * iç dallanma korumasında da kullanılıyor.
+     */
+    private function aktarimYetkisiZorunlu(): void
+    {
+        Rbac::authorizeOrDeny('EBelgeController', 'aktar');   // EBELGE_UPDATE
+        Rbac::authorizeOrDeny('AlisController', 'kaydet');    // ALIS_CREATE
     }
 
     public function index(): void
@@ -132,6 +149,7 @@ final class EBelgeController extends Controller
             'kalemler'    => $this->model->kalemler($id),
             'vergiler'    => $this->model->vergiler($id),
             'uyarilar'    => EBelge::uyarilariCoz($belge['dogrulama_notlari'] ?? null),
+            'aktarilanFatura' => !empty($belge['aktarilan_fatura_id']) ? $this->aktarim->aktarilanFatura($id) : null,
             'topbarTitle' => 'e-Belge Detayı',
             'topbarIcon'  => 'fa-file-code',
         ]);
@@ -302,6 +320,69 @@ final class EBelgeController extends Controller
         }
 
         $this->redirect('ebelge/eslestir/' . $id);
+    }
+
+    /**
+     * FAZ 3 — Çekirdek sisteme aktarım.
+     *
+     * GET  → son onay ekranı (ne oluşacağı, depo seçimi, onay kutuları). Yazmaz.
+     * POST → aktarımı yürütür: tek transaction, guarded UPDATE ve
+     *        yalnızca Fatura::ekle() çağrısı.
+     *
+     * YETKİ: EBELGE_UPDATE **ve** ALIS_CREATE (bkz. aktarimYetkisiZorunlu).
+     */
+    public function aktar($id = 0): void
+    {
+        $id = (int)$id;
+        $this->aktarimYetkisiZorunlu();
+
+        $belge = $this->model->detay($id);
+        if (!$belge) {
+            $this->setFlash('error', 'e-Belge bulunamadı.');
+            $this->redirect('ebelge');
+            return;
+        }
+
+        // faturalar.kaynak_ebelge_id kolonunu (yoksa) burada hazırla:
+        // DDL örtük commit yaptığı için transaction AÇILMADAN önce yapılmalı.
+        $this->aktarim->ensureKaynakKolonu();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            require_once MODELS_PATH . '/Depo.php';
+            try {
+                $onizleme = $this->aktarim->onizleme($id);
+            } catch (Throwable $e) {
+                $this->setFlash('error', $e->getMessage());
+                $this->redirect('ebelge/detay/' . $id);
+                return;
+            }
+
+            $this->view('ebelge/aktar', [
+                'flash'       => $this->getFlash(),
+                'onizleme'    => $onizleme,
+                'taraflar'    => $this->model->taraflar($id),
+                'depolar'     => (new Depo())->listele(),
+                'topbarTitle' => 'e-Belge → Fatura Aktarımı',
+                'topbarIcon'  => 'fa-file-import',
+            ]);
+            return;
+        }
+
+        try {
+            $faturaId = $this->aktarim->aktar(
+                $id,
+                (int)($_POST['depo_id'] ?? 0),
+                $_POST,
+                $this->aktifKullaniciId()
+            );
+            $this->setFlash('success', 'e-Belge alış faturasına dönüştürüldü (fatura #' . $faturaId . ').');
+            $this->redirect('ebelge/detay/' . $id);
+        } catch (Throwable $e) {
+            // Aktarım tek transaction içindedir: hata hâlinde hiçbir şey yazılmaz,
+            // belge "aktarıma hazır" durumunda kalır ve tekrar denenebilir.
+            $this->setFlash('error', 'Aktarım yapılamadı, hiçbir kayıt oluşturulmadı. ' . $e->getMessage());
+            $this->redirect('ebelge/aktar/' . $id);
+        }
     }
 
     /** Belgeyi reddeder/pasife alır. POST-only; ham XML dosyası SİLİNMEZ (VUK). */

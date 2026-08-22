@@ -38,8 +38,21 @@ h5{margin:0 0 10px;font-size:13.5px;font-weight:800;color:var(--text)}
 
 <div class="ebl-actions">
   <a class="ebl-btn gray" href="<?= BASE_URL ?>/ebelge"><i class="fa-solid fa-rotate-left"></i> Listeye Dön</a>
+  <?php
+  // Aktarım butonu ÇİFT İZİN ister: e-Belge güncelleme + alış faturası kesme.
+  // Menüde/butonda gizlemek tek başına güvenlik değildir — backend'de
+  // EBelgeController::aktarimYetkisiZorunlu() aynı kontrolü tekrar yapar.
+  $aktarimYetkisi = class_exists('Rbac')
+      && Rbac::currentUserCan('EBELGE_UPDATE')
+      && Rbac::currentUserCan('ALIS_CREATE');
+  ?>
   <?php if (!$irsaliyeMi && empty($belge['aktarilan_fatura_id'])): ?>
     <a class="ebl-btn" href="<?= BASE_URL ?>/ebelge/eslestir/<?= (int)$belge['id'] ?>"><i class="fa-solid fa-link"></i> Cari / Ürün Eşleştir</a>
+    <?php if ($aktarimYetkisi && ($belge['durum'] ?? '') === 'aktarima_hazir'): ?>
+      <a class="ebl-btn" style="background:#5cb85c" href="<?= BASE_URL ?>/ebelge/aktar/<?= (int)$belge['id'] ?>">
+        <i class="fa-solid fa-file-invoice"></i> Faturaya Dönüştür
+      </a>
+    <?php endif; ?>
   <?php endif; ?>
   <a class="ebl-btn" href="<?= BASE_URL ?>/ebelge/indir/<?= (int)$belge['id'] ?>"><i class="fa-solid fa-download"></i> Ham XML indir</a>
   <?php if (empty($belge['aktarilan_fatura_id'])): ?>
@@ -51,6 +64,28 @@ h5{margin:0 0 10px;font-size:13.5px;font-weight:800;color:var(--text)}
   <div class="ebl-uyari">
     Bu bir <strong>e-İrsaliye</strong> belgesidir. İlk fazda e-İrsaliye yalnızca <strong>izleme amaçlı</strong>
     saklanır; sisteme aktarımı kapalıdır.
+  </div>
+<?php endif; ?>
+
+<?php if (!empty($aktarilanFatura)): ?>
+  <div class="ebl-box" style="border-left:4px solid var(--success)">
+    <h5>Bu belge çekirdek sisteme aktarıldı</h5>
+    <dl class="ebl-kv">
+      <dt>Fatura no</dt><dd><strong><?= $h($aktarilanFatura['fatura_no']) ?></strong> <span class="ebl-mini">(#<?= (int)$aktarilanFatura['id'] ?>)</span></dd>
+      <dt>Belge tipi</dt><dd><?= $aktarilanFatura['belge_tipi'] === 'iade_alis' ? 'Alış İadesi' : 'Alış Faturası' ?></dd>
+      <dt>Fatura tarihi</dt><dd><?= $h(date('d.m.Y', strtotime((string)$aktarilanFatura['fatura_tarihi']))) ?></dd>
+      <dt>Genel toplam</dt><dd><?= $fmt($aktarilanFatura['genel_toplam']) ?> TL</dd>
+      <dt>Durum</dt><dd><?= $h($aktarilanFatura['durum']) ?></dd>
+      <dt>Aktarım</dt><dd><?= $belge['aktarim_tarihi'] ? $h(date('d.m.Y H:i', strtotime((string)$belge['aktarim_tarihi']))) : '—' ?></dd>
+    </dl>
+    <div class="ebl-mini" style="margin-top:8px">
+      Faturayı iptal etmek/düzenlemek için Alışlar modülünü kullanın. Bu belgeden ikinci bir fatura üretilemez.
+    </div>
+  </div>
+<?php elseif (!empty($belge['aktarim_hatasi'])): ?>
+  <div class="ebl-uyari">
+    <strong>Son aktarım denemesi başarısız oldu — hiçbir kayıt oluşturulmadı.</strong>
+    <div style="margin-top:6px"><?= $h($belge['aktarim_hatasi']) ?></div>
   </div>
 <?php endif; ?>
 

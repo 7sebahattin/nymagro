@@ -61,9 +61,24 @@ h5{margin:0 0 10px;font-size:13.5px;font-weight:800;color:var(--text)}
 </div>
 
 <?php if (empty($ozet['engelleyiciler'])): ?>
+  <?php
+  $aktarimYetkisi = class_exists('Rbac')
+      && Rbac::currentUserCan('EBELGE_UPDATE')
+      && Rbac::currentUserCan('ALIS_CREATE');
+  ?>
   <div class="ebl-ok">
     <strong>Eşleştirme tamamlandı.</strong> Bu belge aktarıma hazır.
-    Sisteme aktarım (fatura/stok/cari kaydı oluşturma) <strong>Faz 3</strong> ile devreye girecektir.
+    <?php if ($aktarimYetkisi): ?>
+      <div style="margin-top:8px">
+        <a class="ebl-btn green" href="<?= BASE_URL ?>/ebelge/aktar/<?= (int)$belge['id'] ?>">
+          <i class="fa-solid fa-file-invoice"></i> Faturaya Dönüştür
+        </a>
+      </div>
+    <?php else: ?>
+      <div class="ebl-mini" style="margin-top:6px">
+        Aktarım için hem e-Belge güncelleme hem de alış faturası kesme yetkisi gerekir.
+      </div>
+    <?php endif; ?>
   </div>
 <?php else: ?>
   <div class="ebl-uyari">

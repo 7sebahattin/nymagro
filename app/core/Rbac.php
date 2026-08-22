@@ -529,6 +529,10 @@ final class Rbac
         // yeni cari/ürün kartı açar ve belge durumunu değiştirir. Override
         // olmadan yalnızca VIEW izniyle erişilebilirdi.
         'EBelgeController::eslestir' => 'UPDATE',
+        // Aktarım gerçek alış faturası oluşturur. Buradaki EBELGE_UPDATE tek
+        // başına yeterli DEĞİLDİR: metot içinde ayrıca ALIS_CREATE aranır
+        // (bkz. EBelgeController::aktar → çift izin kontrolü).
+        'EBelgeController::aktar' => 'UPDATE',
         'NakitController::gelen_e_faturalar' => 'VIEW',
         'NakitController::gelen_e_faturalar_create' => 'CREATE',
         'NakitController::gelen_e_faturalar_delete' => 'DELETE',
