@@ -103,6 +103,10 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   .sales-table thead th:last-child { border-right:none; }
   .sales-table tbody tr.data-row { border-bottom:1px solid var(--border); transition:background .12s; }
   .sales-table tbody tr.data-row:hover { background:var(--surface-2); }
+
+  /* Müşteri arama modal listesi */
+  .musteri-item { padding:10px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .musteri-item:hover { background:var(--surface-2); }
   .sales-table tbody tr.data-row.expanded { background:rgba(59,130,246,.15); }
   .sales-table tbody td { padding:9px 14px; font-size:13px; color:var(--text2); vertical-align:middle; }
 
@@ -653,16 +657,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             list.forEach(item => {
                 const div = document.createElement('div');
-                div.style.cssText = "padding:10px; border-bottom:1px solid var(--border); cursor:pointer;";
+                div.className = 'musteri-item';
                 div.innerHTML = item.unvan;
-                div.addEventListener('mouseenter', () => {
-                    div.style.background = '#2980b9';
-                    div.style.color = '#fff';
-                });
-                div.addEventListener('mouseleave', () => {
-                    div.style.background = '#fff';
-                    div.style.color = '#333';
-                });
                 div.addEventListener('click', () => {
                     window.location.href = '<?= BASE_URL ?>/satis/ekle?cari_id=' + item.id;
                 });
