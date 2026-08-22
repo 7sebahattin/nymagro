@@ -105,14 +105,9 @@ final class AlisController extends Controller
         }
         $durum = $belgeTipi === 'alis' ? 'onaylandi' : 'taslak';
 
-        // EĞER numara otomatik üretilen formatta gelmişse ve belge tipi farklıysa,
-        // o tip için yeni bir numara üret (çakışmayı önlemek için).
-        $defaultPrefix = 'ALI-' . date('Y');
-        if (strpos($faturaNo, $defaultPrefix) === 0 && $belgeTipi !== 'alis') {
-            $faturaNo = $this->fatura->faturaNoUret($belgeTipi);
-        }
-
-        if ($faturaNo === '') $hatalar['fatura_no'] = 'Fatura no zorunludur.';
+        // Belge numarası HER ZAMAN kaydedilen belge tipinin serisinden çözülür
+        // (bkz. Fatura::belgeNoCozumle) — ön ek sabit değil, şirket ayarından gelir.
+        $faturaNo = $this->fatura->belgeNoCozumle($faturaNo, $_POST['fatura_no_oto'] ?? '', $belgeTipi);
         if ($faturaT === '')  $hatalar['fatura_tarihi'] = 'Tarih zorunludur.';
 
         // ── Döviz ────────────────────────────────────────

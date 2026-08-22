@@ -365,16 +365,11 @@ final class SatisController extends Controller
             $hatalar['kur'] = 'Döviz seçildiğinde kur girilmesi zorunludur.';
         }
 
-        // EĞER numara otomatik üretilen formatta gelmişse ve belge tipi farklıysa, 
-        // o tip için yeni bir numara üret (çakışmayı önlemek için)
-        $defaultPrefix = 'SAT-' . date('Y');
-        if (strpos($faturaNo, $defaultPrefix) === 0 && $belgeTipi !== 'satis') {
-            $faturaNo = $this->fatura->faturaNoUret($belgeTipi);
-        }
-
-        if ($faturaNo === '') {
-            $hatalar['fatura_no'] = 'Fatura no zorunludur.';
-        }
+        // Belge numarası HER ZAMAN kaydedilen belge tipinin serisinden çözülür.
+        // Form numarayı satış serisinden ön-doldurduğu için, İrsaliye/Numune/Proforma
+        // kaydedilirken bu numara satış serisini tüketip mükerrerliğe yol açıyordu
+        // (bkz. Fatura::belgeNoCozumle).
+        $faturaNo = $this->fatura->belgeNoCozumle($faturaNo, $_POST['fatura_no_oto'] ?? '', $belgeTipi);
         if ($faturaT === '') {
             $hatalar['fatura_tarihi'] = 'Fatura tarihi zorunludur.';
         } else {

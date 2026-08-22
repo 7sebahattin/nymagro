@@ -209,6 +209,9 @@ $err = function(string $k) use ($hatalar): string {
         <div class="fg-inp-wrap">
           <input type="text" name="fatura_no" class="fi"
                  value="<?= $val('fatura_no', $faturaNo) ?>" />
+          <!-- Ön-doldurulan numara: kullanıcının elle değiştirip değiştirmediğini
+               ayırt etmek için sunucuya birlikte gönderilir (bkz. Fatura::belgeNoCozumle). -->
+          <input type="hidden" name="fatura_no_oto" value="<?= htmlspecialchars($faturaNo, ENT_QUOTES) ?>">
         </div>
       </div>
       <?= $err('fatura_no') ?>

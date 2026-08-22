@@ -106,6 +106,9 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
       <div class="fg">
         <label>Fatura No</label>
         <input type="text" name="fatura_no" class="fi" value="<?= $val('fatura_no', $faturaNo) ?>">
+        <!-- Ön-doldurulan numara: elle değiştirilip değiştirilmediğini ayırt etmek
+             için sunucuya birlikte gönderilir (bkz. Fatura::belgeNoCozumle). -->
+        <input type="hidden" name="fatura_no_oto" value="<?= htmlspecialchars($faturaNo, ENT_QUOTES) ?>">
       </div>
 
       <div class="fg">
