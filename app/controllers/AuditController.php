@@ -103,6 +103,85 @@ final class AuditController extends Controller
         exit;
     }
 
+    /**
+     * Geçici teşhis sayfası: Numune/İrsaliye/Perakende belgelerinin bazı
+     * kullanıcılarda listelerde/raporlarda görünmeme şikayetini araştırmak
+     * için TÜM şirket/dönemler genelinde (tenant filtresi UYGULANMADAN,
+     * kasıtlı olarak) salt-okunur bir döküm gösterir. Sadece Süper
+     * Yönetici erişebilir — AUDIT_VIEW izninden BAĞIMSIZ, ayrıca kontrol
+     * edilir, çünkü bu sayfa normalde asla görünmemesi gereken şirketler
+     * arası veriyi gösterir.
+     *
+     * Kök neden bulunup kalıcı düzeltme yapıldıktan sonra bu metot ve
+     * ilgili view kaldırılabilir.
+     */
+    public function teshis(): void
+    {
+        if (!Rbac::isSuperAdmin(TenantContext::userId())) {
+            http_response_code(403);
+            die('Bu sayfaya yalnızca Süper Yönetici erişebilir.');
+        }
+
+        $db = Database::getInstance();
+
+        $companies = $db->query("SELECT id, company_name, status, deleted_at FROM companies ORDER BY id")->fetchAll();
+        $periods = $db->query(
+            "SELECT id, company_id, period_name, fiscal_year, status, is_active
+             FROM accounting_periods ORDER BY company_id, fiscal_year"
+        )->fetchAll();
+        $dagilim = $db->query(
+            "SELECT company_id, period_id, belge_tipi, durum, silindi_mi, COUNT(*) AS adet,
+                    MIN(fatura_tarihi) AS en_eski, MAX(fatura_tarihi) AS en_yeni
+             FROM faturalar
+             WHERE belge_tipi IN ('numune','irsaliye','perakende')
+             GROUP BY company_id, period_id, belge_tipi, durum, silindi_mi
+             ORDER BY company_id, period_id, belge_tipi"
+        )->fetchAll();
+        $sonKayitlar = $db->query(
+            "SELECT f.id, f.company_id, f.period_id, f.belge_tipi, f.fatura_no, f.fatura_tarihi,
+                    f.durum, f.silindi_mi, f.cari_id, c.unvan AS cari_unvan, f.genel_toplam
+             FROM faturalar f
+             LEFT JOIN cariler c ON c.id = f.cari_id
+             WHERE f.belge_tipi IN ('numune','irsaliye','perakende')
+             ORDER BY f.id DESC
+             LIMIT 30"
+        )->fetchAll();
+        $ariyor = trim((string)($_GET['cari'] ?? ''));
+        $cariFaturalari = [];
+        $eslesenCariler = [];
+        if ($ariyor !== '') {
+            $eslesenCariler = $db->select(
+                "SELECT id, unvan, tip, company_id, silindi_mi FROM cariler WHERE unvan LIKE :q",
+                [':q' => '%' . $ariyor . '%']
+            );
+            foreach ($eslesenCariler as $c) {
+                $cariFaturalari[$c['id']] = $db->select(
+                    "SELECT id, company_id, period_id, belge_tipi, fatura_no, fatura_tarihi, durum, silindi_mi, genel_toplam
+                     FROM faturalar WHERE cari_id = :cid ORDER BY id DESC",
+                    [':cid' => $c['id']]
+                );
+            }
+        }
+        $oturumCompanyId = TenantContext::activeCompanyId();
+        $oturumPeriodId = TenantContext::activePeriodId();
+
+        $this->view('audit/teshis', [
+            'pageTitle'       => 'Teşhis: Numune/İrsaliye/Perakende',
+            'activeMenu'      => 'audit',
+            'topbarTitle'     => 'Teşhis Aracı (Geçici)',
+            'topbarIcon'      => 'fa-solid fa-magnifying-glass',
+            'companies'       => $companies,
+            'periods'         => $periods,
+            'dagilim'         => $dagilim,
+            'sonKayitlar'     => $sonKayitlar,
+            'ariyor'          => $ariyor,
+            'eslesenCariler'  => $eslesenCariler,
+            'cariFaturalari'  => $cariFaturalari,
+            'oturumCompanyId' => $oturumCompanyId,
+            'oturumPeriodId'  => $oturumPeriodId,
+        ]);
+    }
+
     private function readFilters(): array
     {
         return [
