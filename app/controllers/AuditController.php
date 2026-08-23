@@ -133,8 +133,15 @@ final class AuditController extends Controller
             "SELECT COLUMN_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS
              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = 'belge_tipi'"
         );
+        $kolonTanimiDurum = $db->selectOne(
+            "SELECT COLUMN_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = 'durum'"
+        );
         $dagitimTumTipler = $db->query(
             "SELECT belge_tipi, COUNT(*) AS adet FROM faturalar GROUP BY belge_tipi ORDER BY adet DESC"
+        )->fetchAll();
+        $dagitimTumDurumlar = $db->query(
+            "SELECT durum, COUNT(*) AS adet FROM faturalar GROUP BY durum ORDER BY adet DESC"
         )->fetchAll();
 
         $companies = $db->query("SELECT id, company_name, status, deleted_at FROM companies ORDER BY id")->fetchAll();
@@ -198,7 +205,9 @@ final class AuditController extends Controller
             'topbarTitle'     => 'Teşhis Aracı (Geçici)',
             'topbarIcon'      => 'fa-solid fa-magnifying-glass',
             'kolonTanimi'     => $kolonTanimi,
+            'kolonTanimiDurum' => $kolonTanimiDurum,
             'dagitimTumTipler' => $dagitimTumTipler,
+            'dagitimTumDurumlar' => $dagitimTumDurumlar,
             'companies'       => $companies,
             'periods'         => $periods,
             'dagilim'         => $dagilim,
