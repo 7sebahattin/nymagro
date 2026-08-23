@@ -124,6 +124,19 @@ final class AuditController extends Controller
 
         $db = Database::getInstance();
 
+        // faturalar.belge_tipi ENUM ise ve 'numune'/'irsaliye'/'perakende' bu
+        // ENUM'da tanımlı DEĞİLSE, MySQL (strict olmayan modda) bu değerleri
+        // sessizce boş string'e çevirip INSERT'i BAŞARILI gösterebilir — satır
+        // gerçekten yazılır (bu yüzden stok hareketi de kalıcı olur) ama hiçbir
+        // zaman belge_tipi='numune' filtresine uymaz. Bunu doğrudan sınamak için:
+        $kolonTanimi = $db->selectOne(
+            "SELECT COLUMN_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = 'belge_tipi'"
+        );
+        $dagitimTumTipler = $db->query(
+            "SELECT belge_tipi, COUNT(*) AS adet FROM faturalar GROUP BY belge_tipi ORDER BY adet DESC"
+        )->fetchAll();
+
         $companies = $db->query("SELECT id, company_name, status, deleted_at FROM companies ORDER BY id")->fetchAll();
         $periods = $db->query(
             "SELECT id, company_id, period_name, fiscal_year, status, is_active
@@ -162,6 +175,20 @@ final class AuditController extends Controller
                 );
             }
         }
+        $noAriyor = trim((string)($_GET['no'] ?? ''));
+        $noEslesenler = [];
+        if ($noAriyor !== '') {
+            $noEslesenler = $db->select(
+                "SELECT f.id, f.company_id, f.period_id, f.belge_tipi, f.fatura_no, f.fatura_tarihi,
+                        f.durum, f.silindi_mi, f.cari_id, c.unvan AS cari_unvan, f.genel_toplam
+                 FROM faturalar f
+                 LEFT JOIN cariler c ON c.id = f.cari_id
+                 WHERE f.fatura_no LIKE :q
+                 ORDER BY f.id DESC",
+                [':q' => '%' . $noAriyor . '%']
+            );
+        }
+
         $oturumCompanyId = TenantContext::activeCompanyId();
         $oturumPeriodId = TenantContext::activePeriodId();
 
@@ -170,6 +197,8 @@ final class AuditController extends Controller
             'activeMenu'      => 'audit',
             'topbarTitle'     => 'Teşhis Aracı (Geçici)',
             'topbarIcon'      => 'fa-solid fa-magnifying-glass',
+            'kolonTanimi'     => $kolonTanimi,
+            'dagitimTumTipler' => $dagitimTumTipler,
             'companies'       => $companies,
             'periods'         => $periods,
             'dagilim'         => $dagilim,
@@ -177,6 +206,8 @@ final class AuditController extends Controller
             'ariyor'          => $ariyor,
             'eslesenCariler'  => $eslesenCariler,
             'cariFaturalari'  => $cariFaturalari,
+            'noAriyor'        => $noAriyor,
+            'noEslesenler'    => $noEslesenler,
             'oturumCompanyId' => $oturumCompanyId,
             'oturumPeriodId'  => $oturumPeriodId,
         ]);
