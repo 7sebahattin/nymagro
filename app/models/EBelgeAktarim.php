@@ -249,6 +249,13 @@ final class EBelgeAktarim
         if (!in_array((string)$belge['belge_tipi'], EBelge::AKTARILABILIR_TIPLER, true)) {
             $engeller[] = 'Bu belge tipi (e-İrsaliye) ilk fazda aktarılamaz; yalnızca izleme amaçlıdır.';
         }
+        // Giden/belirsiz yönlü belge ALIŞ faturasına dönüştürülemez: kendi
+        // kestiğimiz satış faturası alış olarak kaydedilirse cari bakiye ters
+        // yönde bozulur ve depoya olmayan mal girişi yazılır.
+        if (($belge['yon'] ?? 'gelen') !== 'gelen') {
+            $engeller[] = EBelge::yonUyarisi((string)($belge['yon'] ?? 'belirsiz'))
+                ?? 'Belgenin yönü gelen olarak doğrulanamadı; aktarım kapalı.';
+        }
         if (!empty($belge['aktarilan_fatura_id'])) {
             $engeller[] = 'Bu belge zaten aktarılmış (fatura #' . (int)$belge['aktarilan_fatura_id'] . ').';
         }

@@ -152,7 +152,12 @@ $url = function (array $ek = []) use ($filtreler) {
     <?php else: foreach ($belgeler as $b): ?>
       <tr>
         <td><?= $h(date('d.m.Y', strtotime((string)$b['belge_tarihi']))) ?></td>
-        <td><span class="badge b-gray"><?= $h($tipEtiket[$b['belge_tipi']] ?? $b['belge_tipi']) ?></span></td>
+        <td>
+          <span class="badge b-gray"><?= $h($tipEtiket[$b['belge_tipi']] ?? $b['belge_tipi']) ?></span>
+          <?php if (($b['yon'] ?? 'gelen') !== 'gelen'): ?>
+            <div><span class="badge b-orange"><?= ($b['yon'] ?? '') === 'giden' ? 'GİDEN' : 'BELİRSİZ' ?></span></div>
+          <?php endif; ?>
+        </td>
         <td><strong><?= $h($b['belge_no']) ?></strong><div class="ebl-mini"><?= $h(mb_substr((string)$b['belge_uuid'], 0, 18)) ?>…</div></td>
         <td><?= $h($b['gonderen_unvan'] ?? '—') ?></td>
         <td><?= $h($b['gonderen_vkn_tckn'] ?: '—') ?></td>
@@ -164,7 +169,7 @@ $url = function (array $ek = []) use ($filtreler) {
         <td><?= (int)$b['kalem_sayisi'] ?></td>
         <td style="white-space:nowrap">
           <a class="ebl-btn gray" href="<?= BASE_URL ?>/ebelge/detay/<?= (int)$b['id'] ?>">Detay</a>
-          <?php if ($b['belge_tipi'] !== 'eirsaliye' && empty($b['aktarilan_fatura_id'])): ?>
+          <?php if ($b['belge_tipi'] !== 'eirsaliye' && ($b['yon'] ?? 'gelen') === 'gelen' && empty($b['aktarilan_fatura_id'])): ?>
             <a class="ebl-btn blue" href="<?= BASE_URL ?>/ebelge/eslestir/<?= (int)$b['id'] ?>">Eşleştir</a>
           <?php endif; ?>
         </td>

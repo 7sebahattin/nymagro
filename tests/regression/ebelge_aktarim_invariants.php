@@ -313,7 +313,54 @@ kontrol('IADE tipli belge alış İADESİ olarak aktarılıyor',
     str_contains($hedefGovde, "'iade_alis'") && str_contains($hedefGovde, "'IADE'"));
 
 // ═════════════════════════════════════════════════════════════════════
-// 6) YETKİLENDİRME — ÇİFT İZİN
+// 6) BELGE YÖNÜ — kendi kestiğimiz belge ALIŞ faturasına dönüşemez
+// ═════════════════════════════════════════════════════════════════════
+// Gerçek Luca çıktılarıyla yapılan denemede 7 belgenin 5'i GİDEN çıktı
+// (gönderen bizdik). Yön kontrolü olmadan kendi satış faturamız alış
+// faturası olarak kaydedilir: cari bakiye ters yönde bozulur ve depoya
+// olmayan mal girişi yazılır.
+
+require_once $kok . '/app/models/EBelge.php';
+
+$sirketVkn = '6321547087';
+kontrol('Yön: alıcı biz isek "gelen"',
+    EBelge::yonBelirle($sirketVkn, '1010427329', $sirketVkn) === 'gelen');
+kontrol('Yön: gönderen biz isek "giden"',
+    EBelge::yonBelirle($sirketVkn, $sirketVkn, '0091880872') === 'giden');
+kontrol('Yön: hiçbir taraf biz değilsek "belirsiz"',
+    EBelge::yonBelirle($sirketVkn, '1111111111', '2222222222') === 'belirsiz');
+kontrol('Yön: şirket VKN tanımsızsa "belirsiz" (tahmin edilmiyor)',
+    EBelge::yonBelirle('', '1111111111', '2222222222') === 'belirsiz');
+kontrol('Yön: şirket hem gönderen hem alıcıysa "gelen" önceliklidir',
+    EBelge::yonBelirle($sirketVkn, $sirketVkn, $sirketVkn) === 'gelen');
+
+kontrol('Yön: "gelen" için uyarı üretilmiyor', EBelge::yonUyarisi('gelen') === null);
+kontrol('Yön: "giden" için açıklayıcı uyarı üretiliyor',
+    is_string(EBelge::yonUyarisi('giden')) && str_contains((string)EBelge::yonUyarisi('giden'), 'KENDİ KESTİĞİ'));
+kontrol('Yön: VKN tanımsızken kullanıcıya ne yapacağı söyleniyor',
+    str_contains((string)EBelge::yonUyarisi('belirsiz', ''), 'VKN girildikten sonra'));
+
+$belgeKaynak = kodSadece((string)@file_get_contents($kok . '/app/models/EBelge.php'));
+kontrol('Kayıt: yön hesaplanıp e_belgeler.yon alanına yazılıyor',
+    str_contains($belgeKaynak, "'yon'               => \$yon"),
+    'Sabit "gelen" yazılırsa giden belgeler aktarılabilir hâle gelir.');
+kontrol('Kayıt: aktarım yalnızca yön "gelen" ise açılıyor',
+    str_contains($belgeKaynak, "&& \$yon === 'gelen'"));
+
+kontrol('Aktarım: giden/belirsiz yönlü belge ENGELLENİYOR',
+    str_contains($engelGovde, "!== 'gelen'"),
+    'Aktarım motoru yön kontrolü yapmazsa kendi satış faturamız alış olarak kaydedilir.');
+
+$ctrlYon = kodSadece((string)@file_get_contents($kok . '/app/controllers/EBelgeController.php'));
+kontrol('Eşleştirme: giden/belirsiz yönlü belge eşleştirme ekranına alınmıyor',
+    str_contains($ctrlYon, 'eslestirmeEngeli(') && str_contains($ctrlYon, "!== 'gelen'"));
+
+$detayYon = (string)@file_get_contents($kok . '/app/views/ebelge/detay.php');
+kontrol('Arayüz: giden belgede aktarım/eşleştirme butonları gizleniyor',
+    str_contains($detayYon, "(\$belge['yon'] ?? 'gelen') === 'gelen'"));
+
+// ═════════════════════════════════════════════════════════════════════
+// 7) YETKİLENDİRME — ÇİFT İZİN
 // ═════════════════════════════════════════════════════════════════════
 
 $ctrl = kodSadece((string)@file_get_contents($kok . '/app/controllers/EBelgeController.php'));

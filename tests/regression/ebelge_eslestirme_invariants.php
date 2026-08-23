@@ -71,6 +71,7 @@ kontrol('birimCozumle: C62 → Adet', EBelgeEslestirme::birimCozumle('C62') === 
 kontrol('birimCozumle: KGM → Kg', EBelgeEslestirme::birimCozumle('KGM') === 'Kg');
 kontrol('birimCozumle: LTR → Litre', EBelgeEslestirme::birimCozumle('LTR') === 'Litre');
 kontrol('birimCozumle: küçük harf girdi de çözülüyor', EBelgeEslestirme::birimCozumle('kgm') === 'Kg');
+kontrol('birimCozumle: NIU → Adet (gerçek e-Faturalarda yaygın)', EBelgeEslestirme::birimCozumle('NIU') === 'Adet');
 kontrol('birimCozumle: bilinmeyen kod null döner', EBelgeEslestirme::birimCozumle('ZZZ') === null);
 kontrol('birimCozumle: null girdi null döner', EBelgeEslestirme::birimCozumle(null) === null);
 kontrol(

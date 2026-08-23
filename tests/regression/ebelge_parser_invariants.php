@@ -164,6 +164,17 @@ if (function_exists('mb_convert_encoding')) {
     kontrol('mbstring yüklü (kodlama çevrimi test edilebiliyor)', false, 'mbstring eklentisi yok — kodlama testi atlandı.');
 }
 
+// Gerçek Luca çıktılarında görülen varyant: XML BİLDİRİMİ OLMAYAN belge.
+// (Denenen 7 gerçek dosyanın birinde XML bildirim satırı hiç yoktu.)
+$bildirimsiz = '<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"'
+    . ' xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">'
+    . '<cbc:UUID>11111111-2222-3333-4444-555555555555</cbc:UUID>'
+    . '<cbc:ID>TST2026000000001</cbc:ID><cbc:IssueDate>2026-01-01</cbc:IssueDate></Invoice>';
+kontrol('XML bildirimi olmayan belge güvenlik kapısından geçiyor (gerçek Luca varyantı)',
+    !reddediliyorMu(fn() => EBelgeGuvenlik::xmlIcerikKapisi($bildirimsiz)));
+kontrol('XML bildirimi olmayan belgede kök eleman doğru okunuyor',
+    EBelgeGuvenlik::kokEleman($bildirimsiz) === 'Invoice');
+
 // BOM temizliği
 kontrol(
     'UTF-8 BOM temizleniyor',
@@ -540,6 +551,44 @@ if ($modelHam === false) {
         str_contains($modelKod, "\$hash . '.xml'"));
     kontrol('İndirme yolu realpath ile public kökünün dışına çıkamıyor',
         str_contains($modelKod, 'realpath') && str_contains($modelKod, 'str_starts_with'));
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 8) META: PHP kapanış etiketi tuzağı
+// ─────────────────────────────────────────────────────────────────────
+//
+// Tek satırlık bir yorumda geçen "?" + ">" dizisi PHP blogunu KAPATIR. Bu,
+// e-Belge modülünde iki kez gerçekten yaşandı: birinde sınıf parse edilemedi,
+// diğerinde bir TEST DOSYASI yarıda PHP modundan çıkıp geri kalanı düz metin
+// olarak bastı ve yine de ÇIKIŞ KODU 0 döndürdü — yani CI "PASSED" gördü ama
+// kontrollerin yarısı hiç çalışmadı. Bu sessiz başarısızlık, testlerin
+// koruduğu her şeyi anlamsız kılar.
+//
+// Bu modüldeki dosyalar HTML üretmez; hiçbirinde kapanış etiketi bulunmamalıdır.
+
+$kapanisTaranan = array_merge(
+    glob($kok . '/app/models/EBelge*.php') ?: [],
+    [$kok . '/app/controllers/EBelgeController.php'],
+    glob($kok . '/tests/regression/ebelge_*.php') ?: []
+);
+foreach ($kapanisTaranan as $dosya) {
+    $icerik = @file_get_contents($dosya);
+    if ($icerik === false) {
+        kontrol('Meta: ' . basename($dosya) . ' okunabildi', false);
+        continue;
+    }
+    $kapanisVar = false;
+    foreach (token_get_all($icerik) as $token) {
+        if (is_array($token) && $token[0] === T_CLOSE_TAG) {
+            $kapanisVar = true;
+            break;
+        }
+    }
+    kontrol(
+        'Meta: ' . basename($dosya) . ' PHP kapanış etiketi içermiyor',
+        !$kapanisVar,
+        'Yorum içindeki kapanış dizisi dosyayı yarıda PHP modundan çıkarır; test sessizce "başarılı" görünür.'
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────

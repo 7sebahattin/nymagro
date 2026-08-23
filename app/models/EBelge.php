@@ -566,17 +566,20 @@ final class EBelge
         $baslik = $parsed['baslik'];
         $uyarilar = $parsed['uyarilar'];
 
-        // Alıcı VKN, aktif şirketin VKN'siyle uyuşuyor mu? Uyuşmuyorsa belge
-        // büyük olasılıkla başka bir şirkete aittir — aktarım öncesi kritik uyarı.
+        // ── YÖN TESPİTİ ─────────────────────────────────────────────
+        // Şirket alıcı mı (gelen), gönderen mi (giden)? Giden belgeler gelen
+        // fatura olarak aktarılamaz — bkz. yonBelirle() açıklaması.
         $sirket = TenantContext::activeCompany();
         $sirketVkn = trim((string)($sirket['tax_number'] ?? ''));
-        $aliciVkn  = trim((string)($baslik['alici_vkn_tckn'] ?? ''));
-        if ($sirketVkn !== '' && $aliciVkn !== '' && $sirketVkn !== $aliciVkn) {
-            $uyarilar[] = 'DİKKAT: Belgenin alıcı VKN/TCKN bilgisi (' . $aliciVkn
-                . ') aktif şirketin vergi numarasıyla (' . $sirketVkn . ') uyuşmuyor.';
+        $yon = self::yonBelirle($sirketVkn, $baslik['gonderen_vkn_tckn'] ?? '', $baslik['alici_vkn_tckn'] ?? '');
+
+        $yonUyarisi = self::yonUyarisi($yon, $sirketVkn);
+        if ($yonUyarisi !== null) {
+            $uyarilar[] = $yonUyarisi;
         }
 
-        $aktarilabilir = in_array($parsed['belge_tipi'], self::AKTARILABILIR_TIPLER, true);
+        // Aktarım yalnızca GELEN e-Fatura/e-Arşiv için açıktır.
+        $aktarilabilir = in_array($parsed['belge_tipi'], self::AKTARILABILIR_TIPLER, true) && $yon === 'gelen';
         $durum = !$aktarilabilir
             ? self::DURUM_IZLEME
             : ($uyarilar ? self::DURUM_DOGRULANDI : self::DURUM_ESLESME_BEKLIYOR);
@@ -586,7 +589,7 @@ final class EBelge
             'dosya_id'          => $dosyaId,
             'belge_uuid'        => $baslik['belge_uuid'],
             'belge_tipi'        => $parsed['belge_tipi'],
-            'yon'               => 'gelen',
+            'yon'               => $yon,
             'profil_id'         => $baslik['profil_id'],
             'fatura_tipi_kodu'  => $baslik['fatura_tipi_kodu'],
             'belge_no'          => $baslik['belge_no'],
@@ -894,6 +897,56 @@ final class EBelge
 
         Audit::log('DELETE', 'EBELGE', $id, $once, ['durum' => self::DURUM_REDDEDILDI],
             'e-Belge reddedildi/pasife alındı: ' . ($once['belge_no'] ?? ''), true, $userId);
+    }
+
+    /**
+     * Belgenin YÖNÜNÜ belirler: şirket alıcı mı, gönderen mi?
+     *
+     * NEDEN HAYATİ: TÜRMOB/Luca'dan indirilen dosyalar arasında şirketin KENDİ
+     * KESTİĞİ (giden) belgeler de bulunur. Bunlar gelen fatura sanılıp
+     * aktarılırsa, kendi satış faturamız alış faturası olarak kaydedilir:
+     * cari bakiye ters yönde bozulur ve depoya olmayan mal girişi yazılır.
+     * Gerçek Luca çıktılarıyla yapılan denemede 7 belgenin 5'i giden çıktı.
+     *
+     * Saf fonksiyon — veritabanı gerektirmez, CI'da doğrudan test edilir.
+     *
+     * @return 'gelen'|'giden'|'belirsiz'
+     */
+    public static function yonBelirle(?string $sirketVkn, ?string $gonderenVkn, ?string $aliciVkn): string
+    {
+        $sirket   = trim((string)$sirketVkn);
+        $gonderen = trim((string)$gonderenVkn);
+        $alici    = trim((string)$aliciVkn);
+
+        if ($sirket === '') {
+            // Şirketin vergi numarası tanımlı değilse yön güvenilir biçimde
+            // belirlenemez. Tahmin etmek yerine "belirsiz" deyip aktarımı
+            // kapatıyoruz; kullanıcı Şirket Ayarları'ndan VKN girince çözülür.
+            return 'belirsiz';
+        }
+        if ($alici !== '' && $alici === $sirket) {
+            return 'gelen';
+        }
+        if ($gonderen !== '' && $gonderen === $sirket) {
+            return 'giden';
+        }
+        return 'belirsiz';
+    }
+
+    /** Yön için kullanıcıya gösterilecek açıklama (null = sorun yok). */
+    public static function yonUyarisi(string $yon, string $sirketVkn = ''): ?string
+    {
+        return match ($yon) {
+            'gelen'  => null,
+            'giden'  => 'Bu belge şirketinizin KENDİ KESTİĞİ (giden) bir belgedir — gönderen sizsiniz. '
+                . 'Gelen fatura olarak aktarılamaz; yalnızca izleme amaçlı saklanır. '
+                . 'Aksi hâlde kendi satışınız alış faturası olarak kaydedilir ve cari bakiye ters yönde bozulur.',
+            default  => $sirketVkn === ''
+                ? 'Şirketinizin vergi numarası tanımlı olmadığı için belgenin yönü (gelen/giden) '
+                  . 'belirlenemedi. Şirket kaydına VKN girildikten sonra yeniden yüklenmelidir. Aktarım kapalıdır.'
+                : 'Belgenin ne gönderen ne de alıcı tarafı şirketinizin vergi numarasıyla eşleşiyor. '
+                  . 'Bu belge büyük olasılıkla başka bir şirkete ait; aktarım kapalıdır.',
+        };
     }
 
     /** Belge kaydındaki doğrulama uyarılarını dizi olarak döner. */

@@ -46,7 +46,7 @@ h5{margin:0 0 10px;font-size:13.5px;font-weight:800;color:var(--text)}
       && Rbac::currentUserCan('EBELGE_UPDATE')
       && Rbac::currentUserCan('ALIS_CREATE');
   ?>
-  <?php if (!$irsaliyeMi && empty($belge['aktarilan_fatura_id'])): ?>
+  <?php if (!$irsaliyeMi && ($belge['yon'] ?? 'gelen') === 'gelen' && empty($belge['aktarilan_fatura_id'])): ?>
     <a class="ebl-btn" href="<?= BASE_URL ?>/ebelge/eslestir/<?= (int)$belge['id'] ?>"><i class="fa-solid fa-link"></i> Cari / Ürün Eşleştir</a>
     <?php if ($aktarimYetkisi && ($belge['durum'] ?? '') === 'aktarima_hazir'): ?>
       <a class="ebl-btn" style="background:#5cb85c" href="<?= BASE_URL ?>/ebelge/aktar/<?= (int)$belge['id'] ?>">
@@ -59,6 +59,13 @@ h5{margin:0 0 10px;font-size:13.5px;font-weight:800;color:var(--text)}
     <a class="ebl-btn red" href="#" onclick="return nymPost('<?= BASE_URL ?>/ebelge/iptal/<?= (int)$belge['id'] ?>', 'Bu e-Belge reddedilsin mi? (Ham XML dosyası saklanmaya devam eder)')"><i class="fa-solid fa-ban"></i> Reddet</a>
   <?php endif; ?>
 </div>
+
+<?php if (($belge['yon'] ?? 'gelen') !== 'gelen'): ?>
+  <div class="ebl-uyari">
+    <strong><?= ($belge['yon'] ?? '') === 'giden' ? 'GİDEN BELGE' : 'YÖNÜ BELİRSİZ BELGE' ?></strong> —
+    <?= $h(EBelge::yonUyarisi((string)($belge['yon'] ?? 'belirsiz'))) ?>
+  </div>
+<?php endif; ?>
 
 <?php if ($irsaliyeMi): ?>
   <div class="ebl-uyari">

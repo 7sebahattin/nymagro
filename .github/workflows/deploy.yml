@@ -196,6 +196,7 @@ jobs:
             **/vendor/**
             brand/**
             db/**
+            tests/**
             *.md
             **/.DS_Store
             **/Thumbs.db

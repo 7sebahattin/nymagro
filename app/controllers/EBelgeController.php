@@ -207,10 +207,12 @@ final class EBelgeController extends Controller
             return;
         }
 
-        // e-İrsaliye ilk fazda yalnızca izlenir; eşleştirme ekranı hiç açılmaz
-        // (POST tarafında da ayrıca reddedilir).
-        if (!in_array((string)$belge['belge_tipi'], EBelge::AKTARILABILIR_TIPLER, true)) {
-            $this->setFlash('error', 'e-İrsaliye belgeleri ilk fazda yalnızca izleme amaçlıdır; eşleştirme yapılmaz.');
+        // Yalnızca GELEN e-Fatura/e-Arşiv eşleştirilir. e-İrsaliye izleme
+        // amaçlıdır; giden/belirsiz yönlü belgeler ise alış faturasına
+        // dönüştürülemez (bkz. EBelge::yonBelirle). POST tarafında da reddedilir.
+        $engel = $this->eslestirmeEngeli($belge);
+        if ($engel !== null) {
+            $this->setFlash('error', $engel);
             $this->redirect('ebelge/detay/' . $id);
             return;
         }
@@ -252,8 +254,9 @@ final class EBelgeController extends Controller
     /** eslestir() POST dalı — tek bir eşleştirme kararını uygular. */
     private function eslestirmeUygula(int $id, array $belge): void
     {
-        if (!in_array((string)$belge['belge_tipi'], EBelge::AKTARILABILIR_TIPLER, true)) {
-            $this->setFlash('error', 'Bu belge tipi (e-İrsaliye) ilk fazda yalnızca izleme amaçlıdır; eşleştirilemez.');
+        $engel = $this->eslestirmeEngeli($belge);
+        if ($engel !== null) {
+            $this->setFlash('error', $engel);
             $this->redirect('ebelge/detay/' . $id);
             return;
         }
@@ -404,6 +407,22 @@ final class EBelgeController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Belge eşleştirilebilir mi? Değilse kullanıcıya gösterilecek gerekçeyi döner.
+     * Hem GET (ekranı açma) hem POST (karar uygulama) dalında kullanılır.
+     */
+    private function eslestirmeEngeli(array $belge): ?string
+    {
+        if (!in_array((string)$belge['belge_tipi'], EBelge::AKTARILABILIR_TIPLER, true)) {
+            return 'e-İrsaliye belgeleri ilk fazda yalnızca izleme amaçlıdır; eşleştirme yapılmaz.';
+        }
+        if (($belge['yon'] ?? 'gelen') !== 'gelen') {
+            return EBelge::yonUyarisi((string)($belge['yon'] ?? 'belirsiz'))
+                ?? 'Belgenin yönü gelen olarak doğrulanamadı; eşleştirme kapalı.';
+        }
+        return null;
+    }
 
     private function filtreleriOku(): array
     {
