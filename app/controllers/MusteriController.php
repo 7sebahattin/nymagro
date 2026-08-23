@@ -107,6 +107,29 @@ final class MusteriController extends Controller
     }
 
     // ──────────────────────────────────────────────────────
+    // DÜZENLE (tam sayfa — "Yeni Ekle" formuyla aynı yapı, önceden dolu)
+    // ──────────────────────────────────────────────────────
+    public function duzenle($id = 0): void
+    {
+        $id = (int)$id;
+        $musteri = $this->cariModel->getir($id);
+        if (!$musteri || !in_array((string)($musteri['tip'] ?? ''), ['musteri', 'her_ikisi'], true)) {
+            $this->setFlash('error', 'Müşteri bulunamadı.');
+            $this->redirect('musteri');
+        }
+
+        $this->view('musteriler/ekle', [
+            'pageTitle'   => 'Müşteri Bilgilerini Düzenle',
+            'activeMenu'  => 'musteriler',
+            'topbarIcon'  => 'fa-solid fa-user-pen',
+            'topbarTitle' => 'Müşteri Bilgilerini Düzenle',
+            'hatalar'     => [],
+            'eski'        => $musteri,
+            'duzenleId'   => $id,
+        ]);
+    }
+
+    // ──────────────────────────────────────────────────────
     // KAYDET (POST)
     // ──────────────────────────────────────────────────────
     public function kaydet(): void
@@ -220,14 +243,24 @@ final class MusteriController extends Controller
             'notlar'        => trim($_POST['notlar'] ?? ''),
         ];
 
+        try {
+            $resimYolu = $this->handleResimUpload();
+            if ($resimYolu !== null) {
+                $veri['resim_yolu'] = $resimYolu;
+            }
+        } catch (RuntimeException $e) {
+            $this->setFlash('error', $e->getMessage());
+            $this->redirect('musteri/duzenle/' . $id);
+        }
+
         if ($veri['unvan'] === '') {
             $this->setFlash('error', 'Müşteri adı / unvanı zorunludur.');
-            $this->redirect('musteri/detay/' . $id);
+            $this->redirect('musteri/duzenle/' . $id);
         }
 
         if ($veri['eposta'] !== '' && !filter_var($veri['eposta'], FILTER_VALIDATE_EMAIL)) {
             $this->setFlash('error', 'Geçerli bir e-posta adresi girin.');
-            $this->redirect('musteri/detay/' . $id);
+            $this->redirect('musteri/duzenle/' . $id);
         }
 
         if ($veri['cari_kodu'] === '') {
@@ -241,6 +274,34 @@ final class MusteriController extends Controller
             $this->setFlash('error', 'Güncelleme sırasında hata: ' . $e->getMessage());
         }
 
+        $this->redirect('musteri/detay/' . $id);
+    }
+
+    /**
+     * Bu müşterinin geçmiş tahsilat kayıtlarını faturalarına yeniden (FIFO)
+     * dağıtır. Bkz. Fatura::fifoBakiyeleriYenidenHesapla() — özellikle bu
+     * düzeltme canlıya alınmadan önce girilmiş tahsilatların, ilgili
+     * faturaların "Kalan" tutarına hiç yansımamış olmasını onarmak için.
+     */
+    public function bakiyeGuncelle($id = 0): void
+    {
+        $id = (int)$id;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('musteri/detay/' . $id);
+        }
+        $musteri = $this->cariModel->getir($id);
+        if (!$musteri) {
+            $this->setFlash('error', 'Müşteri bulunamadı.');
+            $this->redirect('musteri');
+        }
+
+        try {
+            require_once MODELS_PATH . '/Fatura.php';
+            (new Fatura())->fifoBakiyeleriYenidenHesapla($id);
+            $this->setFlash('success', 'Fatura bakiyeleri, güncel tahsilat kayıtlarına göre yeniden hesaplandı.');
+        } catch (Exception $e) {
+            $this->setFlash('error', 'Yeniden hesaplama sırasında hata: ' . $e->getMessage());
+        }
         $this->redirect('musteri/detay/' . $id);
     }
 

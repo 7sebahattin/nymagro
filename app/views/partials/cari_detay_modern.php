@@ -30,7 +30,7 @@ $primaryActionText = $isMusteri ? 'Satış Yap' : 'Alış Yap';
 $primaryActionIcon = $isMusteri ? 'fa-cart-shopping' : 'fa-truck-ramp-box';
 $noteEndpoint = BASE_URL . '/' . $basePath . '/not_kaydet/' . (int)($cari['id'] ?? 0);
 $cariId = (int)($cari['id'] ?? 0);
-$updateEndpoint = BASE_URL . '/' . $basePath . '/guncelle/' . $cariId;
+$editUrl = BASE_URL . '/' . $basePath . '/duzenle/' . $cariId;
 $documentUrl = BASE_URL . '/dokuman/cari/' . $cariTip . '/' . $cariId;
 $deleteUrl = BASE_URL . '/' . $basePath . '/sil/' . $cariId;
 $customerPurchaseUrl = BASE_URL . '/alis/ekle?cari_id=' . $cariId;
@@ -38,6 +38,7 @@ $supplierSaleUrl = BASE_URL . '/satis/ekle?cari_id=' . $cariId;
 $supplierReturnUrl = BASE_URL . '/alis/ekle?cari_id=' . $cariId . '&belge_tipi=iade_alis';
 $statementUrl = BASE_URL . '/ekstre/cari/' . $cariTip . '/' . $cariId;
 $conciliationUrl = BASE_URL . '/ekstre/mutabakat/' . $cariTip . '/' . $cariId;
+$recalcUrl = BASE_URL . '/' . $basePath . '/bakiyeGuncelle/' . $cariId;
 
 $fmtMoney = static function($value): string {
     return number_format((float)$value, 2, ',', '.') . ' TL';
@@ -251,9 +252,12 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
       </button>
       <div class="dropdown-menu">
         <?php if (Rbac::currentUserCan(($isMusteri ? 'MUSTERI' : 'TEDARIKCI') . '_UPDATE')): ?>
-        <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#cdUpdateModal">
+        <a class="dropdown-item" href="<?= htmlspecialchars($editUrl) ?>">
           <i class="fa-solid fa-pen"></i> <?= $isMusteri ? 'Müşteri Bilgilerini Güncelle' : 'Tedarikçi Bilgilerini Güncelle' ?>
-        </button>
+        </a>
+        <a class="dropdown-item" href="#" onclick="return nymPost('<?= htmlspecialchars($recalcUrl) ?>', 'Bu <?= htmlspecialchars($entityLabel) ?>nin geçmiş tahsilat/ödemeleri faturalarına yeniden dağıtılacak. Devam edilsin mi?')">
+          <i class="fa-solid fa-rotate"></i> Fatura Bakiyelerini Yeniden Hesapla
+        </a>
         <?php endif; ?>
         <?php if ($isMusteri): ?>
           <?php if (Rbac::currentUserCan('DOKUMAN_VIEW')): ?>
@@ -362,93 +366,6 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
         <button type="button" class="btn btn-warning text-white" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i> Vazgeç</button>
         <a class="btn btn-danger" href="<?= htmlspecialchars($conciliationUrl) ?>"><i class="fa-solid fa-download"></i> İndir</a>
       </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="cdUpdateModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <form method="post" action="<?= htmlspecialchars($updateEndpoint) ?>">
-        <div class="modal-header">
-          <h5 class="modal-title"><?= htmlspecialchars($entityTitle) ?> Bilgilerini Güncelle</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="cd-form-grid">
-            <div class="full">
-              <label class="form-label">Unvan *</label>
-              <input type="text" name="unvan" class="form-control" value="<?= htmlspecialchars($cari['unvan'] ?? '') ?>" required>
-            </div>
-            <div>
-              <label class="form-label">Yetkili Kişi</label>
-              <input type="text" name="yetkili_kisi" class="form-control" value="<?= htmlspecialchars($cari['yetkili_kisi'] ?? '') ?>">
-            </div>
-            <div>
-              <label class="form-label">Cari Kodu</label>
-              <input type="text" name="cari_kodu" class="form-control" value="<?= htmlspecialchars($cari['cari_kodu'] ?? '') ?>">
-            </div>
-            <div>
-              <label class="form-label">Telefon</label>
-              <input type="text" name="telefon" class="form-control" value="<?= htmlspecialchars($cari['telefon'] ?? '') ?>">
-            </div>
-            <div>
-              <label class="form-label">Cep Telefonu</label>
-              <input type="text" name="cep_telefon" class="form-control" value="<?= htmlspecialchars($cari['cep_telefon'] ?? '') ?>">
-            </div>
-            <div>
-              <label class="form-label">E-posta</label>
-              <input type="email" name="eposta" class="form-control" value="<?= htmlspecialchars($cari['eposta'] ?? '') ?>">
-            </div>
-            <div>
-              <label class="form-label">Para Birimi</label>
-              <select name="para_birimi" class="form-select">
-                <?php foreach (['TRY' => 'TRY', 'USD' => 'USD', 'EUR' => 'EUR'] as $code => $label): ?>
-                  <option value="<?= $code ?>" <?= (($cari['para_birimi'] ?? 'TRY') === $code) ? 'selected' : '' ?>><?= $label ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <div>
-              <label class="form-label">Vergi Dairesi</label>
-              <input type="text" name="vergi_dairesi" class="form-control" value="<?= htmlspecialchars($cari['vergi_dairesi'] ?? '') ?>">
-            </div>
-            <div>
-              <label class="form-label">Vergi No</label>
-              <input type="text" name="vergi_no" class="form-control" value="<?= htmlspecialchars($cari['vergi_no'] ?? '') ?>">
-            </div>
-            <div class="full">
-              <label class="form-label">Adres</label>
-              <textarea name="adres" class="form-control" rows="2"><?= htmlspecialchars($cari['adres'] ?? '') ?></textarea>
-            </div>
-            <?php if (!$isMusteri): ?>
-            <div>
-              <label class="form-label">Vade (gün)</label>
-              <input type="number" name="vade_gun" class="form-control" min="0" value="<?= htmlspecialchars((string)($cari['vade_gun'] ?? '')) ?>">
-            </div>
-            <div class="form-check" style="margin-top:28px;">
-              <input class="form-check-input" type="checkbox" name="vergi_muaf" value="1" id="cdVergiMuaf" <?= !empty($cari['vergi_muaf']) ? 'checked' : '' ?>>
-              <label class="form-check-label" for="cdVergiMuaf">Vergiden Muaf</label>
-            </div>
-            <div class="full">
-              <label class="form-label">Banka Bilgileri</label>
-              <textarea name="banka_bilgileri" class="form-control" rows="2"><?= htmlspecialchars($cari['banka_bilgileri'] ?? '') ?></textarea>
-            </div>
-            <div class="full">
-              <label class="form-label">Diğer Erişim Bilgileri</label>
-              <textarea name="diger_erisim_bilgileri" class="form-control" rows="2"><?= htmlspecialchars($cari['diger_erisim_bilgileri'] ?? '') ?></textarea>
-            </div>
-            <?php endif; ?>
-            <div class="full">
-              <label class="form-label">Notlar</label>
-              <textarea name="notlar" class="form-control" rows="3"><?= htmlspecialchars($cari['notlar'] ?? '') ?></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-          <button type="submit" class="btn btn-primary">Güncelle</button>
-        </div>
-      </form>
     </div>
   </div>
 </div>

@@ -7,6 +7,8 @@
  */
 $eski   = $eski   ?? [];
 $hatalar = $hatalar ?? [];
+$duzenleId  = $duzenleId ?? null;
+$duzenleMod = $duzenleId !== null;
 
 // Eski değer helper (XSS temizli)
 $val = fn(string $key, string $default = '') =>
@@ -67,15 +69,15 @@ $err = fn(string $key) =>
 <div class="breadcrumb-bar">
   <a href="<?= BASE_URL ?>/musteri"><i class="fa-solid fa-house"></i> Müşteriler</a>
   <i class="fa-solid fa-chevron-right"></i>
-  <span>Yeni Müşteri Ekle</span>
+  <span><?= $duzenleMod ? 'Müşteri Düzenle' : 'Yeni Müşteri Ekle' ?></span>
 </div>
 
 <!-- Action Bar -->
 <div class="action-bar">
   <button type="submit" form="musteriForm" class="btn-save">
-    <i class="fa-solid fa-floppy-disk"></i> Kaydet
+    <i class="fa-solid fa-floppy-disk"></i> <?= $duzenleMod ? 'Güncelle' : 'Kaydet' ?>
   </button>
-  <a href="<?= BASE_URL ?>/musteri" class="btn-back">
+  <a href="<?= BASE_URL ?>/musteri<?= $duzenleMod ? '/detay/' . (int)$duzenleId : '' ?>" class="btn-back">
     <i class="fa-solid fa-arrow-left"></i> Geri Dön
   </a>
 </div>
@@ -88,7 +90,9 @@ $err = fn(string $key) =>
 <?php endif; ?>
 
 <!-- Form Card -->
-<form id="musteriForm" method="POST" action="<?= BASE_URL ?>/musteri/kaydet" enctype="multipart/form-data">
+<form id="musteriForm" method="POST"
+      action="<?= $duzenleMod ? BASE_URL . '/musteri/guncelle/' . (int)$duzenleId : BASE_URL . '/musteri/kaydet' ?>"
+      enctype="multipart/form-data">
 
   <div class="form-card">
 
@@ -119,9 +123,15 @@ $err = fn(string $key) =>
         </div>
         <div>
           <label class="form-label" style="margin-bottom:8px;">Fotoğraf</label>
-          <label class="img-upload-area" for="imgUpload" id="imgUploadLabel">
-            <i class="fa-solid fa-camera"></i>
-            <span>Resim Ekle</span>
+          <?php $mevcutResim = $eski['resim_yolu'] ?? ''; ?>
+          <label class="img-upload-area" for="imgUpload" id="imgUploadLabel"
+                 <?php if ($mevcutResim !== ''): ?>style="border-style:solid;padding:0;"<?php endif; ?>>
+            <?php if ($mevcutResim !== ''): ?>
+              <img src="<?= BASE_URL ?>/<?= htmlspecialchars($mevcutResim) ?>" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" alt="Mevcut fotoğraf" />
+            <?php else: ?>
+              <i class="fa-solid fa-camera"></i>
+              <span>Resim Ekle</span>
+            <?php endif; ?>
             <input type="file" id="imgUpload" name="resim" accept="image/*" style="display:none;" />
           </label>
         </div>
@@ -223,6 +233,17 @@ $err = fn(string $key) =>
               <?php endforeach; ?>
             </select>
           </div>
+          <?php if ($duzenleMod): ?>
+          <div class="form-group">
+            <label class="form-label">Açık Bakiye</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lira-sign icon"></i>
+              <input type="text" class="form-input no-icon" disabled
+                     value="<?= number_format((float)($eski['bakiye'] ?? 0), 2, ',', '.') ?> TL" />
+            </div>
+            <span class="form-hint">Bakiye; faturalar ile tahsilat/ödeme kayıtlarından otomatik hesaplanır, buradan düzenlenemez.</span>
+          </div>
+          <?php else: ?>
           <div class="form-group">
             <label class="form-label">Açılış Bakiyesi</label>
             <div class="input-wrap">
@@ -233,6 +254,7 @@ $err = fn(string $key) =>
             </div>
             <span class="form-hint">Müşteri sizden alacaklı ise eksi girin.</span>
           </div>
+          <?php endif; ?>
         </div>
       </div>
     </div>
