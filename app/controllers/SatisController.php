@@ -75,6 +75,7 @@ final class SatisController extends Controller
             'iptalleri'   => $iptalleri,
             'belgeTipi'   => $belgeTipi,
             'depolar'     => $this->depoModel->listele(),
+            'kasaHesaplar' => $this->kasaHesapModel->hepsini(),
             'sayfa'       => $sayfa,
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,
