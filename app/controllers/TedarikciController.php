@@ -161,6 +161,31 @@ class TedarikciController extends Controller
         exit;
     }
 
+    // ──────────────────────────────────────────────────────
+    // DÜZENLE (tam sayfa — "Yeni Ekle" formuyla aynı yapı, önceden dolu)
+    // ──────────────────────────────────────────────────────
+    public function duzenle($id = 0): void
+    {
+        $id = (int)$id;
+        $tedarikci = $this->cariModel->getir($id);
+        if (!$tedarikci || !in_array((string)($tedarikci['tip'] ?? ''), ['tedarikci', 'her_ikisi'], true)) {
+            $this->setFlash('error', 'Tedarikçi bulunamadı.');
+            $this->redirect('tedarikci');
+        }
+
+        $tanimGrouped = $this->model('Tanim')->grouped();
+        $this->view('tedarikciler/ekle', [
+            'pageTitle'   => 'Tedarikçi Bilgilerini Düzenle',
+            'activeMenu'  => 'tedarikciler',
+            'topbarTitle' => 'Tedarikçi Bilgilerini Düzenle',
+            'topbarIcon'  => 'fa-solid fa-industry',
+            'sinif1ler'   => $tanimGrouped['tedarikci_sinif_1'] ?? [],
+            'sinif2ler'   => $tanimGrouped['tedarikci_sinif_2'] ?? [],
+            'eski'        => $tedarikci,
+            'duzenleId'   => $id,
+        ]);
+    }
+
     public function detay($id = 0)
     {
         $tedarikci = $this->cariModel->getir((int)$id);
@@ -218,16 +243,18 @@ class TedarikciController extends Controller
             'banka_bilgileri'        => trim($_POST['banka_bilgileri'] ?? ''),
             'vade_gun'               => !empty($_POST['vade_gun']) ? (int)$_POST['vade_gun'] : null,
             'diger_erisim_bilgileri' => trim($_POST['diger_erisim_bilgileri'] ?? ''),
+            'sinif_1'                => trim($_POST['sinif_1'] ?? '') ?: null,
+            'sinif_2'                => trim($_POST['sinif_2'] ?? '') ?: null,
         ];
 
         if ($veri['unvan'] === '') {
             $this->setFlash('error', 'Tedarikçi adı / unvanı zorunludur.');
-            $this->redirect('tedarikci/detay/' . $id);
+            $this->redirect('tedarikci/duzenle/' . $id);
         }
 
         if ($veri['eposta'] !== '' && !filter_var($veri['eposta'], FILTER_VALIDATE_EMAIL)) {
             $this->setFlash('error', 'Geçerli bir e-posta adresi girin.');
-            $this->redirect('tedarikci/detay/' . $id);
+            $this->redirect('tedarikci/duzenle/' . $id);
         }
 
         if ($veri['cari_kodu'] === '') {
@@ -241,6 +268,34 @@ class TedarikciController extends Controller
             $this->setFlash('error', 'Güncelleme sırasında hata: ' . $e->getMessage());
         }
 
+        $this->redirect('tedarikci/detay/' . $id);
+    }
+
+    /**
+     * Bu tedarikçinin geçmiş ödeme kayıtlarını faturalarına yeniden (FIFO)
+     * dağıtır. Bkz. Fatura::fifoBakiyeleriYenidenHesapla() — özellikle bu
+     * düzeltme canlıya alınmadan önce girilmiş ödemelerin, ilgili
+     * faturaların "Kalan" tutarına hiç yansımamış olmasını onarmak için.
+     */
+    public function bakiyeGuncelle($id = 0): void
+    {
+        $id = (int)$id;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('tedarikci/detay/' . $id);
+        }
+        $tedarikci = $this->cariModel->getir($id);
+        if (!$tedarikci) {
+            $this->setFlash('error', 'Tedarikçi bulunamadı.');
+            $this->redirect('tedarikci');
+        }
+
+        try {
+            require_once MODELS_PATH . '/Fatura.php';
+            (new Fatura())->fifoBakiyeleriYenidenHesapla($id);
+            $this->setFlash('success', 'Fatura bakiyeleri, güncel ödeme kayıtlarına göre yeniden hesaplandı.');
+        } catch (Exception $e) {
+            $this->setFlash('error', 'Yeniden hesaplama sırasında hata: ' . $e->getMessage());
+        }
         $this->redirect('tedarikci/detay/' . $id);
     }
 

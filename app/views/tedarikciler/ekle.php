@@ -1,3 +1,17 @@
+<?php
+$eski       = $eski ?? [];
+$duzenleId  = $duzenleId ?? null;
+$duzenleMod = $duzenleId !== null;
+$val = fn(string $key, string $default = '') => htmlspecialchars((string)($eski[$key] ?? $default));
+
+// Mevcut para_birimi 'TRY' olarak saklanır ama bu formdaki seçenek değeri
+// tarihsel olarak 'TL' — sadece görüntüde doğru seçeneği işaretlemek için
+// eşleniyor (kaydedilen değer/alan adı değişmiyor).
+$paraBirimiEski = (string)($eski['para_birimi'] ?? 'TRY');
+if ($paraBirimiEski === 'TRY') {
+    $paraBirimiEski = 'TL';
+}
+?>
 <style>
 /* YENI EKLENEN HEAD STYLLERI */
 /* ── Breadcrumb ── */
@@ -105,21 +119,25 @@
     <div class="breadcrumb-bar">
       <a href="<?= BASE_URL ?>/tedarikci"><i class="fa-solid fa-house"></i> Tedarikçiler</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>Yeni Tedarikçi Ekle</span>
+      <span><?= $duzenleMod ? 'Tedarikçi Düzenle' : 'Yeni Tedarikçi Ekle' ?></span>
     </div>
 
     <!-- Action Bar -->
     <div class="action-bar">
-      <button class="btn-save" id="btnSave">
-        <i class="fa-solid fa-floppy-disk"></i> Kaydet
+      <button class="btn-save" id="btnSave" type="<?= $duzenleMod ? 'submit' : 'button' ?>" <?= $duzenleMod ? 'form="tedarikciForm"' : '' ?>>
+        <i class="fa-solid fa-floppy-disk"></i> <?= $duzenleMod ? 'Güncelle' : 'Kaydet' ?>
       </button>
-      <a href="<?= BASE_URL ?>/tedarikci" class="btn-back">
+      <a href="<?= BASE_URL ?>/tedarikci<?= $duzenleMod ? '/detay/' . (int)$duzenleId : '' ?>" class="btn-back">
         <i class="fa-solid fa-arrow-left"></i> Geri Dön
       </a>
     </div>
 
     <!-- Form Card -->
+    <?php if ($duzenleMod): ?>
+    <form id="tedarikciForm" class="form-card" method="POST" action="<?= BASE_URL . '/tedarikci/guncelle/' . (int)$duzenleId ?>">
+    <?php else: ?>
     <form id="tedarikciForm" class="form-card" onsubmit="return false;">
+    <?php endif; ?>
 
       <!-- Tabs: Kimlik → Cari → İletişim → Diğer (müşteriden farklı sıra, Şubeler yok) -->
       <div class="form-tabs" role="tablist">
@@ -145,7 +163,7 @@
               <label class="form-label">İsmi / Unvanı</label>
               <div class="input-wrap">
                 <i class="fa-solid fa-user field-icon"></i>
-                <input type="text" name="unvan" class="form-input" id="tedarikci_adi" placeholder="Tedarikçi adı veya firma unvanı" />
+                <input type="text" name="unvan" class="form-input" id="tedarikci_adi" placeholder="Tedarikçi adı veya firma unvanı" value="<?= $val('unvan') ?>" />
               </div>
             </div>
           </div>
@@ -171,14 +189,14 @@
               <label class="form-label">Vergi Dairesi</label>
               <div class="input-wrap">
                 <i class="fa-solid fa-building-columns field-icon"></i>
-                <input type="text" name="vergi_dairesi" class="form-input" placeholder="Vergi dairesi adı" />
+                <input type="text" name="vergi_dairesi" class="form-input" placeholder="Vergi dairesi adı" value="<?= $val('vergi_dairesi') ?>" />
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Vergi / TC Kimlik No</label>
               <div class="input-wrap">
                 <i class="fa-solid fa-hashtag field-icon"></i>
-                <input type="text" name="vergi_no" class="form-input" placeholder="10 veya 11 haneli numara" maxlength="11" />
+                <input type="text" name="vergi_no" class="form-input" placeholder="10 veya 11 haneli numara" maxlength="11" value="<?= $val('vergi_no') ?>" />
               </div>
             </div>
             <div class="form-group">
@@ -188,15 +206,15 @@
               </label>
               <div class="toggle-row">
                 <label class="toggle-switch">
-                  <input type="checkbox" id="vergiMuaf" name="vergi_muaf" value="1" />
+                  <input type="checkbox" id="vergiMuaf" name="vergi_muaf" value="1" <?= !empty($eski['vergi_muaf']) ? 'checked' : '' ?> />
                   <span class="toggle-track"></span>
                 </label>
-                <span class="toggle-label" id="muafLabel">Hayır</span>
+                <span class="toggle-label" id="muafLabel"><?= !empty($eski['vergi_muaf']) ? 'Evet' : 'Hayır' ?></span>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Banka Bilgileri</label>
-              <textarea name="banka_bilgileri" class="form-textarea" placeholder="tedarikçinizin banka hesap bilgilerini girebilirsiniz" rows="4"></textarea>
+              <textarea name="banka_bilgileri" class="form-textarea" placeholder="tedarikçinizin banka hesap bilgilerini girebilirsiniz" rows="4"><?= $val('banka_bilgileri') ?></textarea>
             </div>
           </div>
           <!-- Sağ -->
@@ -207,10 +225,10 @@
                 <i class="fa-solid fa-circle-question help-icon" title="Tedarikçi ile işlem yapılacak para birimi"></i>
               </label>
               <select name="para_birimi" class="form-select">
-                <option value="TL">TL — Türk Lirası</option>
-                <option value="USD">USD — ABD Doları</option>
-                <option value="EUR">EUR — Euro</option>
-                <option value="GBP">GBP — İngiliz Sterlini</option>
+                <option value="TL" <?= $paraBirimiEski === 'TL' ? 'selected' : '' ?>>TL — Türk Lirası</option>
+                <option value="USD" <?= $paraBirimiEski === 'USD' ? 'selected' : '' ?>>USD — ABD Doları</option>
+                <option value="EUR" <?= $paraBirimiEski === 'EUR' ? 'selected' : '' ?>>EUR — Euro</option>
+                <option value="GBP" <?= $paraBirimiEski === 'GBP' ? 'selected' : '' ?>>GBP — İngiliz Sterlini</option>
               </select>
             </div>
             <div class="form-group">
@@ -220,9 +238,19 @@
               </label>
               <div class="input-wrap">
                 <i class="fa-solid fa-calendar-days field-icon"></i>
-                <input type="number" name="vade_gun" class="form-input" placeholder="0" min="0" />
+                <input type="number" name="vade_gun" class="form-input" placeholder="0" min="0" value="<?= $val('vade_gun') ?>" />
               </div>
             </div>
+            <?php if ($duzenleMod): ?>
+            <div class="form-group">
+              <label class="form-label">Açık Bakiye</label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-lira-sign field-icon"></i>
+                <input type="text" class="form-input" disabled value="<?= number_format((float)($eski['bakiye'] ?? 0), 2, ',', '.') ?> TL" />
+              </div>
+              <span class="form-hint">Bakiye; faturalar ile tahsilat/ödeme kayıtlarından otomatik hesaplanır, buradan düzenlenemez.</span>
+            </div>
+            <?php else: ?>
             <div class="form-group">
               <label class="form-label">
                 Açılış Bakiyesi
@@ -235,6 +263,7 @@
               <!-- Müşteri'den farklı: "tedarikçi size borçlu ise eksi girin" -->
               <span class="form-hint">Tedarikçi size borçlu ise eksi girin.</span>
             </div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
@@ -250,20 +279,20 @@
               <label class="form-label">Yetkili Kişi</label>
               <div class="input-wrap">
                 <i class="fa-solid fa-user-tie field-icon"></i>
-                <input type="text" name="yetkili_kisi" class="form-input" placeholder="Ad Soyad" />
+                <input type="text" name="yetkili_kisi" class="form-input" placeholder="Ad Soyad" value="<?= $val('yetkili_kisi') ?>" />
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">E-Posta</label>
               <div class="input-wrap">
                 <i class="fa-solid fa-envelope field-icon"></i>
-                <input type="email" name="eposta" class="form-input" placeholder="ornek@domain.com" />
+                <input type="email" name="eposta" class="form-input" placeholder="ornek@domain.com" value="<?= $val('eposta') ?>" />
               </div>
               <span class="form-hint">Virgül ile ayırarak birden fazla adres girebilirsiniz.</span>
             </div>
             <div class="form-group">
               <label class="form-label">Adres</label>
-              <textarea name="adres" class="form-textarea" placeholder="Açık adres" rows="4"></textarea>
+              <textarea name="adres" class="form-textarea" placeholder="Açık adres" rows="4"><?= $val('adres') ?></textarea>
             </div>
           </div>
           <!-- Sağ -->
@@ -272,12 +301,12 @@
               <label class="form-label">Telefon</label>
               <div class="input-wrap">
                 <i class="fa-solid fa-phone field-icon"></i>
-                <input type="tel" name="telefon" class="form-input" placeholder="05XX XXX XX XX" />
+                <input type="tel" name="telefon" class="form-input" placeholder="05XX XXX XX XX" value="<?= $val('telefon') ?>" />
               </div>
             </div>
             <div class="form-group" style="flex:1;">
               <label class="form-label">Diğer Erişim Bilgileri</label>
-              <textarea name="diger_erisim_bilgileri" class="form-textarea" placeholder="Sabit telefon, faks vb." rows="7"></textarea>
+              <textarea name="diger_erisim_bilgileri" class="form-textarea" placeholder="Sabit telefon, faks vb." rows="7"><?= $val('diger_erisim_bilgileri') ?></textarea>
             </div>
           </div>
         </div>
@@ -301,7 +330,7 @@
               <select class="form-select" name="sinif_1" id="sinif1Select">
                 <option value="">— Seçiniz —</option>
                 <?php foreach (($sinif1ler ?? []) as $s): ?>
-                  <option value="<?= htmlspecialchars($s['ad']) ?>"><?= htmlspecialchars($s['ad']) ?></option>
+                  <option value="<?= htmlspecialchars($s['ad']) ?>" <?= ($eski['sinif_1'] ?? '') === $s['ad'] ? 'selected' : '' ?>><?= htmlspecialchars($s['ad']) ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -318,7 +347,7 @@
               <select class="form-select" name="sinif_2" id="sinif2Select">
                 <option value="">— Seçiniz —</option>
                 <?php foreach (($sinif2ler ?? []) as $s): ?>
-                  <option value="<?= htmlspecialchars($s['ad']) ?>"><?= htmlspecialchars($s['ad']) ?></option>
+                  <option value="<?= htmlspecialchars($s['ad']) ?>" <?= ($eski['sinif_2'] ?? '') === $s['ad'] ? 'selected' : '' ?>><?= htmlspecialchars($s['ad']) ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -329,7 +358,7 @@
               </label>
               <div class="input-wrap">
                 <i class="fa-solid fa-barcode field-icon"></i>
-                <input type="text" name="cari_kodu" class="form-input" placeholder="varsa muhasebe kodu veya barkod girebilirsiniz" />
+                <input type="text" name="cari_kodu" class="form-input" placeholder="varsa muhasebe kodu veya barkod girebilirsiniz" value="<?= $val('cari_kodu') ?>" />
               </div>
             </div>
           </div>
@@ -337,7 +366,7 @@
           <div>
             <div class="form-group" style="height:100%;">
               <label class="form-label">Not</label>
-              <textarea name="notlar" class="form-textarea" placeholder="Tedarikçi hakkında notlar..." style="min-height:180px; height:calc(100% - 28px);"></textarea>
+              <textarea name="notlar" class="form-textarea" placeholder="Tedarikçi hakkında notlar..." style="min-height:180px; height:calc(100% - 28px);"><?= $val('notlar') ?></textarea>
             </div>
           </div>
         </div>
@@ -400,10 +429,14 @@
   }
 
   /* ── Kaydet (AJAX) ── */
+  // Düzenleme modunda buton native <form method="post"> submit'ine bırakılır
+  // (Tedarikci::guncelle() JSON değil, flash+redirect döner) — bu yüzden AJAX
+  // akışı SADECE yeni ekleme modunda bağlanır.
+  const EDIT_MODE = <?= $duzenleMod ? 'true' : 'false' ?>;
   const btnSave = document.getElementById('btnSave');
   const form = document.getElementById('tedarikciForm');
-  
-  if (btnSave && form) {
+
+  if (btnSave && form && !EDIT_MODE) {
     btnSave.addEventListener('click', async function(e) {
       e.preventDefault();
       

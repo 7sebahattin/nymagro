@@ -97,7 +97,14 @@ class Nakit
             //    kaynağı olan Fatura::recomputeCariBalance() üzerinden.
             if (!empty($data['cari_id'])) {
                 require_once MODELS_PATH . '/Fatura.php';
-                (new Fatura())->recomputeCariBalance((int)$data['cari_id']);
+                $faturaModel = new Fatura();
+                // Tahsilat/ödemeyi carinin açık faturalarına en eskiden yeniye
+                // (FIFO) dağıt — aksi halde fatura listesindeki "Kalan" sütunu
+                // ve "Bekleyen Tahsilat" kartı bu ödemeden sonra da hep ilk
+                // tutarda donuk kalır (cariler.bakiye doğru güncellenirken,
+                // faturalar.kalan_tutar hiç güncellenmemiş olurdu).
+                $faturaModel->fifoOdemeDagit((int)$data['cari_id'], $islemTipi, (float)$data['tutar']);
+                $faturaModel->recomputeCariBalance((int)$data['cari_id']);
             }
 
             Audit::log('CREATE', 'NAKIT', $id, null, [

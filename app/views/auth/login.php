@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
-  <title>Giriş — <?= htmlspecialchars(APP_NAME) ?></title>
+  <title><?= htmlspecialchars(APP_NAME) ?></title>
 
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -61,12 +61,13 @@
     }
 
     .auth-logo {
-      width: 54px; height: 54px; border-radius: 15px; margin: 0 auto 18px;
+      width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 18px;
       background: linear-gradient(160deg, var(--brand), var(--brand2));
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 22px;
       box-shadow: 0 10px 26px rgba(13,98,58,.42);
+      padding: 10px;
     }
+    .auth-logo img { width: 100%; height: 100%; object-fit: contain; }
 
     .auth-title {
       font-family: 'Playfair Display', Georgia, serif;
@@ -151,7 +152,7 @@
     <i class="fa-solid fa-arrow-left"></i> Ana Sayfaya Dön
   </a>
 
-  <div class="auth-logo"><i class="fa-solid fa-chart-pie"></i></div>
+  <div class="auth-logo"><img src="<?= varlik('/img/nymagro-logo-white.png') ?>" alt="<?= htmlspecialchars(APP_NAME) ?>"></div>
   <h1 class="auth-title">Hoş Geldiniz</h1>
   <p class="auth-sub">Devam etmek için hesabınıza giriş yapın.</p>
 

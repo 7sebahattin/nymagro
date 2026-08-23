@@ -850,6 +850,156 @@ class Fatura
     }
 
     /**
+     * Bir tahsilat/ödeme tutarını, carinin AÇIK (kalan_tutar > 0) faturalarına
+     * en eskiden en yeniye (FIFO) dağıtıp odenen_tutar/kalan_tutar/durum
+     * alanlarını günceller. Nakit::hareketEkle() tarafından, kasa hareketiyle
+     * AYNI transaction içinde çağrılır.
+     *
+     * Neden gerekli: cariler.bakiye zaten recomputeCariBalance() ile doğru
+     * hesaplanıyordu, ama fatura satırlarındaki kalan_tutar hiçbir akışta
+     * güncellenmiyordu — bu yüzden Satışlar/Alışlar listesindeki "Kalan"
+     * sütunu ve "BEKLEYEN TAHSİLAT" özet kartı, tahsilat/ödeme girildikten
+     * sonra hep ilk tutarda donuk kalıyordu.
+     */
+    public function fifoOdemeDagit(int $cariId, string $islemTipi, float $tutar): void
+    {
+        $tutar = round($tutar, 2);
+        if ($cariId <= 0 || $tutar <= 0.004) {
+            return;
+        }
+        $belgeTipleri = $islemTipi === 'giris' ? ['satis', 'perakende'] : ['alis'];
+
+        $params = [':cid' => $cariId, ':company_id' => TenantContext::activeCompanyId()];
+        $ph = [];
+        foreach ($belgeTipleri as $i => $bt) {
+            $key = ':bt' . $i;
+            $ph[] = $key;
+            $params[$key] = $bt;
+        }
+
+        $rows = $this->db->select(
+            "SELECT id, genel_toplam, odenen_tutar, kalan_tutar
+             FROM faturalar
+             WHERE cari_id = :cid AND belge_tipi IN (" . implode(',', $ph) . ")
+               AND silindi_mi = 0 AND durum NOT IN ('iptal', 'taslak')
+               AND company_id = :company_id
+               AND kalan_tutar > 0.004
+             ORDER BY fatura_tarihi ASC, id ASC
+             FOR UPDATE",
+            $params
+        );
+
+        foreach (self::fifoDagitimHesapla($rows, $tutar) as $guncelleme) {
+            $this->db->update('faturalar', [
+                'odenen_tutar' => $guncelleme['odenen_tutar'],
+                'kalan_tutar'  => $guncelleme['kalan_tutar'],
+                'durum'        => $guncelleme['durum'],
+            ], ['id' => $guncelleme['id']]);
+        }
+    }
+
+    /**
+     * Saf (DB'siz) FIFO dağıtım hesaplayıcısı — fifoOdemeDagit()'in test
+     * edilebilir çekirdeği. $acikFaturalar zaten en eskiden yeniye SIRALI
+     * (fatura_tarihi ASC, id ASC) ve kalan_tutar > 0 olan satırlar olmalı.
+     * Ödeme tutarını sırayla tüketip, sadece GERÇEKTEN değişen faturalar
+     * için güncelleme listesi döner.
+     *
+     * @param array<int, array{id:int|string, genel_toplam:float|string, odenen_tutar:float|string, kalan_tutar:float|string}> $acikFaturalar
+     * @return array<int, array{id:int, odenen_tutar:float, kalan_tutar:float, durum:string}>
+     */
+    public static function fifoDagitimHesapla(array $acikFaturalar, float $tutar): array
+    {
+        $sonuc = [];
+        $kalanOdeme = round($tutar, 2);
+        if ($kalanOdeme <= 0.004) {
+            return $sonuc;
+        }
+
+        foreach ($acikFaturalar as $f) {
+            if ($kalanOdeme <= 0.004) {
+                break;
+            }
+            $genelToplam = (float)$f['genel_toplam'];
+            $faturaKalan = (float)$f['kalan_tutar'];
+            if ($faturaKalan <= 0.004) {
+                continue;
+            }
+            $uygulanacak = min($faturaKalan, $kalanOdeme);
+            $yeniOdenen  = round((float)$f['odenen_tutar'] + $uygulanacak, 2);
+            $yeniKalan   = max(0, round($genelToplam - $yeniOdenen, 2));
+
+            $sonuc[] = [
+                'id'           => (int)$f['id'],
+                'odenen_tutar' => $yeniOdenen,
+                'kalan_tutar'  => $yeniKalan,
+                'durum'        => $yeniKalan <= 0.004 ? 'odendi' : 'kismi_odendi',
+            ];
+
+            $kalanOdeme = round($kalanOdeme - $uygulanacak, 2);
+        }
+
+        return $sonuc;
+    }
+
+    /**
+     * Bir carinin TÜM geçmiş tahsilat/ödeme kayıtlarını faturalarına baştan
+     * FIFO ile yeniden dağıtır. Bu düzeltme canlıya alınmadan ÖNCE girilmiş
+     * tahsilat/ödemeler faturalar.kalan_tutar'ı hiç güncellemediği için — o
+     * carinin geçmiş kayıtlarını bir kerelik onarmak amacıyla kullanıcı
+     * tarafından tetiklenir (bkz. Müşteri/Tedarikçi Detayı > Diğer İşlemler
+     * > "Fatura Bakiyelerini Yeniden Hesapla"). Tamamen deterministiktir:
+     * aynı cari üzerinde tekrar çalıştırmak her zaman aynı (doğru) sonucu
+     * üretir, bu yüzden güvenle birden fazla kez tetiklenebilir.
+     */
+    public function fifoBakiyeleriYenidenHesapla(int $cariId): void
+    {
+        if ($cariId <= 0) {
+            return;
+        }
+        $companyId = TenantContext::activeCompanyId();
+
+        $this->db->begin();
+        try {
+            // 1) Açık (iptal/taslak dışı) satış+perakende+alış faturalarını
+            //    henüz hiç tahsilat/ödeme uygulanmamış hale sıfırla.
+            $this->db->query(
+                "UPDATE faturalar
+                 SET odenen_tutar = 0, kalan_tutar = genel_toplam, durum = 'onaylandi'
+                 WHERE cari_id = :cid AND belge_tipi IN ('satis', 'perakende', 'alis')
+                   AND silindi_mi = 0 AND durum NOT IN ('iptal', 'taslak')
+                   AND company_id = :company_id",
+                [':cid' => $cariId, ':company_id' => $companyId]
+            );
+
+            // 2) Bugüne kadarki tüm tahsilatı (giriş) satış/perakende faturalarına,
+            //    tüm ödemeyi (çıkış) alış faturalarına eskiden yeniye dağıt.
+            $toplamGiris = (float)($this->db->selectOne(
+                "SELECT COALESCE(SUM(tutar),0) AS t FROM kasa_hareketleri
+                 WHERE cari_id = :cid AND islem_tipi = 'giris' AND silindi_mi = 0 AND company_id = :company_id",
+                [':cid' => $cariId, ':company_id' => $companyId]
+            )['t'] ?? 0);
+            $toplamCikis = (float)($this->db->selectOne(
+                "SELECT COALESCE(SUM(tutar),0) AS t FROM kasa_hareketleri
+                 WHERE cari_id = :cid AND islem_tipi = 'cikis' AND silindi_mi = 0 AND company_id = :company_id",
+                [':cid' => $cariId, ':company_id' => $companyId]
+            )['t'] ?? 0);
+
+            $this->fifoOdemeDagit($cariId, 'giris', $toplamGiris);
+            $this->fifoOdemeDagit($cariId, 'cikis', $toplamCikis);
+
+            $this->recomputeCariBalance($cariId);
+
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            if ($this->db->pdo()->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
      * Bir faturanın kalemlerindeki stok hareketlerini ters yönde uygular
      * (iptal veya silme anında stoğu geri almak için) ve cari bakiyesini
      * yeniden hesaplar.
