@@ -9,6 +9,8 @@ $eslesenCariler = $eslesenCariler ?? [];
 $cariFaturalari = $cariFaturalari ?? [];
 $oturumCompanyId = $oturumCompanyId ?? null;
 $oturumPeriodId = $oturumPeriodId ?? null;
+$kolonTanimi = $kolonTanimi ?? null;
+$dagitimTumTipler = $dagitimTumTipler ?? [];
 
 $companyName = [];
 foreach ($companies as $c) { $companyName[(int)$c['id']] = $c['company_name']; }
@@ -19,6 +21,33 @@ foreach ($periods as $p) { $periodName[(int)$p['id']] = ($p['period_name'] ?: $p
   <strong>Şu an oturumunuzda aktif olan:</strong>
   Şirket #<?= (int)$oturumCompanyId ?> (<?= $h($companyName[(int)$oturumCompanyId] ?? '?') ?>) —
   Dönem #<?= (int)$oturumPeriodId ?> (<?= $h($periodName[(int)$oturumPeriodId] ?? '?') ?>)
+</div>
+
+<h5>0) faturalar.belge_tipi sütununun GERÇEK veritabanı tanımı</h5>
+<p class="text-muted">Eğer bu bir ENUM ise ve listede 'numune'/'irsaliye'/'perakende' YOKSA, kök neden budur: kayıt gerçekten yazılıyor (bu yüzden stok düşüyor) ama veritabanı bu değeri sessizce başka bir şeye çeviriyor, bu yüzden hiçbir filtreye uymuyor.</p>
+<div class="table-responsive mb-3">
+  <table class="table table-sm table-bordered">
+    <thead><tr><th>COLUMN_TYPE (gerçek tanım)</th><th>NULL olabilir mi</th></tr></thead>
+    <tbody>
+      <tr><td><code><?= $h($kolonTanimi['COLUMN_TYPE'] ?? '(bulunamadı)') ?></code></td><td><?= $h($kolonTanimi['IS_NULLABLE'] ?? '?') ?></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h5>0b) faturalar tablosunda GERÇEKTE var olan tüm belge_tipi değerleri (filtre YOK)</h5>
+<p class="text-muted">Burada 'numune'/'irsaliye'/'perakende' yerine boş bir satır, "0" gibi garip bir değer ya da hiç beklemediğiniz bir metin görüyorsanız, kayıtlarınız o değerin altında saklı demektir.</p>
+<div class="table-responsive mb-4">
+  <table class="table table-sm table-bordered">
+    <thead><tr><th>belge_tipi (ham değer)</th><th>Adet</th></tr></thead>
+    <tbody>
+    <?php foreach ($dagitimTumTipler as $d): ?>
+      <tr>
+        <td><code>"<?= $h($d['belge_tipi']) ?>"</code><?= $d['belge_tipi'] === '' ? ' <strong style="color:#e74c3c;">← BOŞ STRING</strong>' : '' ?></td>
+        <td><?= (int)$d['adet'] ?></td>
+      </tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table>
 </div>
 
 <h5>1) Şirketler</h5>
@@ -108,6 +137,31 @@ foreach ($periods as $p) { $periodName[(int)$p['id']] = ($p['period_name'] ?: $p
   <div class="col-auto"><input type="text" name="cari" class="form-control form-control-sm" placeholder="Örn: MELSABERRY" value="<?= $h($ariyor) ?>" style="min-width:240px"></div>
   <div class="col-auto"><button class="btn btn-sm btn-outline-primary">Ara</button></div>
 </form>
+
+<h5>6) Belirli bir belge numarasını ara (örn: NUM-2026-000001) — şirket/tip/durum filtresi YOK</h5>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto"><input type="text" name="no" class="form-control form-control-sm" placeholder="Örn: NUM-2026-000001" value="<?= $h($noAriyor ?? '') ?>" style="min-width:240px"></div>
+  <div class="col-auto"><button class="btn btn-sm btn-outline-primary">Ara</button></div>
+</form>
+<?php if (($noAriyor ?? '') !== ''): ?>
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead><tr><th>ID</th><th>Şirket</th><th>Dönem</th><th>belge_tipi (ham)</th><th>No</th><th>Tarih</th><th>Durum</th><th>Silindi</th><th>Cari</th><th>Tutar</th></tr></thead>
+      <tbody>
+      <?php if (empty($noEslesenler)): ?>
+        <tr><td colspan="10" class="text-center text-muted">"<?= $h($noAriyor) ?>" içeren HİÇBİR belge yok (hiçbir şirkette, hiçbir tipte).</td></tr>
+      <?php endif; ?>
+      <?php foreach (($noEslesenler ?? []) as $f): ?>
+        <tr>
+          <td><?= (int)$f['id'] ?></td><td><?= (int)$f['company_id'] ?></td><td><?= (int)$f['period_id'] ?></td>
+          <td><code>"<?= $h($f['belge_tipi']) ?>"</code></td><td><?= $h($f['fatura_no']) ?></td><td><?= $h($f['fatura_tarihi']) ?></td>
+          <td><?= $h($f['durum']) ?></td><td><?= $h($f['silindi_mi']) ?></td><td><?= $h($f['cari_unvan']) ?></td><td><?= $h($f['genel_toplam']) ?></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+<?php endif; ?>
 
 <?php if ($ariyor !== ''): ?>
   <?php if (empty($eslesenCariler)): ?>
