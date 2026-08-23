@@ -133,7 +133,17 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
 .cd-table th{color:var(--muted);font-weight:800;padding:8px 10px;border-bottom:1px solid var(--border)}
 .cd-table td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:middle}
 .cd-table .money{text-align:right;white-space:nowrap}
-.cd-plus{width:20px;height:20px;border-radius:50%;background:#5ec99e;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.cd-plus{width:20px;height:20px;border-radius:50%;border:2px solid #5ec99e;background:transparent;color:#5ec99e;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;line-height:1;padding:0;cursor:pointer;transition:background .12s}
+.cd-plus:hover{background:rgba(94,201,158,.12)}
+.cd-plus.is-open{border-color:#ef4444;color:#ef4444}
+.cd-plus.is-open:hover{background:rgba(239,68,68,.1)}
+.cd-detail-row{display:none}
+.cd-detail-row.open{display:table-row}
+.cd-detail-row td{padding:12px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border)}
+.cd-detail-inner{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:12.5px;color:var(--text2)}
+.cd-detail-btns{display:flex;gap:8px;flex-wrap:wrap}
+.cd-btn-det{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:4px;background:#334155;color:#fff;text-decoration:none;font-size:12px;font-weight:600}
+.cd-btn-det:hover{filter:brightness(1.15);color:#fff}
 .cd-status{color:var(--danger)}
 .cd-empty{background:rgba(243,156,18,.15);color:var(--warning);padding:16px;border-radius:4px;font-size:13px}
 .cd-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin-top:12px;font-size:12.5px;color:var(--text2)}
@@ -297,13 +307,26 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
           <table class="cd-table">
             <thead><tr><th></th><th>Tarih</th><th>No</th><th>Durum</th><th class="money">Tutar</th></tr></thead>
             <tbody>
-            <?php foreach ($faturaGecmisi as $row): ?>
+            <?php foreach ($faturaGecmisi as $row): $rid = (int)($row['id'] ?? 0); ?>
               <tr>
-                <td><a class="cd-plus" href="<?= BASE_URL ?>/<?= $invoiceDetailBase ?>/detay/<?= (int)($row['id'] ?? 0) ?>" title="Fatura detayını görüntüle"><i class="fa-solid fa-plus"></i></a></td>
+                <td><button type="button" class="cd-plus" onclick="cdToggleDetail('sat-<?= $rid ?>', this)">+</button></td>
                 <td><?= htmlspecialchars($fmtDate($row['fatura_tarihi'] ?? '')) ?></td>
                 <td><?= htmlspecialchars($row['fatura_no'] ?? '-') ?></td>
                 <td class="cd-status"><?= htmlspecialchars($statusText((string)($row['durum'] ?? ''))) ?></td>
                 <td class="money"><?= $fmtMoney($row['genel_toplam'] ?? 0) ?></td>
+              </tr>
+              <tr class="cd-detail-row" id="detail-sat-<?= $rid ?>">
+                <td colspan="5">
+                  <div class="cd-detail-inner">
+                    <div class="cd-detail-btns">
+                      <a class="cd-btn-det" href="<?= BASE_URL ?>/<?= $invoiceDetailBase ?>/detay/<?= $rid ?>"><i class="fa-solid fa-eye"></i> Görüntüle / Düzenle</a>
+                    </div>
+                    <span>Vade: <?= htmlspecialchars($fmtDate($row['vade_tarihi'] ?? '')) ?></span>
+                    <span>KDV: <?= $fmtMoney($row['kdv_tutari'] ?? 0) ?></span>
+                    <span>Kalan: <strong style="color:#f59e0b;"><?= $fmtMoney($row['kalan_tutar'] ?? 0) ?></strong></span>
+                    <?php if (!empty($row['aciklama'])): ?><span><?= htmlspecialchars($row['aciklama']) ?></span><?php endif; ?>
+                  </div>
+                </td>
               </tr>
             <?php endforeach; ?>
             </tbody>
@@ -324,12 +347,21 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
           <table class="cd-table">
             <thead><tr><th></th><th>Tarih</th><th class="money">Tutar</th><th>Şekli</th></tr></thead>
             <tbody>
-            <?php foreach ($odemeGecmisi as $row): ?>
+            <?php foreach ($odemeGecmisi as $row): $rid = (int)($row['id'] ?? 0); ?>
               <tr>
-                <td><span class="cd-plus"><i class="fa-solid fa-plus"></i></span></td>
+                <td><button type="button" class="cd-plus" onclick="cdToggleDetail('ode-<?= $rid ?>', this)">+</button></td>
                 <td><?= htmlspecialchars($fmtDateTime($row['tarih'] ?? '')) ?></td>
                 <td class="money"><?= $fmtMoney($row['tutar'] ?? 0) ?></td>
                 <td><?= htmlspecialchars($row['odeme_yontemi'] ?? (($row['islem_tipi'] ?? '') === 'giris' ? 'Tahsilat' : 'Ödeme')) ?></td>
+              </tr>
+              <tr class="cd-detail-row" id="detail-ode-<?= $rid ?>">
+                <td colspan="4">
+                  <div class="cd-detail-inner">
+                    <span>Hesap: <strong style="color:var(--text);"><?= htmlspecialchars($row['kasa_adi'] ?? '-') ?></strong></span>
+                    <span>İşlem: <?= htmlspecialchars(($row['islem_tipi'] ?? '') === 'giris' ? 'Giriş (Tahsilat)' : 'Çıkış (Ödeme)') ?></span>
+                    <?php if (!empty($row['aciklama'])): ?><span>Açıklama: <?= htmlspecialchars($row['aciklama']) ?></span><?php endif; ?>
+                  </div>
+                </td>
               </tr>
             <?php endforeach; ?>
             </tbody>
@@ -434,6 +466,13 @@ function cdTogglePanel(btn) {
   const body = btn.closest('.cd-panel').querySelector('.cd-panel-body');
   body.style.display = body.style.display === 'none' ? '' : 'none';
   btn.querySelector('i')?.classList.toggle('fa-chevron-up');
+}
+function cdToggleDetail(key, btn) {
+  const row = document.getElementById('detail-' + key);
+  if (!row) return;
+  const isOpen = row.classList.toggle('open');
+  btn.textContent = isOpen ? '−' : '+';
+  btn.classList.toggle('is-open', isOpen);
 }
 function openPaymentModal(tip) {
   document.getElementById('pIslemTipi').value = tip;

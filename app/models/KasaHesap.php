@@ -248,6 +248,21 @@ class KasaHesap
                 [':tutar' => $tutar, ':id' => $kasaId, ':company_id' => TenantContext::activeCompanyId()]
             );
 
+            // Cari bakiyesini güncelle — Nakit::hareketEkle() ile AYNI kalıp
+            // (bilinçli olarak burada TEKRARLANIYOR: Hesaplarım > [Hesap] >
+            // "Para Girişi/Çıkışı Yap" akışı, Nakit modelini DEĞİL bu modeli
+            // kullanıyor; önceden burada bu adım hiç yoktu — bir cariye bu
+            // ekrandan tahsilat/ödeme girildiğinde ne faturalar.kalan_tutar
+            // ne de cariler.bakiye güncelleniyordu). Tahsilat/ödemeyi
+            // carinin açık faturalarına en eskiden yeniye (FIFO) dağıt,
+            // sonra cari bakiyeyi yeniden hesapla.
+            if ($cariId !== null) {
+                require_once MODELS_PATH . '/Fatura.php';
+                $faturaModel = new Fatura();
+                $faturaModel->fifoOdemeDagit($cariId, $islem, $tutar);
+                $faturaModel->recomputeCariBalance($cariId);
+            }
+
             Audit::log('CREATE', 'HESAP', $id, null, [
                 'kasa_id' => $kasaId, 'islem_tipi' => $islem, 'hareket_tipi' => $hareketTipi, 'tutar' => $tutar,
             ], "Kasa hareketi eklendi ({$islem}): {$tutar}");
@@ -349,6 +364,17 @@ class KasaHesap
                 "UPDATE kasa_banka SET guncel_bakiye = guncel_bakiye {$sign} :tutar WHERE id = :id AND company_id = :company_id",
                 [':tutar' => $h['tutar'], ':id' => $h['kasa_id'], ':company_id' => TenantContext::activeCompanyId()]
             );
+
+            // Bu hareket bir cariye bağlıysa (tahsilat/ödeme), silinen tutarın
+            // faturalara FIFO ile uyguladığı etkiyi de geri almak gerekir.
+            // Hangi faturaya ne kadar gittiği ayrıca izlenmediği için en
+            // güvenli yol: carinin TÜM geçmiş (artık bu hareket hariç) kasa
+            // hareketlerinden faturalarını baştan yeniden hesaplamak —
+            // fifoBakiyeleriYenidenHesapla() zaten silindi_mi=0 filtreler.
+            if (!empty($h['cari_id'])) {
+                require_once MODELS_PATH . '/Fatura.php';
+                (new Fatura())->fifoBakiyeleriYenidenHesapla((int)$h['cari_id']);
+            }
 
             Audit::log('DELETE', 'HESAP', $id, $h, null, 'Kasa hareketi silindi: ' . $h['tutar']);
 
