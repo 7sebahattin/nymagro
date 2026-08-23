@@ -16,6 +16,7 @@ $donemler = $donemler ?? [];
 <div class="mb-3">
   <a href="<?= BASE_URL ?>/audit/giris-gecmisi" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-right-to-bracket"></i> Giriş Geçmişi</a>
   <a href="<?= BASE_URL ?>/audit/export?<?= http_build_query($filters) ?>" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-file-csv"></i> CSV Dışa Aktar</a>
+  <a href="<?= BASE_URL ?>/audit/teshis" class="btn btn-sm btn-outline-warning"><i class="fa-solid fa-magnifying-glass"></i> Teşhis (Geçici)</a>
 </div>
 
 <form class="row g-2 mb-3" method="get">
