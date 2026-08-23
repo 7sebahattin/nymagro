@@ -22,6 +22,11 @@ class Fatura
         'sevk_turu', 'hedef_depo_id', 'kaynak_irsaliye_id', 'irsaliye_kullanildi',
         // Teklif (proforma)→satış dönüştürme bağlantısı (bkz. ensureTeklifDonusumColumns).
         'kaynak_teklif_id', 'teklif_kullanildi',
+        // e-Belge (XML) → alış faturası aktarımının kaynak bağlantısı. Kolon
+        // EBelgeAktarim::ensureKaynakKolonu() tarafından idempotent eklenir;
+        // kolon yoksa aktarım bu alanı HİÇ göndermez, bu yüzden burada durması
+        // mevcut akışları etkilemez (array_intersect_key yalnızca gönderileni alır).
+        'kaynak_ebelge_id',
     ];
 
     private array $kalemFillable = [

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE — GÜVENLİK (NEGATİF TEST). ZARARSIZDIR: bu dosya hiçbir zaman
+  ayrıştırılmaz; EBelgeGuvenlik::xmlIcerikKapisi() DOCTYPE gördüğü anda reddeder.
+  Sınadığı senaryo: klasik XXE (harici varlık ile yerel dosya okuma denemesi).
+  Meşru bir UBL-TR belgesi ASLA DOCTYPE içermez.
+-->
+<!DOCTYPE Invoice [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:ID>&xxe;</cbc:ID>
+  <cbc:UUID>00000000-0000-0000-0000-000000000000</cbc:UUID>
+  <cbc:IssueDate>2026-01-01</cbc:IssueDate>
+</Invoice>

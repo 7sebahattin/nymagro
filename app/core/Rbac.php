@@ -40,6 +40,7 @@ final class Rbac
         'HESAP'     => ['Kasa / Banka Hesapları', 'crud'],
         'MASRAF'    => ['Masraflar', 'crud'],
         'NAKIT'     => ['Gelen E-Faturalar', 'crud'],
+        'EBELGE'    => ['e-Belge (XML) İçe Alma', 'crud'],
         'KREDI'     => ['Krediler', 'crud'],
         'DEMIRBAS'  => ['Demirbaşlar', 'crud'],
         'PROJE'     => ['Projeler', 'crud'],
@@ -496,6 +497,7 @@ final class Rbac
         'HesapController'     => 'HESAP',
         'MasrafController'    => 'MASRAF',
         'NakitController'     => 'NAKIT',
+        'EBelgeController'    => 'EBELGE',
         'KrediController'     => 'KREDI',
         'DemirbasController'  => 'DEMIRBAS',
         'ProjeController'     => 'PROJE',
@@ -523,6 +525,14 @@ final class Rbac
         'DepoController::sayimKaydet'   => 'UPDATE',
         'SiteController::ayarlarKaydet' => 'UPDATE',
         'UrunController::stokGiris'     => 'UPDATE',
+        // classifyAction('eslestir') VIEW döner — oysa bu uç cari/ürün bağlar,
+        // yeni cari/ürün kartı açar ve belge durumunu değiştirir. Override
+        // olmadan yalnızca VIEW izniyle erişilebilirdi.
+        'EBelgeController::eslestir' => 'UPDATE',
+        // Aktarım gerçek alış faturası oluşturur. Buradaki EBELGE_UPDATE tek
+        // başına yeterli DEĞİLDİR: metot içinde ayrıca ALIS_CREATE aranır
+        // (bkz. EBelgeController::aktar → çift izin kontrolü).
+        'EBelgeController::aktar' => 'UPDATE',
         'NakitController::gelen_e_faturalar' => 'VIEW',
         'NakitController::gelen_e_faturalar_create' => 'CREATE',
         'NakitController::gelen_e_faturalar_delete' => 'DELETE',

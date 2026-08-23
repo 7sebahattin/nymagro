@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE — NEGATİF TEST.
+  Sınadığı senaryo: geçerli bir XML ama UBL e-Belgesi DEĞİL (kök eleman
+  Invoice/DespatchAdvice değil). Güvenlik kapısı reddetmelidir.
+-->
+<Rapor>
+  <Baslik>Aylık Satış Raporu</Baslik>
+  <Satir><Ay>Ocak</Ay><Tutar>15000.00</Tutar></Satir>
+  <Satir><Ay>Şubat</Ay><Tutar>18250.50</Tutar></Satir>
+</Rapor>
