@@ -302,18 +302,32 @@ $tipLabel = [
           <td class="txt-right txt-red">
             <?= !$isGiris ? number_format($tutar, 2, ',', '.') : '' ?>
           </td>
-          <td class="txt-right" style="font-weight:600; color:<?= $runBakiye < 0 ? '#dc2626' : '#1e293b' ?>;">
+          <td class="txt-right" style="font-weight:600; color:<?= $runBakiye < 0 ? 'var(--danger)' : 'var(--text)' ?>;">
             <?= ($runBakiye < 0 ? '-' : '') . number_format(abs($runBakiye), 2, ',', '.') ?>
           </td>
           <td>
-            <?php if (Rbac::currentUserCan('HESAP_DELETE')): ?>
+            <?php if (Rbac::currentUserCan('HESAP_UPDATE') || Rbac::currentUserCan('HESAP_DELETE')): ?>
             <div class="dropdown">
-              <button class="btn-islem dropdown-toggle" data-bs-toggle="dropdown">İşlem</button>
+              <button class="btn-islem dropdown-toggle" data-bs-toggle="dropdown" data-bs-strategy="fixed" data-bs-display="static">İşlem</button>
               <ul class="dropdown-menu shadow">
+                <?php if (Rbac::currentUserCan('HESAP_UPDATE')): ?>
+                <li><a class="dropdown-item" href="#"
+                       onclick="hareketDuzenleAc(<?= (int)$h['id'] ?>, <?= htmlspecialchars(json_encode([
+                           'islem_tipi'    => $h['islem_tipi'],
+                           'tutar'         => (float)$h['tutar'],
+                           'tarih'         => date('Y-m-d', strtotime($h['tarih'])),
+                           'odeme_yontemi' => $h['odeme_yontemi'] ?? '',
+                           'aciklama'      => $h['aciklama'] ?? '',
+                       ]), ENT_QUOTES) ?>);return false;">
+                  <i class="fa-solid fa-pen"></i> Düzenle
+                </a></li>
+                <?php endif; ?>
+                <?php if (Rbac::currentUserCan('HESAP_DELETE')): ?>
                 <li><a class="dropdown-item text-danger" href="#"
                        onclick="hareketSil(<?= $h['id'] ?>, this);return false;">
                   <i class="fa-solid fa-xmark"></i> Sil
                 </a></li>
+                <?php endif; ?>
               </ul>
             </div>
             <?php endif; ?>
@@ -453,6 +467,50 @@ $tipLabel = [
     <div class="hmodal-footer">
       <button class="btn-mdl gray" onclick="closeModal('mCikis')">Vazgeç</button>
       <button class="btn-mdl red" id="btnCikisKaydet" onclick="hareketKaydet('cikis')">
+        <i class="fa-solid fa-check"></i> Kaydet
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: HAREKET DÜZENLE ════════════════════════════ -->
+<div class="hmodal-overlay" id="mDuzenle">
+  <div class="hmodal">
+    <div class="hmodal-header" style="background:#5cb85c;">
+      <span><i class="fa-solid fa-pen"></i> Hareketi Düzenle</span>
+      <button class="hmodal-close" onclick="closeModal('mDuzenle')">&times;</button>
+    </div>
+    <div class="hmodal-body">
+      <p style="font-size:12px; color:var(--muted); margin:0;">
+        Hangi hesaba/cariye ait olduğu ve giriş/çıkış yönü değiştirilemez — yalnızca
+        tutar, tarih, ödeme yöntemi ve açıklama düzeltilebilir. Tutar değişirse, bu
+        hareketin bağlı olduğu carinin fatura bakiyeleri otomatik olarak yeniden hesaplanır.
+      </p>
+      <div class="hupd-row">
+        <label>Tutar <span style="color:#ef4444;">*</span></label>
+        <input type="text" id="duTutar" class="hupd-inp" placeholder="0,00" oninput="sayiFormat(this)">
+      </div>
+      <div class="hupd-row">
+        <label>Tarih</label>
+        <input type="date" id="duTarih" class="hupd-inp">
+      </div>
+      <div class="hupd-row">
+        <label>Ödeme Yöntemi <span style="color:#ef4444;">*</span></label>
+        <select id="duOdemeYontemi" class="hupd-inp">
+          <option value="">Seçiniz</option>
+          <?php foreach (['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'] as $oy): ?>
+            <option value="<?= $oy ?>"><?= $oy ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="hupd-row">
+        <label>Açıklama</label>
+        <input type="text" id="duAciklama" class="hupd-inp" placeholder="Opsiyonel">
+      </div>
+    </div>
+    <div class="hmodal-footer">
+      <button class="btn-mdl gray" onclick="closeModal('mDuzenle')">Vazgeç</button>
+      <button class="btn-mdl success" id="btnDuzenleKaydet" onclick="hareketGuncelleKaydet()">
         <i class="fa-solid fa-check"></i> Kaydet
       </button>
     </div>
@@ -608,6 +666,63 @@ function hareketKaydet(tip) {
       if (res.success) {
         showToast(res.message, 'success');
         closeModal(tip === 'giris' ? 'mGiris' : 'mCikis');
+        setTimeout(() => location.reload(), 900);
+      } else {
+        showToast(res.message || 'Hata oluştu.', 'error');
+      }
+    })
+    .catch(() => showToast('Bağlantı hatası.', 'error'))
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Kaydet';
+    });
+}
+
+/* ── HAREKET DÜZENLE ────────────────────────── */
+let duzenleHareketId = null;
+
+function hareketDuzenleAc(id, veri) {
+  duzenleHareketId = id;
+  document.getElementById('duTutar').value = String(veri.tutar).replace('.', ',');
+  document.getElementById('duTarih').value = veri.tarih;
+  document.getElementById('duOdemeYontemi').value = veri.odeme_yontemi || '';
+  document.getElementById('duAciklama').value = veri.aciklama || '';
+  openModal('mDuzenle');
+}
+
+function hareketGuncelleKaydet() {
+  if (!duzenleHareketId) return;
+  const tutar = document.getElementById('duTutar').value.replace(',', '.');
+  const tarih = document.getElementById('duTarih').value;
+  const odemeYontemi = document.getElementById('duOdemeYontemi').value;
+  const acikl = document.getElementById('duAciklama').value.trim();
+
+  if (!tutar || parseFloat(tutar) <= 0) {
+    showToast('Geçerli bir tutar giriniz.', 'error');
+    return;
+  }
+  if (!odemeYontemi) {
+    showToast('Ödeme yöntemi seçiniz.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnDuzenleKaydet');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+  const fd = new FormData();
+  fd.append('id', duzenleHareketId);
+  fd.append('tutar', tutar);
+  fd.append('tarih', tarih);
+  fd.append('odeme_yontemi', odemeYontemi);
+  fd.append('aciklama', acikl);
+
+  fetch(BASE + '/hesap/hareketGuncelle', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        showToast(res.message, 'success');
+        closeModal('mDuzenle');
         setTimeout(() => location.reload(), 900);
       } else {
         showToast(res.message || 'Hata oluştu.', 'error');

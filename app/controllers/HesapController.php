@@ -183,6 +183,41 @@ class HesapController extends Controller
     }
 
     // ──────────────────────────────────────────────────────
+    // AJAX — HAREKET DÜZENLE (tutar/tarih/ödeme yöntemi/açıklama)
+    // ──────────────────────────────────────────────────────
+
+    public function hareketGuncelle(): void
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz istek.']);
+            return;
+        }
+        try {
+            $id = (int)($_POST['id'] ?? 0);
+            if ($id <= 0) throw new Exception('Geçersiz hareket ID.');
+
+            $odemeYontemleri = ['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'];
+            $odemeYontemi = trim($_POST['odeme_yontemi'] ?? '');
+            if (!in_array($odemeYontemi, $odemeYontemleri, true)) {
+                throw new Exception('Geçerli bir ödeme yöntemi seçiniz.');
+            }
+
+            $tarih = trim($_POST['tarih'] ?? '');
+            $this->model->hareketGuncelle($id, [
+                'tutar'         => (float)str_replace(',', '.', $_POST['tutar'] ?? 0),
+                'tarih'         => $tarih !== '' ? $tarih . ' ' . date('H:i:s') : null,
+                'odeme_yontemi' => $odemeYontemi,
+                'aciklama'      => trim($_POST['aciklama'] ?? ''),
+            ]);
+
+            echo json_encode(['success' => true, 'message' => 'Hareket güncellendi.']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
     // AJAX — TRANSFER
     // ──────────────────────────────────────────────────────
 

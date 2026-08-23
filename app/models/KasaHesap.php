@@ -276,6 +276,71 @@ class KasaHesap
     }
 
     // ──────────────────────────────────────────────────────
+    // HAREKET DÜZENLE (tutar/tarih/ödeme yöntemi/açıklama düzeltme)
+    // ──────────────────────────────────────────────────────
+
+    /**
+     * Bir kasa hareketinin tutarını/tarihini/ödeme yöntemini/açıklamasını
+     * düzeltir. Bilinçli olarak DAR kapsamlı: hangi hesaba/cariye ait
+     * olduğu ve giriş/çıkış yönü değiştirilemez — bunlar "yanlış hesaba
+     * girdim" gibi daha büyük bir düzeltme gerektirir ve buradan
+     * yapılamaz (silinip doğru şekilde yeniden girilmelidir).
+     */
+    public function hareketGuncelle(int $id, array $veri): bool
+    {
+        $eski = $this->db->selectOne(
+            "SELECT * FROM kasa_hareketleri WHERE id = :id AND silindi_mi = 0 AND company_id = :company_id",
+            [':id' => $id, ':company_id' => TenantContext::activeCompanyId()]
+        );
+        if (!$eski) {
+            throw new InvalidArgumentException('Hareket bulunamadı.');
+        }
+
+        $yeniTutar = (float)($veri['tutar'] ?? 0);
+        if ($yeniTutar <= 0) {
+            throw new InvalidArgumentException('Tutar sıfırdan büyük olmalıdır.');
+        }
+
+        $this->db->begin();
+        try {
+            // Eski tutarın kasa bakiyesindeki etkisini yeni tutara göre düzelt
+            // (yön/kasa/cari DEĞİŞMİYOR — sadece tutar farkı uygulanır).
+            $eskiTutar = (float)$eski['tutar'];
+            $fark = round($yeniTutar - $eskiTutar, 2);
+            if (abs($fark) > 0.004) {
+                $sign = ($eski['islem_tipi'] === 'giris') ? '+' : '-';
+                $this->db->query(
+                    "UPDATE kasa_banka SET guncel_bakiye = guncel_bakiye {$sign} :fark WHERE id = :id AND company_id = :company_id",
+                    [':fark' => $fark, ':id' => $eski['kasa_id'], ':company_id' => TenantContext::activeCompanyId()]
+                );
+            }
+
+            $this->db->update('kasa_hareketleri', [
+                'tutar'         => $yeniTutar,
+                'tarih'         => $veri['tarih'] ?? $eski['tarih'],
+                'odeme_yontemi' => $veri['odeme_yontemi'] ?? $eski['odeme_yontemi'],
+                'aciklama'      => $veri['aciklama'] ?? $eski['aciklama'],
+            ], ['id' => $id]);
+
+            // Tutar değiştiyse, bu hareketin bağlı olduğu carinin fatura
+            // bakiyelerini (ve cariler.bakiye'yi) baştan yeniden hesapla.
+            if (!empty($eski['cari_id'])) {
+                require_once MODELS_PATH . '/Fatura.php';
+                (new Fatura())->fifoBakiyeleriYenidenHesapla((int)$eski['cari_id']);
+            }
+
+            Audit::log('UPDATE', 'HESAP', $id, $eski, $veri,
+                "Kasa hareketi düzenlendi: {$eskiTutar} → {$yeniTutar}");
+
+            $this->db->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
     // TRANSFER
     // ──────────────────────────────────────────────────────
 
