@@ -10,7 +10,9 @@ $cariFaturalari = $cariFaturalari ?? [];
 $oturumCompanyId = $oturumCompanyId ?? null;
 $oturumPeriodId = $oturumPeriodId ?? null;
 $kolonTanimi = $kolonTanimi ?? null;
+$kolonTanimiDurum = $kolonTanimiDurum ?? null;
 $dagitimTumTipler = $dagitimTumTipler ?? [];
+$dagitimTumDurumlar = $dagitimTumDurumlar ?? [];
 
 $companyName = [];
 foreach ($companies as $c) { $companyName[(int)$c['id']] = $c['company_name']; }
@@ -23,19 +25,22 @@ foreach ($periods as $p) { $periodName[(int)$p['id']] = ($p['period_name'] ?: $p
   Dönem #<?= (int)$oturumPeriodId ?> (<?= $h($periodName[(int)$oturumPeriodId] ?? '?') ?>)
 </div>
 
-<h5>0) faturalar.belge_tipi sütununun GERÇEK veritabanı tanımı</h5>
-<p class="text-muted">Eğer bu bir ENUM ise ve listede 'numune'/'irsaliye'/'perakende' YOKSA, kök neden budur: kayıt gerçekten yazılıyor (bu yüzden stok düşüyor) ama veritabanı bu değeri sessizce başka bir şeye çeviriyor, bu yüzden hiçbir filtreye uymuyor.</p>
+<h5>0) faturalar.belge_tipi / durum sütunlarının GERÇEK veritabanı tanımı</h5>
+<p class="text-muted">Eğer bu bir ENUM ise ve listede 'numune'/'irsaliye'/'perakende'/'proforma'/'siparis' YOKSA, kök neden budur: kayıt gerçekten yazılıyor (bu yüzden stok düşüyor) ama veritabanı bu değeri sessizce başka bir şeye çeviriyor, bu yüzden hiçbir filtreye uymuyor. Bu sayfayı yeniden yüklediğinizde (bu değişiklik canlıya alındıktan sonra), uygulama bu ENUM'u otomatik olarak VARCHAR'a çevirip önceden bozulmuş kayıtları kendiliğinden onarır — aşağıdaki tanımın artık "varchar(20)" göstermesi düzeltmenin çalıştığının kanıtıdır.</p>
 <div class="table-responsive mb-3">
   <table class="table table-sm table-bordered">
-    <thead><tr><th>COLUMN_TYPE (gerçek tanım)</th><th>NULL olabilir mi</th></tr></thead>
+    <thead><tr><th>Sütun</th><th>COLUMN_TYPE (gerçek tanım)</th><th>NULL olabilir mi</th></tr></thead>
     <tbody>
-      <tr><td><code><?= $h($kolonTanimi['COLUMN_TYPE'] ?? '(bulunamadı)') ?></code></td><td><?= $h($kolonTanimi['IS_NULLABLE'] ?? '?') ?></td></tr>
+      <tr><td>belge_tipi</td><td><code><?= $h($kolonTanimi['COLUMN_TYPE'] ?? '(bulunamadı)') ?></code></td><td><?= $h($kolonTanimi['IS_NULLABLE'] ?? '?') ?></td></tr>
+      <tr><td>durum</td><td><code><?= $h($kolonTanimiDurum['COLUMN_TYPE'] ?? '(bulunamadı)') ?></code></td><td><?= $h($kolonTanimiDurum['IS_NULLABLE'] ?? '?') ?></td></tr>
     </tbody>
   </table>
 </div>
 
-<h5>0b) faturalar tablosunda GERÇEKTE var olan tüm belge_tipi değerleri (filtre YOK)</h5>
-<p class="text-muted">Burada 'numune'/'irsaliye'/'perakende' yerine boş bir satır, "0" gibi garip bir değer ya da hiç beklemediğiniz bir metin görüyorsanız, kayıtlarınız o değerin altında saklı demektir.</p>
+<h5>0b) faturalar tablosunda GERÇEKTE var olan tüm belge_tipi / durum değerleri (filtre YOK)</h5>
+<p class="text-muted">Burada 'numune'/'irsaliye' yerine boş bir satır ya da hiç beklemediğiniz bir metin görüyorsanız, kayıtlarınız o değerin altında saklı demektir.</p>
+<div class="row">
+<div class="col-md-6">
 <div class="table-responsive mb-4">
   <table class="table table-sm table-bordered">
     <thead><tr><th>belge_tipi (ham değer)</th><th>Adet</th></tr></thead>
@@ -48,6 +53,23 @@ foreach ($periods as $p) { $periodName[(int)$p['id']] = ($p['period_name'] ?: $p
     <?php endforeach; ?>
     </tbody>
   </table>
+</div>
+</div>
+<div class="col-md-6">
+<div class="table-responsive mb-4">
+  <table class="table table-sm table-bordered">
+    <thead><tr><th>durum (ham değer)</th><th>Adet</th></tr></thead>
+    <tbody>
+    <?php foreach ($dagitimTumDurumlar as $d): ?>
+      <tr>
+        <td><code>"<?= $h($d['durum']) ?>"</code><?= $d['durum'] === '' ? ' <strong style="color:#e74c3c;">← BOŞ STRING</strong>' : '' ?></td>
+        <td><?= (int)$d['adet'] ?></td>
+      </tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
+</div>
 </div>
 
 <h5>1) Şirketler</h5>

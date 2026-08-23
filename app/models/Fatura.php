@@ -54,6 +54,71 @@ class Fatura
             $this->ensureTeklifDonusumColumns();
             $this->ensurePerformansIndexleri();
             $this->ensureFaturaNoTekilligi();
+            $this->ensureBelgeTipiVeDurumEsnek();
+        }
+    }
+
+    /**
+     * belge_tipi/durum sütunları ENUM olarak tanımlanmıştı ve zaman içinde
+     * eklenen yeni belge tipleri ('irsaliye', 'numune', 'proforma', 'siparis')
+     * bu ENUM listesine HİÇ EKLENMEMİŞTİ. Sonuç: MySQL, strict olmayan SQL
+     * modunda ENUM'da tanımlı olmayan bir değeri INSERT ederken hata
+     * FIRLATMAK yerine sessizce boş string'e çevirip yalnızca bir UYARI
+     * verir — satır "başarıyla" yazılır (bu yüzden stok/tutar gibi diğer
+     * sütunlar da doğru şekilde kalıcı olur ve kullanıcı bir hata görmez),
+     * ama belge_tipi sütunu boş kaldığı için satır ARTIK HİÇBİR ZAMAN
+     * "belge_tipi = 'numune'" (veya 'irsaliye'/'proforma'/'siparis')
+     * filtresine uymaz. Sonuç: bu belgeler listede, raporlarda, cari
+     * ekstresinde her yerde "yokmuş" gibi görünür — oysa satır gerçekten
+     * veritabanındadır.
+     *
+     * Kalıcı çözüm: ENUM kısıtlamasını tamamen kaldırıp VARCHAR'a çevirmek.
+     * Geçerli değer kontrolü zaten uygulama katmanında yapılıyor (bkz.
+     * SatisController::kaydet() içindeki in_array() kontrolü), bu yüzden
+     * VARCHAR'a geçiş herhangi bir doğrulamayı zayıflatmaz — sadece ileride
+     * yeni bir belge tipi eklendiğinde bu sınıf hatanın BİR DAHA
+     * yaşanmasını engeller.
+     */
+    private function ensureBelgeTipiVeDurumEsnek(): void
+    {
+        try {
+            $mevcut = $this->db->selectOne(
+                "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = 'belge_tipi'"
+            );
+            if ($mevcut && stripos((string)$mevcut['COLUMN_TYPE'], 'enum(') === 0) {
+                $this->db->query("ALTER TABLE faturalar MODIFY COLUMN belge_tipi VARCHAR(20) NOT NULL");
+                // Bu ENUM kısıtlaması yüzünden daha önce boş string'e düşmüş
+                // satırları, belge numarasının serisinden (önekinden) geriye
+                // dönük onar — yalnızca ALTER'ın GERÇEKTEN çalıştığı bu tek
+                // seferde (bir daha gerekmez, bu yüzden burada, if'in içinde).
+                $onekEslesme = [
+                    'NUM-' => 'numune',
+                    'IRS-' => 'irsaliye',
+                    'PRO-' => 'proforma',
+                    'SIP-' => 'siparis',
+                ];
+                foreach ($onekEslesme as $onek => $dogruTip) {
+                    $this->db->query(
+                        "UPDATE faturalar SET belge_tipi = :tip WHERE belge_tipi = '' AND fatura_no LIKE :onek",
+                        [':tip' => $dogruTip, ':onek' => $onek . '%']
+                    );
+                }
+            }
+        } catch (\Throwable $e) {
+            error_log('[NYMAGRO] belge_tipi ENUM -> VARCHAR dönüşümü/onarımı yapılamadı: ' . $e->getMessage());
+        }
+
+        try {
+            $mevcutDurum = $this->db->selectOne(
+                "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'faturalar' AND COLUMN_NAME = 'durum'"
+            );
+            if ($mevcutDurum && stripos((string)$mevcutDurum['COLUMN_TYPE'], 'enum(') === 0) {
+                $this->db->query("ALTER TABLE faturalar MODIFY COLUMN durum VARCHAR(20) NOT NULL DEFAULT 'taslak'");
+            }
+        } catch (\Throwable $e) {
+            error_log('[NYMAGRO] durum ENUM -> VARCHAR dönüşümü yapılamadı: ' . $e->getMessage());
         }
     }
 
