@@ -82,8 +82,8 @@ kontrol('hareketEkle() bu çağrıları SADECE cari_id varsa yapıyor (cari\'siz
     (bool)preg_match('/cariId\s*!==\s*null\)\s*\{[^}]*fifoOdemeDagit/s', $ekleGovde));
 kontrol('hareketEkle() fifoOdemeDagit()\'i recomputeCariBalance()\'tan ÖNCE çağırıyor (Nakit::hareketEkle() ile aynı sıra)',
     strpos($ekleGovde, '->fifoOdemeDagit(') < strpos($ekleGovde, '->recomputeCariBalance('));
-kontrol('hareketEkle() işlem tipini (giris/cikis) fifoOdemeDagit()\'e olduğu gibi iletiyor',
-    (bool)preg_match('/fifoOdemeDagit\(\$cariId,\s*\$islem,\s*\$tutar\)/', $ekleGovde));
+kontrol('hareketEkle() işlem tipini (giris/cikis) VE yeni hareketin id\'sini (ödeme uygulaması kaydı için) fifoOdemeDagit()\'e iletiyor',
+    (bool)preg_match('/fifoOdemeDagit\(\$cariId,\s*\$islem,\s*\$tutar,\s*\$id\)/', $ekleGovde));
 
 // ═════════════════════════════════════════════════════════════════════
 // 2) hareketSil() — silme sırasında FIFO geri alma

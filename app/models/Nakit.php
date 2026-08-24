@@ -103,7 +103,7 @@ class Nakit
                 // ve "Bekleyen Tahsilat" kartı bu ödemeden sonra da hep ilk
                 // tutarda donuk kalır (cariler.bakiye doğru güncellenirken,
                 // faturalar.kalan_tutar hiç güncellenmemiş olurdu).
-                $faturaModel->fifoOdemeDagit((int)$data['cari_id'], $islemTipi, (float)$data['tutar']);
+                $faturaModel->fifoOdemeDagit((int)$data['cari_id'], $islemTipi, (float)$data['tutar'], $id);
                 $faturaModel->recomputeCariBalance((int)$data['cari_id']);
             }
 

@@ -15,6 +15,7 @@ final class TenantContext
         'gelen_efatura_import_batches', 'gelen_efatura_notlari', 'stok_hareketleri',
         'cek_senet_portfoyu', 'personel_hareketleri',
         'krediler', 'kredi_odeme_plani', 'demirbaslar', 'projeler',
+        'fatura_odeme_uygulamalari',
     ];
 
     private const PERIOD_TABLES = [
@@ -23,6 +24,7 @@ final class TenantContext
         'gelen_efatura_notlari', 'stok_hareketleri', 'cek_senet_portfoyu',
         'personel_hareketleri',
         'krediler', 'kredi_odeme_plani', 'demirbaslar', 'projeler',
+        'fatura_odeme_uygulamalari',
     ];
 
     private const WRITE_TABLES = [
@@ -33,6 +35,7 @@ final class TenantContext
         'gelen_efatura_notlari',
         'stok_hareketleri', 'cek_senet_portfoyu', 'personel_hareketleri',
         'krediler', 'kredi_odeme_plani', 'demirbaslar', 'projeler',
+        'fatura_odeme_uygulamalari',
     ];
 
     private const PUBLIC_ROUTES = [

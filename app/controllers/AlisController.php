@@ -481,6 +481,35 @@ final class AlisController extends Controller
         exit;
     }
 
+    // ─── AJAX: Faturaya Uygulanan Ödemeler ────────────────────────────────
+
+    /** Bir faturaya (FIFO ile) uygulanmış ödeme/tahsilat hareketlerini JSON döner. */
+    public function odemeleri(int $id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $f = $this->fatura->getir($id);
+        if (!$f) {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'Fatura bulunamadı.']);
+            exit;
+        }
+        $uygulamalar = array_map(function ($u) {
+            return [
+                'id'               => (int)$u['id'],
+                'kasa_hareket_id'  => (int)$u['kasa_hareket_id'],
+                'kasa_id'          => (int)$u['kasa_id'],
+                'tutar'            => (float)$u['uygulanan_tutar'],
+                'tarih'            => $u['tarih'],
+                'odeme_yontemi'    => $u['odeme_yontemi'],
+                'aciklama'         => $u['aciklama'],
+                'kasa_adi'         => $u['kasa_adi'] ?? '',
+            ];
+        }, $this->fatura->odemeUygulamalariGetir($id));
+
+        echo json_encode(['status' => 'success', 'uygulamalar' => $uygulamalar]);
+        exit;
+    }
+
     private function tarihCevir(string $t): string
     {
         if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $t)) {

@@ -55,6 +55,36 @@ class Fatura
             $this->ensurePerformansIndexleri();
             $this->ensureFaturaNoTekilligi();
             $this->ensureBelgeTipiVeDurumEsnek();
+            $this->ensureOdemeUygulamalariTablosu();
+        }
+    }
+
+    /**
+     * Hangi tahsilat/ödeme (kasa_hareketleri satırı) hangi faturaya ne kadar
+     * uygulandı — fifoOdemeDagit()'in dağıttığı payı KAYDEDER. Önceden bu
+     * bilgi hiç tutulmuyordu: faturalar.kalan_tutar güncelleniyordu ama
+     * "bu fatura hangi ödemelerle kapandı" sorusu cevaplanamıyordu. Otomatik
+     * FIFO dağıtım DAVRANIŞI değişmiyor — bu tablo sadece onun bir kaydını
+     * tutuyor (fatura detayında "Uygulanan Ödemeler" listesi için).
+     */
+    private function ensureOdemeUygulamalariTablosu(): void
+    {
+        try {
+            $this->db->query(
+                "CREATE TABLE IF NOT EXISTS fatura_odeme_uygulamalari (
+                    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    fatura_id INT NOT NULL,
+                    kasa_hareket_id INT NOT NULL,
+                    tutar DECIMAL(18,2) NOT NULL,
+                    company_id INT NOT NULL,
+                    period_id INT NOT NULL,
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_fou_fatura (fatura_id, company_id, period_id),
+                    INDEX idx_fou_hareket (kasa_hareket_id, company_id, period_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+            );
+        } catch (\Throwable $e) {
+            error_log('[NYMAGRO] fatura_odeme_uygulamalari tablosu kurulamadı: ' . $e->getMessage());
         }
     }
 
@@ -925,8 +955,14 @@ class Fatura
      * güncellenmiyordu — bu yüzden Satışlar/Alışlar listesindeki "Kalan"
      * sütunu ve "BEKLEYEN TAHSİLAT" özet kartı, tahsilat/ödeme girildikten
      * sonra hep ilk tutarda donuk kalıyordu.
+     *
+     * $kasaHareketId verilirse (kasa_hareketleri'ne az önce yazılan satırın
+     * id'si), bu dağıtımın kaydı fatura_odeme_uygulamalari'na da yazılır —
+     * "bu fatura hangi ödemelerle kapandı" sorusunu cevaplamak için (bkz.
+     * Fatura Detayı > Uygulanan Ödemeler). Verilmezse (ör. eski/tarihsel
+     * bir toplu dağıtım) yalnızca fatura güncellenir, uygulama kaydı YAZILMAZ.
      */
-    public function fifoOdemeDagit(int $cariId, string $islemTipi, float $tutar): void
+    public function fifoOdemeDagit(int $cariId, string $islemTipi, float $tutar, ?int $kasaHareketId = null): void
     {
         $tutar = round($tutar, 2);
         if ($cariId <= 0 || $tutar <= 0.004) {
@@ -960,6 +996,16 @@ class Fatura
                 'kalan_tutar'  => $guncelleme['kalan_tutar'],
                 'durum'        => $guncelleme['durum'],
             ], ['id' => $guncelleme['id']]);
+
+            if ($kasaHareketId !== null && $guncelleme['uygulanan'] > 0.004) {
+                $this->db->insert('fatura_odeme_uygulamalari', [
+                    'fatura_id'       => $guncelleme['id'],
+                    'kasa_hareket_id' => $kasaHareketId,
+                    'tutar'           => $guncelleme['uygulanan'],
+                    'company_id'      => TenantContext::activeCompanyId(),
+                    'period_id'       => TenantContext::activePeriodId(),
+                ]);
+            }
         }
     }
 
@@ -971,7 +1017,7 @@ class Fatura
      * için güncelleme listesi döner.
      *
      * @param array<int, array{id:int|string, genel_toplam:float|string, odenen_tutar:float|string, kalan_tutar:float|string}> $acikFaturalar
-     * @return array<int, array{id:int, odenen_tutar:float, kalan_tutar:float, durum:string}>
+     * @return array<int, array{id:int, odenen_tutar:float, kalan_tutar:float, durum:string, uygulanan:float}>
      */
     public static function fifoDagitimHesapla(array $acikFaturalar, float $tutar): array
     {
@@ -999,6 +1045,7 @@ class Fatura
                 'odenen_tutar' => $yeniOdenen,
                 'kalan_tutar'  => $yeniKalan,
                 'durum'        => $yeniKalan <= 0.004 ? 'odendi' : 'kismi_odendi',
+                'uygulanan'    => $uygulanacak,
             ];
 
             $kalanOdeme = round($kalanOdeme - $uygulanacak, 2);
@@ -1037,21 +1084,32 @@ class Fatura
                 [':cid' => $cariId, ':company_id' => $companyId]
             );
 
-            // 2) Bugüne kadarki tüm tahsilatı (giriş) satış/perakende faturalarına,
-            //    tüm ödemeyi (çıkış) alış faturalarına eskiden yeniye dağıt.
-            $toplamGiris = (float)($this->db->selectOne(
-                "SELECT COALESCE(SUM(tutar),0) AS t FROM kasa_hareketleri
-                 WHERE cari_id = :cid AND islem_tipi = 'giris' AND silindi_mi = 0 AND company_id = :company_id",
+            // 1b) Bu carinin faturalarına önceden kaydedilmiş "hangi ödeme
+            //     hangi faturaya" uygulama kayıtlarını temizle — birazdan
+            //     baştan (ve tekrar tekrar çalıştırılsa bile aynı sonucu
+            //     verecek şekilde) yeniden yazılacaklar.
+            $this->db->query(
+                "DELETE fou FROM fatura_odeme_uygulamalari fou
+                 INNER JOIN faturalar f ON f.id = fou.fatura_id
+                 WHERE f.cari_id = :cid AND fou.company_id = :company_id",
                 [':cid' => $cariId, ':company_id' => $companyId]
-            )['t'] ?? 0);
-            $toplamCikis = (float)($this->db->selectOne(
-                "SELECT COALESCE(SUM(tutar),0) AS t FROM kasa_hareketleri
-                 WHERE cari_id = :cid AND islem_tipi = 'cikis' AND silindi_mi = 0 AND company_id = :company_id",
-                [':cid' => $cariId, ':company_id' => $companyId]
-            )['t'] ?? 0);
+            );
 
-            $this->fifoOdemeDagit($cariId, 'giris', $toplamGiris);
-            $this->fifoOdemeDagit($cariId, 'cikis', $toplamCikis);
+            // 2) Bugüne kadarki her tahsilat/ödeme hareketini KENDİ kaydıyla
+            //    (kasa_hareket_id ile) eskiden yeniye tek tek yeniden uygula —
+            //    böylece hangi ödemenin hangi faturaya gittiği bilgisi de
+            //    (fatura_odeme_uygulamalari) doğru şekilde yeniden kurulur.
+            //    Tarihe göre sıralama, faturaların zaten sıralandığı "en eski
+            //    önce" mantığıyla tutarlıdır.
+            $hareketler = $this->db->select(
+                "SELECT id, islem_tipi, tutar FROM kasa_hareketleri
+                 WHERE cari_id = :cid AND silindi_mi = 0 AND company_id = :company_id
+                 ORDER BY tarih ASC, id ASC",
+                [':cid' => $cariId, ':company_id' => $companyId]
+            );
+            foreach ($hareketler as $h) {
+                $this->fifoOdemeDagit($cariId, $h['islem_tipi'], (float)$h['tutar'], (int)$h['id']);
+            }
 
             $this->recomputeCariBalance($cariId);
 
@@ -1062,6 +1120,27 @@ class Fatura
             }
             throw $e;
         }
+    }
+
+    /**
+     * Bir faturaya uygulanmış tüm ödeme kayıtlarını (fatura_odeme_uygulamalari
+     * + kaynak kasa hareketi bilgileri) döner — "Fatura Detayı > Uygulanan
+     * Ödemeler" listesi için.
+     */
+    public function odemeUygulamalariGetir(int $faturaId): array
+    {
+        return $this->db->select(
+            "SELECT fou.id, fou.tutar AS uygulanan_tutar, fou.kasa_hareket_id,
+                    kh.tarih, kh.odeme_yontemi, kh.aciklama, kh.islem_tipi, kh.kasa_id,
+                    kb.hesap_adi AS kasa_adi
+             FROM fatura_odeme_uygulamalari fou
+             INNER JOIN kasa_hareketleri kh ON kh.id = fou.kasa_hareket_id
+             LEFT JOIN kasa_banka kb ON kb.id = kh.kasa_id
+             WHERE fou.fatura_id = :fid AND fou.company_id = :company_id
+               AND kh.silindi_mi = 0
+             ORDER BY kh.tarih DESC, fou.id DESC",
+            [':fid' => $faturaId, ':company_id' => TenantContext::activeCompanyId()]
+        );
     }
 
     /**

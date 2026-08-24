@@ -81,6 +81,14 @@ $belgeTipi = $belgeTipi ?? 'alis';
     .detail-row { display: none; background: var(--surface-2); }
     .detail-row.open { display: table-row; }
     .detail-inner { padding: 10px 14px 14px 54px; }
+    .odeme-liste { margin-top:12px; }
+    .odeme-liste-baslik { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.03em; }
+    .odeme-satir { display:flex; align-items:center; gap:10px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; margin-bottom:5px; font-size:12.5px; background:var(--surface); }
+    .odeme-satir .oe-tutar { font-weight:700; color:#dc2626; margin-left:auto; }
+    .odeme-satir .oe-aksiyon { display:flex; gap:6px; }
+    .odeme-satir .oe-aksiyon a, .odeme-satir .oe-aksiyon button { font-size:11.5px; padding:3px 8px; border-radius:4px; border:none; cursor:pointer; text-decoration:none; }
+    .odeme-satir .oe-duzenle { background:#3b82f6; color:#fff; }
+    .odeme-satir .oe-sil { background:#ef4444; color:#fff; }
     .btn-det { padding: 5px 13px; border: none; border-radius: 5px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #fff; margin-right: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
 
     /* Modal */
@@ -241,6 +249,9 @@ $belgeTipi = $belgeTipi ?? 'alis';
                 <div style="font-size:12px; color:var(--muted);">
                   Kullanıcı: <strong><?= htmlspecialchars($f['olusturan_adi'] ?? 'Sistem') ?></strong>
                 </div>
+                <?php if ($belgeTipi === 'alis' && !empty($f['cari_id'])): ?>
+                  <div id="odemeler-<?= $f['id'] ?>" class="odeme-liste" data-yuklendi="0"></div>
+                <?php endif; ?>
               </div>
             </td>
           </tr>
@@ -375,7 +386,49 @@ function toggleRow(id) {
     row.classList.add('open');
     btn.textContent = '−';
     btn.className = 'row-toggle minus';
+    odemeleriYukle(id);
   }
+}
+
+/* ── Faturaya uygulanan ödemeler (lazy-load, ilk açılışta) ── */
+function odemeleriYukle(faturaId) {
+  const kutu = document.getElementById('odemeler-' + faturaId);
+  if (!kutu || kutu.dataset.yuklendi === '1') return;
+  kutu.dataset.yuklendi = '1';
+  fetch(BASE + '/alis/odemeleri/' + faturaId)
+    .then(r => r.json())
+    .then(res => {
+      if (res.status !== 'success' || !res.uygulamalar.length) return;
+      let html = '<div class="odeme-liste-baslik">Bu Faturaya Uygulanan Ödemeler</div>';
+      res.uygulamalar.forEach(u => {
+        html += '<div class="odeme-satir">'
+          + '<span>' + (u.tarih ? u.tarih.substring(0, 10).split('-').reverse().join('.') : '') + '</span>'
+          + '<span>' + (u.kasa_adi || '') + '</span>'
+          + '<span>' + (u.odeme_yontemi || '') + '</span>'
+          + '<span class="oe-tutar">' + Number(u.tutar).toFixed(2).replace('.', ',') + ' ₺</span>'
+          + '<span class="oe-aksiyon">'
+          + '<a class="oe-duzenle" href="' + BASE + '/hesap/detay/' + u.kasa_id + '"><i class="fa-solid fa-pen"></i> Düzenle</a>'
+          + '<button type="button" class="oe-sil" onclick="event.stopPropagation(); odemeUygulamasiSil(' + u.kasa_hareket_id + ')"><i class="fa-solid fa-trash-can"></i> Sil</button>'
+          + '</span>'
+          + '</div>';
+      });
+      kutu.innerHTML = html;
+    })
+    .catch(() => { kutu.dataset.yuklendi = '0'; });
+}
+
+function odemeUygulamasiSil(kasaHareketId) {
+  if (!confirm('Bu ödeme hareketini silmek istediğinizden emin misiniz?\nFatura bakiyesi otomatik güncellenir.')) return;
+  fetch(BASE + '/hesap/hareketSil/' + kasaHareketId, { method: 'POST' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        location.reload();
+      } else {
+        alert(res.message || 'Silinemedi.');
+      }
+    })
+    .catch(() => alert('Bağlantı hatası.'));
 }
 
 function saveAndGo() {

@@ -129,6 +129,14 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   .detail-row > td { padding:0; border-bottom:2px solid var(--border); background:var(--surface-2); }
   .detail-inner { padding:10px 14px 14px 54px; }
   .detail-btns { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .odeme-liste { margin-top:12px; }
+  .odeme-liste-baslik { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.03em; }
+  .odeme-satir { display:flex; align-items:center; gap:10px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; margin-bottom:5px; font-size:12.5px; background:var(--surface); }
+  .odeme-satir .oe-tutar { font-weight:700; color:#16a34a; margin-left:auto; }
+  .odeme-satir .oe-aksiyon { display:flex; gap:6px; }
+  .odeme-satir .oe-aksiyon a, .odeme-satir .oe-aksiyon button { font-size:11.5px; padding:3px 8px; border-radius:4px; border:none; cursor:pointer; text-decoration:none; }
+  .odeme-satir .oe-duzenle { background:#3b82f6; color:#fff; }
+  .odeme-satir .oe-sil { background:#ef4444; color:#fff; }
   .btn-det { display:inline-flex; align-items:center; gap:5px; padding:5px 13px; border:none; border-radius:5px; font-size:12.5px; font-weight:600; cursor:pointer; transition:filter .15s; text-decoration:none; color:#fff; }
   .btn-det:hover { filter:brightness(1.12); color:#fff; }
   .btn-det.red   { background:#ef4444; }
@@ -450,6 +458,9 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
                     &nbsp;|&nbsp; <?= htmlspecialchars($f['aciklama']) ?>
                   <?php endif; ?>
                 </div>
+                <?php if ($belgeTipi === 'satis' && !empty($f['cari_id'])): ?>
+                  <div id="odemeler-<?= $f['id'] ?>" class="odeme-liste" data-yuklendi="0" data-fatura-id="<?= $f['id'] ?>"></div>
+                <?php endif; ?>
               </div>
             </td>
           </tr>
@@ -500,6 +511,48 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
     btn.textContent = isOpen ? '−' : '+';
     btn.classList.toggle('plus',  !isOpen);
     btn.classList.toggle('minus',  isOpen);
+    if (isOpen) odemeleriYukle(id);
+  };
+
+  /* ── Faturaya uygulanan ödemeler (lazy-load, ilk açılışta) ── */
+  function odemeleriYukle(faturaId) {
+    const kutu = document.getElementById('odemeler-' + faturaId);
+    if (!kutu || kutu.dataset.yuklendi === '1') return;
+    kutu.dataset.yuklendi = '1';
+    fetch('<?= BASE_URL ?>/satis/odemeleri/' + faturaId)
+      .then(r => r.json())
+      .then(res => {
+        if (res.status !== 'success' || !res.uygulamalar.length) return;
+        let html = '<div class="odeme-liste-baslik">Bu Faturaya Uygulanan Ödemeler</div>';
+        res.uygulamalar.forEach(u => {
+          html += '<div class="odeme-satir">'
+            + '<span>' + (u.tarih ? u.tarih.substring(0, 10).split('-').reverse().join('.') : '') + '</span>'
+            + '<span>' + (u.kasa_adi || '') + '</span>'
+            + '<span>' + (u.odeme_yontemi || '') + '</span>'
+            + '<span class="oe-tutar">' + Number(u.tutar).toFixed(2).replace('.', ',') + ' ₺</span>'
+            + '<span class="oe-aksiyon">'
+            + '<a class="oe-duzenle" href="<?= BASE_URL ?>/hesap/detay/' + u.kasa_id + '"><i class="fa-solid fa-pen"></i> Düzenle</a>'
+            + '<button type="button" class="oe-sil" onclick="odemeUygulamasiSil(' + u.kasa_hareket_id + ', ' + faturaId + ')"><i class="fa-solid fa-trash-can"></i> Sil</button>'
+            + '</span>'
+            + '</div>';
+        });
+        kutu.innerHTML = html;
+      })
+      .catch(() => { kutu.dataset.yuklendi = '0'; });
+  }
+
+  window.odemeUygulamasiSil = function (kasaHareketId, faturaId) {
+    if (!confirm('Bu ödeme hareketini silmek istediğinizden emin misiniz?\nFatura bakiyesi otomatik güncellenir.')) return;
+    fetch('<?= BASE_URL ?>/hesap/hareketSil/' + kasaHareketId, { method: 'POST' })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          location.reload();
+        } else {
+          alert(res.message || 'Silinemedi.');
+        }
+      })
+      .catch(() => alert('Bağlantı hatası.'));
   };
 
   /* ── Ödeme Ekle (fatura satırından hızlı tahsilat) ── */
