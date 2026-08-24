@@ -635,7 +635,14 @@ class Rapor
         $params = $purchaseDateParams + $salesDateParams;
         $params[':tenant_company_id'] = TenantContext::activeCompanyId();
         $params[':tenant_period_id'] = TenantContext::activePeriodId();
-        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0'];
+        // "urunler_hizmetler" tablosu hem gerçek ürünleri hem de hizmet/masraf
+        // kalemlerini (ör. "Ardiye Hizmet Bedeli", "Yükleme Boşaltma Bedeli")
+        // tek tabloda tutar (tip: 'urun' | 'hizmet'). Bu rapor açıkça "Ürün
+        // Alış-Satış Raporu" olduğu ve hizmet kalemleri için "mevcut stok"
+        // gibi alanlar anlamsız olduğu için (bkz. Urun.php tip sözlüğü,
+        // getProductStockReport() ile aynı ilke) yalnızca gerçek ürünler
+        // listelenir.
+        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0', "u.tip = 'urun'"];
         if (!empty($filters['product_id'])) {
             $extra[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -931,7 +938,9 @@ class Rapor
             $dateSql = " AND f.fatura_tarihi >= DATE_SUB(CURDATE(), INTERVAL {$days} DAY)";
         }
         $params[':tenant_company_id'] = TenantContext::activeCompanyId();
-        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0'];
+        // bkz. getProductPurchaseSalesReport() — hizmet/masraf kalemleri stok
+        // takibine tabi değildir, bu raporda listelenmemeli.
+        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0', "u.tip = 'urun'"];
         if (!empty($filters['product_id'])) {
             $extra[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -1308,10 +1317,18 @@ class Rapor
             $conds[] = 'f.genel_toplam <= :max_amount';
             $params[':max_amount'] = (float)$filters['max_amount'];
         }
-        if ($cariType) {
-            $conds[] = "(c.tip = :cari_tip OR c.tip = 'her_ikisi' OR c.id IS NULL)";
-            $params[':cari_tip'] = $cariType;
-        }
+        // ESKİDEN burada "c.tip = :cari_tip OR c.tip = 'her_ikisi' OR c.id IS NULL"
+        // koşulu da eklenirdi — yani faturanın KENDİ belge_tipi'i (satış/alış,
+        // zaten yukarıdaki $typeSql ile filtrelendi) yetmiyor, ayrıca bağlı carinin
+        // "tip" alanı da uyuşmalıydı. Bu YANLIŞTI: uygulama zaten "Tedarikçiye Satış
+        // Yap" / "Müşteriye Alış Gir" gibi çapraz işlemleri destekliyor (bkz.
+        // cari_detay_modern.php), yani tip='tedarikci' bir cariye kesilmiş bir SATIŞ
+        // faturası tamamen geçerli. Ayrıca carinin tip alanı zamanla (elle düzenleme,
+        // e-Fatura eşleştirmesiyle mevcut bir cariye bağlama, vb.) faturanın
+        // belge_tipi'inden bağımsız kalabiliyor. Sonuç: gerçek, iptal olmayan
+        // faturalar bu fazladan koşul yüzünden Basit Satış/Alış/Satış Kaybı
+        // raporlarından sessizce kayboluyordu. Faturanın kendi belge_tipi'i zaten
+        // tek doğru/yeterli kaynak — bu yüzden kaldırıldı.
         if (!empty($filters['payment_status'])) {
             if ($filters['payment_status'] === 'paid') {
                 $conds[] = "f.genel_toplam <= COALESCE(f.odenen_tutar, 0) + 0.005";
