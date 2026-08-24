@@ -46,7 +46,7 @@ final class SatisController extends Controller
         $sayfa     = max(1, (int)($_GET['sayfa']    ?? 1));
         $arama     = trim($_GET['ara']              ?? '');
         $durum     = trim($_GET['durum']            ?? '');
-        $donem     = trim($_GET['donem']            ?? '1ay');
+        $donem     = trim($_GET['donem']            ?? 'tumu');
         $iptalleri = !empty($_GET['iptalleri']);
         // "İrsaliye Kaydet"/"Perakende Satış Gir"/"Numune Kaydet" ile oluşturulan
         // belgeler (belge_tipi='irsaliye'/'perakende'/'numune') satış faturalarıyla

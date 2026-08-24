@@ -400,9 +400,21 @@ class Cari
     /** Müşterinin satış geçmişi (faturalar + kalemleri) */
     public function satisGecmisi(int $cariId): array
     {
+        // Yalnızca 'satis' değil — 'İrsaliye Kaydet'/'Perakende Satış Gir'/
+        // 'Numune Kaydet' ile oluşturulan belgeler de bu cariye yapılmış bir
+        // çıkıştır ve müşteri kartında görünmelidir (aksi halde ör. bir
+        // müşteriye numune verilse bile "daha önceden kayıtlı satışı yok"
+        // görünür — stok düşmüş olsa bile).
+        // Faturalandırılmış (irsaliye_kullanildi=1) bir irsaliye, aynı zamanda
+        // ayrı bir 'satis' kaydı olarak da bu listede belirir — o irsaliye
+        // satırını burada TEKRAR göstermek toplamı (Cirosu) iki katına
+        // çıkarır. Sadece henüz faturalandırılmamış irsaliyeler listelenir.
         $gecmis = $this->db->select(
             "SELECT f.* FROM faturalar f
-             WHERE f.cari_id = :cid AND f.belge_tipi = 'satis' AND f.silindi_mi = 0
+             WHERE f.cari_id = :cid
+               AND f.belge_tipi IN ('satis', 'perakende', 'irsaliye', 'numune')
+               AND NOT (f.belge_tipi = 'irsaliye' AND f.irsaliye_kullanildi = 1)
+               AND f.silindi_mi = 0
                AND f.company_id = :company_id AND f.period_id = :period_id
              ORDER BY f.fatura_tarihi DESC, f.id DESC LIMIT 50",
             [':cid' => $cariId, ':company_id' => TenantContext::activeCompanyId(), ':period_id' => TenantContext::activePeriodId()]

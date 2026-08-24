@@ -593,21 +593,14 @@ $err = function(string $k) use ($hatalar): string {
                value="${escHtml(urun.ad)}" required />
       </td>
       <td class="td-miktar">
-        <div style="display:flex;gap:4px;align-items:center;">
-          <input type="number" name="kalem_miktar[]" class="kalem-input"
-                 value="1" min="0.001" step="any"
-                 oninput="satirHesapla('${idx}')" style="width:56px;flex-shrink:0;" />
-          ${koliIci > 0 ? `
-          <select name="kalem_giris_tipi[]" class="kalem-input" style="width:56px;flex-shrink:0;font-size:11px;padding:3px;" onchange="satirHesapla('${idx}')">
-            <option value="adet">Adet</option>
-            <option value="koli">Koli</option>
-          </select>
-          ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
-        </div>
+        <input type="number" name="kalem_miktar[]" class="kalem-input"
+               value="1" min="0.001" step="any"
+               oninput="satirHesapla('${idx}')" style="width:56px;" />
+        <input type="hidden" name="kalem_giris_tipi[]" value="${urun.birim === 'Koli' && koliIci > 0 ? 'koli' : 'adet'}">
         ${koliIci > 0 ? `<div id="koliHint-${idx}" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>` : ''}
       </td>
       <td>
-        <select name="kalem_birim[]" class="kalem-input" style="padding:4px;">${birimSecenekleriHtml(urun.birim)}</select>
+        <select name="kalem_birim[]" class="kalem-input" style="padding:4px;" onchange="birimDegisti('${idx}')">${birimSecenekleriHtml(urun.birim)}</select>
       </td>
       <td>
         <input type="number" name="kalem_birim_fiyat[]" class="kalem-input"
@@ -646,6 +639,21 @@ $err = function(string $k) use ($hatalar): string {
     const koliIci       = parseFloat(tr.dataset.koliIciAdet || '0');
     return (girisTipi === 'koli' && koliIci > 0) ? miktarGirilen * koliIci : miktarGirilen;
   }
+
+  /* Birim seçimi "Koli" olduğunda (ve ürünün koli içi adedi tanımlıysa) miktar
+     alanı otomatik olarak koli bazlı sayılır — ayrı bir "Adet/Koli" seçici
+     tutmak yerine tek alan (Birim) üzerinden yönetilir. */
+  window.birimDegisti = function(idx) {
+    const tr = document.getElementById('kalem-' + idx);
+    if (!tr) return;
+    const birimSel    = tr.querySelector('[name="kalem_birim[]"]');
+    const girisTipiEl = tr.querySelector('[name="kalem_giris_tipi[]"]');
+    const koliIci     = parseFloat(tr.dataset.koliIciAdet || '0');
+    if (girisTipiEl) {
+      girisTipiEl.value = (birimSel && birimSel.value === 'Koli' && koliIci > 0) ? 'koli' : 'adet';
+    }
+    satirHesapla(idx);
+  };
 
   window.satinHesapla = function(idx) {
     const tr         = document.getElementById('kalem-' + idx);
