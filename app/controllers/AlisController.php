@@ -6,12 +6,14 @@
 
 require_once MODELS_PATH . '/Fatura.php';
 require_once MODELS_PATH . '/Depo.php';
+require_once MODELS_PATH . '/KasaHesap.php';
 
 final class AlisController extends Controller
 {
     private Fatura $fatura;
     private $cariModel;
     private Depo $depoModel;
+    private KasaHesap $kasaHesapModel;
 
     public function __construct()
     {
@@ -19,6 +21,7 @@ final class AlisController extends Controller
         require_once MODELS_PATH . '/Cari.php';
         $this->cariModel = new Cari();
         $this->depoModel = new Depo();
+        $this->kasaHesapModel = new KasaHesap();
     }
 
     public function index(): void
@@ -46,6 +49,7 @@ final class AlisController extends Controller
             'durum'       => $durum,
             'donem'       => $donem,
             'belgeTipi'   => $belgeTipi,
+            'kasaHesaplar' => $this->kasaHesapModel->hepsini(),
             'sayfa'       => $sayfa,
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,

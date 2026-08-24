@@ -225,6 +225,12 @@ $belgeTipi = $belgeTipi ?? 'alis';
                 <div style="margin-bottom:10px;">
                   <a href="<?= BASE_URL ?>/alis/detay/<?= $f['id'] ?>" class="btn-det" style="background:#5bc0de;" onclick="event.stopPropagation()"><i class="fa-solid fa-eye"></i> Detaya Git</a>
                   <a href="<?= BASE_URL ?>/alis/detay/<?= $f['id'] ?>?print=1" class="btn-det" style="background:#efa341;" onclick="event.stopPropagation()"><i class="fa-solid fa-print"></i> Yazdır</a>
+                  <?php if ($belgeTipi === 'alis' && !empty($f['cari_id']) && (float)($f['kalan_tutar'] ?? 0) > 0.004 && Rbac::currentUserCan('NAKIT_CREATE')): ?>
+                    <button type="button" class="btn-det" style="background:#5cb85c;"
+                            onclick="event.stopPropagation(); odemeEkleAc(<?= (int)$f['cari_id'] ?>, '<?= htmlspecialchars(addslashes($f['cari_unvan'] ?? '')) ?>', <?= (float)$f['kalan_tutar'] ?>, '<?= htmlspecialchars(addslashes($f['fatura_no'] ?? '')) ?>')">
+                      <i class="fa-solid fa-turkish-lira-sign"></i> Ödeme Ekle
+                    </button>
+                  <?php endif; ?>
                   <?php if ($belgeTipi === 'irsaliye' && $f['durum'] !== 'iptal' && (int)($f['irsaliye_kullanildi'] ?? 0) === 0 && Rbac::currentUserCan('ALIS_CREATE')): ?>
                     <a href="<?= BASE_URL ?>/alis/ekle?kaynak_irsaliye_id=<?= $f['id'] ?>" class="btn-det" style="background:#16a34a;" onclick="event.stopPropagation()"><i class="fa-solid fa-file-invoice-dollar"></i> Faturalandır</a>
                   <?php endif; ?>
@@ -444,4 +450,94 @@ document.getElementById('kmSearch').addEventListener('input', function() {
 window.onclick = function(e) {
   if (e.target.classList.contains('modal-overlay')) closeModals();
 };
+
+/* ── Ödeme Ekle (fatura satırından hızlı ödeme) ── */
+function odemeEkleAc(cariId, cariUnvan, kalanTutar, faturaNo) {
+  document.getElementById('oeCariId').value = cariId;
+  document.getElementById('oeBaslik').textContent = 'Ödeme — ' + cariUnvan + ' (' + faturaNo + ')';
+  document.getElementById('oeTutar').value = kalanTutar.toFixed(2).replace('.', ',');
+  document.getElementById('oeAciklama').value = 'Fatura ' + faturaNo + ' ödemesi';
+  document.getElementById('odemeEkleModal').classList.add('open');
+}
+
+function odemeKaydet() {
+  const fd = new FormData();
+  fd.append('cari_id', document.getElementById('oeCariId').value);
+  fd.append('islem_tipi', 'cikis');
+  fd.append('kasa_id', document.getElementById('oeKasaId').value);
+  fd.append('odeme_yontemi', document.getElementById('oeOdemeYontemi').value);
+  fd.append('tutar', document.getElementById('oeTutar').value.replace(',', '.'));
+  fd.append('tarih', document.getElementById('oeTarih').value);
+  fd.append('saat', document.getElementById('oeSaat').value);
+  fd.append('aciklama', document.getElementById('oeAciklama').value);
+
+  if (!fd.get('kasa_id')) { alert('Kasa/Hesap seçiniz.'); return; }
+  if (!fd.get('odeme_yontemi')) { alert('Ödeme yöntemi seçiniz.'); return; }
+  if (!fd.get('tutar') || parseFloat(fd.get('tutar')) <= 0) { alert('Geçerli bir tutar giriniz.'); return; }
+
+  fetch('<?= BASE_URL ?>/nakit/kaydet', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'success') {
+        location.reload();
+      } else {
+        alert('Hata: ' + (res.message || 'İşlem kaydedilemedi.'));
+      }
+    })
+    .catch(() => alert('İşlem kaydedilemedi!'));
+}
 </script>
+
+<!-- Ödeme Ekle Modal (fatura satırından hızlı ödeme) -->
+<div id="odemeEkleModal" class="modal-overlay">
+  <div class="modal-box" style="width:450px;">
+    <div class="modal-head" style="background:#5cb85c;">
+      <span id="oeBaslik">Ödeme</span>
+      <span onclick="closeModals()" style="cursor:pointer; font-size:24px;">X</span>
+    </div>
+    <div class="modal-body" style="background:var(--card-bg);">
+      <input type="hidden" id="oeCariId">
+      <div>
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">Kasa / Hesap</label>
+        <select id="oeKasaId" class="fi" style="width:100%; border:1px solid var(--border);">
+          <option value="">Seçiniz</option>
+          <?php foreach (($kasaHesaplar ?? []) as $kh): ?>
+            <option value="<?= (int)$kh['id'] ?>"><?= htmlspecialchars($kh['hesap_adi'] . ' (' . $kh['para_birimi'] . ')') ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">Ödeme Yöntemi</label>
+        <select id="oeOdemeYontemi" class="fi" style="width:100%; border:1px solid var(--border);">
+          <option value="">Seçiniz</option>
+          <?php foreach (['Nakit', 'Havale/EFT', 'Kredi Kartı', 'Çek', 'Senet', 'Virman'] as $oy): ?>
+            <option value="<?= $oy ?>"><?= $oy ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div style="display:flex; gap:15px;">
+        <div style="flex:1;">
+          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">Tarih</label>
+          <input type="date" id="oeTarih" class="fi" value="<?= date('Y-m-d') ?>" style="width:100%; border:1px solid var(--border);">
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">Saat</label>
+          <input type="time" id="oeSaat" class="fi" value="<?= date('H:i') ?>" style="width:100%; border:1px solid var(--border);">
+        </div>
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">Tutar</label>
+        <input type="text" id="oeTutar" class="fi" placeholder="0,00" style="width:100%; border:1px solid var(--border);">
+        <small style="font-size:11px; color:var(--muted);">Bu faturanın kalan tutarıyla önceden dolduruldu, değiştirebilirsiniz.</small>
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:700; margin-bottom:5px;">Açıklama</label>
+        <textarea id="oeAciklama" class="fi" style="width:100%; border:1px solid var(--border); min-height:50px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button onclick="closeModals()" style="background:#f0ad4e; color:#fff; border:none; padding:8px 20px; border-radius:4px; font-weight:700; cursor:pointer;">Vazgeç</button>
+      <button onclick="odemeKaydet()" style="background:#5cb85c; color:#fff; border:none; padding:8px 20px; border-radius:4px; font-weight:700; cursor:pointer;">Kaydet</button>
+    </div>
+  </div>
+</div>

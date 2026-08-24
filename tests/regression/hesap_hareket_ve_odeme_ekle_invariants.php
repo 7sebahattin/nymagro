@@ -24,8 +24,11 @@
  * KORUNAN İLKELER
  *  1) hesaplar/detay.php: Bakiye sütunu artık var(--text)/var(--danger)
  *     kullanıyor, sabit hex renk YOK.
- *  2) "İşlem" dropdown'ı artık data-bs-strategy="fixed" ile overflow
- *     konteynerinden kaçıyor.
+ *  2) "İşlem" menüsü artık Bootstrap/Popper dropdown DEĞİL — data-bs-strategy
+ *     + data-bs-display="static" birlikte denendi ama data-bs-display=
+ *     "static" Popper'ı devre dışı bırakıp diğerini anlamsız kıldığı için
+ *     çalışmadı. Şimdi tamamen JS ile konumlandırılan, tablonun/overflow
+ *     konteynerinin DIŞINDA duran paylaşılan bir menü kullanılıyor.
  *  3) KasaHesap::hareketGuncelle() var; eski tutarın kasa bakiyesindeki
  *     etkisini fark üzerinden doğru yönde geri alıp yeni tutarı uyguluyor;
  *     cari'ye bağlıysa fifoBakiyeleriYenidenHesapla()'yı çağırıyor.
@@ -99,11 +102,19 @@ kontrol('hesaplar/detay.php: negatif bakiye var(--danger) kullanıyor',
     str_contains($hesapDetay, "'var(--danger)'"));
 
 // ═════════════════════════════════════════════════════════════════════
-// 2) Dropdown overflow-kırpılma düzeltmesi
+// 2) Dropdown overflow-kırpılma düzeltmesi — Bootstrap/Popper TERK EDİLDİ
 // ═════════════════════════════════════════════════════════════════════
 
-kontrol('hesaplar/detay.php: "İşlem" dropdown\'ı data-bs-strategy="fixed" kullanıyor (overflow-x:auto konteynerinden kaçmak için)',
-    (bool)preg_match('/btn-islem dropdown-toggle[^>]*data-bs-strategy="fixed"/', $hesapDetay));
+kontrol('hesaplar/detay.php: "İşlem" butonunda artık Bootstrap dropdown (data-bs-toggle) YOK — Hesaplar Arası Transfer\'ünki (ayrı, ilgisiz bir buton) hâlâ dursun diye dar eşleşme',
+    !str_contains($hesapDetay, 'btn-islem dropdown-toggle')
+    && (bool)preg_match('/class="btn-islem" onclick="hrkMenuAc\(/', $hesapDetay));
+kontrol('hesaplar/detay.php: paylaşılan #hrkActionMenu, tabloyu saran overflow-x:auto konteynerinin DIŞINDA tanımlı',
+    (bool)preg_match('#</div>\s*<!-- İşlem menüsü.*?id="hrkActionMenu"#s', $hesapDetay));
+kontrol('hesaplar/detay.php: #hrkActionMenu position:fixed ile JS tarafından konumlandırılıyor (Popper\'a bağımlı değil)',
+    str_contains($hesapDetay, '.hrk-action-menu {') && str_contains($hesapDetay, 'position: fixed')
+    && str_contains($hesapDetay, 'function hrkMenuAc('));
+kontrol('hesaplar/detay.php: hrkMenuAc() butonun getBoundingClientRect()\'ine göre top/left hesaplıyor',
+    str_contains($hesapDetay, 'getBoundingClientRect()') && str_contains($hesapDetay, "menu.style.left") && str_contains($hesapDetay, "menu.style.top"));
 
 // ═════════════════════════════════════════════════════════════════════
 // 3) KasaHesap::hareketGuncelle() — doğru yönde fark uygulama + FIFO senkronu
@@ -159,6 +170,27 @@ kontrol('SatisController::index() kasaHesaplar\'ı view\'e geçiriyor (Ödeme Ek
     (bool)preg_match("/function index\\(\\).*?'kasaHesaplar'\\s*=>\\s*\\\$this->kasaHesapModel->hepsini\\(\\)/s", $satisCtrl));
 
 // ═════════════════════════════════════════════════════════════════════
+// 4b) Alışlar listesinden "Ödeme Ekle" (aynı özellik, ödeme yönünde)
+// ═════════════════════════════════════════════════════════════════════
+
+$alisIndex = oku('app/views/alislar/index.php');
+kontrol('alislar/index.php: "Ödeme Ekle" butonu tanımlı',
+    str_contains($alisIndex, 'Ödeme Ekle'));
+kontrol('alislar/index.php: "Ödeme Ekle" SADECE belge_tipi===alis + cari_id dolu + kalan_tutar>0 + NAKIT_CREATE ile görünür',
+    (bool)preg_match(
+        "/belgeTipi === 'alis' && !empty\\(\\\$f\\['cari_id'\\]\\) && \\(float\\)\\(\\\$f\\['kalan_tutar'\\] \\?\\? 0\\) > 0\\.004 && Rbac::currentUserCan\\('NAKIT_CREATE'\\)/",
+        $alisIndex
+    ));
+kontrol('alislar/index.php: odemeKaydet() islem_tipi=cikis gönderiyor (alış tarafında ödeme, tahsilat değil)',
+    (bool)preg_match("/fd\\.append\\('islem_tipi',\\s*'cikis'\\)/", $alisIndex));
+kontrol('alislar/index.php: odemeKaydet() /nakit/kaydet\'e POST atıyor',
+    str_contains($alisIndex, "fetch('<?= BASE_URL ?>/nakit/kaydet'"));
+
+$alisCtrl = oku('app/controllers/AlisController.php');
+kontrol('AlisController::index() kasaHesaplar\'ı view\'e geçiriyor',
+    (bool)preg_match("/function index\\(\\).*?'kasaHesaplar'\\s*=>\\s*\\\$this->kasaHesapModel->hepsini\\(\\)/s", $alisCtrl));
+
+// ═════════════════════════════════════════════════════════════════════
 // 5) Meta: PHP kapanış etiketi tuzağı — saf PHP dosyalarında
 // ═════════════════════════════════════════════════════════════════════
 
@@ -166,6 +198,7 @@ foreach ([
     $kok . '/app/models/KasaHesap.php',
     $kok . '/app/controllers/HesapController.php',
     $kok . '/app/controllers/SatisController.php',
+    $kok . '/app/controllers/AlisController.php',
 ] as $dosya) {
     $kaynak = (string)@file_get_contents($dosya);
     $kapali = false;
