@@ -119,14 +119,27 @@ final class EBelgeController extends Controller
             return;
         }
 
+        // Mükerrer (daha önce yüklenmiş) dosyalar veri tabanı düzeyinde zaten
+        // ikinci kez içeri alınmaz (UNIQUE company_id+dosya_hash) — ama bu tek
+        // başına yeterli değil: kullanıcı "yanlışlıkla aynı dosyayı 2 kez
+        // eklemek" konusunda uyarılmak istiyor. Bu yüzden mükerrer varsa
+        // (hiç yeni belge gelmemiş olsa BİLE) flash rengi asla sessizce
+        // "success" (yeşil) olmamalı — kullanıcı bunu gözden kaçırabilir.
         $ozet = $sonuc['ozet'];
-        $mesaj = sprintf(
-            '%d belge içeri alındı, %d mükerrer atlandı, %d dosya hatalı.',
-            $ozet['basarili'],
-            $ozet['mukerrer'],
-            $ozet['hatali']
-        );
-        $this->setFlash($ozet['hatali'] > 0 ? 'warning' : 'success', $mesaj);
+        if ($ozet['mukerrer'] > 0 && $ozet['basarili'] === 0 && $ozet['hatali'] === 0) {
+            $mesaj = $ozet['mukerrer'] === 1
+                ? 'Bu dosya daha önce yüklenmiş — tekrar eklenmedi (mükerrer).'
+                : sprintf('Seçtiğiniz %d dosyanın tamamı daha önce yüklenmiş — tekrar eklenmedi (mükerrer).', $ozet['mukerrer']);
+            $this->setFlash('warning', $mesaj);
+        } else {
+            $mesaj = sprintf(
+                '%d belge içeri alındı, %d mükerrer atlandı, %d dosya hatalı.',
+                $ozet['basarili'],
+                $ozet['mukerrer'],
+                $ozet['hatali']
+            );
+            $this->setFlash(($ozet['hatali'] > 0 || $ozet['mukerrer'] > 0) ? 'warning' : 'success', $mesaj);
+        }
 
         $_SESSION['ebelge_son_sonuc'] = array_slice($sonuc['sonuclar'], 0, 200);
         $this->redirect('ebelge?paket_id=' . (int)$sonuc['paket_id']);

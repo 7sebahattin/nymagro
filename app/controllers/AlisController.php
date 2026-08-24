@@ -30,7 +30,7 @@ final class AlisController extends Controller
         $sayfa     = max(1, (int)($_GET['sayfa']    ?? 1));
         $arama     = trim($_GET['ara']              ?? '');
         $durum     = trim($_GET['durum']            ?? '');
-        $donem     = trim($_GET['donem']            ?? '1ay');
+        $donem     = trim($_GET['donem']            ?? 'tumu');
         // "İrsaliye Kaydet" ile oluşturulan belgeler (belge_tipi='irsaliye', sevk_turu='tedarikci')
         // aynı ekrandan girildiği için, gözlemlenebilmeleri adına aynı listede bir sekme olarak sunulur.
         $belgeTipi = ($_GET['tip'] ?? '') === 'irsaliye' ? 'irsaliye' : 'alis';

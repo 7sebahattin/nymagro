@@ -266,18 +266,11 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     tr.innerHTML = `
       <td><input type="hidden" name="kalem_urun_id[]" value="${u.id}"><input type="text" name="kalem_urun_adi[]" class="fi" style="padding:4px;" value="${u.ad}"></td>
       <td class="td-miktar">
-        <div style="display:flex;gap:4px;align-items:center;">
-          <input type="number" name="kalem_miktar[]" class="fi" style="padding:4px;width:56px;flex-shrink:0;" value="1" step="any" oninput="hesapla()">
-          ${koliIci > 0 ? `
-          <select name="kalem_giris_tipi[]" class="fi" style="padding:2px;font-size:11px;width:56px;flex-shrink:0;" onchange="hesapla()">
-            <option value="adet">Adet</option>
-            <option value="koli">Koli</option>
-          </select>
-          ` : `<input type="hidden" name="kalem_giris_tipi[]" value="adet">`}
-        </div>
+        <input type="number" name="kalem_miktar[]" class="fi" style="padding:4px;width:56px;" value="1" step="any" oninput="hesapla()">
+        <input type="hidden" name="kalem_giris_tipi[]" value="${u.birim === 'Koli' && koliIci > 0 ? 'koli' : 'adet'}">
         ${koliIci > 0 ? `<div class="koli-hint" style="font-size:10px;color:var(--muted);margin-top:2px;display:none;white-space:nowrap;"></div>` : ''}
       </td>
-      <td><select name="kalem_birim[]" class="fi" style="padding:4px;">${birimSecenekleriHtml(u.birim)}</select></td>
+      <td><select name="kalem_birim[]" class="fi" style="padding:4px;" onchange="birimDegisti(this)">${birimSecenekleriHtml(u.birim)}</select></td>
       <td><input type="number" name="kalem_birim_fiyat[]" class="fi" style="padding:4px;" value="${u.alis_fiyati || 0}" step="any" oninput="hesapla()"></td>
       <td><input type="number" name="kalem_kdv_orani[]" class="fi" style="padding:4px;" value="${u.kdv_orani || 20}" oninput="hesapla()"></td>
       <td class="td-r" id="top-${id}" style="font-weight:700;">0,00 ₺</td>
@@ -340,6 +333,20 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
     irsaliyedenDoldur('<?= (int)$presetKaynakIrsaliyeId ?>');
     <?php endif; ?>
   }
+
+  /* Birim seçimi "Koli" olduğunda (ve ürünün koli içi adedi tanımlıysa) miktar
+     alanı otomatik olarak koli bazlı sayılır — ayrı bir "Adet/Koli" seçici
+     tutmak yerine tek alan (Birim) üzerinden yönetilir. */
+  window.birimDegisti = function(birimSel) {
+    const tr = birimSel.closest('tr');
+    if (!tr) return;
+    const girisTipiEl = tr.querySelector('[name="kalem_giris_tipi[]"]');
+    const koliIci     = parseFloat(tr.dataset.koliIciAdet || '0');
+    if (girisTipiEl) {
+      girisTipiEl.value = (birimSel.value === 'Koli' && koliIci > 0) ? 'koli' : 'adet';
+    }
+    hesapla();
+  };
 
   window.hesapla = function() {
     let ara = 0, kdv = 0;

@@ -74,6 +74,15 @@ $statusText = static function(string $status): string {
         'iptal' => 'İptal',
     ][$status] ?? ($status !== '' ? ucfirst($status) : '-');
 };
+$belgeTipAdi = static function(string $belgeTipi) use ($isMusteri): string {
+    return [
+        'satis'     => $isMusteri ? 'Satış' : 'Alış',
+        'alis'      => 'Alış',
+        'perakende' => 'Perakende',
+        'irsaliye'  => 'İrsaliye',
+        'numune'    => 'Numune',
+    ][$belgeTipi] ?? ($belgeTipi !== '' ? ucfirst($belgeTipi) : '-');
+};
 
 $bakiye = (float)($cari['bakiye'] ?? 0);
 $toplamFatura = $sumInvoices($faturaGecmisi);
@@ -305,18 +314,19 @@ $initials = mb_strtoupper(mb_substr((string)($cari['unvan'] ?? $entityTitle), 0,
           <div class="cd-empty"><?= htmlspecialchars($emptyInvoiceText) ?> <a href="<?= htmlspecialchars($primaryActionUrl) ?>"><?= htmlspecialchars($primaryActionText) ?> için tıklayın.</a></div>
         <?php else: ?>
           <table class="cd-table">
-            <thead><tr><th></th><th>Tarih</th><th>No</th><th>Durum</th><th class="money">Tutar</th></tr></thead>
+            <thead><tr><th></th><th>Tarih</th><th>No</th><th>Tip</th><th>Durum</th><th class="money">Tutar</th></tr></thead>
             <tbody>
             <?php foreach ($faturaGecmisi as $row): $rid = (int)($row['id'] ?? 0); ?>
               <tr>
                 <td><button type="button" class="cd-plus" onclick="cdToggleDetail('sat-<?= $rid ?>', this)">+</button></td>
                 <td><?= htmlspecialchars($fmtDate($row['fatura_tarihi'] ?? '')) ?></td>
                 <td><?= htmlspecialchars($row['fatura_no'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($belgeTipAdi((string)($row['belge_tipi'] ?? ''))) ?></td>
                 <td class="cd-status"><?= htmlspecialchars($statusText((string)($row['durum'] ?? ''))) ?></td>
                 <td class="money"><?= $fmtMoney($row['genel_toplam'] ?? 0) ?></td>
               </tr>
               <tr class="cd-detail-row" id="detail-sat-<?= $rid ?>">
-                <td colspan="5">
+                <td colspan="6">
                   <div class="cd-detail-inner">
                     <div class="cd-detail-btns">
                       <a class="cd-btn-det" href="<?= BASE_URL ?>/<?= $invoiceDetailBase ?>/detay/<?= $rid ?>"><i class="fa-solid fa-eye"></i> Görüntüle / Düzenle</a>

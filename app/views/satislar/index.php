@@ -266,7 +266,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
       <!-- Dönem -->
       <div class="donem-wrap">
         <button type="button" class="btn-donem" id="donemBtn">
-          <?= htmlspecialchars($donemEtiketler[$donem] ?? 'Son 1 Ay') ?>
+          <?= htmlspecialchars($donemEtiketler[$donem] ?? 'Tümü') ?>
           <i class="fa-solid fa-chevron-down" style="font-size:9px;"></i>
         </button>
         <div class="donem-dropdown" id="donemDrop">

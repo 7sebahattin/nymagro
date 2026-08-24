@@ -163,7 +163,7 @@ $belgeTipi = $belgeTipi ?? 'alis';
       <button class="btn-period" onclick="toggleDrop('periodDrop')">
         <?php
           $donemLabels = ['bugun'=>'Bugün','haftaici'=>'Son 7 Gün','1ay'=>'Son 1 Ay','bu_ay'=>'Bu Ay','bu_yil'=>'Bu Yıl','tumu'=>'Tümü'];
-          echo $donemLabels[$donem ?? '1ay'] ?? 'Son 1 Ay';
+          echo $donemLabels[$donem ?? 'tumu'] ?? 'Tümü';
         ?>
         <i class="fa-solid fa-chevron-down"></i>
       </button>
