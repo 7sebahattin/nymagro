@@ -115,6 +115,24 @@ $tipLabel = [
   }
   .btn-islem:hover { background: var(--surface-2); }
 
+  /* İşlem menüsü — Bootstrap/Popper KULLANMAZ (bilinçli olarak): menü,
+     tabloyu saran overflow-x:auto konteynerinin İÇİNDE Popper ile
+     konumlandığında kırpılıp/kayıyordu. Bunun yerine sayfanın en altına,
+     o konteynerin DIŞINA tek bir paylaşılan menü konur ve JS ile
+     tıklanan butonun konumuna göre position:fixed olarak yerleştirilir —
+     hangi ata öğesinin overflow/transform içerdiğinden bağımsız çalışır. */
+  .hrk-action-menu {
+    position: fixed; z-index: 3000; display: none;
+    background: var(--card-bg); border: 1px solid var(--border2); border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3); min-width: 150px; padding: 4px; overflow: hidden;
+  }
+  .hrk-action-menu a {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    font-size: 13px; color: var(--text); text-decoration: none; border-radius: 4px;
+  }
+  .hrk-action-menu a:hover { background: var(--surface-2); }
+  .hrk-action-menu a.text-danger { color: var(--danger); }
+
   .empty-state { text-align: center; padding: 48px 16px; color: var(--muted); font-size: 14px; }
   .empty-state i { font-size: 32px; display: block; margin-bottom: 10px; }
 
@@ -307,29 +325,13 @@ $tipLabel = [
           </td>
           <td>
             <?php if (Rbac::currentUserCan('HESAP_UPDATE') || Rbac::currentUserCan('HESAP_DELETE')): ?>
-            <div class="dropdown">
-              <button class="btn-islem dropdown-toggle" data-bs-toggle="dropdown" data-bs-strategy="fixed" data-bs-display="static">İşlem</button>
-              <ul class="dropdown-menu shadow">
-                <?php if (Rbac::currentUserCan('HESAP_UPDATE')): ?>
-                <li><a class="dropdown-item" href="#"
-                       onclick="hareketDuzenleAc(<?= (int)$h['id'] ?>, <?= htmlspecialchars(json_encode([
-                           'islem_tipi'    => $h['islem_tipi'],
-                           'tutar'         => (float)$h['tutar'],
-                           'tarih'         => date('Y-m-d', strtotime($h['tarih'])),
-                           'odeme_yontemi' => $h['odeme_yontemi'] ?? '',
-                           'aciklama'      => $h['aciklama'] ?? '',
-                       ]), ENT_QUOTES) ?>);return false;">
-                  <i class="fa-solid fa-pen"></i> Düzenle
-                </a></li>
-                <?php endif; ?>
-                <?php if (Rbac::currentUserCan('HESAP_DELETE')): ?>
-                <li><a class="dropdown-item text-danger" href="#"
-                       onclick="hareketSil(<?= $h['id'] ?>, this);return false;">
-                  <i class="fa-solid fa-xmark"></i> Sil
-                </a></li>
-                <?php endif; ?>
-              </ul>
-            </div>
+            <button type="button" class="btn-islem" onclick="hrkMenuAc(event, <?= (int)$h['id'] ?>, <?= htmlspecialchars(json_encode([
+                'islem_tipi'    => $h['islem_tipi'],
+                'tutar'         => (float)$h['tutar'],
+                'tarih'         => date('Y-m-d', strtotime($h['tarih'])),
+                'odeme_yontemi' => $h['odeme_yontemi'] ?? '',
+                'aciklama'      => $h['aciklama'] ?? '',
+            ]), ENT_QUOTES) ?>)">İşlem</button>
             <?php endif; ?>
           </td>
         </tr>
@@ -337,6 +339,16 @@ $tipLabel = [
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- İşlem menüsü — tablonun/overflow konteynerinin DIŞINDA, tek/paylaşılan -->
+<div class="hrk-action-menu" id="hrkActionMenu">
+  <?php if (Rbac::currentUserCan('HESAP_UPDATE')): ?>
+  <a href="#" id="hrkMenuDuzenle"><i class="fa-solid fa-pen"></i> Düzenle</a>
+  <?php endif; ?>
+  <?php if (Rbac::currentUserCan('HESAP_DELETE')): ?>
+  <a href="#" id="hrkMenuSil" class="text-danger"><i class="fa-solid fa-xmark"></i> Sil</a>
+  <?php endif; ?>
 </div>
 
 <!-- ══ MODAL: GÜNCELLE ══════════════════════════════════ -->
@@ -677,6 +689,63 @@ function hareketKaydet(tip) {
       btn.innerHTML = '<i class="fa-solid fa-check"></i> Kaydet';
     });
 }
+
+/* ── İŞLEM MENÜSÜ (Bootstrap dropdown YERİNE — bkz. CSS'teki açıklama) ── */
+let hrkMenuAcikId = null;
+let hrkMenuAcikBtn = null;
+
+function hrkMenuAc(e, id, veri) {
+  e.stopPropagation();
+  const menu = document.getElementById('hrkActionMenu');
+  if (!menu) return;
+  const btn = e.currentTarget;
+
+  if (hrkMenuAcikId === id && menu.style.display === 'block') {
+    menu.style.display = 'none';
+    hrkMenuAcikId = null;
+    return;
+  }
+
+  const rect = btn.getBoundingClientRect();
+  menu.style.display = 'block';
+  const menuW = menu.offsetWidth || 150;
+  const left = Math.min(rect.left, window.innerWidth - menuW - 8);
+  const top  = Math.min(rect.bottom + 4, window.innerHeight - menu.offsetHeight - 8);
+  menu.style.left = Math.max(8, left) + 'px';
+  menu.style.top  = Math.max(8, top) + 'px';
+
+  hrkMenuAcikId  = id;
+  hrkMenuAcikBtn = btn;
+
+  const duzenle = document.getElementById('hrkMenuDuzenle');
+  if (duzenle) {
+    duzenle.onclick = function (ev) {
+      ev.preventDefault();
+      menu.style.display = 'none';
+      hareketDuzenleAc(id, veri);
+    };
+  }
+  const sil = document.getElementById('hrkMenuSil');
+  if (sil) {
+    sil.onclick = function (ev) {
+      ev.preventDefault();
+      menu.style.display = 'none';
+      hareketSil(id, hrkMenuAcikBtn);
+    };
+  }
+}
+
+document.addEventListener('click', function (e) {
+  const menu = document.getElementById('hrkActionMenu');
+  if (menu && menu.style.display === 'block' && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+    hrkMenuAcikId = null;
+  }
+});
+window.addEventListener('scroll', function () {
+  const menu = document.getElementById('hrkActionMenu');
+  if (menu) menu.style.display = 'none';
+}, true);
 
 /* ── HAREKET DÜZENLE ────────────────────────── */
 let duzenleHareketId = null;

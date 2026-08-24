@@ -6,12 +6,14 @@
 
 require_once MODELS_PATH . '/Fatura.php';
 require_once MODELS_PATH . '/Depo.php';
+require_once MODELS_PATH . '/KasaHesap.php';
 
 final class AlisController extends Controller
 {
     private Fatura $fatura;
     private $cariModel;
     private Depo $depoModel;
+    private KasaHesap $kasaHesapModel;
 
     public function __construct()
     {
@@ -19,6 +21,7 @@ final class AlisController extends Controller
         require_once MODELS_PATH . '/Cari.php';
         $this->cariModel = new Cari();
         $this->depoModel = new Depo();
+        $this->kasaHesapModel = new KasaHesap();
     }
 
     public function index(): void
@@ -46,6 +49,7 @@ final class AlisController extends Controller
             'durum'       => $durum,
             'donem'       => $donem,
             'belgeTipi'   => $belgeTipi,
+            'kasaHesaplar' => $this->kasaHesapModel->hepsini(),
             'sayfa'       => $sayfa,
             'sayfaSayisi' => $sayfaSayisi,
             'limit'       => $limit,
@@ -474,6 +478,35 @@ final class AlisController extends Controller
             'cari_unvan'=> $f['cari_unvan'] ?? '',
             'kalemler'  => $kalemler,
         ]);
+        exit;
+    }
+
+    // ─── AJAX: Faturaya Uygulanan Ödemeler ────────────────────────────────
+
+    /** Bir faturaya (FIFO ile) uygulanmış ödeme/tahsilat hareketlerini JSON döner. */
+    public function odemeleri(int $id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $f = $this->fatura->getir($id);
+        if (!$f) {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'Fatura bulunamadı.']);
+            exit;
+        }
+        $uygulamalar = array_map(function ($u) {
+            return [
+                'id'               => (int)$u['id'],
+                'kasa_hareket_id'  => (int)$u['kasa_hareket_id'],
+                'kasa_id'          => (int)$u['kasa_id'],
+                'tutar'            => (float)$u['uygulanan_tutar'],
+                'tarih'            => $u['tarih'],
+                'odeme_yontemi'    => $u['odeme_yontemi'],
+                'aciklama'         => $u['aciklama'],
+                'kasa_adi'         => $u['kasa_adi'] ?? '',
+            ];
+        }, $this->fatura->odemeUygulamalariGetir($id));
+
+        echo json_encode(['status' => 'success', 'uygulamalar' => $uygulamalar]);
         exit;
     }
 

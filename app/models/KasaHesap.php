@@ -259,7 +259,7 @@ class KasaHesap
             if ($cariId !== null) {
                 require_once MODELS_PATH . '/Fatura.php';
                 $faturaModel = new Fatura();
-                $faturaModel->fifoOdemeDagit($cariId, $islem, $tutar);
+                $faturaModel->fifoOdemeDagit($cariId, $islem, $tutar, $id);
                 $faturaModel->recomputeCariBalance($cariId);
             }
 

@@ -12,6 +12,7 @@
  *   GET  /satis/musteriBul     → musteriBul()  [JSON AJAX]
  *   GET  /satis/urunBul        → urunBul()     [JSON AJAX]
  *   GET  /satis/irsaliye-getir/{id} → irsaliye_getir($id) [JSON AJAX]
+ *   GET  /satis/odemeleri/{id} → odemeleri($id) [JSON AJAX — faturaya uygulanan ödemeler]
  */
 
 require_once MODELS_PATH . '/Fatura.php';
@@ -794,6 +795,35 @@ final class SatisController extends Controller
             'cari_unvan'=> $f['cari_unvan'] ?? '',
             'kalemler'  => $kalemler,
         ]);
+        exit;
+    }
+
+    // ─── AJAX: Faturaya Uygulanan Ödemeler ────────────────────────────────
+
+    /** Bir faturaya (FIFO ile) uygulanmış ödeme/tahsilat hareketlerini JSON döner. */
+    public function odemeleri(int $id): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $f = $this->fatura->getir($id);
+        if (!$f) {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'Fatura bulunamadı.']);
+            exit;
+        }
+        $uygulamalar = array_map(function ($u) {
+            return [
+                'id'               => (int)$u['id'],
+                'kasa_hareket_id'  => (int)$u['kasa_hareket_id'],
+                'kasa_id'          => (int)$u['kasa_id'],
+                'tutar'            => (float)$u['uygulanan_tutar'],
+                'tarih'            => $u['tarih'],
+                'odeme_yontemi'    => $u['odeme_yontemi'],
+                'aciklama'         => $u['aciklama'],
+                'kasa_adi'         => $u['kasa_adi'] ?? '',
+            ];
+        }, $this->fatura->odemeUygulamalariGetir($id));
+
+        echo json_encode(['status' => 'success', 'uygulamalar' => $uygulamalar]);
         exit;
     }
 
