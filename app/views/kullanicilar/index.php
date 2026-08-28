@@ -43,13 +43,13 @@ $meId = AuthGuard::userId();
     <table class="table align-middle mb-0">
       <thead class="table-light">
         <tr>
-          <th>Ad Soyad</th><th>Kullanıcı Adı</th><th>E-posta</th><th>Rol</th><th>Durum</th>
+          <th>Ad Soyad</th><th>Kullanıcı Adı</th><th>E-posta</th><th>Rol</th><th>Şirketler</th><th>Durum</th>
           <th>Son Giriş</th><th>Oluşturulma</th><th class="text-end">İşlemler</th>
         </tr>
       </thead>
       <tbody>
       <?php if (empty($kayitlar)): ?>
-        <tr><td colspan="8" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
+        <tr><td colspan="9" class="text-center text-muted py-4">Kayıt bulunamadı.</td></tr>
       <?php endif; ?>
       <?php foreach ($kayitlar as $u): [$label, $cls] = $statusBadge[$u['status']] ?? ['?', 'secondary']; ?>
         <tr>
@@ -57,6 +57,16 @@ $meId = AuthGuard::userId();
           <td><?= $h($u['username']) ?></td>
           <td><?= $h($u['email'] ?: '-') ?></td>
           <td><?= $h($u['role_name'] ?: $u['role_code']) ?></td>
+          <td>
+            <?php $uSirketler = $sirketAdlari[(int)$u['id']] ?? []; ?>
+            <?php if (empty($uSirketler)): ?>
+              <span class="badge bg-danger-subtle text-danger-emphasis" title="Bu kullanıcı hiçbir şirkete atanmadığı için giriş yapsa bile hiçbir ekranı açamaz.">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i>Şirket atanmamış
+              </span>
+            <?php else: ?>
+              <span class="small"><?= $h(implode(', ', $uSirketler)) ?></span>
+            <?php endif; ?>
+          </td>
           <td><span class="badge bg-<?= $cls ?>"><?= $label ?></span></td>
           <td><?= $u['last_login_at'] ? $h(date('d.m.Y H:i', strtotime($u['last_login_at']))) : '-' ?></td>
           <td><?= $h(date('d.m.Y', strtotime($u['created_at']))) ?></td>

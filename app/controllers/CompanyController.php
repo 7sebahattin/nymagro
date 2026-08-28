@@ -48,8 +48,7 @@ final class CompanyController extends Controller
             $this->redirect('companies/switch');
         }
 
-        $_SESSION['active_company_id'] = $companyId;
-        unset($_SESSION['active_period_id']);
+        TenantContext::setActiveSelection($companyId);
 
         $periods = array_values(array_filter(
             $this->company->periods($companyId),
@@ -58,7 +57,7 @@ final class CompanyController extends Controller
 
         $openPeriods = array_values(array_filter($periods, fn(array $p): bool => $p['status'] === 'open'));
         if (count($openPeriods) === 1) {
-            $_SESSION['active_period_id'] = (int)$openPeriods[0]['id'];
+            TenantContext::setActiveSelection($companyId, (int)$openPeriods[0]['id']);
             $this->setFlash('success', 'Aktif şirket ve dönem değiştirildi.');
             $this->redirect('dashboard');
         }
@@ -92,14 +91,44 @@ final class CompanyController extends Controller
             die('Bu döneme erişim yetkiniz yok.');
         }
 
-        $_SESSION['active_company_id'] = (int)$period['company_id'];
-        $_SESSION['active_period_id'] = $periodId;
+        // Pasif bir şirketin dönemi seçilerek select()'teki "pasif şirket
+        // seçilemez" kuralı atlatılamamalı.
+        $company = $this->company->find((int)$period['company_id']);
+        if (!$company || $company['status'] !== 'active') {
+            $this->setFlash('error', 'Pasif veya arşivlenmiş şirketin dönemi seçilemez.');
+            $this->redirect('companies/switch');
+        }
+
+        TenantContext::setActiveSelection((int)$period['company_id'], $periodId);
         $this->setFlash('success', 'Aktif dönem değiştirildi.');
         $this->redirect('dashboard');
     }
 
+    /**
+     * Yeni şirket açma yetkisi.
+     *
+     * CompanyController Rbac::UNMANAGED_CONTROLLERS içinde olduğu için Router
+     * bu uca izin kontrolü UYGULAMAZ; eskiden giriş yapmış HERHANGİ bir
+     * kullanıcı şirket oluşturup (Company::create() oluşturana 'owner' verir)
+     * kendini o şirketin sahibi yapabiliyordu. Yetki artık burada aranır.
+     */
+    private function assertCanCreateCompany(): void
+    {
+        if (AuthGuard::isSuperAdmin()) {
+            return;
+        }
+        $activeId = TenantContext::activeCompanyId();
+        if ($activeId && TenantContext::canManageCompany($activeId)) {
+            return;
+        }
+        http_response_code(403);
+        die('Yeni şirket oluşturma yetkiniz yok.');
+    }
+
     public function create(): void
     {
+        $this->assertCanCreateCompany();
+
         $this->view('companies/form', [
             'pageTitle' => 'Yeni Şirket',
             'activeMenu' => 'companies',
@@ -117,6 +146,7 @@ final class CompanyController extends Controller
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('companies/create');
         }
+        $this->assertCanCreateCompany();
 
         try {
             $data = $_POST;
@@ -193,12 +223,32 @@ final class CompanyController extends Controller
         }
 
         $before = $this->company->find($id);
+        if (!$before) {
+            $this->setFlash('error', 'Şirket bulunamadı.');
+            $this->redirect('companies');
+        }
+
+        // Sistemdeki SON aktif şirket pasife alınamaz: aktif şirketi kalmayan
+        // hiçbir kullanıcı hiçbir ekranı açamaz (TenantContext yalnızca 'active'
+        // şirket seçmeye izin verir) ve kimse bu durumu geri alamaz.
+        if (($before['status'] ?? '') === 'active' && $this->company->activeCompanyCount() <= 1) {
+            $this->setFlash('error', 'Bu, sistemdeki son aktif şirket. Pasife alınırsa hiç kimse panele giriş yapamaz. Önce başka bir şirketi aktifleştirin.');
+            $this->redirect('companies');
+        }
+
         $result = $this->company->archive($id);
         // archive() durumu HER ZAMAN 'passive' yapar (fiziksel silme yok) — sayaç
         // sadece kullanıcıya gösterilecek uyarı/başarı mesajını belirler.
         Audit::log('DELETE', 'COMPANY', $id, $before, ['status' => 'passive'], 'Şirket pasife alındı (arşivlendi).');
+
+        // Pasife alınan şirket o an seçili şirketse oturumdaki seçimi bırakma —
+        // aksi halde kullanıcı pasif bir şirkette çalışmayı sürdürürdü.
+        if (TenantContext::activeCompanyId() === $id) {
+            TenantContext::clearActiveSelection();
+        }
+
         if (array_sum($result['counts']) > 0) {
-            $this->setFlash('warning', 'Bu şirkete ait işlem kayıtları bulunduğu için şirket silinemez, pasife alınabilir.');
+            $this->setFlash('warning', 'Bu şirkete ait işlem kayıtları bulunduğu için şirket silinemez, pasife alındı.');
         } else {
             $this->setFlash('success', 'Şirket pasife alındı.');
         }

@@ -101,6 +101,26 @@ class Company
         );
     }
 
+    /** Sistemdeki aktif (girilebilir) şirket sayısı. */
+    public function activeCompanyCount(): int
+    {
+        $row = $this->db->selectOne(
+            "SELECT COUNT(*) AS n FROM companies WHERE status = 'active' AND deleted_at IS NULL"
+        );
+        return (int)($row['n'] ?? 0);
+    }
+
+    /**
+     * companies.status ENUM'una uymayan bir değer MySQL'in gevşek modunda
+     * sessizce '' olarak yazılır; o şirket bir daha asla 'active' sayılmaz ve
+     * hiç kimse giremez. Bu yüzden POST'tan gelen değer burada doğrulanır.
+     */
+    private function normalizeStatus($status, string $fallback = 'active'): string
+    {
+        $status = is_string($status) ? trim($status) : '';
+        return in_array($status, ['active', 'passive', 'archived'], true) ? $status : $fallback;
+    }
+
     public function settings(int $companyId): array
     {
         $row = $this->db->selectOne(
@@ -120,7 +140,7 @@ class Company
         $company['short_name'] = trim((string)($company['short_name'] ?? '')) ?: $this->shortName($company['company_name']);
         $company['country'] = $company['country'] ?? 'Türkiye';
         $company['currency'] = $company['currency'] ?? 'TRY';
-        $company['status'] = $company['status'] ?? 'active';
+        $company['status'] = $this->normalizeStatus($company['status'] ?? null, 'active');
         $company['created_by'] = TenantContext::userId();
 
         $this->db->begin();
@@ -157,12 +177,28 @@ class Company
 
     public function updateCompany(int $id, array $data): void
     {
+        $mevcut = $this->find($id);
+        if (!$mevcut) {
+            throw new RuntimeException('Şirket bulunamadı.');
+        }
+
         $company = array_intersect_key($data, array_flip($this->companyFillable));
         $company['company_name'] = trim((string)($company['company_name'] ?? ''));
         if ($company['company_name'] === '') {
             throw new InvalidArgumentException('Şirket adı zorunludur.');
         }
         $company['short_name'] = trim((string)($company['short_name'] ?? '')) ?: $this->shortName($company['company_name']);
+
+        if (array_key_exists('status', $company)) {
+            $company['status'] = $this->normalizeStatus($company['status'], (string)$mevcut['status']);
+            // Son aktif şirketi buradan da pasife almaya izin verme — aksi halde
+            // "Pasife Al" butonundaki koruma, düzenleme formundaki durum alanıyla
+            // sessizce atlatılabilirdi ve kimse panele giremezdi.
+            if ((string)$mevcut['status'] === 'active' && $company['status'] !== 'active' && $this->activeCompanyCount() <= 1) {
+                throw new RuntimeException('Bu, sistemdeki son aktif şirket. Pasife alınırsa hiç kimse panele giriş yapamaz.');
+            }
+        }
+
         $this->db->update('companies', $company, ['id' => $id]);
         $this->saveSettings($id, $data);
     }

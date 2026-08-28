@@ -187,6 +187,13 @@ final class AuthGuard
             return ['ok' => false, 'message' => 'Kullanıcı adı veya şifre hatalı.'];
         }
 
+        // Aktif şirket/dönem seçimi ÖNCEKİ oturuma aittir — yeni kullanıcıya
+        // devredilemez. (session_regenerate_id() oturum verisini korur, sadece
+        // id'yi değiştirir; bu yüzden açıkça temizlemek gerekir.) Aksi halde
+        // giriş yapan kullanıcı, erişim yetkisi olmayan bir şirkete kilitlenip
+        // "Bu şirkete erişim yetkiniz yok." ekranından çıkamıyordu.
+        unset($_SESSION['active_company_id'], $_SESSION['active_period_id'], $_SESSION['active_tenant_user_id']);
+
         // Session açık → bilgileri kaydet
         $_SESSION['user_id']        = (int)$user['id'];
         $_SESSION['user_logged_in'] = true;
