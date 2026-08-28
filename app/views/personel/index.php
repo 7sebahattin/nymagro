@@ -20,7 +20,7 @@ $money = fn($v) => number_format((float)$v, 2, ',', '.') . ' TL';
 .p-field textarea { min-height:72px; resize:vertical; }
 .p-table-wrap { overflow-x:auto; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; }
 .p-table { width:100%; border-collapse:collapse; min-width:860px; }
-.p-table th { background:#1e293b; color:var(--text2); text-align:left; padding:10px; font-size:12px; white-space:nowrap; }
+.p-table th { background:var(--surface-2); color:var(--text2); text-align:left; padding:10px; font-size:12px; white-space:nowrap; }
 .p-table td { border-top:1px solid var(--border); padding:9px 10px; font-size:13px; color:var(--text); }
 .p-empty { text-align:center; padding:28px 12px; color:var(--muted); }
 .p-heading { font-size:16px; font-weight:800; color:var(--text); margin:6px 0 0; }

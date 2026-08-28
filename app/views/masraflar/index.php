@@ -50,7 +50,11 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
 
   /* ── FİLTRE ── */
   .ms-filters { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
-  .durum-btns { display:flex; gap:0; }
+  /* Dar ekranda tek satıra sığmayıp yatay taşma yaratıyordu (bkz. .tab-scroll
+     açıklaması, panel-ui.css): şerit kendi içinde kaydırılır. */
+  .durum-btns { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; max-width:100%; }
+  .durum-btns::-webkit-scrollbar { display:none; }
+  .durum-btns > * { flex:0 0 auto; white-space:nowrap; }
   .durum-btn {
     padding:6px 14px; border:1px solid var(--border); background:var(--card-bg);
     font-size:12.5px; font-weight:600; color:var(--text2); cursor:pointer;
@@ -66,8 +70,8 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
 
   .filter-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .period-btn {
-    padding:6px 14px; background:#34495e; color:var(--text);
-    border:none; border-radius:4px; font-size:12.5px; font-weight:500; cursor:pointer;
+    padding:6px 14px; background:var(--ink); color:var(--text);
+    border:1px solid var(--border); border-radius:4px; font-size:12.5px; font-weight:500; cursor:pointer;
   }
   .search-wrap { position:relative; }
   .search-wrap i { position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:12px; pointer-events:none; }
@@ -112,7 +116,7 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
   .kat-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:3px; font-size:11.5px; font-weight:600; color:#fff; white-space:nowrap; }
   .durum-badge { display:inline-block; padding:3px 9px; border-radius:4px; font-size:12px; font-weight:600; white-space:nowrap; }
   .d-bekliyor { background:rgba(243,156,18,.15); color:var(--warning); }
-  .d-odendi   { background:rgba(46,204,113,.15); color:var(--success); }
+  .d-odendi   { background:rgba(46,204,113,.15); color:#15803d; }
   .d-gecikti  { background:rgba(231,76,60,.15); color:var(--danger); }
 
   /* color OLMADAN <button> tarayıcı varsayılanı olan SİYAH metni alır; koyu

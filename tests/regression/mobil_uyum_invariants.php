@@ -197,7 +197,56 @@ if (!komutVar('node')) {
 }
 
 // ═════════════════════════════════════════════════════════════════════
-// 5) Meta
+// 5) Tema güvenliği taraması — TÜM görünümler (tarayıcı kapsamı dışındakiler dahil)
+// ═════════════════════════════════════════════════════════════════════
+//
+// Tarayıcı ölçümü kesindir ama yalnızca render harness'ına eklenmiş sayfaları
+// görür. Bu statik tarama ise 100+ görünümün TAMAMINI ucuza tarar ve en sık
+// tekrar eden tema hatasını yakalar: SABİT (hex) bir zeminle TEMA DEĞİŞKENLİ
+// metin rengini eşleştirmek. Zemin sabit kaldığı için tema değişince metin
+// zeminle aynı tarafa kayar ve okunmaz olur.
+//
+// Not: tarayıcı ölçümü bu sınıfın gerçekliğini doğruladı (masraflar/personel/
+// nakit sayfalarında tarama önce işaretledi, Chromium sonra 1.8–1.9 kontrast
+// ölçtü). Bu yüzden testi DÜŞÜREN bir kural olarak tutuluyor.
+
+$taramaCikti = [];
+$taramaKod = 0;
+@exec(
+    escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($kok . '/tests/mobile/tema_tarayici.php') . ' --json 2>/dev/null',
+    $taramaCikti,
+    $taramaKod
+);
+$taramaVeri = json_decode(trim(implode("\n", $taramaCikti)), true);
+kontrol('Tema tarayıcısı çalışabiliyor', is_array($taramaVeri) && isset($taramaVeri['bulgular']));
+
+if (is_array($taramaVeri) && isset($taramaVeri['bulgular'])) {
+    $sabitZemin = array_values(array_filter(
+        $taramaVeri['bulgular'],
+        fn(array $b): bool => ($b['sinif'] ?? '') === 'sabit-zemin-temali-metin'
+    ));
+    kontrol('Hiçbir görünüm sabit (hex) koyu/açık zemini tema değişkenli metin rengiyle eşleştirmiyor',
+        empty($sabitZemin),
+        implode("\n      ", array_map(
+            fn(array $b): string => "{$b['dosya']}:{$b['satir']}  {$b['secici']}  — {$b['detay']}",
+            array_slice($sabitZemin, 0, 8)
+        )));
+
+    // "renksiz buton" sınıfı bilgi amaçlıdır: statik olarak kesin ayrılamıyor
+    // (kullanılmayan ölü CSS ve PHP ile birleştirilen class'lar yanlış alarm
+    // üretebiliyor). Tarayıcı ölçümü bu sınıfı zaten kesin biçimde yakalıyor.
+    $renksiz = array_values(array_filter(
+        $taramaVeri['bulgular'],
+        fn(array $b): bool => ($b['sinif'] ?? '') === 'renksiz-buton'
+    ));
+    if ($renksiz) {
+        $atlananlar[] = 'Bilgi (testi düşürmez): ' . count($renksiz)
+            . ' CSS kuralı zemin verip metin rengi vermiyor — çoğu ölü/örtülü stil; gerçek olanları tarayıcı ölçümü yakalar.';
+    }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// 6) Meta
 // ═════════════════════════════════════════════════════════════════════
 
 $kaynak = (string)@file_get_contents(__FILE__);

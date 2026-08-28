@@ -328,6 +328,46 @@ function sayfalar(): array
                 'flash' => [],
             ],
         ],
+        // Tema tarayıcısının (tests/mobile/tema_tarayici.php) "sabit zemin +
+        // temalı metin" olarak işaretlediği sayfalar — bulgu gerçek mi diye
+        // gerçek tarayıcıda ölçülsün.
+        'masraflar' => [
+            'view' => 'masraflar/index',
+            'vars' => [
+                'masraflar' => array_map(fn(int $i): array => [
+                    'id' => $i, 'tarih' => '2026-08-0' . (($i % 9) + 1),
+                    'kategori_adi' => 'Ofis Giderleri', 'aciklama' => 'Örnek masraf açıklaması',
+                    'tutar' => 1234.56, 'kdv_tutari' => 246.91, 'toplam_tutar' => 1481.47,
+                    'odeme_durumu' => 'odendi', 'hesap_adi' => 'İş Bankası', 'belge_no' => 'MSR-' . $i,
+                    'olusturan_adi' => 'Sebahattin', 'odeme_yontemi' => 'Nakit',
+                ], range(1, 5)),
+                'ozetler' => ['adet' => 5, 'toplam' => 7407.35, 'odenen' => 5000.00, 'bekleyen' => 2407.35],
+                'hesaplar' => [['id' => 1, 'hesap_adi' => 'İş Bankası', 'para_birimi' => 'TRY']],
+                'toplam' => 5, 'sayfa' => 1, 'sayfaSay' => 1, 'limit' => 50,
+                'arama' => '', 'durum' => '', 'period' => '6ay', 'flash' => [],
+            ],
+        ],
+        'personel' => [
+            'view' => 'personel/index',
+            'vars' => [
+                'personeller' => array_map(fn(int $i): array => [
+                    'id' => $i, 'ad_soyad' => 'Örnek Personel ' . $i, 'gorev' => 'Depo Sorumlusu',
+                    'telefon' => '0555 555 55 55', 'eposta' => 'personel@nuvernatrade.com',
+                    'maas' => 45000.00, 'bakiye' => -1200.00, 'ise_baslama' => '2025-01-01',
+                    'aktif_mi' => 1, 'tc_kimlik_no' => '11111111111',
+                ], range(1, 4)),
+                'hareketler' => [], 'hesaplar' => [['id' => 1, 'hesap_adi' => 'Kasa', 'para_birimi' => 'TRY']],
+                'flash' => [],
+            ],
+        ],
+        'tedarikci_ekle' => [
+            'view' => 'tedarikciler/ekle',
+            'vars' => [
+                'eski' => [], 'hatalar' => [], 'duzenleId' => 0, 'tip' => 'tedarikci',
+                'unvan' => '', 'vergi_dairesi' => '', 'vergi_no' => '', 'tc_kimlik_no' => '',
+                'sinif1ler' => [], 'sinif2ler' => [], 'flash' => [],
+            ],
+        ],
     ];
 }
 

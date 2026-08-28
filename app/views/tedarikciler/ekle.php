@@ -71,7 +71,7 @@ if ($paraBirimiEski === 'TRY') {
     .kimlik-fields { flex: 1; }
 
     /* ── Resim Upload ── */
-    .img-upload-area { width: 130px; height: 130px; border: 2px dashed var(--border2); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .2s, background .2s; color: #f59e0b; background: rgba(243,156,18,.15); }
+    .img-upload-area { width: 130px; height: 130px; border: 2px dashed var(--border2); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: border-color .2s, background .2s; color: #b45309; background: rgba(243,156,18,.15); }
     .img-upload-area:hover { border-color: #f59e0b; background: rgba(245,158,11,.06); }
     .img-upload-area i { font-size: 28px; }
     .img-upload-area span { font-size: 12px; font-weight: 600; }
@@ -102,7 +102,7 @@ if ($paraBirimiEski === 'TRY') {
 
     /* ── Toast ── */
     .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-    .toast { background: #1e293b; color: var(--text); padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); animation: toastIn .3s ease; }
+    .toast { background: var(--ink); color: var(--text); border: 1px solid var(--border2); padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); animation: toastIn .3s ease; }
     .toast.success { border-left: 4px solid #4ade80; }
     .toast.error   { border-left: 4px solid #ef4444; }
     @keyframes toastIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
