@@ -174,7 +174,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
 <!-- Belge Tipi Sekmeleri: "Yeni Fatura" ekranındaki Fatura/İrsaliye Kaydet
      butonlarıyla kaydedilen belgeler burada ayrı sekmelerde gözlemlenebilir. -->
-<div style="display:flex; gap:6px; margin-bottom:14px; border-bottom:1px solid var(--border);">
+<div class="tab-scroll" style="margin-bottom:14px; border-bottom:1px solid var(--border);">
   <a href="<?= BASE_URL ?>/satis" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'satis' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'satis' ? 'var(--text)' : 'var(--muted)' ?>;">
     <i class="fa-solid fa-file-invoice-dollar"></i> Faturalar
   </a>

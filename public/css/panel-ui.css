@@ -357,6 +357,33 @@ body[data-theme="acik"] .mobile-topbar { background: rgba(255, 255, 255, .92); }
 .mt-actions { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
 .mt-actions .icon-btn { width: 40px; height: 40px; }
 
+/* ── 4b. Yatay kaydırılabilir sekme şeridi ───────────────────────────────
+ *
+ * KÖK NEDEN — "mobilde alt bar alta kayıyor"
+ * -----------------------------------------
+ * Satışlar sayfasındaki belge tipi sekmeleri (Faturalar / İrsaliyeler /
+ * Perakende / Numuneler) tek satırda ~412px yer kaplıyordu. 360px genişliğinde
+ * bir telefonda bu YATAY TAŞMA yaratır; taşma olduğunda tarayıcının yerleşim
+ * görünümü (layout viewport) ekrandan geniş olur ve `position:fixed; left:0;
+ * right:0` olan .bottom-nav bu geniş alana yayılıp ekranın dışına kayar —
+ * kullanıcı alt navigasyonu göremez.
+ *
+ * Çözüm: sekme şeridi tek satırda kalır ama KENDİ İÇİNDE yatay kaydırılır;
+ * böylece sayfa gövdesi asla ekrandan geniş olmaz. (Sekmeleri alt satıra
+ * sarmak yerine kaydırmak tercih edildi: sekme çubuğunun yüksekliği sabit
+ * kalır ve sıralama korunur.)                                              */
+.tab-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;              /* Firefox */
+  max-width: 100%;
+}
+.tab-scroll::-webkit-scrollbar { display: none; }   /* WebKit/Blink */
+.tab-scroll > * { flex: 0 0 auto; white-space: nowrap; }
+
 /* ── 5. Mobil alt navigasyon ─────────────────────────────────────────── */
 .bottom-nav {
   display: none;

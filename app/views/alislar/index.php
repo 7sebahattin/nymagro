@@ -112,7 +112,7 @@ $belgeTipi = $belgeTipi ?? 'alis';
 
 <!-- Belge Tipi Sekmeleri: "Yeni Alış Faturası" ekranındaki Fatura/İrsaliye Kaydet
      butonlarıyla kaydedilen belgeler burada ayrı sekmelerde gözlemlenebilir. -->
-<div style="display:flex; gap:6px; margin-bottom:14px; border-bottom:1px solid var(--border);">
+<div class="tab-scroll" style="margin-bottom:14px; border-bottom:1px solid var(--border);">
   <a href="<?= BASE_URL ?>/alis" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'alis' ? '#5bc0de' : 'transparent' ?>; color:<?= $belgeTipi === 'alis' ? 'var(--text)' : 'var(--muted)' ?>;">
     <i class="fa-solid fa-file-invoice-dollar"></i> Faturalar
   </a>

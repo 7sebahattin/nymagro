@@ -90,8 +90,43 @@ class Urun
     }
 
     /**
+     * Ürün listesi sekmelerinin ($_GET['tip']) hangi kayıtları göstereceği.
+     *
+     * urunler_hizmetler tablosu hem ticari malları (tip='urun') hem de
+     * hizmet/masraf kalemlerini (tip='hizmet') tutar.
+     *
+     * ESKİ (hatalı) davranış:
+     *   ''    → hiç filtre yok  → ticari mallar VE hizmetler karışık listeleniyordu
+     *   'all' → "tip = 'all'"   → hiçbir kayıt eşleşmiyordu; "Tüm Ürünler"
+     *                             sekmesi HER ZAMAN boş dönüyordu.
+     * Yani iki sekme de yanlıştı: varsayılan sekme fazlasını, "tümü" sekmesi
+     * hiçbir şeyi gösteriyordu.
+     *
+     * YENİ davranış (kullanıcı talebi): varsayılan sekme yalnızca ticari
+     * malları listeler; "Tümü" gerçekten hepsini listeler.
+     *
+     * @return string|null Filtrelenecek tip; null = filtre yok (hepsi)
+     */
+    public static function listeTipKosulu(string $tipFlt): ?string
+    {
+        return match ($tipFlt) {
+            'all'    => null,
+            'hizmet' => 'hizmet',
+            default  => 'urun',
+        };
+    }
+
+    /** Ürün listesi sekmeleri: $_GET['tip'] değeri => etiket */
+    public const LISTE_TIP_SEKMELERI = [
+        ''       => 'Ticari Mallar',
+        'hizmet' => 'Hizmetler',
+        'all'    => 'Tümü',
+    ];
+
+    /**
      * Sayfalanmış ürün listesi.
-     * $tip: '' = hepsi, 'urun', 'hizmet'
+     * $tip: '' = ticari mallar, 'hizmet' = hizmetler, 'all' = hepsi
+     * (bkz. listeTipKosulu)
      */
     public function listele(
         string $arama   = '',
@@ -484,9 +519,13 @@ class Urun
             $conds[]        = "(ad LIKE :arama OR stok_kodu LIKE :arama OR barkod LIKE :arama)";
             $params[':arama'] = '%' . $arama . '%';
         }
-        if ($tip !== '') {
+        // Sekme değeri ('' | 'hizmet' | 'all') → gerçek tip koşulu.
+        // 'all' dışındaki her değer bir tip'e sabitlenir; böylece tanınmayan
+        // bir sekme değeri sessizce "filtresiz" davranmaz.
+        $tipKosulu = self::listeTipKosulu($tip);
+        if ($tipKosulu !== null) {
             $conds[]      = "tip = :tip";
-            $params[':tip'] = $tip;
+            $params[':tip'] = $tipKosulu;
         }
         if ($kategori !== '') {
             $conds[]          = "kategori = :kategori";
