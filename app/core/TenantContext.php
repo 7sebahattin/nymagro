@@ -44,9 +44,31 @@ final class TenantContext
 
     public static function bootstrap(): void
     {
+        // Şema her istekte (giriş yapılmamış olsa bile) hazır olmalı — tablo
+        // yoksa giriş ekranı bile açılamaz.
         self::ensureSchema();
+
+        // Şirket/dönem seçimi KULLANICIYA aittir. Giriş yapılmamışken bunları
+        // çalıştırmak, oturumu olmayan bir ziyaretçi adına (eskiden userId()
+        // varsayılan olarak 1 döndürdüğü için "1 numaralı kullanıcı" adına)
+        // şirket ataması ve oturum seçimi yapılmasına yol açıyordu; giriş
+        // yapıldığında bu yabancı seçim oturumda kalıyor ve kullanıcı
+        // "Bu şirkete erişim yetkiniz yok." ekranına kilitleniyordu.
+        if (!self::isLoggedIn()) {
+            return;
+        }
+
         self::ensureDefaultTenant();
         self::ensureActiveSelection();
+    }
+
+    /** Oturum açılmış mı? (AuthGuard yüklenmemiş olabilecek bağlamlarda güvenli.) */
+    private static function isLoggedIn(): bool
+    {
+        if (class_exists('AuthGuard')) {
+            return AuthGuard::isLoggedIn();
+        }
+        return !empty($_SESSION['user_id']) && !empty($_SESSION['user_logged_in']);
     }
 
     public static function requireActiveForRoute(array $url): void
@@ -56,15 +78,50 @@ final class TenantContext
             return;
         }
 
+        // Erişilemeyen bir şirket oturumda kalmışsa (ör. kullanıcının şirket
+        // ataması kaldırıldı) kullanıcıyı ham 403 sayfasında bırakma — seçimi
+        // temizleyip "Şirket Değiştir" ekranına gönder. Aksi halde kullanıcının
+        // kendi başına çıkabileceği bir yol yoktu (bkz. companies/switch).
+        if (self::activeCompanyId() && !self::userCanAccessCompany(self::activeCompanyId())) {
+            self::clearActiveSelection();
+            $_SESSION['flash'] = [
+                'tip' => 'error',
+                'mesaj' => 'Aktif şirketinize erişim yetkiniz kalmadı. Lütfen yetkili olduğunuz bir şirket seçin.',
+            ];
+        }
+
         if (!self::activeCompanyId() || !self::activePeriodId()) {
             header('Location: ' . BASE_URL . '/companies/switch');
             exit;
         }
+    }
 
-        if (!self::userCanAccessCompany(self::activeCompanyId())) {
-            unset($_SESSION['active_company_id'], $_SESSION['active_period_id']);
-            http_response_code(403);
-            die('Bu şirkete erişim yetkiniz yok.');
+    /** Oturumdaki aktif şirket/dönem seçimini temizler. */
+    public static function clearActiveSelection(): void
+    {
+        unset(
+            $_SESSION['active_company_id'],
+            $_SESSION['active_period_id'],
+            $_SESSION['active_tenant_user_id']
+        );
+    }
+
+    /**
+     * Aktif şirket/dönem seçimini oturuma yazar.
+     *
+     * Seçimi HANGİ kullanıcının yaptığını da kaydeder: bu olmadan bir sonraki
+     * istekte ensureActiveSelection() seçimi "sahipsiz" görüp yok sayar ve
+     * kullanıcıyı varsayılan şirkete geri düşürürdü. Şirket/dönem seçen her
+     * yol bu metodu kullanmalıdır.
+     */
+    public static function setActiveSelection(int $companyId, ?int $periodId = null): void
+    {
+        $_SESSION['active_company_id'] = $companyId;
+        $_SESSION['active_tenant_user_id'] = self::userId();
+        if ($periodId !== null && $periodId > 0) {
+            $_SESSION['active_period_id'] = $periodId;
+        } else {
+            unset($_SESSION['active_period_id']);
         }
     }
 
@@ -78,9 +135,20 @@ final class TenantContext
         return !empty($_SESSION['active_period_id']) ? (int)$_SESSION['active_period_id'] : null;
     }
 
+    /**
+     * Oturumdaki kullanıcının id'si; giriş yapılmamışsa 0.
+     *
+     * ESKİDEN varsayılan 1 dönüyordu. Bu, giriş yapmamış bir ziyaretçinin
+     * "1 numaralı kullanıcı" sanılmasına yol açıyordu: bootstrap sırasında
+     * o kullanıcı adına şirket ataması yapılıyor ve oturuma onun şirketi
+     * yazılıyordu. Giriş yapan BAŞKA bir kullanıcı bu seçimi devralıp
+     * erişemediği bir şirkete kilitleniyordu. 0 dönmek doğru davranıştır:
+     * hiçbir user_companies satırı 0 ile eşleşmez, yani anonim istek
+     * hiçbir şirkete erişemez (fail-closed).
+     */
     public static function userId(): int
     {
-        return (int)($_SESSION['user_id'] ?? 1);
+        return (int)($_SESSION['user_id'] ?? 0);
     }
 
     public static function activeCompany(): ?array
@@ -238,6 +306,9 @@ final class TenantContext
 
     public static function userCanAccessCompany(int $companyId): bool
     {
+        if ($companyId <= 0 || self::userId() <= 0) {
+            return false;
+        }
         $row = Database::getInstance()->selectOne(
             "SELECT id FROM user_companies WHERE user_id = :uid AND company_id = :cid LIMIT 1",
             [':uid' => self::userId(), ':cid' => $companyId]
@@ -247,6 +318,9 @@ final class TenantContext
 
     public static function roleForCompany(int $companyId): ?array
     {
+        if ($companyId <= 0 || self::userId() <= 0) {
+            return null;
+        }
         return Database::getInstance()->selectOne(
             "SELECT * FROM user_companies WHERE user_id = :uid AND company_id = :cid LIMIT 1",
             [':uid' => self::userId(), ':cid' => $companyId]
@@ -485,11 +559,20 @@ final class TenantContext
 
         $periodId = (int)$period['id'];
 
-        $existingUserCompany = $db->selectOne(
-            "SELECT id FROM user_companies WHERE user_id = :uid AND company_id = :cid LIMIT 1",
-            [':uid' => self::userId(), ':cid' => $companyId]
-        );
-        if (!$existingUserCompany) {
+        // İLK KURULUM ataması — SADECE sistemde henüz hiçbir şirket ataması
+        // yokken çalışır.
+        //
+        // ESKİDEN bu blok, giriş yapan HER kullanıcıya id'si en küçük şirketin
+        // 'owner' rolünü sessizce veriyordu. Sonuçları:
+        //   1) Yetki yükselmesi: yeni açılan her kullanıcı, kendisine hiç
+        //      atanmamış bir şirkette şirket/dönem yönetebilen 'owner' oluyordu.
+        //   2) Kafa karışıklığı: kullanıcı "Şirket Değiştir" ekranında hiç
+        //      atanmadığı (ve çoğu zaman pasif olan) bir şirketi görüyor,
+        //      seçemiyor ve başka seçeneği olmadığı için sıkışıp kalıyordu.
+        // Artık şirket ataması yalnızca açık bir yönetici işlemiyle yapılır
+        // (Kullanıcı Yönetimi > kullanıcı formundaki "Yetkili Şirketler").
+        $anyAssignmentExists = $db->selectOne("SELECT id FROM user_companies LIMIT 1");
+        if (!$anyAssignmentExists && self::userId() > 0) {
             $db->insert('user_companies', [
                 'user_id' => self::userId(),
                 'company_id' => $companyId,
@@ -526,55 +609,125 @@ final class TenantContext
         }
     }
 
+    /**
+     * SAF KARAR FONKSİYONU — hangi şirketin aktif olacağını belirler.
+     *
+     * Veritabanı/oturum'a dokunmaz; bu sayede tüm varyasyonlarıyla test
+     * edilebilir (bkz. tests/regression/tenant_secim_invariants.php).
+     *
+     * Kurallar:
+     *  1) Giriş yapılmamışsa (userId <= 0) hiçbir şirket seçilmez.
+     *  2) Oturumdaki seçim BAŞKA bir kullanıcıya aitse yok sayılır — aynı
+     *     tarayıcı oturumunda kullanıcı değiştiğinde önceki kullanıcının
+     *     şirketi devralınmaz.
+     *  3) Oturumdaki şirket kullanıcının erişebildiği ve AKTİF bir şirketse
+     *     korunur.
+     *  4) Aksi halde erişilebilir aktif şirketlerden ilki seçilir
+     *     (önce is_default, sonra en küçük id).
+     *  5) Hiçbiri yoksa null döner — çağıran taraf oturumdaki seçimi
+     *     TEMİZLEMEK zorundadır (eski hata: temizlenmeyip erişilemeyen id
+     *     oturumda kalıyordu ve kullanıcı her sayfada 403 görüyordu).
+     *
+     * @param array<int,array{id:int|string,status:string,is_default?:int|string}> $accessibleCompanies
+     */
+    public static function resolveCompanySelection(
+        int $userId,
+        ?int $sessionCompanyId,
+        int $sessionOwnerId,
+        array $accessibleCompanies
+    ): ?int {
+        if ($userId <= 0) {
+            return null;
+        }
+
+        $active = array_values(array_filter(
+            $accessibleCompanies,
+            fn(array $c): bool => ($c['status'] ?? '') === 'active'
+        ));
+
+        if ($sessionCompanyId !== null && $sessionCompanyId > 0 && $sessionOwnerId === $userId) {
+            foreach ($active as $c) {
+                if ((int)$c['id'] === $sessionCompanyId) {
+                    return $sessionCompanyId;
+                }
+            }
+        }
+
+        usort($active, function (array $a, array $b): int {
+            $byDefault = (int)($b['is_default'] ?? 0) <=> (int)($a['is_default'] ?? 0);
+            return $byDefault !== 0 ? $byDefault : ((int)$a['id'] <=> (int)$b['id']);
+        });
+
+        return $active ? (int)$active[0]['id'] : null;
+    }
+
+    /**
+     * SAF KARAR FONKSİYONU — seçili şirket için hangi dönemin aktif olacağı.
+     *
+     * Oturumdaki dönem bu şirkete aitse korunur; değilse önce 'open' olanlar
+     * arasından en yeni mali yıl, o da yoksa herhangi bir dönem seçilir.
+     *
+     * @param array<int,array{id:int|string,status:string,fiscal_year:int|string}> $companyPeriods
+     */
+    public static function resolvePeriodSelection(?int $sessionPeriodId, array $companyPeriods): ?int
+    {
+        if ($sessionPeriodId !== null && $sessionPeriodId > 0) {
+            foreach ($companyPeriods as $p) {
+                if ((int)$p['id'] === $sessionPeriodId) {
+                    return $sessionPeriodId;
+                }
+            }
+        }
+
+        $enYeni = static function (array $list): ?int {
+            if (!$list) {
+                return null;
+            }
+            usort($list, function (array $a, array $b): int {
+                $byYear = (int)$b['fiscal_year'] <=> (int)$a['fiscal_year'];
+                return $byYear !== 0 ? $byYear : ((int)$b['id'] <=> (int)$a['id']);
+            });
+            return (int)$list[0]['id'];
+        };
+
+        $acik = array_values(array_filter($companyPeriods, fn(array $p): bool => ($p['status'] ?? '') === 'open'));
+        return $enYeni($acik) ?? $enYeni(array_values($companyPeriods));
+    }
+
     private static function ensureActiveSelection(): void
     {
         $db = Database::getInstance();
-        $companyId = self::activeCompanyId();
+        $userId = self::userId();
 
-        if (!$companyId || !self::userCanAccessCompany($companyId)) {
-            $company = $db->selectOne(
-                "SELECT c.*
-                 FROM user_companies uc
-                 JOIN companies c ON c.id = uc.company_id
-                 WHERE uc.user_id = :uid AND c.status = 'active' AND c.deleted_at IS NULL
-                 ORDER BY uc.is_default DESC, c.id LIMIT 1",
-                [':uid' => self::userId()]
-            );
-            if ($company) {
-                $_SESSION['active_company_id'] = (int)$company['id'];
-            }
-        }
+        $accessible = $db->select(
+            "SELECT c.id, c.status, uc.is_default
+             FROM user_companies uc
+             JOIN companies c ON c.id = uc.company_id
+             WHERE uc.user_id = :uid AND c.deleted_at IS NULL",
+            [':uid' => $userId]
+        );
 
-        $companyId = self::activeCompanyId();
-        if (!$companyId) {
+        $companyId = self::resolveCompanySelection(
+            $userId,
+            self::activeCompanyId(),
+            (int)($_SESSION['active_tenant_user_id'] ?? 0),
+            $accessible
+        );
+
+        if ($companyId === null) {
+            // Seçilebilir şirket yok: oturumdaki (erişilemeyen/pasif) seçimi
+            // MUTLAKA temizle, aksi halde kullanıcı çıkışsız bir 403'e kilitlenir.
+            self::clearActiveSelection();
             return;
         }
 
-        $periodId = self::activePeriodId();
-        $periodValid = false;
-        if ($periodId) {
-            $periodValid = $db->selectOne(
-                "SELECT id FROM accounting_periods WHERE id = :pid AND company_id = :cid LIMIT 1",
-                [':pid' => $periodId, ':cid' => $companyId]
-            ) !== null;
-        }
+        $periods = $db->select(
+            "SELECT id, status, fiscal_year FROM accounting_periods WHERE company_id = :cid",
+            [':cid' => $companyId]
+        );
+        $periodId = self::resolvePeriodSelection(self::activePeriodId(), $periods);
 
-        if (!$periodValid) {
-            $period = $db->selectOne(
-                "SELECT * FROM accounting_periods
-                 WHERE company_id = :cid AND status = 'open'
-                 ORDER BY fiscal_year DESC LIMIT 1",
-                [':cid' => $companyId]
-            ) ?: $db->selectOne(
-                "SELECT * FROM accounting_periods
-                 WHERE company_id = :cid
-                 ORDER BY fiscal_year DESC LIMIT 1",
-                [':cid' => $companyId]
-            );
-            if ($period) {
-                $_SESSION['active_period_id'] = (int)$period['id'];
-            }
-        }
+        self::setActiveSelection($companyId, $periodId);
     }
 
     private static function addIndex(string $table, string $index, string $columns): void

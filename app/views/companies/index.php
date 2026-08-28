@@ -1,4 +1,10 @@
-<?php $flash = $flash ?? []; ?>
+<?php
+$flash = $flash ?? [];
+$companies = $companies ?? [];
+// Yetkisi olmayan kullanıcıya ham 403 sayfasına götüren buton gösterme.
+$aktifId = TenantContext::activeCompanyId();
+$canCreate = AuthGuard::isSuperAdmin() || ($aktifId && TenantContext::canManageCompany($aktifId));
+?>
 <?php if (!empty($flash)): ?>
   <div class="alert alert-<?= htmlspecialchars($flash['tip'] === 'error' ? 'danger' : $flash['tip']) ?>"><?= htmlspecialchars($flash['mesaj']) ?></div>
 <?php endif; ?>
@@ -8,8 +14,18 @@
     <h1 class="h4 mb-1">Şirket Yönetimi</h1>
     <div class="text-muted small">Şirketler, varsayılan ayarlar ve dönem bağlantıları.</div>
   </div>
-  <a href="<?= BASE_URL ?>/companies/create" class="btn btn-success"><i class="fa-solid fa-plus me-1"></i> Yeni Şirket</a>
+  <?php if ($canCreate): ?>
+    <a href="<?= BASE_URL ?>/companies/create" class="btn btn-success"><i class="fa-solid fa-plus me-1"></i> Yeni Şirket</a>
+  <?php endif; ?>
 </div>
+
+<?php if (empty($companies)): ?>
+  <div class="alert alert-warning">
+    Hesabınıza atanmış bir şirket yok. Sistem yöneticinizden
+    <strong>Kullanıcı Yönetimi &rsaquo; kullanıcıyı düzenle &rsaquo; Yetkili Şirketler</strong>
+    alanından size şirket atamasını isteyin.
+  </div>
+<?php endif; ?>
 
 <div class="card border-0 shadow-sm">
   <div class="table-responsive">
@@ -43,13 +59,26 @@
           <td><?= (int)($company['period_count'] ?? 0) ?></td>
           <td><span class="badge text-bg-<?= $company['status'] === 'active' ? 'success' : 'secondary' ?>"><?= htmlspecialchars($company['status']) ?></span></td>
           <td class="text-end">
-            <a href="<?= BASE_URL ?>/companies/select/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-primary">Seç</a>
-            <?php if (empty($company['is_default'])): ?>
-              <a href="<?= BASE_URL ?>/companies/setDefault/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-warning">Varsayılan Yap</a>
+            <?php
+              $cid = (int)$company['id'];
+              $isActive = ($company['status'] ?? '') === 'active';
+              $canManage = TenantContext::canManageCompany($cid);
+            ?>
+            <?php if ($isActive): ?>
+              <a href="<?= BASE_URL ?>/companies/select/<?= $cid ?>" class="btn btn-sm btn-outline-primary">Seç</a>
+            <?php else: ?>
+              <span class="btn btn-sm btn-outline-secondary disabled" title="Pasif şirket seçilemez.">Seç</span>
             <?php endif; ?>
-            <a href="<?= BASE_URL ?>/companies/periods/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-secondary">Dönemler</a>
-            <a href="<?= BASE_URL ?>/companies/edit/<?= (int)$company['id'] ?>" class="btn btn-sm btn-outline-dark">Düzenle</a>
-            <a href="#" class="btn btn-sm btn-outline-danger" onclick="return nymPost('<?= BASE_URL ?>/companies/delete/<?= (int)$company['id'] ?>', 'Şirket pasife alınsın mı?')">Pasife Al</a>
+            <?php if (empty($company['is_default']) && $isActive): ?>
+              <a href="<?= BASE_URL ?>/companies/setDefault/<?= $cid ?>" class="btn btn-sm btn-outline-warning">Varsayılan Yap</a>
+            <?php endif; ?>
+            <a href="<?= BASE_URL ?>/companies/periods/<?= $cid ?>" class="btn btn-sm btn-outline-secondary">Dönemler</a>
+            <?php if ($canManage): ?>
+              <a href="<?= BASE_URL ?>/companies/edit/<?= $cid ?>" class="btn btn-sm btn-outline-dark">Düzenle</a>
+              <?php if ($isActive): ?>
+                <a href="#" class="btn btn-sm btn-outline-danger" onclick="return nymPost('<?= BASE_URL ?>/companies/delete/<?= $cid ?>', 'Şirket pasife alınsın mı?')">Pasife Al</a>
+              <?php endif; ?>
+            <?php endif; ?>
           </td>
         </tr>
       <?php endforeach; ?>

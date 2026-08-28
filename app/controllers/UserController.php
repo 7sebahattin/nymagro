@@ -43,13 +43,15 @@ final class UserController extends Controller
         $offset = ($sayfa - 1) * $limit;
 
         $toplam = $this->users->count($filters);
+        $kayitlar = $this->users->list($filters, $limit, $offset);
 
         $this->view('kullanicilar/index', [
             'pageTitle'   => 'Kullanıcılar',
             'activeMenu'  => 'kullanicilar',
             'topbarTitle' => 'Kullanıcı Yönetimi',
             'topbarIcon'  => 'fa-solid fa-users-gear',
-            'kayitlar'    => $this->users->list($filters, $limit, $offset),
+            'kayitlar'    => $kayitlar,
+            'sirketAdlari' => $this->users->companyNamesByUser(array_column($kayitlar, 'id')),
             'roller'      => $this->users->roles(),
             'filters'     => $filters,
             'toplam'      => $toplam,
@@ -68,6 +70,9 @@ final class UserController extends Controller
             'topbarIcon'  => 'fa-solid fa-user-plus',
             'kullanici'   => null,
             'roller'      => $this->users->roles(),
+            'sirketler'   => $this->users->assignableCompanies(),
+            'atananlar'   => [],
+            'sirketRolleri' => UserAdmin::COMPANY_ROLES,
             'flash'       => $this->getFlash(),
         ]);
     }
@@ -97,6 +102,9 @@ final class UserController extends Controller
             'topbarIcon'  => 'fa-solid fa-user-pen',
             'kullanici'   => $kullanici,
             'roller'      => $this->users->roles(),
+            'sirketler'   => $this->users->assignableCompanies(),
+            'atananlar'   => $this->users->companyAssignments($id),
+            'sirketRolleri' => UserAdmin::COMPANY_ROLES,
             'flash'       => $this->getFlash(),
         ]);
     }

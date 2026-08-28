@@ -18,9 +18,174 @@ final class UserAdmin
         $this->db = Database::getInstance();
     }
 
+    /** user_companies.role ENUM'unun izin verdiği değerler (şema ile birebir). */
+    public const COMPANY_ROLES = [
+        'owner'      => 'Sahip (şirket + dönem yönetebilir)',
+        'admin'      => 'Yönetici (şirket + dönem yönetebilir)',
+        'accountant' => 'Muhasebeci (dönem yönetebilir)',
+        'sales'      => 'Satış (yönetim yetkisi yok)',
+        'viewer'     => 'Standart (yönetim yetkisi yok)',
+    ];
+
+    public const DEFAULT_COMPANY_ROLE = 'viewer';
+
     public function roles(): array
     {
         return $this->db->select("SELECT id, code, name, is_system FROM roles ORDER BY is_system DESC, name ASC");
+    }
+
+    /** Atanabilecek (silinmemiş) tüm şirketler. */
+    public function assignableCompanies(): array
+    {
+        return $this->db->select(
+            "SELECT id, company_name, short_name, status
+             FROM companies WHERE deleted_at IS NULL
+             ORDER BY status = 'active' DESC, company_name"
+        );
+    }
+
+    /** Bir kullanıcının şirket atamaları: company_id => satır. */
+    public function companyAssignments(int $userId): array
+    {
+        $rows = $this->db->select(
+            "SELECT uc.company_id, uc.role, uc.is_default, c.company_name, c.status
+             FROM user_companies uc
+             JOIN companies c ON c.id = uc.company_id
+             WHERE uc.user_id = :uid AND c.deleted_at IS NULL
+             ORDER BY c.company_name",
+            [':uid' => $userId]
+        );
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(int)$row['company_id']] = $row;
+        }
+        return $map;
+    }
+
+    /** Birden çok kullanıcı için şirket adları: user_id => ['A', 'B']. */
+    public function companyNamesByUser(array $userIds): array
+    {
+        $userIds = array_values(array_unique(array_map('intval', $userIds)));
+        if (!$userIds) {
+            return [];
+        }
+        $ph = [];
+        $params = [];
+        foreach ($userIds as $i => $uid) {
+            $ph[] = ':u' . $i;
+            $params[':u' . $i] = $uid;
+        }
+        $rows = $this->db->select(
+            "SELECT uc.user_id, c.company_name
+             FROM user_companies uc
+             JOIN companies c ON c.id = uc.company_id
+             WHERE uc.user_id IN (" . implode(',', $ph) . ") AND c.deleted_at IS NULL
+             ORDER BY c.company_name",
+            $params
+        );
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(int)$row['user_id']][] = (string)$row['company_name'];
+        }
+        return $map;
+    }
+
+    /** POST'tan gelen şirket rolünü doğrular; geçersizse güvenli varsayılana düşer. */
+    public static function normalizeCompanyRole($role): string
+    {
+        $role = is_string($role) ? trim($role) : '';
+        return isset(self::COMPANY_ROLES[$role]) ? $role : self::DEFAULT_COMPANY_ROLE;
+    }
+
+    /**
+     * Gönderilen şirket id listesini, gerçekten var olan (silinmemiş)
+     * şirketlerle kesiştirir — uydurma id'ler sessizce elenir.
+     *
+     * @return int[]
+     */
+    public function filterExistingCompanyIds(array $companyIds): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $companyIds), fn(int $id): bool => $id > 0)));
+        if (!$ids) {
+            return [];
+        }
+        $ph = [];
+        $params = [];
+        foreach ($ids as $i => $id) {
+            $ph[] = ':c' . $i;
+            $params[':c' . $i] = $id;
+        }
+        $rows = $this->db->select(
+            "SELECT id FROM companies WHERE deleted_at IS NULL AND id IN (" . implode(',', $ph) . ")",
+            $params
+        );
+        return array_map(fn(array $r): int => (int)$r['id'], $rows);
+    }
+
+    /**
+     * Kullanıcının şirket atamalarını verilen listeye eşitler (ekle + çıkar).
+     * Zaten var olan atamaların rolü de güncellenir. is_default korunur;
+     * kullanıcının hiç varsayılanı kalmadıysa ilk şirket varsayılan yapılır.
+     *
+     * NOT: Çağıran taraf transaction açmış olabilir — burada ayrıca açılmaz.
+     *
+     * @param int[] $companyIds
+     */
+    public function syncCompanies(int $userId, array $companyIds, string $role): void
+    {
+        $role = self::normalizeCompanyRole($role);
+        $target = $this->filterExistingCompanyIds($companyIds);
+        $current = array_keys($this->companyAssignments($userId));
+
+        $canManage = in_array($role, ['owner', 'admin'], true) ? 1 : 0;
+        $canPeriod = in_array($role, ['owner', 'admin', 'accountant'], true) ? 1 : 0;
+
+        foreach (array_diff($current, $target) as $companyId) {
+            $this->db->query(
+                "DELETE FROM user_companies WHERE user_id = :uid AND company_id = :cid",
+                [':uid' => $userId, ':cid' => (int)$companyId]
+            );
+        }
+
+        foreach ($target as $companyId) {
+            if (in_array($companyId, $current, true)) {
+                $this->db->query(
+                    "UPDATE user_companies
+                     SET role = :role, can_manage_company = :cm, can_manage_period = :cp
+                     WHERE user_id = :uid AND company_id = :cid",
+                    [
+                        ':role' => $role, ':cm' => $canManage, ':cp' => $canPeriod,
+                        ':uid' => $userId, ':cid' => $companyId,
+                    ]
+                );
+                continue;
+            }
+            $this->db->insert('user_companies', [
+                'user_id'            => $userId,
+                'company_id'         => $companyId,
+                'role'               => $role,
+                'can_switch_company' => 1,
+                'can_manage_company' => $canManage,
+                'can_manage_period'  => $canPeriod,
+                'is_default'         => 0,
+            ]);
+        }
+
+        // Varsayılan şirket kalmadıysa (ör. varsayılan olan atama kaldırıldı)
+        // ilk şirketi varsayılan yap — aksi halde kullanıcı girişte hiçbir
+        // şirkete otomatik düşemez.
+        if ($target) {
+            $hasDefault = $this->db->selectOne(
+                "SELECT id FROM user_companies WHERE user_id = :uid AND is_default = 1 LIMIT 1",
+                [':uid' => $userId]
+            );
+            if (!$hasDefault) {
+                $this->db->query(
+                    "UPDATE user_companies SET is_default = 1 WHERE user_id = :uid AND company_id = :cid",
+                    [':uid' => $userId, ':cid' => $target[0]]
+                );
+            }
+        }
     }
 
     public function count(array $filters): int
@@ -130,6 +295,16 @@ final class UserAdmin
             return ['ok' => false, 'message' => 'Bu kullanıcı adı veya e-posta zaten kayıtlı.'];
         }
 
+        // Şirket ataması kullanıcının uygulamaya GİREBİLMESİ için zorunludur:
+        // hiç şirketi olmayan kullanıcı giriş yapar ama "Şirket Değiştir"
+        // ekranında boş liste görüp hiçbir sayfaya geçemez. Bu yüzden
+        // oluşturma anında en az bir şirket seçilmiş olmalıdır.
+        $companyIds = $this->filterExistingCompanyIds((array)($data['company_ids'] ?? []));
+        if (!$companyIds) {
+            return ['ok' => false, 'message' => 'En az bir yetkili şirket seçmelisiniz; şirketi olmayan kullanıcı sisteme giriş yapsa da hiçbir ekranı açamaz.'];
+        }
+        $companyRole = self::normalizeCompanyRole($data['company_role'] ?? null);
+
         $this->db->begin();
         try {
             $id = $this->db->insert('users', [
@@ -142,6 +317,7 @@ final class UserAdmin
                 'status'        => $status,
                 'bio'           => $note !== '' ? $note : null,
             ]);
+            $this->syncCompanies($id, $companyIds, $companyRole);
             $this->db->commit();
         } catch (Throwable $e) {
             $this->db->rollBack();
@@ -151,7 +327,8 @@ final class UserAdmin
         Audit::log('USER_CREATE', 'USER', $id, null, [
             'username' => $username, 'email' => $email, 'full_name' => $fullName,
             'role' => $role['code'], 'status' => $status,
-        ], "Yeni kullanıcı oluşturuldu: {$username} (rol: {$role['name']})", true, $actorId);
+            'company_ids' => implode(',', $companyIds), 'company_role' => $companyRole,
+        ], "Yeni kullanıcı oluşturuldu: {$username} (rol: {$role['name']}, " . count($companyIds) . " şirket)", true, $actorId);
 
         return ['ok' => true, 'message' => 'Kullanıcı oluşturuldu.', 'id' => $id];
     }
@@ -197,6 +374,20 @@ final class UserAdmin
             return ['ok' => false, 'message' => 'Kendi rolünüzü değiştiremezsiniz.'];
         }
 
+        $companyIdsBefore = array_keys($this->companyAssignments($id));
+        $companyIds = $this->filterExistingCompanyIds((array)($data['company_ids'] ?? []));
+        if (!$companyIds) {
+            return ['ok' => false, 'message' => 'En az bir yetkili şirket seçmelisiniz; şirketi olmayan kullanıcı sisteme giriş yapsa da hiçbir ekranı açamaz.'];
+        }
+        // Yönetici kendi şirket erişimini kazara kaldırıp kendini kilitleyemesin.
+        if ($id === $actorId) {
+            $kaybedilen = array_diff($companyIdsBefore, $companyIds);
+            if ($kaybedilen) {
+                return ['ok' => false, 'message' => 'Kendi şirket erişiminizi kaldıramazsınız; aksi halde sisteme giremez duruma gelirsiniz.'];
+            }
+        }
+        $companyRole = self::normalizeCompanyRole($data['company_role'] ?? null);
+
         $this->db->begin();
         try {
             $this->db->update('users', [
@@ -208,10 +399,18 @@ final class UserAdmin
                 'role'      => $role['code'],
                 'role_id'   => $role['id'],
             ], ['id' => $id]);
+            $this->syncCompanies($id, $companyIds, $companyRole);
             $this->db->commit();
         } catch (Throwable $e) {
             $this->db->rollBack();
             return ['ok' => false, 'message' => 'Güncellenemedi: ' . $e->getMessage()];
+        }
+
+        if (array_diff($companyIdsBefore, $companyIds) || array_diff($companyIds, $companyIdsBefore)) {
+            Audit::log('UPDATE', 'USER', $id,
+                ['company_ids' => implode(',', $companyIdsBefore)],
+                ['company_ids' => implode(',', $companyIds), 'company_role' => $companyRole],
+                "{$username} kullanıcısının yetkili şirketleri güncellendi.", true, $actorId);
         }
 
         Audit::log('UPDATE', 'USER', $id,

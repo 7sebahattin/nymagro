@@ -11,6 +11,29 @@
   <a href="<?= BASE_URL ?>/companies" class="btn btn-outline-secondary"><i class="fa-solid fa-building me-1"></i> Şirket Yönetimi</a>
 </div>
 
+<?php
+// Kullanıcı yalnızca AKTİF bir şirketi seçebilir (bkz. CompanyController::select).
+// Seçilebilir hiçbir şirketi yoksa bu ekran çıkışsız bir çıkmazdır: liste ya
+// boştur ya da sadece tıklanamayan pasif kartlar vardır. Bu durumda ne
+// yapması gerektiğini açıkça söyle.
+$secilebilir = array_filter($companies, fn(array $c): bool => ($c['status'] ?? '') === 'active');
+?>
+<?php if (empty($secilebilir)): ?>
+  <div class="alert alert-warning">
+    <h2 class="h6 mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> Girebileceğiniz aktif bir şirket yok</h2>
+    <?php if (empty($companies)): ?>
+      <p class="mb-2">Hesabınıza henüz hiçbir şirket atanmamış.</p>
+    <?php else: ?>
+      <p class="mb-2">Yetkili olduğunuz şirket(ler) pasif durumda olduğu için seçilemiyor.</p>
+    <?php endif; ?>
+    <p class="mb-0">
+      Sistem yöneticinizden <strong>Kullanıcı Yönetimi &rsaquo; kullanıcıyı düzenle &rsaquo; Yetkili Şirketler</strong>
+      alanından size aktif bir şirket atamasını isteyin.
+      <a href="<?= BASE_URL ?>/cikis" class="alert-link ms-1">Çıkış yap</a>
+    </p>
+  </div>
+<?php endif; ?>
+
 <div class="row g-3">
   <?php foreach ($companies as $company): ?>
     <div class="col-md-6 col-xl-4">
