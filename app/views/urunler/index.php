@@ -57,7 +57,7 @@ $qStr = fn(array $extra = []) => http_build_query(array_filter(array_merge(
   .td-name-cell a:hover { text-decoration:underline; }
   
   .badge-ticari { background:#286090; color:#fff; font-size:9px; padding:2px 6px; border-radius:2px; font-weight:700; text-transform:uppercase; }
-  .badge-brand { background:#f0ad4e; color:#fff; font-size:9px; padding:2px 6px; border-radius:2px; font-weight:700; text-transform:uppercase; }
+  .badge-brand { background:#f0ad4e; color:#3d2a06; font-size:9px; padding:2px 6px; border-radius:2px; font-weight:700; text-transform:uppercase; }
   .badge-tag { background:#d9534f; color:#fff; font-size:9px; padding:2px 6px; border-radius:2px; font-weight:700; text-transform:uppercase; position:absolute; right:10px; }
   
   .td-price-cell { padding:8px 12px; text-align:right; font-weight:600; background:var(--card-bg); color:var(--text2); }

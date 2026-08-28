@@ -115,7 +115,9 @@ $periodLabel = ['1ay' => 'Son 1 Ay', '3ay' => 'Son 3 Ay', '6ay' => 'Son 6 Ay', '
   .d-odendi   { background:rgba(46,204,113,.15); color:var(--success); }
   .d-gecikti  { background:rgba(231,76,60,.15); color:var(--danger); }
 
-  .btn-islem { font-size:11.5px; padding:3px 9px; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; cursor:pointer; white-space:nowrap; }
+  /* color OLMADAN <button> tarayıcı varsayılanı olan SİYAH metni alır; koyu
+     temada koyu zemin üzerinde siyah yazı görünmez olur. */
+  .btn-islem { font-size:11.5px; padding:3px 9px; background:var(--surface-2); color:var(--text); border:1px solid var(--border); border-radius:4px; cursor:pointer; white-space:nowrap; }
   .btn-islem:hover { background:var(--surface-2); }
 
   /* ── EMPTY STATE ── */

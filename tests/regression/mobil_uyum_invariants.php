@@ -157,6 +157,8 @@ if (!komutVar('node')) {
                 'alt-nav-yatay-kaymis' => 'Mobil alt navigasyon hiçbir sayfada yatayda ekran dışına taşmıyor',
                 'alt-nav-kaydirinca-kayiyor' => 'En alta kaydırınca da alt navigasyon yerinde kalıyor',
                 'icerik-alt-barin-altinda' => 'Hiçbir sayfada içerik alt navigasyonun altında kalmıyor',
+                'okunmayan-metin' => 'Her iki temada da metin zeminden ayırt edilebiliyor (kontrast ≥ 2.0)',
+                'kucuk-dokunma-hedefi' => 'Parmakla ıskalanacak kadar küçük (<30px) kontrol yok',
             ];
             foreach ($turler as $tur => $baslik) {
                 $eslesen = array_values(array_filter($bulgular, fn(array $b): bool => ($b['tur'] ?? '') === $tur));
@@ -164,9 +166,23 @@ if (!komutVar('node')) {
                 kontrol('Tarayıcı ölçümü: ' . $baslik, empty($eslesen), $detay);
             }
 
+            // "bilgi-" ile başlayan türler bilinçli olarak testi DÜŞÜRMEZ:
+            // bunlar WCAG AA eşiğinin altındaki marka butonları (2.0–4.5
+            // kontrast) ve 30–44px arası dokunma hedefleridir — okunur ve
+            // kullanılabilir durumdalar, ama iyileştirilebilirler. Sayıları
+            // raporda görünür ki zamanla azaltılabilsin.
+            $bilgiler = array_values(array_filter($bulgular, fn(array $b): bool => str_starts_with($b['tur'] ?? '', 'bilgi-')));
+            if ($bilgiler) {
+                $atlananlar[] = 'Bilgi (testi düşürmez): ' . count($bilgiler)
+                    . ' iyileştirme önerisi — düşük kontrastlı marka butonları ve 30–44px arası dokunma hedefleri.';
+            }
+
             // Beklenmeyen bir bulgu türü çıkarsa da testi düşür (sessiz geçmesin).
             $bilinen = array_keys($turler);
-            $digerleri = array_values(array_filter($bulgular, fn(array $b): bool => !in_array($b['tur'] ?? '', $bilinen, true)));
+            $digerleri = array_values(array_filter(
+                $bulgular,
+                fn(array $b): bool => !in_array($b['tur'] ?? '', $bilinen, true) && !str_starts_with($b['tur'] ?? '', 'bilgi-')
+            ));
             kontrol('Tarayıcı ölçümü: sınıflandırılmamış mobil bulgusu yok',
                 empty($digerleri),
                 implode("\n      ", array_map(fn(array $b): string => (string)($b['mesaj'] ?? ''), $digerleri)));

@@ -730,8 +730,55 @@ body[data-theme="acik"] .btn-close { filter: none; }
   .filter-tab { min-height: 44px; padding: 7px 16px; }
   .icon-btn { min-width: 44px; min-height: 44px; }
 
+  /* GÜVENLİK AĞI — dokunma hedefi asgarisi.
+     Onlarca view kendi buton class'ını tanımlıyor (.btn-action, .bt-paragir,
+     .top-btn, .btn-donem, .btn-period …) ve çoğu masaüstü için ~28px yükseklik
+     veriyor. Parmakla bu boyut ıskalanıyor. Sınıf sınıf peşinden koşmak yerine
+     panel içindeki TÜM buton/seçim kontrollerine tek bir asgari yükseklik
+     verilir; yerel class'lar bunu büyütebilir ama küçültemez.
+     row-toggle gibi tablo içi kompakt açma/kapama düğmeleri hariç tutulur —
+     onlar satır yüksekliğini belirler; yine de rahat basılabilir bir boyuta
+     çekilir (aşağıda). */
+  .page-content button:not(.row-toggle):not(.cd-plus):not(.bnav-item),
+  .page-content select,
+  .page-content a.btn-action,
+  .page-content .top-btn,
+  .page-content .btn-det { min-height: 44px; }
+
+  /* Dar ikon/caret düğmeleri genişlikte de basılabilir olmalı (16-26px parmakla
+     ıskalanıyor). TÜM butonlara min-width VERİLMEZ: dar ekranda sığmayan filtre
+     satırları yatay taşmaya yol açıyor (Teklifler @320px'de ölçüldü). Bu yüzden
+     yalnızca ikon-only/dar düğmeler hedeflenir. */
+  .page-content .btn-add-caret,
+  .page-content .musteri-ac-btn { min-width: 44px; }
+
+  /* Tablo içi kompakt aç/kapa düğmeleri: satırı şişirmeden basılabilir olsun */
+  .page-content .row-toggle,
+  .page-content .cd-plus { min-width: 32px; min-height: 32px; }
+
+  /* Onay kutusu/radyo satırları: kutunun KENDİSİ küçüktür (16px) ama etiketine
+     basmak da onu seçer — gerçek dokunma alanı etikettir. Etiketi rahat
+     basılabilir yükseklikte tut; kutunun görsel boyutu değişmez. */
+  .page-content .form-check-label,
+  .page-content .check-label,
+  .page-content label:has(input[type="checkbox"]),
+  .page-content label:has(input[type="radio"]) {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
   /* Çok sütunlu düzenler tek sütuna iner */
   .form-grid, .two-col, .row-2col { grid-template-columns: 1fr !important; }
+
+  /* Fatura giriş/düzenleme ekranlarının iki panelli düzeni (sol: belge
+     bilgileri, sağ: ürün kalemleri) mobilde ALT ALTA iner.
+     Aksi halde iki panel yan yana kalır ve sayfa 360px'lik bir telefonda
+     ~740px genişler: yatay taşma yüzünden sabit alt navigasyon ekran
+     dışına kayar ve ürün arama kutusuna ulaşılamaz.
+     Kullanan ekranlar: satis/alis → ekle, duzenle, detay. */
+  .panels-container { flex-direction: column !important; gap: 14px !important; }
+  .panels-container > .panel { width: 100% !important; max-width: 100% !important; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 
   /* Tablolar yatay kaydırılır */

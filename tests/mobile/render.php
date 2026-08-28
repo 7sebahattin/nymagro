@@ -263,6 +263,71 @@ function sayfalar(): array
                 'flash' => [],
             ],
         ],
+        // ── VERİ GİRİŞ EKRANLARI ─────────────────────────────────────────
+        // Mobilde en riskli sayfalar bunlardır: çok sütunlu kalem tabloları ve
+        // yan yana form alanları dar ekranda kolayca taşar.
+        'satis_ekle' => [
+            'view' => 'satislar/ekle',
+            'vars' => [
+                'faturaNo' => 'NYM-2026-000007', 'bugun' => '2026-08-06',
+                'cari' => null, 'eski' => [], 'hatalar' => [],
+                'depolar' => [['id' => 1, 'ad' => 'Finike Depo'], ['id' => 2, 'ad' => 'Merkez Depo']],
+                'acikIrsaliyeler' => [], 'acikTeklifler' => [],
+                'presetKaynakIrsaliyeId' => 0, 'presetKaynakTeklifId' => 0,
+                'flash' => [],
+            ],
+        ],
+        'alis_ekle' => [
+            'view' => 'alislar/ekle',
+            'vars' => [
+                'faturaNo' => 'NYMA-2026-000005', 'bugun' => '2026-08-06',
+                'cari' => null, 'tedarikciAdi' => '', 'eski' => [], 'hatalar' => [],
+                'depolar' => [['id' => 1, 'ad' => 'Finike Depo']],
+                'acikIrsaliyeler' => [], 'presetKaynakIrsaliyeId' => 0,
+                'flash' => [],
+            ],
+        ],
+        'urun_ekle' => [
+            'view' => 'urunler/ekle',
+            'vars' => [
+                'eski' => [], 'hatalar' => [], 'tip' => 'urun',
+                'ad' => '', 'barkod' => '', 'stok_kodu' => '',
+                'varyantlar' => [], 'isStorefront' => false,
+                'tanimKategoriler' => [['ad' => 'Şelatlı Mikro Element'], ['ad' => 'Makro Besin']],
+                'tanimMarkalar' => [['ad' => 'Nymagro']],
+                'flash' => [],
+            ],
+        ],
+        'musteri_ekle' => [
+            'view' => 'musteriler/ekle',
+            'vars' => [
+                'eski' => [], 'hatalar' => [], 'duzenleId' => 0, 'tip' => 'musteri',
+                'genel' => [], 'resim' => null,
+                'sinif1ler' => [], 'sinif2ler' => [],
+                'flash' => [],
+            ],
+        ],
+        'hesap_detay' => [
+            'view' => 'hesaplar/detay',
+            'vars' => [
+                'hesap' => [
+                    'id' => 1, 'hesap_adi' => 'İş Bankası Sanal POS (Link)', 'tur' => 'banka',
+                    'banka_adi' => 'İş Bankası', 'iban' => 'TR00 0000 0000 0000 0000 0000 00',
+                    'para_birimi' => 'TRY', 'guncel_bakiye' => 123456.78, 'acilis_bakiye' => 0.0,
+                    'aciklama' => '', 'aktif_mi' => 1,
+                ],
+                'hareketler' => array_map(fn(int $i): array => [
+                    'id' => $i, 'tarih' => '2026-08-0' . (($i % 9) + 1),
+                    'islem_tipi' => $i % 2 ? 'giris' : 'cikis', 'hareket_tipi' => 'tahsilat',
+                    'tutar' => 12345.67, 'aciklama' => 'Örnek hareket açıklaması',
+                    'odeme_yontemi' => 'Nakit', 'cari_id' => 1,
+                    'cari_unvan' => 'ATILGAN GÜMRÜK MÜŞAVİRLİĞİ LTD.ŞTİ.',
+                ], range(1, 5)),
+                'tumHesaplar' => [['id' => 1, 'hesap_adi' => 'İş Bankası', 'para_birimi' => 'TRY']],
+                'success' => null, 'message' => null,
+                'flash' => [],
+            ],
+        ],
     ];
 }
 

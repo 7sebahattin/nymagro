@@ -81,8 +81,8 @@ $durumRenk = [
     .period-wrap { position: relative; }
     .btn-period {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; background: #334155; color: var(--text);
-      border: none; border-radius: 6px; font-size: 13px; font-weight: 500;
+      padding: 6px 14px; background: var(--ink); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-weight: 500;
       cursor: pointer; transition: background .15s;
     }
     .btn-period:hover { background: #1e293b; }
