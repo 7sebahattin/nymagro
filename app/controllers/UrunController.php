@@ -116,7 +116,12 @@ final class UrunController extends Controller
         $limit    = 50;
         $sayfa    = max(1, (int)($_GET['sayfa']   ?? 1));
         $arama    = trim($_GET['ara']             ?? '');
+        // Tanınmayan sekme değeri varsayılana ('' = Ticari Mallar) düşürülür;
+        // böylece sekme çubuğunda hiçbiri "aktif" görünmeyen bir durum oluşmaz.
         $tipFlt   = trim($_GET['tip']             ?? '');
+        if (!array_key_exists($tipFlt, Urun::LISTE_TIP_SEKMELERI)) {
+            $tipFlt = '';
+        }
         $katFlt   = trim($_GET['kategori']        ?? '');
         $markaFlt = trim($_GET['marka']           ?? '');
 

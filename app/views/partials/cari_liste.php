@@ -81,7 +81,7 @@ $buildUrl = function (array $extra = []) use ($baseParams, $cfg): string {
 .cari-name-btn:hover{background:var(--accent-dark);color:#fff;box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 32%,transparent)}
 .cari-name-btn i{font-size:11px;opacity:.85}
 .cari-badge-active,.cari-badge-passive,.cari-badge-extra{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
-.cari-badge-active{background:rgba(46,204,113,.15);color:var(--success)}.cari-badge-passive{background:rgba(231,76,60,.15);color:var(--danger)}.cari-badge-extra{background:rgba(59,130,246,.15);color:var(--info);margin-left:4px}
+.cari-badge-active{background:rgba(46,204,113,.15);color:#15803d}.cari-badge-passive{background:rgba(231,76,60,.15);color:var(--danger)}.cari-badge-extra{background:rgba(59,130,246,.15);color:var(--info);margin-left:4px}
 .cari-amount{font-size:13px;font-weight:700;color:var(--text)}.cari-amount.zero{color:var(--muted);font-weight:400}.cari-amount.pos{color:var(--success)}.cari-amount.neg{color:var(--danger)}.cari-amount.purple{color:var(--accent)}
 .td-right{text-align:right}.td-center{text-align:center}
 .cari-action-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;border-radius:5px;font-size:12px;text-decoration:none;margin-right:4px;transition:background .15s}

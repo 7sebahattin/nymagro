@@ -66,8 +66,8 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
   /* Dönem dropdown */
   .donem-wrap { position:relative; }
-  .btn-donem { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:#334155; color:var(--text); border:none; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; transition:background .15s; }
-  .btn-donem:hover { background:#1e293b; }
+  .btn-donem { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:var(--ink); color:var(--text); border:1px solid var(--border); border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; transition:background .15s; }
+  .btn-donem:hover { background:var(--surface-2); }
   .donem-dropdown { position:absolute; top:calc(100% + 3px); left:0; z-index:300; background:var(--ink); border:1px solid var(--border2); border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,.1); min-width:150px; display:none; padding:4px 0; }
   .donem-dropdown.open { display:block; }
   .donem-item { padding:7px 16px; font-size:13px; color:var(--text2); cursor:pointer; display:block; text-decoration:none; }
@@ -98,7 +98,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
   /* ── Table ── */
   .table-card { background:var(--card-bg); border:1px solid var(--border); border-radius:0 0 8px 8px; overflow:hidden; }
   .sales-table { width:100%; border-collapse:collapse; }
-  .sales-table thead tr { background:#1e293b; }
+  .sales-table thead tr { background:var(--surface-2); }
   .sales-table thead th { padding:11px 14px; font-size:12.5px; font-weight:600; color:var(--muted); white-space:nowrap; border-right:1px solid rgba(255,255,255,.06); }
   .sales-table thead th:last-child { border-right:none; }
   .sales-table tbody tr.data-row { border-bottom:1px solid var(--border); transition:background .12s; }
@@ -174,7 +174,7 @@ $qStr = fn(array $extra=[]) => http_build_query(array_filter(array_merge(
 
 <!-- Belge Tipi Sekmeleri: "Yeni Fatura" ekranındaki Fatura/İrsaliye Kaydet
      butonlarıyla kaydedilen belgeler burada ayrı sekmelerde gözlemlenebilir. -->
-<div style="display:flex; gap:6px; margin-bottom:14px; border-bottom:1px solid var(--border);">
+<div class="tab-scroll" style="margin-bottom:14px; border-bottom:1px solid var(--border);">
   <a href="<?= BASE_URL ?>/satis" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'satis' ? '#27ae60' : 'transparent' ?>; color:<?= $belgeTipi === 'satis' ? 'var(--text)' : 'var(--muted)' ?>;">
     <i class="fa-solid fa-file-invoice-dollar"></i> Faturalar
   </a>

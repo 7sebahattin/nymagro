@@ -68,7 +68,7 @@ $tipLabel = [
   .bt-guncelle  { background: #5cb85c; color: #fff; }
   .bt-paragir   { background: #337ab7; color: #fff; }
   .bt-paracik   { background: #d9534f; color: #fff; }
-  .bt-transfer  { background: #f0ad4e; color: #fff; }
+  .bt-transfer  { background: #f0ad4e; color: #3d2a06; }
   .bt-sil       { background: #6c757d; color: #fff; }
   .h-action-row button:hover { filter: brightness(1.1); }
 
@@ -111,6 +111,9 @@ $tipLabel = [
 
   .btn-islem {
     font-size: 12px; padding: 4px 10px; background: var(--surface-2);
+    /* color OLMADAN <button> tarayıcı varsayılanı olan SİYAH metni alır;
+       koyu temada koyu zemin üzerinde siyah yazı görünmez olur. */
+    color: var(--text);
     border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
   }
   .btn-islem:hover { background: var(--surface-2); }

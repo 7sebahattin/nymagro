@@ -27,8 +27,8 @@ $belgeTipi = $belgeTipi ?? 'alis';
     .period-wrap { position: relative; }
     .btn-period {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; background: #334155; color: var(--text);
-      border: none; border-radius: 6px; font-size: 13px; font-weight: 500;
+      padding: 6px 14px; background: var(--ink); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-weight: 500;
       cursor: pointer;
     }
     .period-dropdown {
@@ -58,7 +58,7 @@ $belgeTipi = $belgeTipi ?? 'alis';
     /* ── TABLE ── */
     .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 0 0 8px 8px; overflow: hidden; }
     .sales-table { width: 100%; border-collapse: collapse; }
-    .sales-table thead tr { background: #1e293b; }
+    .sales-table thead tr { background: var(--surface-2); }
     .sales-table thead th { padding: 11px 14px; font-size: 12.5px; font-weight: 600; color: var(--muted); text-align: left; }
     .sales-table tbody tr.data-row { border-bottom: 1px solid var(--border); cursor: pointer; }
     .sales-table tbody tr.data-row:hover { background: var(--surface-2); }
@@ -112,7 +112,7 @@ $belgeTipi = $belgeTipi ?? 'alis';
 
 <!-- Belge Tipi Sekmeleri: "Yeni Alış Faturası" ekranındaki Fatura/İrsaliye Kaydet
      butonlarıyla kaydedilen belgeler burada ayrı sekmelerde gözlemlenebilir. -->
-<div style="display:flex; gap:6px; margin-bottom:14px; border-bottom:1px solid var(--border);">
+<div class="tab-scroll" style="margin-bottom:14px; border-bottom:1px solid var(--border);">
   <a href="<?= BASE_URL ?>/alis" style="padding:9px 16px; font-size:13px; font-weight:600; text-decoration:none; border-bottom:2px solid <?= $belgeTipi === 'alis' ? '#5bc0de' : 'transparent' ?>; color:<?= $belgeTipi === 'alis' ? 'var(--text)' : 'var(--muted)' ?>;">
     <i class="fa-solid fa-file-invoice-dollar"></i> Faturalar
   </a>
@@ -178,7 +178,7 @@ $belgeTipi = $belgeTipi ?? 'alis';
   <div class="filter-row" style="justify-content:flex-end;">
     <span class="search-label">Ara:</span>
     <input type="text" id="araInput" class="search-txt" placeholder="tedarikçi adı veya belge no..." value="<?= htmlspecialchars($arama ?? '') ?>">
-    <button onclick="doArama()" style="padding:6px 14px; background:#1e293b; color:#4ade80; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">
+    <button onclick="doArama()" style="padding:6px 14px; min-width:44px; background:var(--ink); color:#4ade80; border:1px solid var(--border); border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">
       <i class="fa-solid fa-search"></i>
     </button>
   </div>
