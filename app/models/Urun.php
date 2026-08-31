@@ -253,7 +253,15 @@ class Urun
      * Yalnızca RAPORLAR — hiçbir şey değiştirmez. Onarımdan önce kullanıcıya
      * "ne düzeltilecek" diye göstermek için.
      *
-     * @return array<int,array{id:int,ad:string,tip:string,stok_takibi:string,stok_miktari:float,depo_satiri:int,hareket_sayisi:int}>
+     * NOT: stok_hareketleri geçmiş hareket sayısına BAKILMAZ. Defter
+     * append-only'dir; onarım bile deftere düzeltme hareketi yazar. Geçmiş
+     * hareket sayısını tetikleyici saymak, bir kez onarılmış kalemin
+     * sonsuza dek "hatalı" görünmesine yol açardı (onarım hiçbir zaman
+     * kalıcı sonuç vermeyen bu durum, tam olarak yaşanan hataydı — banner
+     * onarımdan sonra bile kaybolmuyordu). Tek gerçek sinyal: kalemin ŞU AN
+     * canlı bir stok bakiyesi olması (kart toplamı veya depo kırılımı).
+     *
+     * @return array<int,array{id:int,ad:string,tip:string,stok_takibi:string,stok_miktari:float,depo_satiri:int}>
      */
     public function stokTakipDisiHataliKayitlar(): array
     {
@@ -262,15 +270,13 @@ class Urun
             "SELECT u.id, u.ad, u.tip, COALESCE(u.stok_takibi,'normal') AS stok_takibi,
                     COALESCE(u.stok_miktari, 0) AS stok_miktari,
                     (SELECT COUNT(*) FROM urun_stok_depo d
-                      WHERE d.urun_id = u.id AND d.company_id = :cid2) AS depo_satiri,
-                    (SELECT COUNT(*) FROM stok_hareketleri h
-                      WHERE h.urun_id = u.id AND h.company_id = :cid3) AS hareket_sayisi
+                      WHERE d.urun_id = u.id AND d.company_id = :cid2) AS depo_satiri
              FROM urunler_hizmetler u
              WHERE u.company_id = :cid AND u.silindi_mi = 0
                AND NOT (" . self::stokTakipKosuluSql('u') . ")
-             HAVING stok_miktari <> 0 OR depo_satiri > 0 OR hareket_sayisi > 0
+             HAVING stok_miktari <> 0 OR depo_satiri > 0
              ORDER BY u.ad",
-            [':cid' => $cid, ':cid2' => $cid, ':cid3' => $cid]
+            [':cid' => $cid, ':cid2' => $cid]
         );
     }
 
