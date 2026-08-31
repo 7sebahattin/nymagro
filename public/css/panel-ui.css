@@ -254,7 +254,7 @@ body[data-theme="acik"] .sidebar {
 body[data-theme="acik"] .top-bar { background: rgba(255, 255, 255, .88); }
 
 .top-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   font-size: 19px; font-weight: 700; color: var(--text);
   display: flex; align-items: center; gap: 10px; min-width: 0;
 }
@@ -349,7 +349,7 @@ body[data-theme="acik"] .mobile-topbar { background: rgba(255, 255, 255, .92); }
 .mt-brand .brand-icon { width: 32px; height: 32px; border-radius: 9px; }
 .mt-titles { min-width: 0; }
 .mt-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
