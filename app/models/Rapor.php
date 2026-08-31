@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Stok odaklı raporlar, "hangi kalem depoda stoklanır" tanımını Urun sınıfından
+ * alır (Urun::stokTakipKosuluSql) — hizmet ve stok takibi kapalı kartlar stok
+ * raporlarında görünmez. Ürün Alış-Satış raporu bilinçli olarak yalnızca
+ * hizmetleri dışlar: stok takibi kapalı bir ürünün gerçek alış/satışını
+ * gizlemek yanlış olurdu.
+ */
+require_once __DIR__ . '/Urun.php';
+
 class Rapor
 {
     private Database $db;
@@ -354,7 +363,7 @@ class Rapor
             ':tenant_company_id' => TenantContext::activeCompanyId(),
             ':tenant_period_id' => TenantContext::activePeriodId(),
         ];
-        $where = ["u.silindi_mi = 0", "u.tip = 'urun'", "u.company_id = :tenant_company_id"];
+        $where = ["u.silindi_mi = 0", Urun::stokTakipKosuluSql('u'), "u.company_id = :tenant_company_id"];
         if (!empty($filters['product_id'])) {
             $where[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -502,7 +511,7 @@ class Rapor
     public function getWarehouseStatusReport(array $filters): array
     {
         $params = [':tenant_company_id' => TenantContext::activeCompanyId()];
-        $where = ["u.silindi_mi = 0", "u.tip = 'urun'", "u.company_id = :tenant_company_id"];
+        $where = ["u.silindi_mi = 0", Urun::stokTakipKosuluSql('u'), "u.company_id = :tenant_company_id"];
         if (!empty($filters['product_id'])) {
             $where[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -940,7 +949,7 @@ class Rapor
         $params[':tenant_company_id'] = TenantContext::activeCompanyId();
         // bkz. getProductPurchaseSalesReport() — hizmet/masraf kalemleri stok
         // takibine tabi değildir, bu raporda listelenmemeli.
-        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0', "u.tip = 'urun'"];
+        $extra = ['u.company_id = :tenant_company_id', 'u.silindi_mi = 0', Urun::stokTakipKosuluSql('u')];
         if (!empty($filters['product_id'])) {
             $extra[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];
@@ -1012,7 +1021,7 @@ class Rapor
             ':tenant_company_id' => TenantContext::activeCompanyId(),
             ':tenant_period_id' => TenantContext::activePeriodId(),
         ];
-        $where = ["u.silindi_mi = 0", "u.tip = 'urun'", "u.company_id = :tenant_company_id"];
+        $where = ["u.silindi_mi = 0", Urun::stokTakipKosuluSql('u'), "u.company_id = :tenant_company_id"];
         if (!empty($filters['product_id'])) {
             $where[] = 'u.id = :product_id';
             $params[':product_id'] = (int)$filters['product_id'];

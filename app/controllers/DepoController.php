@@ -18,13 +18,62 @@ class DepoController extends Controller
     {
         $depolar = $this->depo->listele();
 
+        // Hizmet / stok takibi kapalı kalemlerde hatalı stok var mı?
+        // (Bu kayıtlar artık oluşmuyor — bkz. Urun::stokHareketiEkle() — ama
+        // düzeltmeden ÖNCE oluşmuş olanlar veride kalmış olabilir.)
+        require_once MODELS_PATH . '/Urun.php';
+        $urunModel = new Urun();
+        $hataliStoklar = [];
+        try {
+            $hataliStoklar = $urunModel->stokTakipDisiHataliKayitlar();
+        } catch (Throwable $e) {
+            error_log('[NYMAGRO] Hatalı stok taraması başarısız: ' . $e->getMessage());
+        }
+
         $this->view('depolar/index', [
-            'depolar'     => $depolar,
-            'topbarTitle' => 'Depo Yönetimi',
-            'topbarIcon'  => 'fa-solid fa-warehouse',
-            'activeMenu'  => 'depolar',
-            'flash'       => $this->getFlash()
+            'depolar'       => $depolar,
+            'hataliStoklar' => $hataliStoklar,
+            'topbarTitle'   => 'Depo Yönetimi',
+            'topbarIcon'    => 'fa-solid fa-warehouse',
+            'activeMenu'    => 'depolar',
+            'flash'         => $this->getFlash()
         ]);
+    }
+
+    /**
+     * Hizmet / stok takibi kapalı kalemlerdeki hatalı stok kayıtlarını onarır.
+     *
+     * POST + CSRF ile korunur (veri değiştiren bir işlem). Yetki: DEPO_UPDATE
+     * (Rbac::classifyAction 'stokOnar' adını VIEW sayacağı için burada açıkça
+     * aranır — bu uç stok bakiyelerini değiştirir).
+     */
+    public function stokOnar()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('depo');
+        }
+        if (!Rbac::currentUserCan('DEPO_UPDATE')) {
+            http_response_code(403);
+            die('Stok onarımı için yetkiniz yok.');
+        }
+
+        require_once MODELS_PATH . '/Urun.php';
+        $urunModel = new Urun();
+        try {
+            $sonuc = $urunModel->stokTakipDisiKayitlariOnar();
+            if ($sonuc['onarilan'] === 0) {
+                $this->setFlash('success', 'Düzeltilecek hatalı stok kaydı bulunamadı.');
+            } else {
+                $this->setFlash('success', sprintf(
+                    '%d kalem onarıldı: %s',
+                    $sonuc['onarilan'],
+                    implode(' · ', array_slice($sonuc['detay'], 0, 5))
+                ));
+            }
+        } catch (Throwable $e) {
+            $this->setFlash('error', 'Onarım sırasında hata: ' . $e->getMessage());
+        }
+        $this->redirect('depo');
     }
 
     public function kaydet()

@@ -123,6 +123,242 @@ class Urun
         'all'    => 'Tümü',
     ];
 
+    // ─── STOK TAKİBİ: TEK DOĞRULUK KAYNAĞI ────────────────────────────────
+    //
+    // Bir kalem yalnızca ŞU İKİ koşulu birden sağlıyorsa depoda stoklanır:
+    //   1) tip = 'urun'          → hizmet/masraf kalemi değil
+    //   2) stok_takibi <> 'yok'  → kullanıcı bu kart için takibi kapatmamış
+    //
+    // Bu kural sektör standardıdır (Logo, Mikro, Odoo, SAP): hizmetler
+    // faturada satılır/alınır ama ambara girmez, sayımda çıkmaz, stok
+    // değerlemesine katılmaz.
+    //
+    // NEDEN TEK YERDE: kural daha önce yalnızca Fatura::assertStokYeterli()
+    // içinde vardı; stok HAREKETİ oluşturan yol bu kuralı bilmediği için
+    // "ARDİYE HİZMET BEDELİ" gibi hizmet kalemleri alış faturasından depoya
+    // 1 adet olarak giriyor ve stok sayımı ekranında listeleniyordu.
+
+    /**
+     * Stok takibine tabi kalemler için SQL koşulu.
+     * @param string $alias urunler_hizmetler tablosunun sorgudaki takma adı
+     */
+    public static function stokTakipKosuluSql(string $alias = 'u'): string
+    {
+        return "{$alias}.tip = 'urun' AND COALESCE({$alias}.stok_takibi, 'normal') <> 'yok'";
+    }
+
+    /** Verilen kalem satırı (tip + stok_takibi alanlarıyla) stok takibine tabi mi? */
+    public static function stokTakipliSatirMi(?array $urun): bool
+    {
+        if (!$urun) {
+            return false;
+        }
+        return ($urun['tip'] ?? 'urun') === 'urun'
+            && ($urun['stok_takibi'] ?? 'normal') !== 'yok';
+    }
+
+    /**
+     * İstek başına stok-takibi önbelleği: "urunId:companyId" => bool.
+     * Kalemli bir faturada aynı ürün birden çok satırda geçebilir ve
+     * stokHareketiEkle() her satır için çağrılır; aynı sorguyu tekrar
+     * tekrar çalıştırmamak için.
+     */
+    private static array $stokTakipCache = [];
+
+    /** Ürün id'sine göre stok takibine tabi mi? (bulunamazsa false — fail-closed) */
+    public function stokTakipliMi(int $urunId): bool
+    {
+        if ($urunId <= 0) {
+            return false;
+        }
+        $anahtar = $urunId . ':' . (int)TenantContext::activeCompanyId();
+        if (array_key_exists($anahtar, self::$stokTakipCache)) {
+            return self::$stokTakipCache[$anahtar];
+        }
+        $row = $this->db->selectOne(
+            "SELECT tip, stok_takibi FROM urunler_hizmetler
+             WHERE id = :id AND company_id = :cid",
+            [':id' => $urunId, ':cid' => TenantContext::activeCompanyId()]
+        );
+        return self::$stokTakipCache[$anahtar] = self::stokTakipliSatirMi($row);
+    }
+
+    /**
+     * Önbelleği temizler — ürün kaydedildikten/güncellendikten sonra
+     * (tip veya stok_takibi değişmiş olabilir) çağrılmalıdır.
+     */
+    public static function stokTakipCacheTemizle(): void
+    {
+        self::$stokTakipCache = [];
+    }
+
+    /** Kartın tip alanının alabileceği değerler. */
+    public const TIPLER = ['urun', 'hizmet'];
+
+    /** stok_takibi alanının alabileceği değerler. */
+    public const STOK_TAKIP_MODLARI = ['normal', 'seri', 'lot', 'yok'];
+
+    /**
+     * Kart alanlarını tutarlı hale getirir — TÜM yazma yollarının ortak geçidi.
+     *
+     * NEDEN MODELDE: ürün kartı üç ayrı yerden oluşturulup güncelleniyor
+     * (ürün formu, e-Belge aktarımında otomatik kart açma, site vitrini
+     * senkronu). Kural sadece formda olsaydı, e-Fatura'dan gelen
+     * "ARDİYE HİZMET BEDELİ" gibi kalemler yine stok parametreleriyle
+     * kaydedilirdi.
+     *
+     * Uygulanan kurallar:
+     *   1) tip yalnızca 'urun' veya 'hizmet' olabilir; tanınmayan değer
+     *      'urun' sayılır (tanınmayan bir tip, stokTakipliSatirMi()
+     *      fail-closed davrandığı için ürünü sessizce stok dışına düşürürdü).
+     *   2) stok_takibi yalnızca tanımlı modlardan biri olabilir.
+     *   3) HİZMET kartında stok parametresi bulunmaz: stok_takibi 'yok',
+     *      kritik stok 0. Yeni kayıtta stok miktarı da 0'dır.
+     *
+     * BİLEREK YAPILMAYAN: mevcut bir ürün hizmete çevrilirken stok_miktari
+     * sessizce sıfırlanmaz. Bu, defter kaydı olmadan envanter silmek olurdu.
+     * Böyle bir kart Depolar sayfasındaki "hatalı stok" taramasına düşer ve
+     * kullanıcı onarımı başlattığında düzeltme hareketiyle sıfırlanır.
+     *
+     * @param array<string,mixed>      $temiz  fillable'a göre süzülmüş veri
+     * @param array<string,mixed>|null $mevcut güncellemede kartın önceki hali
+     * @return array<string,mixed>
+     */
+    private static function kartAlanlariniNormalize(array $temiz, ?array $mevcut = null): array
+    {
+        if (array_key_exists('tip', $temiz) && !in_array($temiz['tip'], self::TIPLER, true)) {
+            $temiz['tip'] = 'urun';
+        }
+        if (array_key_exists('stok_takibi', $temiz)
+            && !in_array($temiz['stok_takibi'], self::STOK_TAKIP_MODLARI, true)) {
+            $temiz['stok_takibi'] = 'normal';
+        }
+
+        $tip = $temiz['tip'] ?? ($mevcut['tip'] ?? 'urun');
+        if ($tip === 'hizmet') {
+            $temiz['stok_takibi'] = 'yok';
+            $temiz['kritik_stok'] = 0;
+            if ($mevcut === null) {
+                $temiz['stok_miktari'] = 0;
+            }
+        }
+
+        return $temiz;
+    }
+
+    /**
+     * Stok takibine tabi OLMAYAN kalemlerde (hizmet / stok takibi kapalı)
+     * hatalı oluşmuş stok kayıtlarını tespit eder.
+     *
+     * Yalnızca RAPORLAR — hiçbir şey değiştirmez. Onarımdan önce kullanıcıya
+     * "ne düzeltilecek" diye göstermek için.
+     *
+     * @return array<int,array{id:int,ad:string,tip:string,stok_takibi:string,stok_miktari:float,depo_satiri:int,hareket_sayisi:int}>
+     */
+    public function stokTakipDisiHataliKayitlar(): array
+    {
+        $cid = TenantContext::activeCompanyId();
+        return $this->db->select(
+            "SELECT u.id, u.ad, u.tip, COALESCE(u.stok_takibi,'normal') AS stok_takibi,
+                    COALESCE(u.stok_miktari, 0) AS stok_miktari,
+                    (SELECT COUNT(*) FROM urun_stok_depo d
+                      WHERE d.urun_id = u.id AND d.company_id = :cid2) AS depo_satiri,
+                    (SELECT COUNT(*) FROM stok_hareketleri h
+                      WHERE h.urun_id = u.id AND h.company_id = :cid3) AS hareket_sayisi
+             FROM urunler_hizmetler u
+             WHERE u.company_id = :cid AND u.silindi_mi = 0
+               AND NOT (" . self::stokTakipKosuluSql('u') . ")
+             HAVING stok_miktari <> 0 OR depo_satiri > 0 OR hareket_sayisi > 0
+             ORDER BY u.ad",
+            [':cid' => $cid, ':cid2' => $cid, ':cid3' => $cid]
+        );
+    }
+
+    /**
+     * Hatalı stok kayıtlarını onarır (hizmet/stok takibi kapalı kalemler için).
+     *
+     * YÖNTEM — sektör standardı: stok_hareketleri bir DEFTERDİR (append-only),
+     * geçmiş hareket SİLİNMEZ. Bunun yerine bakiyeyi sıfırlayan bir DÜZELTME
+     * HAREKETİ yazılır; böylece "ne oldu, ne zaman düzeltildi" izi korunur.
+     * Ardından depo kırılımı ve toplam stok sıfırlanır.
+     *
+     * Idempotenttir: ikinci çalıştırmada düzeltilecek kayıt kalmaz.
+     *
+     * @return array{onarilan:int, detay:array<int,string>}
+     */
+    public function stokTakipDisiKayitlariOnar(): array
+    {
+        $hatalilar = $this->stokTakipDisiHataliKayitlar();
+        if (!$hatalilar) {
+            return ['onarilan' => 0, 'detay' => []];
+        }
+
+        $cid = TenantContext::activeCompanyId();
+        $detay = [];
+
+        $this->db->begin();
+        try {
+            foreach ($hatalilar as $u) {
+                $urunId = (int)$u['id'];
+
+                // 1) Depo kırılımındaki her satır için düzeltme hareketi yaz.
+                //    (Hareket doğrudan yazılır: stokHareketiEkle() artık bu
+                //     kalemler için bilinçli olarak hiçbir şey yapmaz.)
+                $depoSatirlari = $this->db->select(
+                    "SELECT depo_id, miktar FROM urun_stok_depo
+                     WHERE urun_id = :uid AND company_id = :cid AND miktar <> 0",
+                    [':uid' => $urunId, ':cid' => $cid]
+                );
+                foreach ($depoSatirlari as $ds) {
+                    $miktar = (float)$ds['miktar'];
+                    $this->db->insert('stok_hareketleri', [
+                        'urun_id'      => $urunId,
+                        'depo_id'      => (int)$ds['depo_id'],
+                        'islem_tipi'   => $miktar > 0 ? 'cikis' : 'giris',
+                        'hareket_tipi' => $miktar > 0 ? 'cikis' : 'giris',
+                        'miktar'       => abs($miktar),
+                        'aciklama'     => 'Düzeltme: hizmet/stok takibi kapalı kalem depoda stok tutamaz',
+                        'company_id'   => $cid,
+                        'period_id'    => TenantContext::activePeriodId(),
+                    ]);
+                }
+
+                // 2) Depo kırılımını temizle
+                $this->db->query(
+                    "DELETE FROM urun_stok_depo WHERE urun_id = :uid AND company_id = :cid",
+                    [':uid' => $urunId, ':cid' => $cid]
+                );
+
+                // 3) Toplam stok miktarını sıfırla
+                $this->db->query(
+                    "UPDATE urunler_hizmetler SET stok_miktari = 0
+                     WHERE id = :uid AND company_id = :cid",
+                    [':uid' => $urunId, ':cid' => $cid]
+                );
+
+                $detay[] = sprintf(
+                    '%s (%s) — %s adet stok sıfırlandı, %d depo satırı temizlendi',
+                    (string)$u['ad'],
+                    $u['tip'] === 'hizmet' ? 'hizmet' : 'stok takibi kapalı',
+                    rtrim(rtrim(number_format((float)$u['stok_miktari'], 3, ',', '.'), '0'), ','),
+                    (int)$u['depo_satiri']
+                );
+
+                Audit::log('UPDATE', 'URUN', $urunId,
+                    ['stok_miktari' => $u['stok_miktari']],
+                    ['stok_miktari' => 0],
+                    'Stok onarımı: hizmet/stok takibi kapalı kalemin depo stoğu sıfırlandı.');
+            }
+
+            $this->db->commit();
+        } catch (Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+
+        return ['onarilan' => count($hatalilar), 'detay' => $detay];
+    }
+
     /**
      * Sayfalanmış ürün listesi.
      * $tip: '' = ticari mallar, 'hizmet' = hizmetler, 'all' = hepsi
@@ -177,7 +413,9 @@ class Urun
     public function ekle(array $veri): int
     {
         $temiz = array_intersect_key($veri, array_flip($this->fillable));
+        $temiz = self::kartAlanlariniNormalize($temiz);
         $id = $this->db->insert('urunler_hizmetler', $temiz);
+        self::stokTakipCacheTemizle();   // tip/stok_takibi yeni belirlendi
         Audit::log('CREATE', 'URUN', $id, null, $temiz, 'Ürün/hizmet eklendi: ' . ($temiz['ad'] ?? ''));
         return $id;
     }
@@ -187,7 +425,9 @@ class Urun
     {
         $temiz = array_intersect_key($veri, array_flip($this->fillable));
         $before = $this->getir($id);
+        $temiz = self::kartAlanlariniNormalize($temiz, $before);
         $result = $this->db->update('urunler_hizmetler', $temiz, ['id' => $id]);
+        self::stokTakipCacheTemizle();   // tip/stok_takibi değişmiş olabilir
         Audit::log('UPDATE', 'URUN', $id, $before, $temiz, 'Ürün/hizmet güncellendi: ' . ($before['ad'] ?? $temiz['ad'] ?? ''));
         return $result;
     }
@@ -334,6 +574,22 @@ class Urun
     /** Manuel stok hareketi ekle ve stok miktarını güncelle */
     public function stokHareketiEkle(int $urunId, float $miktar, string $islemTipi, string $aciklama = '', ?int $depoId = null): bool
     {
+        // ── STOK TAKİBİ KAPISI (tüm stok yollarının ortak geçidi) ──────────
+        // Hizmet ve "stok takibi yok" kalemleri ambara girmez. Bu kontrol
+        // BİLEREK burada, tek bir yerde yapılır: fatura, stok sayımı, ürün
+        // düzenleme farkı, açılış stoğu ve e-Fatura aktarımı dahil stok
+        // yazan YEDİ ayrı çağrının hepsi bu metottan geçer. Tek tek çağrı
+        // yerlerine kontrol eklemek, ileride eklenecek yeni bir çağrıda
+        // yine unutulmasına yol açardı (bu hatanın kök nedeni tam olarak
+        // buydu: kural yalnızca Fatura::assertStokYeterli() içinde vardı).
+        //
+        // İstisna DEĞİL, sessiz atlama döner: bir alış faturasında hizmet
+        // kalemi bulunması tamamen normaldir; fatura kaydı bozulmamalı,
+        // yalnızca o satır için stok hareketi yazılmamalıdır.
+        if (!$this->stokTakipliMi($urunId)) {
+            return true;
+        }
+
         try {
             $this->db->begin();
 

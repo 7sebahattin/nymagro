@@ -4,7 +4,12 @@
  * --------------------------------------------------------
  * Tüm özet kartları gerçek veritabanı sorgularından beslenir.
  * Sorgular COALESCE ile 0'a fallback yapar; boş DB'de hata vermez.
+ *
+ * Stok kartları/değeri "hangi kalem depoda stoklanır" tanımını Urun sınıfından
+ * alır (Urun::stokTakipKosuluSql) — hizmet ve stok takibi kapalı kalemler stok
+ * değerine ve stok listesine girmez.
  */
+require_once MODELS_PATH . '/Urun.php';
 
 final class DashboardController extends Controller
 {
@@ -18,7 +23,7 @@ final class DashboardController extends Controller
         $stokDegeri = (float)($db->selectOne(
             "SELECT COALESCE(SUM(stok_miktari * alis_fiyati),0) AS t
              FROM urunler_hizmetler
-             WHERE silindi_mi = 0 AND tip = 'urun' AND company_id = :cid",
+             WHERE silindi_mi = 0 AND " . Urun::stokTakipKosuluSql('urunler_hizmetler') . " AND company_id = :cid",
             [':cid' => $companyId]
         )['t'] ?? 0);
 
@@ -110,14 +115,14 @@ final class DashboardController extends Controller
         $urunStokListesi = $db->select(
             "SELECT id, ad, stok_kodu, birim, satis_fiyati, stok_miktari, kritik_stok, kategori
              FROM urunler_hizmetler
-             WHERE silindi_mi = 0 AND tip = 'urun' AND company_id = :cid
+             WHERE silindi_mi = 0 AND " . Urun::stokTakipKosuluSql('urunler_hizmetler') . " AND company_id = :cid
              ORDER BY ad ASC
              LIMIT 16",
             [':cid' => $companyId]
         );
         $urunStokToplam = (int)($db->selectOne(
             "SELECT COUNT(*) AS n FROM urunler_hizmetler
-             WHERE silindi_mi = 0 AND tip = 'urun' AND company_id = :cid",
+             WHERE silindi_mi = 0 AND " . Urun::stokTakipKosuluSql('urunler_hizmetler') . " AND company_id = :cid",
             [':cid' => $companyId]
         )['n'] ?? 0);
 

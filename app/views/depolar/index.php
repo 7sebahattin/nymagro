@@ -67,6 +67,34 @@
     <?php endif; ?>
   </div>
 
+  <?php if (!empty($hataliStoklar)): ?>
+    <div class="alert alert-warning" style="margin-bottom:16px;">
+      <div style="font-weight:700; margin-bottom:6px;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Depoda stoklanmaması gereken <?= count($hataliStoklar) ?> kalem bulundu
+      </div>
+      <div style="font-size:13px; margin-bottom:10px;">
+        Hizmet kalemleri (ör. nakliye, ardiye bedeli) bir ürün değildir; depoda stok tutmazlar.
+        Aşağıdaki kalemler bu düzeltmeden önce hatalı olarak depoya girmiş:
+      </div>
+      <ul style="font-size:13px; margin:0 0 10px 18px;">
+        <?php foreach (array_slice($hataliStoklar, 0, 10) as $h): ?>
+          <li>
+            <strong><?= htmlspecialchars($h['ad']) ?></strong>
+            — <?= htmlspecialchars(rtrim(rtrim(number_format((float)$h['stok_miktari'], 3, ',', '.'), '0'), ',')) ?> adet
+            (<?= $h['tip'] === 'hizmet' ? 'hizmet' : 'stok takibi kapalı' ?>)
+          </li>
+        <?php endforeach; ?>
+      </ul>
+      <?php if (Rbac::currentUserCan('DEPO_UPDATE')): ?>
+        <a href="#" class="btn-action btn-view"
+           onclick="return nymPost('<?= BASE_URL ?>/depo/stokOnar', 'Bu kalemlerin hatalı depo stoğu sıfırlanacak. Stok defterine düzeltme hareketi yazılacak (geçmiş hareketler silinmez). Devam edilsin mi?')">
+          <i class="fa-solid fa-wrench"></i> Hatalı Stokları Onar
+        </a>
+      <?php endif; ?>
+    </div>
+  <?php endif; ?>
+
   <div class="depo-grid">
     <?php foreach ($depolar as $d): ?>
       <div class="depo-card">
