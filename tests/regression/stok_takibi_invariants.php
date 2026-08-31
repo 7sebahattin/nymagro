@@ -349,10 +349,19 @@ kontrol('Tespit salt-okunurdur (INSERT/UPDATE/DELETE yok)',
     !preg_match('/\b(INSERT|UPDATE|DELETE)\b/i', $tespitGovde));
 kontrol('Tespit, ortak kuralın DEĞİLİNİ arar (NOT (...))',
     str_contains($tespitGovde, 'NOT (') && str_contains($tespitGovde, 'stokTakipKosuluSql'));
-kontrol('Tespit yalnızca gerçekten sorunlu kayıtları getirir (stok / depo satırı / hareket)',
+kontrol('Tespit yalnızca gerçekten sorunlu kayıtları getirir (stok / depo satırı)',
     str_contains($tespitGovde, 'HAVING') && str_contains($tespitGovde, 'stok_miktari <> 0'));
 kontrol('Tespit aktif şirketle sınırlı', str_contains($tespitGovde, 'company_id'));
 kontrol('Tespit silinmiş kartları atlar', str_contains($tespitGovde, 'silindi_mi = 0'));
+
+// REGRESYON (kullanıcı raporu): onarım sonrası banner tekrar çıkıyordu.
+// Sebep: HAVING koşulu geçmiş hareket SAYISINI (hareket_sayisi > 0) da
+// tetikleyici sayıyordu. stok_hareketleri append-only bir defter; onarımın
+// kendisi bile deftere düzeltme hareketi yazıyor. Yani bir kez onarılan
+// kalem, geçmiş hareketi olduğu için SONSUZA DEK "hatalı" görünüyordu.
+kontrol('Tespit, HAVING koşulunda geçmiş hareket SAYISINI tetikleyici olarak kullanmıyor',
+    !preg_match('/HAVING[^;]*hareket_sayisi/is', $tespitGovde),
+    'Defter append-only; onarımın kendisi bile hareket yazdığı için onarılmış kalem sonsuza dek hatalı görünürdü');
 
 $onarGovde = metotGovdesi($urunKod, 'stokTakipDisiKayitlariOnar');
 kontrol('stokTakipDisiKayitlariOnar() gövdesi bulundu', $onarGovde !== '');
