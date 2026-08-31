@@ -372,8 +372,13 @@ class Company
         if (!TenantContext::tableExists('urunler_hizmetler') || !TenantContext::hasColumn('urunler_hizmetler', 'company_id')) {
             return 0;
         }
+        // Yalnızca depoda stoklanan kartlar sayılır: hizmet ve stok takibi
+        // kapalı kalemlerde "negatif stok" anlamsızdır (bkz. Urun sınıfı).
+        require_once __DIR__ . '/Urun.php';
         $row = $this->db->selectOne(
-            "SELECT COUNT(*) AS n FROM urunler_hizmetler WHERE company_id = :cid AND stok_miktari < 0 AND silindi_mi = 0",
+            "SELECT COUNT(*) AS n FROM urunler_hizmetler u
+             WHERE u.company_id = :cid AND u.stok_miktari < 0 AND u.silindi_mi = 0
+               AND " . Urun::stokTakipKosuluSql('u'),
             [':cid' => $companyId]
         );
         return (int)($row['n'] ?? 0);

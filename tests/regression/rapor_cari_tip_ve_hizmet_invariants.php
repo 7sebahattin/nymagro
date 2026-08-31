@@ -92,16 +92,23 @@ $urunAlisSatisGovde = metotGovdesi('Rapor', 'getProductPurchaseSalesReport');
 kontrol("getProductPurchaseSalesReport() u.tip = 'urun' filtresi uyguluyor (hizmet kalemleri artık listelenmiyor)",
     str_contains($urunAlisSatisGovde, "u.tip = 'urun'"));
 
+// NOT (sonraki tur): STOK raporlarındaki bu filtre daha sonra
+// Urun::stokTakipKosuluSql() ile değiştirildi — aynı kuralın DAHA GENİŞİ
+// (tip = 'urun' VE stok takibi kapalı değil). Yani hizmet kalemleri hâlâ
+// dışarıda; üstüne stok takibi kapatılmış kartlar da dışarıda.
+// Ayrıntı: tests/regression/stok_takibi_invariants.php
 $stokKarsilamaGovde = metotGovdesi('Rapor', 'getStockSalesCoverageReportFull');
-kontrol("getStockSalesCoverageReportFull() u.tip = 'urun' filtresi uyguluyor (hizmet kalemleri artık listelenmiyor)",
-    str_contains($stokKarsilamaGovde, "u.tip = 'urun'"));
+kontrol('getStockSalesCoverageReportFull() hizmet kalemlerini dışarıda bırakıyor',
+    str_contains($stokKarsilamaGovde, "u.tip = 'urun'")
+    || str_contains($stokKarsilamaGovde, 'Urun::stokTakipKosuluSql'));
 
 // Referans: getProductStockReport() (Ürünler Stok Raporu) bu ilkeyi zaten
 // uyguluyordu — yeni eklenen filtrelerin bu mevcut ilkeyle aynı olduğunu
 // doğrular (kod tabanında sürüklenme olmadığının kanıtı).
 $urunlerStokGovde = metotGovdesi('Rapor', 'getProductStockReport');
-kontrol("Referans: getProductStockReport() zaten u.tip = 'urun' filtresi kullanıyordu (yeni eklenen ilkeyle tutarlı)",
-    str_contains($urunlerStokGovde, "u.tip = 'urun'"));
+kontrol('Referans: getProductStockReport() aynı ilkeyi kullanıyor (kod tabanında sürüklenme yok)',
+    str_contains($urunlerStokGovde, "u.tip = 'urun'")
+    || str_contains($urunlerStokGovde, 'Urun::stokTakipKosuluSql'));
 
 // ═════════════════════════════════════════════════════════════════════
 // Meta: PHP kapanış etiketi tuzağı yok

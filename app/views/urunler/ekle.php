@@ -195,7 +195,7 @@ if (!empty($hatalar)) {
           <div class="fg">
             <label class="flabel" for="tip">Ürün Tipi</label>
             <select id="tip" name="tip" class="fselect">
-              <option value="urun"   <?= ($eski['tip'] ?? '') === 'urun'    ? 'selected' : '' ?>>Stoklu ürün</option>
+              <option value="urun"   <?= ($eski['tip'] ?? 'urun') === 'urun'    ? 'selected' : '' ?>>Stoklu ürün</option>
               <option value="hizmet" <?= ($eski['tip'] ?? '') === 'hizmet'  ? 'selected' : '' ?>>Hizmet</option>
             </select>
           </div>
@@ -421,7 +421,16 @@ if (!empty($hatalar)) {
             </a>
           </div>
 
-          <div class="fg">
+          <div class="fg js-stok-notu" id="hizmetStokNotu" hidden>
+            <div style="padding:10px 12px; border-radius:8px; font-size:12.5px;
+                        background:rgba(59,130,246,.10); color:var(--text2);
+                        border:1px solid rgba(59,130,246,.28);">
+              <i class="fa-solid fa-circle-info"></i>
+              Hizmet kalemleri depoda stoklanmaz; bu yüzden stok alanları gösterilmez.
+            </div>
+          </div>
+
+          <div class="fg js-stok-alani">
             <label class="flabel">
               Stok Takibi
               <i class="fa-solid fa-circle-question hi" title="Ürün stok takip yöntemi"></i>
@@ -434,7 +443,7 @@ if (!empty($hatalar)) {
             </select>
           </div>
 
-          <div class="fg">
+          <div class="fg js-stok-alani">
             <label class="flabel">
               Kritik Stok Miktarı
               <i class="fa-solid fa-circle-question hi" title="Bu miktarın altına düşünce uyarı verilir"></i>
@@ -447,7 +456,7 @@ if (!empty($hatalar)) {
             </div>
           </div>
 
-          <div class="fg">
+          <div class="fg js-stok-alani">
             <label class="flabel">Başlangıç Stok Miktarı</label>
             <div class="fwrap">
               <i class="fa-solid fa-boxes-stacked fi"></i>
@@ -691,5 +700,25 @@ if (!empty($hatalar)) {
     });
     hesapla();
   })();
+})();
+</script>
+
+<script>
+/* Hizmet kartında stok alanları gösterilmez.
+   Hizmet bir ürün değildir; depoda stoklanmaz (Logo/Mikro/Odoo ile aynı davranış).
+   Bu yalnızca arayüz kolaylığıdır — asıl kural sunucuda Urun::ekle()/guncelle()
+   içinde uygulanır, JavaScript kapalı olsa bile veri tutarlı kalır. */
+(function () {
+  const tip = document.getElementById('tip');
+  if (!tip) return;
+  const alanlar = document.querySelectorAll('.js-stok-alani');
+  const not = document.getElementById('hizmetStokNotu');
+  function uygula() {
+    const hizmet = tip.value === 'hizmet';
+    alanlar.forEach((el) => { el.hidden = hizmet; });
+    if (not) not.hidden = !hizmet;
+  }
+  tip.addEventListener('change', uygula);
+  uygula();
 })();
 </script>

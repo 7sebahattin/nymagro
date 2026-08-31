@@ -856,3 +856,9 @@ body[data-theme="acik"] .btn-close { filter: none; }
   }
   .ui-table td, .table td { color: #000 !important; }
 }
+
+/* HTML "hidden" niteliği her zaman gizler.
+   Bazı formlarda .fg gibi kapsayıcılara display:flex verildiği için tarayıcının
+   varsayılan [hidden]{display:none} kuralı eziliyordu; bu da JS ile gizlenen
+   alanların (ör. hizmet kartında stok alanları) ekranda kalmasına yol açıyordu. */
+[hidden] { display: none !important; }

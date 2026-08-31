@@ -3,7 +3,11 @@
  * Model: Depo
  * --------------------------------------------------------
  * depolar ve urun_stok_depo tabloları üzerinde işlemler.
+ *
+ * Stok takibine tabi kalemlerin tanımı için Urun sınıfına bağımlıdır
+ * (Urun::stokTakipKosuluSql — hizmetler depoda listelenmez).
  */
+require_once __DIR__ . '/Urun.php';
 
 class Depo
 {
@@ -58,6 +62,7 @@ class Depo
                 FROM urun_stok_depo usd
                 JOIN urunler_hizmetler u ON usd.urun_id = u.id
                 WHERE usd.depo_id = :depo_id AND u.silindi_mi = 0 AND u.company_id = :cid
+                  AND " . Urun::stokTakipKosuluSql('u') . "
                 ORDER BY u.ad ASC";
         return $this->db->select($sql, [':depo_id' => $depoId, ':cid' => TenantContext::activeCompanyId()]);
     }
@@ -68,7 +73,8 @@ class Depo
         $sql = "SELECT SUM(usd.miktar * u.alis_fiyati) as toplam_deger
                 FROM urun_stok_depo usd
                 JOIN urunler_hizmetler u ON usd.urun_id = u.id
-                WHERE usd.depo_id = :depo_id AND u.silindi_mi = 0 AND u.company_id = :cid";
+                WHERE usd.depo_id = :depo_id AND u.silindi_mi = 0 AND u.company_id = :cid
+                  AND " . Urun::stokTakipKosuluSql('u') . "";
         $row = $this->db->selectOne($sql, [':depo_id' => $depoId, ':cid' => TenantContext::activeCompanyId()]);
         return (float)($row['toplam_deger'] ?? 0);
     }
