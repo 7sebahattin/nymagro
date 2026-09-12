@@ -323,15 +323,43 @@ class Masraf
         return array_values($analar);
     }
 
-    /** Sadece alt kategoriler (form select için, parent_id ile gruplu) */
+    /**
+     * Masraf formundaki kalem listesi (düz liste, ana kalem adıyla gruplanabilir).
+     *
+     * Seçilebilir olan YAPRAK kalemlerdir:
+     *   - tüm alt kalemler,
+     *   - hiç alt kalemi olmayan ana kalemler.
+     * Alt kalemi olan ana kalem yalnızca başlıktır (formda optgroup), kendisi
+     * seçilemez; masraf her zaman en alt kırılıma yazılır.
+     *
+     * Eskiden koşul sadece `parent_id IS NOT NULL` idi: kullanıcının ekleyip
+     * altına kalem açmadığı ana kalemler formda HİÇ görünmüyordu.
+     *
+     * ana_adi NULL dönen satır kök seviyededir (formda başlıksız listelenir).
+     */
     public function altKategorilerFlat(): array
     {
         return $this->db->select(
-            "SELECT mk.id, mk.ad, mk.renk, pa.ad AS ana_adi
+            "SELECT mk.id, mk.ad, mk.renk, mk.parent_id, pa.ad AS ana_adi
              FROM masraf_kategoriler mk
-             LEFT JOIN masraf_kategoriler pa ON pa.id = mk.parent_id
-             WHERE mk.silindi_mi = 0 AND mk.parent_id IS NOT NULL AND mk.company_id = :cid
-             ORDER BY pa.sira ASC, mk.sira ASC, mk.ad ASC",
+             LEFT JOIN masraf_kategoriler pa
+                    ON pa.id = mk.parent_id
+                   AND pa.silindi_mi = 0
+                   AND pa.company_id = mk.company_id
+             WHERE mk.silindi_mi = 0
+               AND mk.company_id = :cid
+               AND (
+                    mk.parent_id IS NOT NULL
+                    OR NOT EXISTS (
+                        SELECT 1 FROM masraf_kategoriler alt
+                         WHERE alt.parent_id  = mk.id
+                           AND alt.silindi_mi = 0
+                           AND alt.company_id = mk.company_id
+                    )
+               )
+             ORDER BY COALESCE(pa.sira, mk.sira) ASC,
+                      COALESCE(pa.ad,   mk.ad)   ASC,
+                      mk.sira ASC, mk.ad ASC",
             [':cid' => TenantContext::activeCompanyId()]
         );
     }

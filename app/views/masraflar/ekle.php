@@ -2,7 +2,8 @@
 /**
  * Masraf Ekle / Düzenle
  * ─────────────────────────────────────────────────────
- * $kategoriler : alt kategoriler flat list [id, ad, renk, ana_adi]
+ * $kategoriler : seçilebilir masraf kalemleri, düz liste
+ *                [id, ad, renk, parent_id, ana_adi] — ana_adi NULL ise kök kalem
  * $hesaplar    : kasa_banka listesi
  * $personeller : personel listesi
  *
@@ -20,11 +21,54 @@ if ($duzenleId > 0) {
 $isEdit = ($mevcut !== null);
 $val    = fn(string $k, $def = '') => $mevcut[$k] ?? $def;
 
-// Kategorileri grupla (ana kategori başlıklar)
-$katGrup = [];
+// Kategorileri grupla: alt kalemler ana kalem başlığı (optgroup) altında,
+// alt kalemi olmayan ana kalemler ise başlıksız olarak en üstte listelenir.
+// (Model yalnızca seçilebilir yaprak kalemleri döndürür; bkz. altKategorilerFlat)
+$kokKalemler = [];
+$katGrup     = [];
 foreach ($kategoriler as $k) {
-    $katGrup[$k['ana_adi'] ?? 'Diğer'][] = $k;
+    $ana = trim((string)($k['ana_adi'] ?? ''));
+    if ($ana === '') {
+        $kokKalemler[] = $k;
+    } else {
+        $katGrup[$ana][] = $k;
+    }
 }
+
+// Düzenleme modunda kayıtlı kalem listede yoksa (ör. o ana kaleme sonradan
+// alt kalem eklendiği için artık yalnızca başlık olması) seçim sessizce
+// kaybolup kayıt başka bir kaleme kaymasın diye listeye geri eklenir.
+$seciliKatId = (int)$val('kategori_id');
+if ($isEdit && $seciliKatId > 0) {
+    $listede = false;
+    foreach ($kategoriler as $k) {
+        if ((int)$k['id'] === $seciliKatId) { $listede = true; break; }
+    }
+    if (!$listede) {
+        $eski = [
+            'id'      => $seciliKatId,
+            'ad'      => (string)$val('kategori_adi', 'Kayıtlı kalem'),
+            'renk'    => (string)$val('kategori_renk', '#5bc0de'),
+            'ana_adi' => (string)$val('ana_kategori_adi', ''),
+        ];
+        $eskiAna = trim($eski['ana_adi']);
+        if ($eskiAna === '') {
+            $kokKalemler[] = $eski;
+        } else {
+            $katGrup[$eskiAna][] = $eski;
+        }
+    }
+}
+
+// Tek bir <option> satırı — kök kalemler ve grup içindekiler aynı biçimde yazılır.
+$katOption = function (array $k) use ($seciliKatId): string {
+    return '<option value="' . (int)$k['id'] . '"'
+         . ' data-renk="' . htmlspecialchars((string)($k['renk'] ?? '')) . '"'
+         . ' data-ana="'  . htmlspecialchars((string)($k['ana_adi'] ?? '')) . '"'
+         . ' data-ad="'   . htmlspecialchars((string)($k['ad'] ?? '')) . '"'
+         . ($seciliKatId === (int)$k['id'] ? ' selected' : '') . '>'
+         . htmlspecialchars((string)($k['ad'] ?? '')) . '</option>';
+};
 ?>
 <style>
   :root { --navy:#2c3e6b; --blue:#337ab7; --green:#5cb85c; --teal:#5bc0de; }
@@ -51,9 +95,14 @@ foreach ($kategoriler as $k) {
   .mf-ctrl { flex:1; min-width:0; }
   .mf-inp, .mf-sel, .mf-textarea {
     width:100%; padding:8px 10px; border:1px solid var(--border2); border-radius:4px;
-    font-size:13px; color:var(--text); outline:none; box-sizing:border-box;
+    font-size:13px; background:var(--input-bg); color:var(--text); outline:none; box-sizing:border-box;
   }
   .mf-inp:focus, .mf-sel:focus, .mf-textarea:focus { border-color:var(--blue); box-shadow:0 0 0 2px rgba(51,122,183,.12); }
+  /* Açılır liste: seçenek ve GRUP BAŞLIĞI ayrı ayrı boyanmalı. optgroup
+     boyanmazsa tarayıcı varsayılanıyla (açık zemin + soluk gri yazı) kalıp
+     koyu listenin ortasında okunmaz beyaz bir şerit oluşturuyordu. */
+  .mf-sel optgroup { background:var(--ink); color:var(--text2); font-weight:700; }
+  .mf-sel option   { background:var(--ink); color:var(--text); font-weight:400; }
   .mf-textarea { resize:vertical; min-height:80px; }
   .mf-hint  { font-size:11px; color:var(--muted); margin-top:3px; }
   .mf-hint a { color:#5cb85c; text-decoration:none; cursor:pointer; }
@@ -102,20 +151,22 @@ foreach ($kategoriler as $k) {
         <div class="mf-ctrl">
           <select id="fKategori" class="mf-sel" required>
             <option value="">— Masraf kalemi seçin —</option>
+            <?php foreach ($kokKalemler as $k): ?>
+            <?= $katOption($k) ?>
+            <?php endforeach; ?>
             <?php foreach ($katGrup as $anaAd => $altlar): ?>
-            <optgroup label="<?= htmlspecialchars($anaAd) ?>">
+            <optgroup label="<?= htmlspecialchars((string)$anaAd) ?>">
               <?php foreach ($altlar as $k): ?>
-              <option value="<?= $k['id'] ?>"
-                      data-renk="<?= $k['renk'] ?>"
-                      data-ana="<?= htmlspecialchars($k['ana_adi'] ?? '') ?>"
-                      data-ad="<?= htmlspecialchars($k['ad'] ?? '') ?>"
-                      <?= (int)$val('kategori_id') === (int)$k['id'] ? 'selected' : '' ?>>
-                <?= htmlspecialchars($k['ad']) ?>
-              </option>
+              <?= $katOption($k) ?>
               <?php endforeach; ?>
             </optgroup>
             <?php endforeach; ?>
           </select>
+          <?php if (empty($kategoriler)): ?>
+          <div class="mf-hint" style="color:#f0ad4e;">
+            Tanımlı masraf kalemi yok. Aşağıdaki bağlantıdan en az bir kalem ekleyin.
+          </div>
+          <?php endif; ?>
           <div class="mf-hint">
             <a href="<?= BASE_URL ?>/masraf/kalemler" target="_blank">Listeyi düzenlemek için tıklayın</a>
           </div>
