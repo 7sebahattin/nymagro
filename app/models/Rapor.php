@@ -1306,7 +1306,16 @@ class Rapor
             default => $customerId ?: $supplierId,
         };
 
-        if ($cariId !== null && $cariId !== '') {
+        // DİKKAT — burada 0 "seçim yok" demektir, geçerli bir cari id DEĞİL.
+        // RaporController::filters() cari seçilmediğinde customer_id/supplier_id'yi
+        // max(0, (int)...) ile (int) 0'a normalize eder; null veya '' değil. Eski
+        // koşul (`!== null && !== ''`) PHP'de 0 için de doğru olduğundan, kullanıcı
+        // hiçbir cari seçmese bile sorguya "f.cari_id = 0" ekleniyordu. Hiçbir
+        // faturanın cari_id'si 0 olmadığı için fatura tabanlı TÜM raporlar
+        // (Basit Satış, Alışlar, Satış Kaybı, İadeler, Teklifler, İrsaliyeler)
+        // veri dolu olsa bile her zaman boş dönüyordu — üstelik hata da vermiyordu,
+        // çünkü sorgu geçerliydi, yalnızca hiçbir satırla eşleşmiyordu.
+        if ((int)$cariId > 0) {
             $conds[] = 'f.cari_id = :cari_id';
             $params[':cari_id'] = (int)$cariId;
         }
@@ -1375,6 +1384,14 @@ class Rapor
         }
         if ($period === 'last_6') {
             return [" AND {$field} >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)", []];
+        }
+        // 'this_year' dalı uzun süre eksikti: seçenek filtre panelinde sunuluyor
+        // (bkz. views/raporlar/report.php) ve controller'da geçerli sayılıyor,
+        // ama burada karşılığı olmadığı için sessizce "Özel/Tümü" gibi davranıp
+        // hiçbir tarih süzgeci uygulamıyordu — kullanıcı filtrelediğini sanırken
+        // tüm kayıtları görüyordu. FinansalRapor::dateWhere() ile aynı mantık.
+        if ($period === 'this_year') {
+            return [" AND YEAR({$field}) = YEAR(CURDATE())", []];
         }
         $sql = '';
         if (!empty($filters['start_date'])) {

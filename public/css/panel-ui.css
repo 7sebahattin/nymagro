@@ -656,9 +656,30 @@ body[data-theme="acik"] .bnav-more-panel { box-shadow: 0 -8px 40px rgba(0, 0, 0,
   background: var(--input-bg) !important;
   color: var(--text) !important;
 }
-.page-content select option {
+/* Açılır listenin İÇİ ayrı bir katman: option ve optgroup tek tek boyanmazsa
+   tarayıcı varsayılanında (açık zemin) kalır. optgroup uzun süre atlanmıştı;
+   koyu listenin ortasında beyaz zeminli, soluk gri yazılı okunmaz bir grup
+   başlığı şeridi olarak görünüyordu (bkz. Masraf → Yeni Masraf Gir).
+   color-scheme, açılır listeyi çizen native katmanın (zemin, kaydırma çubuğu,
+   vurgu rengi) da tema ile aynı tarafta kalmasını sağlar. */
+.page-content select {
+  color-scheme: dark;
+}
+body[data-theme="acik"] .page-content select {
+  color-scheme: light;
+}
+.page-content select option,
+.page-content select optgroup {
   background: var(--ink);
   color: var(--text);
+}
+.page-content select optgroup {
+  color: var(--text2);
+  font-weight: 700;
+}
+.page-content select optgroup option {
+  color: var(--text);
+  font-weight: 400;
 }
 .page-content input::placeholder,
 .page-content textarea::placeholder {
@@ -826,6 +847,7 @@ body[data-theme="acik"] .btn-close { filter: none; }
  */
 @media print {
   :root, body {
+    color-scheme: light !important;
     --surface: #ffffff !important;
     --surface-2: #f1f5f9 !important;
     --ink: #ffffff !important;
@@ -838,6 +860,9 @@ body[data-theme="acik"] .btn-close { filter: none; }
     --muted: #64748b !important;
     --bnav-bg: #ffffff !important;
   }
+
+  /* Ekranda tema ile birlikte koyuya alınan native katman, kağıtta açık kalsın. */
+  .page-content select { color-scheme: light !important; }
 
   .sidebar, .top-bar, .mobile-topbar, .bottom-nav,
   .bnav-more-panel, .bnav-overlay, .modal-overlay,
