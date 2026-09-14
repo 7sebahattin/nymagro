@@ -269,9 +269,9 @@ $katOption = function (array $k) use ($seciliKatId): string {
       </div>
 
       <div class="mf-row">
-        <label>Ödeme Hesabı</label>
+        <label>Ödeme Hesabı <span style="color:#ef4444;">*</span></label>
         <div class="mf-ctrl">
-          <select id="fKasaId" class="mf-sel">
+          <select id="fKasaId" class="mf-sel" required>
             <option value="">— Hesap seçin —</option>
             <?php foreach ($hesaplar as $h): ?>
             <option value="<?= $h['id'] ?>" <?= (int)$val('kasa_id') === (int)$h['id'] ? 'selected' : '' ?>>
@@ -279,6 +279,11 @@ $katOption = function (array $k) use ($seciliKatId): string {
             </option>
             <?php endforeach; ?>
           </select>
+          <?php if (empty($hesaplar)): ?>
+          <div class="mf-hint" style="color:#f0ad4e;">
+            Tanımlı kasa/banka hesabı yok. Önce Nakit Yönetimi → Hesaplarım'dan bir hesap ekleyin.
+          </div>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -430,6 +435,7 @@ function masrafKaydet() {
     showToast('Personel gideri için çalışan seçiniz.', 'error');
     return;
   }
+  if (!document.getElementById('fKasaId').value) { showToast('Ödeme hesabı seçiniz.', 'error'); return; }
   if (!tutar || parseFloat(tutar) <= 0) { showToast('Geçerli bir tutar giriniz.', 'error'); return; }
 
   const btn = document.getElementById('btnKaydet');
