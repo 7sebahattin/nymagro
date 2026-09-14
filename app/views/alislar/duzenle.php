@@ -172,6 +172,22 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+  /* Ürün/kalem KDV oranını güvenle çöz: %0 GEÇERLİ bir orandır, "değer yok"
+     demek değil. `deger || 20` kısayolu 0'ı da düşürüp her zaman 20'ye
+     kayardı. Ayrıca ürünün KENDİ alış KDV oranı (alis_kdv_orani) yerine
+     yanlışlıkla satış KDV oranı (kdv_orani) kullanılıyordu — ürün aramasından
+     yeni eklenen satırlar için önce alis_kdv_orani'ye bakılır; mevcut
+     faturadan yüklenen kalemlerde (mevcutKalemler) bu alan hiç yok, o zaman
+     kalemin kendi kayıtlı kdv_orani'sine düşülür (bu yüzden %0 ile kaydedilmiş
+     bir kalem düzenlemeye açıldığında da aynı sebeple %20 görünüyordu). İlk
+     tanımlı (undefined/null/boş olmayan) değer kullanılır, hiçbiri yoksa
+     varsayılana düşülür. */
+  function kdvOraniCoz(...degerler) {
+    for (const d of degerler) {
+      if (d !== undefined && d !== null && d !== '') return parseFloat(d);
+    }
+    return 20;
+  }
   const BIRIM_LISTESI = ['Adet','Ay','Bağ','Bidon','Boy','Cc','Cilt','Cm','Cm2','Çift','Çuval','Dakika','Dekar','Desi','Deste','Dilim','Dönem','Düzine','Galon','Gram','Gross','Grup','Gün','Hektar','Ibc','Karat','Kasa','Kavanoz','Kilogram','Kilometre','Kişi','Koçan','Koli','Kontör','Kova','Kutu','Kwatt','Kwh','Libre','Litre','Makara','Metre','Metre2','Metre3','Metretül','Mililitre','Milimetre','Mwh','Paket','Palet','Porsiyon','Puan','Rulo','Saat','Saniye','Santilitre','Sayfa','Seans','Servis','Set','Sqft2','Sütun/Cm','Şişe','Tabaka','Takım','Teneke','Tepsi','Test','Tır','Ton','Top','Torba','Ünite','Varil','Viyol','Yard','Yıl'];
   function birimSecenekleriHtml(secili) {
     secili = secili || 'Adet';
@@ -238,7 +254,7 @@ $val = fn(string $k, string $def='') => htmlspecialchars($eski[$k] ?? $def, ENT_
       </td>
       <td><select name="kalem_birim[]" class="fi" style="padding:4px;" onchange="birimDegisti(this)">${birimSecenekleriHtml(u.birim)}</select></td>
       <td><input type="number" name="kalem_birim_fiyat[]" class="fi" style="padding:4px;" value="${u.birim_fiyat || u.alis_fiyati || 0}" step="any" oninput="hesapla()"></td>
-      <td><input type="number" name="kalem_kdv_orani[]" class="fi" style="padding:4px;" value="${u.kdv_orani || 20}" oninput="hesapla()"></td>
+      <td><input type="number" name="kalem_kdv_orani[]" class="fi" style="padding:4px;" value="${kdvOraniCoz(u.alis_kdv_orani, u.kdv_orani)}" oninput="hesapla()"></td>
       <td class="td-r" id="top-${id}" style="font-weight:700;">0,00 ₺</td>
       <td><button type="button" class="btn-sil" onclick="this.closest('tr').remove(); hesapla();">×</button></td>
     `;

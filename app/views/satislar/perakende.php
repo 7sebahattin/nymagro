@@ -177,6 +177,14 @@
     document.getElementById('saat').value = now.toTimeString().slice(0,5);
 
     // Ürün Arama
+    /* Ürünün KDV oranını güvenle çöz: %0 GEÇERLİ bir orandır, "değer yok"
+       demek değil. `deger || 20` kısayolu 0'ı da düşürüp her zaman 20'ye
+       kayardı — bu yüzden KDV'si %0 tanımlı bir ürün bile sepete her zaman
+       %20 ile ekleniyordu. */
+    function kdvOraniCoz(deger) {
+      return (deger !== undefined && deger !== null && deger !== '') ? parseFloat(deger) : 20;
+    }
+
     const inp = document.getElementById('urunAra');
     const drop = document.getElementById('searchDrop');
     let timer;
@@ -222,7 +230,7 @@
                 ad: u.ad,
                 miktar: 1,
                 fiyat: parseFloat(u.satis_fiyati) || 0,
-                kdv: parseInt(u.kdv_orani) || 20
+                kdv: kdvOraniCoz(u.kdv_orani)
             });
         }
         render();

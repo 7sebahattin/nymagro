@@ -478,7 +478,7 @@ $err = function(string $k) use ($hatalar): string {
       <td>
         <select name="kalem_kdv_orani[]" class="kalem-input" onchange="satinHesapla('${idx}')"
                 style="padding:4px 4px;">
-          ${[0,1,8,10,18,20].map(k => `<option value="${k}" ${k===(parseFloat(urun.kdv_orani)||20)?'selected':''}>${k}</option>`).join('')}
+          ${[0,1,8,10,18,20].map(k => `<option value="${k}" ${k===kdvOraniCoz(urun.kdv_orani)?'selected':''}>${k}</option>`).join('')}
         </select>
       </td>
       <td>
@@ -603,6 +603,19 @@ $err = function(string $k) use ($hatalar): string {
   }
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  /* Ürün/kalem KDV oranını güvenle çöz: %0 GEÇERLİ bir orandır, "değer yok"
+     demek değil. `deger || varsayilan` kısayolu 0'ı da düşürüp her zaman
+     varsayılana kayardı — bu yüzden KDV'si %0 tanımlı bir ürün bile satıra
+     her zaman %20 ile ekleniyordu (üstelik mevcut faturada %0 ile kaydedilmiş
+     bir kalem düzenlemeye açıldığında da aynı sebeple %20 görünüyordu).
+     İlk tanımlı (undefined/null/boş olmayan) değer kullanılır, hiçbiri yoksa
+     varsayılana düşülür. */
+  function kdvOraniCoz(...degerler) {
+    for (const d of degerler) {
+      if (d !== undefined && d !== null && d !== '') return parseFloat(d);
+    }
+    return 20;
   }
 
   /* ══════════════════════════════════════

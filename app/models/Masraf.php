@@ -147,6 +147,9 @@ class Masraf
         if (empty($temiz['kategori_id'])) {
             throw new InvalidArgumentException('Masraf kalemi seçilmedi.');
         }
+        if (empty($temiz['kasa_id'])) {
+            throw new InvalidArgumentException('Ödeme hesabı seçilmedi.');
+        }
 
         // KDV tutarını hesapla
         $tutar    = (float)($temiz['tutar']     ?? 0);
@@ -187,6 +190,13 @@ class Masraf
         if (empty($temiz)) return 0;
 
         $mevcut = $this->getir($id);
+
+        // Form bu alanı her zaman gönderir (boşsa null); yalnızca gerçekten
+        // güncellenen bir alan olduğunda zorunlu tut — kısmi güncelleme
+        // yapan olası başka bir çağıran kasa_id'ye hiç dokunmuyorsa engellenmesin.
+        if (array_key_exists('kasa_id', $temiz) && empty($temiz['kasa_id'])) {
+            throw new InvalidArgumentException('Ödeme hesabı seçilmedi.');
+        }
 
         // KDV yeniden hesapla
         if (isset($temiz['tutar']) || isset($temiz['kdv_orani'])) {

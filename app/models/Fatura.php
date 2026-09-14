@@ -1502,12 +1502,21 @@ class Fatura
         );
     }
 
-    /** Ürün arama (satış formunda autocomplete için). */
+    /**
+     * Ürün arama (satış VE alış formlarında autocomplete için — /satis/urunBul
+     * uç noktası her iki taraftan da çağrılır).
+     *
+     * alis_kdv_orani her zaman döndürülür: kdv_orani ürünün SATIŞ KDV oranı,
+     * alis_kdv_orani ise ALIŞ KDV oranıdır (bkz. Urun.php). Bu alan eksik
+     * olduğunda alış formu kendi kalemine ürünün satış oranını uyguluyordu —
+     * ikisi farklı olduğunda (ör. alışta %1, satışta %20) yanlış oran
+     * seçiliyordu.
+     */
     public function urunAra(string $q, int $limit = 20): array
     {
         $like = '%' . $q . '%';
         return $this->db->select(
-            "SELECT id, ad, tip, birim, satis_fiyati, alis_fiyati, kdv_orani, stok_miktari, para_birimi, koli_ici_adet
+            "SELECT id, ad, tip, birim, satis_fiyati, alis_fiyati, kdv_orani, alis_kdv_orani, stok_miktari, para_birimi, koli_ici_adet
              FROM urunler_hizmetler
              WHERE silindi_mi = 0
                AND company_id = :company_id
