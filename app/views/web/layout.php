@@ -22,6 +22,12 @@ if (!preg_match('~^(?:https?:)?//~i', $logoPath)) {
     if (!str_starts_with($logoPath, '/')) $logoPath = '/' . $logoPath;
     $logoPath = BASE_URL . $logoPath;
 }
+// Özel favicon (boşsa varsayılan /favicon.ico seti kullanılır)
+$faviconUrl = trim((string)($ayarlar['favicon_path'] ?? ''));
+if ($faviconUrl !== '' && !preg_match('~^(?:https?:)?//~i', $faviconUrl)) {
+    if (!str_starts_with($faviconUrl, '/')) $faviconUrl = '/' . $faviconUrl;
+    $faviconUrl = BASE_URL . $faviconUrl;
+}
 $brand     = (string)($ayarlar['company_name'] ?? 'Nymagro');
 $tagline   = (string)($ayarlar['tagline']      ?? 'Bitki Besleme Ürünleri');
 $whatsapp  = (string)($ayarlar['whatsapp']     ?? '');
@@ -66,10 +72,16 @@ $languageFlags = [
 <?= $seo->renderHead() ?>
 <?php endif; ?>
 
+<?php if ($faviconUrl !== ''): ?>
+<?php /* Panelden (Site Yönetimi → Genel & İletişim) yüklenen özel favicon */ ?>
+<link rel="icon" href="<?= htmlspecialchars($faviconUrl) ?>">
+<link rel="apple-touch-icon" href="<?= htmlspecialchars($faviconUrl) ?>">
+<?php else: ?>
 <link rel="icon" href="<?= htmlspecialchars(BASE_URL) ?>/favicon.ico?v=20260501" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="<?= htmlspecialchars(BASE_URL) ?>/favicon-32x32.png?v=20260501">
 <link rel="icon" type="image/png" sizes="16x16" href="<?= htmlspecialchars(BASE_URL) ?>/favicon-16x16.png?v=20260501">
 <link rel="apple-touch-icon" sizes="180x180" href="<?= htmlspecialchars(BASE_URL) ?>/apple-touch-icon.png?v=20260501">
+<?php endif; ?>
 <link rel="manifest" href="<?= htmlspecialchars(BASE_URL) ?>/site.webmanifest?v=20260501">
 
 <!-- iOS'ta "Ana Ekrana Ekle" ile tam ekran uygulama görünümü -->

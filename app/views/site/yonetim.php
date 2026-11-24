@@ -205,6 +205,10 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
 .sm-logo-prev { width:80px; height:80px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
 .sm-logo-prev img { width:100%; height:100%; object-fit:cover; }
 .sm-logo-prev svg { width:40px; height:40px; color:#fff; }
+.sm-favicon-prev { display:flex; flex-direction:column; align-items:center; gap:8px; width:80px; flex-shrink:0; }
+.sm-favicon-prev > img { width:64px; height:64px; object-fit:contain; border-radius:12px; padding:6px; background:#fff; border:1px solid var(--border); }
+.sm-favicon-tab { display:inline-flex; align-items:center; gap:5px; max-width:110px; padding:3px 8px; border-radius:6px 6px 0 0; background:var(--card-bg); border:1px solid var(--border); font-size:10px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sm-favicon-tab img { width:16px; height:16px; object-fit:contain; flex-shrink:0; }
 
 /* ── Buttons ──────────────────────────────────────────── */
 .sm-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; transition:.15s; line-height:1; white-space:nowrap; }
@@ -418,6 +422,32 @@ $localFlags   = ['tr'=>'🇹🇷','en'=>'🇬🇧','ru'=>'🇷🇺'];
               <?php endif; ?>
             </div>
             <p style="font-size:11.5px;color:var(--muted);">PNG, JPG veya WebP — max 5 MB. Kare format önerilir (256×256 px).</p>
+          </div>
+        </div>
+
+        <!-- Favicon -->
+        <?php
+          $faviconRaw = trim((string)($ayarlar['favicon_path'] ?? ''));
+          $faviconSrc = $faviconRaw === '' ? '' : (preg_match('~^(?:https?:)?//~i', $faviconRaw) ? $faviconRaw : BASE_URL . '/' . ltrim($faviconRaw, '/'));
+          $faviconDefault = BASE_URL . '/favicon-32x32.png';
+        ?>
+        <div class="sm-logo-box" style="margin-bottom:16px;">
+          <div class="sm-favicon-prev" title="Tarayıcı sekmesinde görünüşü">
+            <img id="faviconPrevBig" src="<?= htmlspecialchars($faviconSrc !== '' ? $faviconSrc : $faviconDefault) ?>" alt="Favicon">
+            <span class="sm-favicon-tab"><img id="faviconPrevSmall" src="<?= htmlspecialchars($faviconSrc !== '' ? $faviconSrc : $faviconDefault) ?>" alt=""><?= $v('company_name', 'Nymagro') ?></span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">Favicon <span style="color:var(--muted);font-weight:400">(tarayıcı sekmesi simgesi)</span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+              <?php if (Rbac::currentUserCan('SITE_UPDATE')): ?>
+              <input type="file" name="favicon" id="faviconFile" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="smFaviconPreview(this)">
+              <button type="button" class="sm-btn sm-btn-ghost sm-btn-sm" onclick="document.getElementById('faviconFile').click()"><i class="fa-solid fa-upload"></i> Favicon Seç</button>
+              <?php if ($faviconRaw !== ''): ?>
+                <a href="#" class="sm-btn sm-btn-danger sm-btn-sm" onclick="return nymPost('<?= BASE_URL ?>/site/faviconSil', 'Favicon kaldırılsın mı? Varsayılan simgeye dönülür.')"><i class="fa-solid fa-trash"></i> Kaldır</a>
+              <?php endif; ?>
+              <?php endif; ?>
+            </div>
+            <p style="font-size:11.5px;color:var(--muted);">PNG, JPG veya WebP — max 5 MB. Kare ve sade bir görsel önerilir (en az 192×192 px; küçük boyutta okunaklı olmalı). Boş bırakılırsa varsayılan simge kullanılır. Kaydettikten sonra tarayıcı önbelleği nedeniyle yeni simge birkaç dakika gecikebilir.</p>
           </div>
         </div>
 
@@ -1074,6 +1104,19 @@ function smLogoPreview(input) {
   const reader = new FileReader();
   reader.onload = e => { el.style.backgroundImage = `url(${e.target.result})`; el.style.backgroundSize = 'cover'; };
   reader.readAsDataURL(input.files[0]);
+}
+
+function smFaviconPreview(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    ['faviconPrevBig', 'faviconPrevSmall'].forEach(id => {
+      const img = document.getElementById(id);
+      if (img) img.src = e.target.result;
+    });
+  };
+  reader.readAsDataURL(file);
 }
 
 /* ── Ürün modal ────────────────────────────────────────── */

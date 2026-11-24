@@ -19,6 +19,7 @@ class SiteIcerik
     /** Varsayılan ayar anahtarları */
     public const DEFAULT_SETTINGS = [
         'logo_path'       => '',
+        'favicon_path'    => '',
         'company_name'    => 'Nymagro',
         'tagline'         => 'Bitki Besleme Ürünleri',
         'whatsapp'        => '+90 543 961 73 03',
