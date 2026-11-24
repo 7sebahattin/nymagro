@@ -513,7 +513,7 @@ class WebsiteController extends Controller
 
     private function normalizeSettings(array $settings): array
     {
-        $imageKeys = ['logo_path', 'about_img', 'og_image'];
+        $imageKeys = ['logo_path', 'favicon_path', 'about_img', 'og_image'];
         $slideCount = max(4, min(20, (int)($settings['slide_count'] ?? 4)));
         for ($i = 1; $i <= $slideCount; $i++) {
             $imageKeys[] = 'slide' . $i . '_img';

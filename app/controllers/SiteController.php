@@ -142,6 +142,11 @@ class SiteController extends Controller
                 }
             }
 
+            // Favicon yüklendiyse işle (tarayıcı sekmesi simgesi)
+            if (!empty($_FILES['favicon']['name'])) {
+                $payload['favicon_path'] = $this->dosyaYukle($_FILES['favicon'], 'favicon');
+            }
+
             $imageUploads = [
                 'about_img'  => 'about_img_file',
                 'og_image'   => 'og_image_file',
@@ -173,6 +178,17 @@ class SiteController extends Controller
         $this->model->ayarKaydet('logo_path', '');
         Audit::log('SETTINGS_CHANGE', 'SITE', null, null, ['logo_path' => ''], 'Site logosu kaldırıldı.');
         $this->setFlash('success', 'Logo kaldırıldı. Varsayılan logoya dönüldü.');
+        $this->redirect('site#tab-genel');
+    }
+
+    public function faviconSil(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('site');
+        }
+        $this->model->ayarKaydet('favicon_path', '');
+        Audit::log('SETTINGS_CHANGE', 'SITE', null, null, ['favicon_path' => ''], 'Site favicon\'u kaldırıldı.');
+        $this->setFlash('success', 'Favicon kaldırıldı. Varsayılan simgeye dönüldü.');
         $this->redirect('site#tab-genel');
     }
 
